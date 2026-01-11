@@ -1,8 +1,12 @@
 name: LCM Review Check
 
-# Trigger on PRs and manual runs
 on:
-  workflow_dispatch:   # allows manual runs
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to check'
+        required: true
+        type: number
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
@@ -13,10 +17,9 @@ permissions:
   checks: write
   contents: read
 
-
 jobs:
   lcm-review-check:
-    name: LCM Review Check   # <-- this is what shows up in branch protection
+    name: LCM Review Check   # <-- this is the name that appears in branch protection
     runs-on: ubuntu-latest
 
     steps:
@@ -25,17 +28,28 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr = context.payload.pull_request;
-
-            if (!pr) {
-              core.setFailed("No pull request context. Triggered manually?");
-              return;
-            }
-
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const prAuthor = pr.user.login;
             const teamSlug = "lcm"; // must be lowercase
+
+            // Determine PR
+            let pr;
+            if (context.payload.pull_request) {
+                pr = context.payload.pull_request;
+            } else if (context.payload.inputs && context.payload.inputs.pr_number) {
+                const prNumber = context.payload.inputs.pr_number;
+                const { data } = await github.rest.pulls.get({
+                    owner,
+                    repo,
+                    pull_number: prNumber
+                });
+                pr = data;
+            } else {
+                core.setFailed("No PR context and no PR number input provided for manual run.");
+                return;
+            }
+
+            const prAuthor = pr.user.login;
 
             // Check if PR author is in LCM
             let authorIsLCM = false;
@@ -55,14 +69,14 @@ jobs:
               return;
             }
 
-            // Fetch all reviews
+            // Fetch all reviews for the PR
             const reviews = await github.rest.pulls.listReviews({
               owner,
               repo,
               pull_number: pr.number,
             });
 
-            // Fetch LCM team members
+            // Fetch all LCM team members
             const teamMembers = await github.rest.teams.listMembersInOrg({
               org: owner,
               team_slug: teamSlug,
@@ -70,7 +84,7 @@ jobs:
 
             const lcmMembers = new Set(teamMembers.data.map(m => m.login));
 
-            // Check if any review is APPROVED by an LCM member other than the author
+            // Check if any review is APPROVED by an LCM member other than the PR author
             const hasLCMApproval = reviews.data.some(
               r => r.state === "APPROVED" && lcmMembers.has(r.user.login) && r.user.login !== prAuthor
             );
