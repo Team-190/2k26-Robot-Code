@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.team190.gompeilib.core.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import frc.robot.RobotState.RobotMode;
+import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
+import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -216,7 +216,7 @@ public class Robot extends LoggedRobot {
     logReceiverQueueAlert.set(Logger.getReceiverQueueFault());
 
     // Update low battery alert
-    if (RobotState.RobotMode.enabled()) {
+    if (RobotState.isEnabled()) {
       disabledTimer.reset();
     }
     if (RobotController.getBatteryVoltage() < LOW_BATTERY_VOLTAGE
@@ -227,9 +227,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {
-    RobotState.setMode(RobotMode.DISABLED);
-  }
+  public void disabledInit() {}
 
   /** This function is called periodically when disabled. */
   @Override
@@ -239,7 +237,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     Elastic.selectTab("Autonomous");
-    RobotState.setMode(RobotState.RobotMode.AUTO);
 
     autonomousCommand = robotContainer.getAutonomousCommand();
 
@@ -263,7 +260,6 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().cancel(autonomousCommand);
     }
-    RobotState.setMode(RobotMode.TELEOP);
     Elastic.selectTab("Teleoperated");
   }
 

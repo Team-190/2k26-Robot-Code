@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -10,42 +9,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
-import frc.robot.Constants;
-import frc.robot.RobotState;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.function.DoubleSupplier;
-import lombok.Getter;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
-
-  @Getter private static final PIDController autoXController;
-  @Getter private static final PIDController autoYController;
-  @Getter private static final PIDController autoHeadingController;
-
-  static { // TODO: Not sure about the best way to handle this
-    autoHeadingController =
-        new PIDController(
-            /*DriveConstants.AUTO_GAINS.rotation_Kp().get()*/ 0.0,
-            0.0,
-            /*DriveConstants.AUTO_GAINS.rotation_Kd().get()*/ 0.0,
-            Constants.LOOP_PERIOD_SECONDS);
-    autoXController =
-        new PIDController(
-            /*DriveConstants.AUTO_GAINS.translation_Kp().get()*/ 0.0,
-            0.0,
-            /*DriveConstants.AUTO_GAINS.translation_Kd().get()*/ 0.0);
-    autoYController =
-        new PIDController(
-            /*DriveConstants.AUTO_GAINS.translation_Kp().get()*/ 0.0,
-            0.0,
-            /*DriveConstants.AUTO_GAINS.translation_Kd().get()*/ 0.0);
-
-    autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
-    autoHeadingController.setTolerance(Units.degreesToRadians(1.0));
-  }
 
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
@@ -53,44 +25,40 @@ public final class DriveCommands {
   @Trace
   public static Command joystickDrive(
       SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier) {
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier) {
     return Commands.run(
         () -> {
           // Apply deadband
           double linearMagnitude =
               MathUtil.applyDeadband(
                   Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()),
-                  /*DriveConstants.DRIVER_DEADBAND*/ 0);
+                  driveConstants.DRIVER_DEADBAND);
           Rotation2d linearDirection =
               new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
           double omega =
-              MathUtil.applyDeadband(
-                  omegaSupplier.getAsDouble(), /*DriveConstants.DRIVER_DEADBAND*/
-                  0); // Square values
+              MathUtil.applyDeadband(omegaSupplier.getAsDouble(), driveConstants.DRIVER_DEADBAND);
           linearMagnitude *= linearMagnitude;
 
           // Calculate new linear velocities
 
           double fieldRelativeXVel =
-              linearMagnitude
-                  * linearDirection.getCos()
-                  * /*DriveConstants.DRIVE_CONFIG.maxLinearVelocityMetersPerSecond()*/ 0;
+              linearMagnitude * linearDirection.getCos() * drive.getMaxLinearSpeedMetersPerSec();
           double fieldRelativeYVel =
-              linearMagnitude
-                  * linearDirection.getSin()
-                  * /*DriveConstants.DRIVE_CONFIG.maxLinearVelocityMetersPerSecond()*/ 0;
+              linearMagnitude * linearDirection.getSin() * drive.getMaxLinearSpeedMetersPerSec();
 
-          double angular = omega * /*DriveConstants.DRIVE_CONFIG.maxAngularVelocity()*/ 0;
+          double angular = omega * drive.getMaxAngularSpeedRadPerSec();
 
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   fieldRelativeXVel,
                   fieldRelativeYVel,
                   angular,
-                  AllianceFlipUtil.apply(RobotState.getRobotPoseField().getRotation()));
+                  AllianceFlipUtil.apply(rotationSupplier.get()));
 
           Logger.recordOutput("Drive/JoystickDrive/chassisSpeeds", chassisSpeeds);
 
