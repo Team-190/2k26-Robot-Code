@@ -290,7 +290,7 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
 
-    implementation 'edu.wpi.team190:gompeilib:1.0'
+    implementation 'edu.wpi.team190:gompeilib:2026.1.1'
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
