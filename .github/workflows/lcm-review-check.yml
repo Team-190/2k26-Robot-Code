@@ -1,6 +1,8 @@
 name: LCM Review Check
 
+# Trigger on PRs and manual runs
 on:
+  workflow_dispatch:   # allows manual runs
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
@@ -10,29 +12,30 @@ permissions:
   pull-requests: read
   checks: write
   contents: read
-  members: read
+  members: read   # required to query org team membership
 
 jobs:
   lcm-review-check:
+    name: LCM Review Check   # <-- this is what shows up in branch protection
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check LCM review requirement
+      - name: Check LCM approval
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
             const pr = context.payload.pull_request;
 
             if (!pr) {
-              core.setFailed("Not a PR context");
+              core.setFailed("No pull request context. Triggered manually?");
               return;
             }
 
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
             const prAuthor = pr.user.login;
-            const teamSlug = "lcm";
+            const teamSlug = "lcm"; // must be lowercase
 
             // Check if PR author is in LCM
             let authorIsLCM = false;
@@ -47,13 +50,12 @@ jobs:
               authorIsLCM = false;
             }
 
-            // If author is NOT in LCM, pass immediately
             if (!authorIsLCM) {
-              core.notice("PR author is not in LCM — no LCM review required.");
+              core.notice(`PR author '${prAuthor}' is not in LCM — no review required.`);
               return;
             }
 
-            // Fetch reviews
+            // Fetch all reviews
             const reviews = await github.rest.pulls.listReviews({
               owner,
               repo,
@@ -68,12 +70,13 @@ jobs:
 
             const lcmMembers = new Set(teamMembers.data.map(m => m.login));
 
+            // Check if any review is APPROVED by an LCM member other than the author
             const hasLCMApproval = reviews.data.some(
-              r => r.state === "APPROVED" && lcmMembers.has(r.user.login)
+              r => r.state === "APPROVED" && lcmMembers.has(r.user.login) && r.user.login !== prAuthor
             );
 
             if (!hasLCMApproval) {
               core.setFailed("PR opened by LCM member — requires approval from another LCM member.");
             } else {
-              core.notice("LCM approval detected.");
+              core.notice("LCM approval detected. Check passes.");
             }
