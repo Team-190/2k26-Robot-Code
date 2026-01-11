@@ -12,7 +12,7 @@ permissions:
   pull-requests: read
   checks: write
   contents: read
-  members: read   # required to query org team membership
+
 
 jobs:
   lcm-review-check:
