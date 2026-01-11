@@ -1,6 +1,12 @@
 name: LCM Review Check
 
 on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to check'
+        required: true
+        type: number
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   pull_request_review:
@@ -10,29 +16,40 @@ permissions:
   pull-requests: read
   checks: write
   contents: read
-  members: read
 
 jobs:
   lcm-review-check:
+    name: LCM Review Check   # <-- this is the name that appears in branch protection
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check LCM review requirement
+      - name: Check LCM approval
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const pr = context.payload.pull_request;
+            const teamSlug = "lcm"; // must be lowercase
 
-            if (!pr) {
-              core.setFailed("Not a PR context");
-              return;
+            // Determine PR
+            let pr;
+            if (context.payload.pull_request) {
+                pr = context.payload.pull_request;
+            } else if (context.payload.inputs && context.payload.inputs.pr_number) {
+                const prNumber = context.payload.inputs.pr_number;
+                const { data } = await github.rest.pulls.get({
+                    owner,
+                    repo,
+                    pull_number: prNumber
+                });
+                pr = data;
+            } else {
+                core.setFailed("No PR context and no PR number input provided for manual run.");
+                return;
             }
 
             const prAuthor = pr.user.login;
-            const teamSlug = "lcm";
 
             // Check if PR author is in LCM
             let authorIsLCM = false;
@@ -47,20 +64,19 @@ jobs:
               authorIsLCM = false;
             }
 
-            // If author is NOT in LCM, pass immediately
             if (!authorIsLCM) {
-              core.notice("PR author is not in LCM — no LCM review required.");
+              core.notice(`PR author '${prAuthor}' is not in LCM — no review required.`);
               return;
             }
 
-            // Fetch reviews
+            // Fetch all reviews for the PR
             const reviews = await github.rest.pulls.listReviews({
               owner,
               repo,
               pull_number: pr.number,
             });
 
-            // Fetch LCM team members
+            // Fetch all LCM team members
             const teamMembers = await github.rest.teams.listMembersInOrg({
               org: owner,
               team_slug: teamSlug,
@@ -68,12 +84,13 @@ jobs:
 
             const lcmMembers = new Set(teamMembers.data.map(m => m.login));
 
+            // Check if any review is APPROVED by an LCM member other than the PR author
             const hasLCMApproval = reviews.data.some(
-              r => r.state === "APPROVED" && lcmMembers.has(r.user.login)
+              r => r.state === "APPROVED" && lcmMembers.has(r.user.login) && r.user.login !== prAuthor
             );
 
             if (!hasLCMApproval) {
               core.setFailed("PR opened by LCM member — requires approval from another LCM member.");
             } else {
-              core.notice("LCM approval detected.");
+              core.notice("LCM approval detected. Check passes.");
             }
