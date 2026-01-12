@@ -1,0 +1,33 @@
+name: LCM Review Request
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  request-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request appropriate reviewer
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prAuthor = context.payload.pull_request.user.login;
+
+            let reviewers = [];
+
+            if (prAuthor === 'ElliotScher') {
+              // You opened the PR → request the approval bot
+              reviewers = ['190approvalbot'];
+            } else {
+              // Anyone else opened the PR → request you
+              reviewers = ['ElliotScher'];
+            }
+
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers
+            });
