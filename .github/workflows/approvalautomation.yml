@@ -2,39 +2,84 @@ name: LCM Review Automation
 
 on:
   pull_request:
-    types: [opened, ready_for_review, review_requested]
+    types: [opened, ready_for_review, synchronize]
 
 jobs:
-  auto-approve:
-    if: ${{ github.event.pull_request.user.login == 'ElliotScher' && github.event.pull_request.draft == false }}
-    name: Auto-approve PR
+  lcm-review-check:
+    name: LCM Review Check
     runs-on: ubuntu-latest
     steps:
-      - name: Approve PR
+      - name: Determine action for this PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.APPROVAL_PAT }}
           script: |
-            await github.rest.pulls.createReview({
+            const pr = context.payload.pull_request;
+            const prAuthor = pr.user.login;
+            const prNumber = pr.number;
+            const prUpdatedAt = new Date(pr.updated_at);
+
+            // Get all reviews
+            const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number,
-              event: 'APPROVE'
+              pull_number: prNumber
             });
 
-  request-review:
-    if: ${{ github.event.pull_request.user.login != 'ElliotScher' }}
-    name: Request ElliotScher Review
-    runs-on: ubuntu-latest
-    steps:
-      - name: Request Review
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.APPROVAL_PAT }}
-          script: |
-            await github.rest.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              reviewers: ['ElliotScher']
-            });
+            // Separate bot and human reviews
+            const botReviews = reviews
+              .filter(r => r.user.login === '190approvalbot')
+              .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+
+            const humanReviews = reviews
+              .filter(r => r.user.login !== '190approvalbot')
+              .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+
+            const latestBotReview = botReviews[0];
+            const latestHumanReview = humanReviews[0];
+
+            if (prAuthor === 'ElliotScher') {
+              // Auto-approve logic
+              let needsApproval = false;
+
+              if (!latestBotReview) {
+                needsApproval = true;
+              } else {
+                const lastApprovalTime = new Date(latestBotReview.submitted_at);
+                if (prUpdatedAt > lastApprovalTime) {
+                  needsApproval = true;
+                }
+              }
+
+              // Don't approve if human requested changes
+              if (latestHumanReview && latestHumanReview.state === 'CHANGES_REQUESTED') {
+                needsApproval = false;
+              }
+
+              if (needsApproval && pr.draft === false) {
+                console.log("Auto-approving PR by ElliotScher");
+                await github.rest.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  event: 'APPROVE'
+                });
+              } else {
+                console.log("No approval needed at this time");
+              }
+
+            } else {
+              // Request review from ElliotScher for other authors
+              const alreadyRequested = pr.requested_reviewers.map(r => r.login).includes('ElliotScher');
+              if (!alreadyRequested) {
+                console.log("Requesting review from ElliotScher");
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  reviewers: ['ElliotScher']
+                });
+              } else {
+                console.log("ElliotScher already requested as reviewer");
+              }
+            }
