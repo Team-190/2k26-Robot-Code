@@ -11,7 +11,7 @@ jobs:
       - name: Request appropriate reviewer
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.APPROVAL_PAT }}
           script: |
             const prAuthor = context.payload.pull_request.user.login;
 
