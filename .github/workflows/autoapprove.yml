@@ -16,6 +16,7 @@ jobs:
       - name: Approve PR
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.APPROVAL_PAT }}
           script: |
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
