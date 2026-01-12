@@ -9,7 +9,7 @@ jobs:
     name: approve
     if: >
       github.actor == 'ElliotScher' &&
-      github.event.requested_reviewer.login == "190approvalbot" &&
+      github.event.requested_reviewer.login == '190approvalbot' &&
       github.event.pull_request.draft == false
     runs-on: ubuntu-slim
     steps:
