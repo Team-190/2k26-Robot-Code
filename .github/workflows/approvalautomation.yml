@@ -5,53 +5,36 @@ on:
     types: [opened, ready_for_review, review_requested]
 
 jobs:
-  request-review:
-    if: ${{ github.event.action == 'opened' || github.event.action == 'ready_for_review' }}
+  auto-approve:
+    if: ${{ github.event.pull_request.user.login == 'ElliotScher' && github.event.pull_request.draft == false }}
+    name: Auto-approve PR
     runs-on: ubuntu-latest
-    steps:
-      - name: Request appropriate reviewer
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.APPROVAL_PAT }}
-          script: |
-            const prAuthor = context.payload.pull_request.user.login;
-
-            let reviewers = [];
-
-            if (prAuthor === 'ElliotScher') {
-              // You opened the PR → request the approval bot
-              reviewers = ['190approvalbot'];
-            } else {
-              // Anyone else opened the PR → request you
-              reviewers = ['ElliotScher'];
-            }
-
-            await github.rest.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              reviewers
-            });
-
-  approve:
-    if: ${{ github.event.action == 'review_requested' }}
-    name: Auto-approve for 190approvalbot
-    runs-on: ubuntu-slim
     steps:
       - name: Approve PR
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.APPROVAL_PAT }}
           script: |
-            if (
-              github.actor === 'ElliotScher' &&
-              github.event.requested_reviewer?.login === '190approvalbot' &&
-              github.event.pull_request.draft === false
-            ) {
-              await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number,
-                event: 'APPROVE'
-              });
-            }
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE'
+            });
+
+  request-review:
+    if: ${{ github.event.pull_request.user.login != 'ElliotScher' }}
+    name: Request ElliotScher Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.APPROVAL_PAT }}
+          script: |
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: ['ElliotScher']
+            });
