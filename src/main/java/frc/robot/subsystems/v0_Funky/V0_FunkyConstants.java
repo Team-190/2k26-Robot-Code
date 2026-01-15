@@ -5,6 +5,8 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoGains;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.Gains;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V0_FunkyConstants {
   public static final DriveConfig DRIVE_CONFIG =
@@ -26,4 +28,15 @@ public class V0_FunkyConstants {
           OPERATOR_DEADBAND,
           ODOMETRY_FREQUENCY,
           DRIVER_DEADBAND);
+
+    public static final LimelightConfig CENTER_LIMELIGHT_CONSTANTS = LimelightConfig.builder()
+    .key("center")
+    .robotToCameraTransform(
+        new Transform3d(
+            0,
+            0.241,
+            0.2,
+            new Rotation3d(Units.degreesToRadians(180), 0, Units.degreesToRadians(-90))))
+    .build();
+    
 }
