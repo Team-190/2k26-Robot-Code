@@ -123,7 +123,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
             () -> -driver.getRightX(),
-            drive::getRawGyroRotation));
+            V0_FunkyRobotState::getHeading));
 
     driver
         .povDown()
