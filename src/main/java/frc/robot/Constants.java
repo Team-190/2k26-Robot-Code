@@ -1,38 +1,29 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.GompeiLib.Mode;
+import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 
 public final class Constants {
   public static final boolean TUNING_MODE = false;
   public static final double LOOP_PERIOD_SECONDS = 0.02;
-  public static final RobotType ROBOT = RobotType.V0_FUNKY_SIM;
 
-  public static Mode getMode() {
-    switch (ROBOT) {
+  public static RobotMode getMode() {
+    switch (RobotConfig.ROBOT) {
       case V0_FUNKY:
-        return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+        return RobotBase.isReal() ? RobotMode.REAL : RobotMode.REPLAY;
 
       case V0_FUNKY_SIM:
-        return Mode.SIM;
+        return RobotMode.SIM;
 
       default:
-        return Mode.REAL;
+        return RobotMode.REAL;
     }
   }
 
   public static void main(String... args) {
-    if (getMode().equals(GompeiLib.Mode.SIM)) {
-      System.err.println("Cannot deploy, invalid mode selected: " + ROBOT);
+    if (getMode().equals(RobotMode.SIM)) {
+      System.err.println("Cannot deploy, invalid mode selected: " + RobotConfig.ROBOT);
       System.exit(1);
     }
-  }
-
-  public enum RobotType {
-    V0_FUNKY,
-    V0_FUNKY_SIM,
-    V0_POOT,
-    V0_POOT_SIM,
   }
 }

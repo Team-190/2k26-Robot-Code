@@ -106,25 +106,30 @@ deploy {
 }
 
 repositories {
-    // This tells Gradle that the following repository should ONLY be used
-    // for dependencies that match the filter.
     exclusiveContent {
-        forRepository {
-            maven {
-                name = "GompeiLibGitHubPackages"
-                url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
-                credentials {
-                    username = project.findProperty("gpr.user")
-                    password = project.findProperty("gpr.key")
+        forRepositories(
+                mavenLocal(),
+                maven {
+                    name = "GompeiLibGitHubPackages"
+                    url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
+                    credentials {
+                        username = project.findProperty("gpr.user")
+                        password = project.findProperty("gpr.key")
+                    }
                 }
-            }
-        }
-        // The filter tells Gradle to only look for dependencies in the "edu.wpi.team190" group.
+                )
         filter {
             includeGroup "edu.wpi.team190"
         }
     }
+
+    // Normal repos for everything else
+    mavenCentral()
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/release") }
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release") }
+    maven { url = uri("https://maven.ctr-electronics.com/release/") }
 }
+
 
 // Grab the roboRIO comment via SSH
 
@@ -155,8 +160,8 @@ task checkRoboRIOtoRobotType {
         ] as URL[], this.class.classLoader)
 
         // Set file path names and constants
-        def robotTypeClassName = 'frc.robot.Constants$RobotType'
-        def constantsClassName = 'frc.robot.Constants'
+        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
+        def constantsClassName = 'frc.robot.RobotConfig'
         def robotType = null
         def constantsClass = null
         def robotFieldName = 'ROBOT'
@@ -290,7 +295,8 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
 
-    implementation 'edu.wpi.team190:gompeilib:2026.+'
+    // implementation 'edu.wpi.team190:gompeilib:2026.+'
+    implementation "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
