@@ -109,7 +109,7 @@ def GLibRepoPath = "edu.wpi.team190:gompeilib:2026.+"
 
 repositories {
     def gprUser = project.findProperty("gpr.user")
-    def gprKey = null
+    def gprKey = project.findProperty("gpr.key")
 
     if (gprUser != null && gprKey != null) {
         // Use GitHub Packages if credentials exist
