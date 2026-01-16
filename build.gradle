@@ -29,7 +29,7 @@ gradle.projectsEvaluated {
 
     try {
         def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
-        def constantsClass = loader.loadClass("frc.robot.Constants")
+        def constantsClass = loader.loadClass("frc.robot.RobotConfig")
         def robotField = constantsClass.getDeclaredField("ROBOT")
         robotField.setAccessible(true)
         def robotEnumValue = robotField.get(null)  // static field
@@ -156,7 +156,7 @@ task checkRoboRIOtoRobotType {
 
         // Set file path names and constants
         def robotTypeClassName = 'frc.robot.Constants$RobotType'
-        def constantsClassName = 'frc.robot.Constants'
+        def constantsClassName = 'frc.robot.RobotConfig'
         def robotType = null
         def constantsClass = null
         def robotFieldName = 'ROBOT'
