@@ -122,7 +122,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
             V0_FunkyConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
+            () -> driver.getRightX(),
             V0_FunkyRobotState::getHeading));
 
     driver
@@ -146,7 +146,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         NetworkTablesJNI.now(),
         drive.getYawVelocity(),
         drive.getModulePositions());
-    
   }
 
   @Override

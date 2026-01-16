@@ -51,10 +51,9 @@ public class V0_FunkyRobotState {
     Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
   }
 
-  public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations){
+  public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
     localization.addPoseObservations(observations);
   }
-
 
   public static void resetPose(Pose2d pose) {
     localization.resetPose(pose);
