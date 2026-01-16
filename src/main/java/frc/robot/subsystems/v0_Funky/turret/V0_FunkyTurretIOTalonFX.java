@@ -32,7 +32,7 @@ public class V0_FunkyTurretIOTalonFX {
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
         V0_FunkyTurretConstants.MIN_ANGLE * V0_FunkyTurretConstants.GEAR_RATIO;
-    ;
+
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.MotionMagic.MotionMagicAcceleration =
         V0_FunkyTurretConstants.CONSTRAINTS.MAX_ACCELERATION_ROTATIONS_PER_SECOND_SQUARED().get()
@@ -43,4 +43,8 @@ public class V0_FunkyTurretIOTalonFX {
 
     positionRotations = talonFX.getPosition();
   }
+
+
+
+  
 }

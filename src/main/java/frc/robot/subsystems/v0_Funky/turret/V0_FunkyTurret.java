@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIO.V0_FunkyTurretIOInputs;
 import org.littletonrobotics.junction.Logger;
 
-public class V0_FunkyTurret extends SubsystemBase {
+public class V0_FunkyTurret {
   private final V0_FunkyTurretIO io;
   private final V0_FunkyTurretIOInputsAutoLogged inputs;
 
@@ -23,7 +23,6 @@ public class V0_FunkyTurret extends SubsystemBase {
     desiredRotations = new Rotation2d();
   }
 
-  @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Turret", inputs);
@@ -56,6 +55,10 @@ public class V0_FunkyTurret extends SubsystemBase {
   public boolean atTurretPositionGoal() {
     io.atTurretPositionGoal();
     return false;
+  }
+
+  public void incrementTurret(double increment) {
+    io.setTurretGoal()
   }
 
   public void updateGains(double kP, double kD, double kV, double kA) {
