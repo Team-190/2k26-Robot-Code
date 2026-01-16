@@ -1,19 +1,15 @@
 package frc.robot.subsystems.v0_Funky;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
+import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
-import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
-import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOInputsAutoLogged;
-import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
-
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
 
@@ -42,7 +38,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   new SwerveModuleIOTalonFX(1, SwerveModuleConstants.FRONT_RIGHT),
                   new SwerveModuleIOTalonFX(2, SwerveModuleConstants.BACK_LEFT),
                   new SwerveModuleIOTalonFX(3, SwerveModuleConstants.BACK_RIGHT));
-                  //TODO: add sup
+          // TODO: add sup
           intake = new V0_FunkyRoller(new V0_FunkyRollerIOTalonFX());
           shooter = new V0_FunkyFlyweel(new V0_FunkyFlyweelIOTalonFX());
           vision =
@@ -112,5 +108,4 @@ public class V0_FunkyRobotContainer implements RobotContainer {
   public Command getAutonomousCommand() {
     return Commands.none();
   }
-
 }
