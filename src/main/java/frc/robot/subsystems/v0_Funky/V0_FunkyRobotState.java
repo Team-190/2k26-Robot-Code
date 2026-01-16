@@ -10,30 +10,43 @@ import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.util.InternalLoggedTracer;
+import frc.robot.util.NTPrefixes;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class V0_FunkyRobotState {
-  private static AprilTagFieldLayout fieldLayout;
-  private static List<FieldZone> fieldZones;
-  private static Localization localization;
+  private static final AprilTagFieldLayout fieldLayout;
+  private static final List<FieldZone> fieldZones;
+  private static final Localization localization;
 
   private static Rotation2d robotHeading;
   private static Rotation2d headingOffset;
   private static SwerveModulePosition[] modulePositions;
 
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
+  @Getter
+  private static final Rotation2d scoreAngle;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
+  @Getter
+  private static final Rotation2d feedAngle;
+
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    FieldZone globalZone =
-        new FieldZone(fieldLayout.getTags().stream().collect(Collectors.toSet()));
+    FieldZone globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
 
     fieldZones = List.of(globalZone);
 
     localization =
         new Localization(
             fieldZones, V0_FunkyConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(), 2);
+
+    scoreAngle = new Rotation2d();
+    feedAngle = new Rotation2d();
   }
 
   public static void periodic(
