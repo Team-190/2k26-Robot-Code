@@ -105,9 +105,11 @@ deploy {
     }
 }
 
+def GLibRepoPath = "edu.wpi.team190:gompeilib:2026.+"
+
 repositories {
     def gprUser = project.findProperty("gpr.user")
-    def gprKey = project.findProperty("gpr.key")
+    def gprKey = null
 
     if (gprUser != null && gprKey != null) {
         // Use GitHub Packages if credentials exist
@@ -123,17 +125,18 @@ repositories {
                 }
             }
             filter {
-                includeGroup("edu.wpi.team190")
+                includeGroup "edu.wpi.team190"
             }
         }
     } else {
+        GLibRepoPath = "com.github.Team-190:gompeilib:2026.+"
         // Fallback to JitPack if credentials are missing
         exclusiveContent {
             forRepository {
                 maven { url = uri("https://jitpack.io") }
             }
             filter {
-                includeGroup("edu.wpi.team190")
+                includeGroup "com.github.Team-190"
             }
         }
     }
@@ -158,13 +161,13 @@ task checkRoboRIOtoRobotType {
     doLast {
         def ROBORIO_COMMENT = fetchNameUsingJSch(
                 roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
-                )
+        )
         println "RoboRIO Name: ${ROBORIO_COMMENT}"
 
         // Ensure the build output directory is in the classpath
         def buildOutputDir = file('build/classes/java/main')
         URLClassLoader loader = new URLClassLoader([
-            buildOutputDir.toURI().toURL()
+                buildOutputDir.toURI().toURL()
         ] as URL[], this.class.classLoader)
 
         // Set file path names and constants
@@ -303,7 +306,7 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
 
-    implementation 'edu.wpi.team190:gompeilib:2026.+'
+    implementation "$GLibRepoPath"
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
