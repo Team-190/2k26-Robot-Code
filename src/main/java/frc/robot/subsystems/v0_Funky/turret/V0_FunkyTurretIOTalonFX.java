@@ -2,15 +2,21 @@ package frc.robot.subsystems.v0_Funky.turret;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
+import frc.robot.util.InternalLoggedTracer;
 
 public class V0_FunkyTurretIOTalonFX {
 
   private StatusSignal<Angle> positionRotations;
   private TalonFX talonFX;
   private TalonFXConfiguration config;
+  private double positionGoalDegrees;
+  private MotionMagicVoltage positionVoltageRequest;
+  private VoltageOut voltageRequest;
 
   public V0_FunkyTurretIOTalonFX() {
 
@@ -42,8 +48,30 @@ public class V0_FunkyTurretIOTalonFX {
             * V0_FunkyTurretConstants.GEAR_RATIO;
 
     positionRotations = talonFX.getPosition();
+    positionVoltageRequest = new MotionMagicVoltage(0);
+    voltageRequest = new VoltageOut(0);
+
+
   }
 
+  public void setPosition(double angle) {
+    InternalLoggedTracer.reset();
+    talonFX.setPosition(angle* V0_FunkyTurretConstants.GEAR_RATIO );
+    InternalLoggedTracer.record("Set Position", "Turret/TalonFX");
+  }
+
+  public void setPositionGoal(double angle) {
+    InternalLoggedTracer.reset();
+    positionGoalDegrees = angle;
+    talonFX.setControl(positionVoltageRequest.withPosition(angle*V0_FunkyTurretConstants.GEAR_RATIO ).withSlot(0));
+
+  }
+
+  public void setTurretVoltage(double volts) {
+    InternalLoggedTracer.reset();
+    talonFX.setControl(voltageRequest.withOutput(volts));
+    InternalLoggedTracer.record("Set Voltage", "Turret/TalonFX");
+  }
 
 
   

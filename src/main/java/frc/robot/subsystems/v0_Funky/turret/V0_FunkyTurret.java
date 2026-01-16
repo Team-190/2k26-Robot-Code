@@ -36,11 +36,11 @@ public class V0_FunkyTurret {
         && previousPosition.getDegrees() + angle.getDegrees() >= V0_FunkyTurretConstants.MIN_ANGLE);
   }
 
-  public void updateInputs(V0_FunkyTurretIOInputs inputs) {
+  public void updateInputs(V0_FunkyTurretIO io, V0_FunkyTurretIOInputs inputs) {
     io.updateInputs(inputs);
   }
 
-  public void setTurretVoltage(double volts) {
+  public void setTurretVoltage(V0_FunkyTurretIO io, double volts) {
     io.setTurretVoltage(volts);
   }
 
@@ -48,17 +48,19 @@ public class V0_FunkyTurret {
     io.setTurretGoal(goal);
   }
 
-  public void stopTurret() {
+  public void stopTurret(V0_FunkyTurretIO io) {
     io.stopTurret();
   }
 
-  public boolean atTurretPositionGoal() {
+  public boolean atTurretPositionGoal(V0_FunkyTurretIO io) {
     io.atTurretPositionGoal();
     return false;
   }
 
   public void incrementTurret(double increment) {
-    io.setTurretGoal()
+    Rotation2d incrementRotation = new Rotation2d(increment);
+    Rotation2d currentPosition = inputs.turretAngle;
+    io.setPositionGoal(currentPosition.getDegrees() + incrementRotation.getDegrees());
   }
 
   public void updateGains(double kP, double kD, double kV, double kA) {
@@ -72,4 +74,6 @@ public class V0_FunkyTurret {
   public void resetTurret() {
     io.resetTurret();
   }
+
+
 }
