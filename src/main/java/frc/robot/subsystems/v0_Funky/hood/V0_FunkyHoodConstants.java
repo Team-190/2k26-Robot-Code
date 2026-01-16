@@ -24,7 +24,7 @@ public class V0_FunkyHoodConstants {
   public static final Constraints CONSTRAINTS;
 
   static {
-    MOTOR_CAN_ID = 7; //TODO: IDEK what the correct ids are
+    MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
     IS_CAN_FD = true;
 
     GEAR_RATIO = 85.0;
