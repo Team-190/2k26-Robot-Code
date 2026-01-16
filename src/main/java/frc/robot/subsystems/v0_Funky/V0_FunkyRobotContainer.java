@@ -1,111 +1,155 @@
 package frc.robot.subsystems.v0_Funky;
 
+import choreo.auto.AutoChooser;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
+import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
+import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
+import frc.robot.Constants;
+import frc.robot.RobotConfig;
+import frc.robot.commands.CompositeCommands.SharedCommands;
+import frc.robot.commands.DriveCommands;
+import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
-
-  // Subsystems
   private SwerveDrive drive;
-  private Roller intake;
-  private Flywheel shooter;
   private Vision vision;
 
-  // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
 
-  // Auto chooser
-  private final LoggedDashboardChooser<Command> autoChooser =
-      new LoggedDashboardChooser<>("Autonomous Modes");
+  private final AutoChooser autoChooser = new AutoChooser();
 
   public V0_FunkyRobotContainer() {
-
-    if (Constants.getMode() != Mode.REPLAY) {
-      switch (Constants.ROBOT) {
+    if (Constants.getMode() != RobotMode.REPLAY) {
+      switch (RobotConfig.ROBOT) {
         case V0_FUNKY:
           drive =
               new SwerveDrive(
-                  new GyroIOPigeon2(),
-                  new SwerveModuleIOTalonFX(0, SwerveModuleConstants.FRONT_LEFT),
-                  new SwerveModuleIOTalonFX(1, SwerveModuleConstants.FRONT_RIGHT),
-                  new SwerveModuleIOTalonFX(2, SwerveModuleConstants.BACK_LEFT),
-                  new SwerveModuleIOTalonFX(3, SwerveModuleConstants.BACK_RIGHT));
-          // TODO: add sup
-          intake = new V0_FunkyRoller(new V0_FunkyRollerIOTalonFX());
-          shooter = new V0_FunkyFlyweel(new V0_FunkyFlyweelIOTalonFX());
+                  V0_FunkyConstants.DRIVE_CONSTANTS,
+                  new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_LEFT),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+                  V0_FunkyRobotState::getGlobalPose,
+                  V0_FunkyRobotState::resetPose);
           vision =
               new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded),
-                  VisionConstants.RobotCameras.V0_FUNKY_CAMS);
+                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V0_FunkyConstants.LIMELIGHT_CONFIG),
+                      V0_FunkyConstants.LIMELIGHT_CONFIG,
+                      V0_FunkyRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V0_FunkyRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()));
           break;
+
         case V0_FUNKY_SIM:
           drive =
               new SwerveDrive(
+                  V0_FunkyConstants.DRIVE_CONSTANTS,
                   new GyroIO() {},
-                  new SwerveModuleIOSim(DriveConstants.FRONT_LEFT),
-                  new SwerveModuleIOSim(DriveConstants.FRONT_RIGHT),
-                  new SwerveModuleIOSim(DriveConstants.BACK_LEFT),
-                  new SwerveModuleIOSim(DriveConstants.BACK_RIGHT));
-          roller = new Roller(new RollerIOTalonFX() {});
+                  new SwerveModuleIOSim(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+                  new SwerveModuleIOSim(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+                  new SwerveModuleIOSim(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_LEFT),
+                  new SwerveModuleIOSim(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+                  () -> Pose2d.kZero,
+                  V0_FunkyRobotState::resetPose);
           vision =
-              new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded));
+              new Vision(
+                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
           break;
+
         default:
           break;
       }
     }
+    if (drive == null) {
+      drive =
+          new SwerveDrive(
+              V0_FunkyConstants.DRIVE_CONSTANTS,
+              new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
+              new SwerveModuleIO() {},
+              new SwerveModuleIO() {},
+              new SwerveModuleIO() {},
+              new SwerveModuleIO() {},
+              V0_FunkyRobotState::getGlobalPose,
+              V0_FunkyRobotState::resetPose);
+    }
 
-    LTNUpdater.registerDrive(drive);
+    if (vision == null) {
+      new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+    }
+
+    configureButtonBindings();
+    configureAutos();
   }
 
-  public void configureButtonBindings() {
+  private void configureButtonBindings() {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
+            V0_FunkyConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
-            () -> driver.b().getAsBoolean()));
-    driver.y().onTrue(SharedCommands.resetHeading(drive));
+            () -> driver.getRightX(),
+            V0_FunkyRobotState::getHeading));
 
-    roller.setDefaultCommand(
-        roller.runRoller(() -> driver.getLeftTriggerAxis(), () -> driver.getRightTriggerAxis()));
-
-    driver.a().whileTrue(DriveCommands.autoAlignReefCoral(drive, vision.getCameras()));
-
-    driver.povLeft().onTrue(Commands.runOnce(() -> RobotState.setReefPost(ReefPose.LEFT)));
-    driver.povRight().onTrue(Commands.runOnce(() -> RobotState.setReefPost(ReefPose.RIGHT)));
+    driver
+        .povDown()
+        .onTrue(
+            SharedCommands.resetHeading(
+                drive,
+                V0_FunkyRobotState::resetPose,
+                () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
   }
 
-  public void configureAutos() {
-    autoChooser.addOption(
-        "Drive FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+  private void configureAutos() {
+    // Autos here
   }
 
   @Override
   public void robotPeriodic() {
-    RobotState.periodic(
+
+    V0_FunkyRobotState.periodic(
         drive.getRawGyroRotation(),
         NetworkTablesJNI.now(),
         drive.getYawVelocity(),
-        drive.getModulePositions(),
-        vision.getCameras());
-
-    LoggedTunableNumber.updateAll();
+        drive.getModulePositions());
   }
 
   @Override
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return autoChooser.selectedCommand();
   }
 }

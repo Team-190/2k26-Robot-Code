@@ -32,7 +32,8 @@ public interface V0_FunkyTurretIO {
 
   public default void updateGains(double kP, double kD, double kV, double kA) {}
 
-  public default void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {}
+  public default void updateConstraints(
+      double maxAcceleration, double maxVelocity, double goalTolerance) {}
 
   public default void resetTurret() {}
 }

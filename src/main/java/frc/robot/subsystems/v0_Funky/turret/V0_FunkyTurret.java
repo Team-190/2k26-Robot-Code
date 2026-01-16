@@ -4,12 +4,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIO.V0_FunkyTurretIOInputs;
-
 import org.littletonrobotics.junction.Logger;
 
 public class V0_FunkyTurret extends SubsystemBase {
   private final V0_FunkyTurretIO io;
-  private final V0_FunkyTurretIOInputsLogged inputs;
+  private final V0_FunkyTurretIOInputsAutoLogged inputs;
 
   private Rotation2d previousPosition;
   private Rotation2d desiredRotations;
@@ -18,9 +17,9 @@ public class V0_FunkyTurret extends SubsystemBase {
 
   public V0_FunkyTurret(V0_FunkyTurretIO io) {
     this.io = io;
-    inputs = new V0_FunkyTurretIOInputsLogged();
+    inputs = new V0_FunkyTurretIOInputsAutoLogged();
 
-    previousPosition = inputs.position;
+    // previousPosition = inputs.position;
     desiredRotations = new Rotation2d();
   }
 
@@ -38,22 +37,36 @@ public class V0_FunkyTurret extends SubsystemBase {
         && previousPosition.getDegrees() + angle.getDegrees() >= V0_FunkyTurretConstants.MIN_ANGLE);
   }
 
-  public void updateInputs(V0_FunkyTurretIOInputs inputs) {}
+  public void updateInputs(V0_FunkyTurretIOInputs inputs) {
+    io.updateInputs(inputs);
+  }
 
-  public void setTurretVoltage(double volts) {}
+  public void setTurretVoltage(double volts) {
+    io.setTurretVoltage(volts);
+  }
 
-  public void setTurretGoal(Pose3d goal) {}
+  public void setTurretGoal(V0_FunkyTurretIO io, Pose3d goal) {
+    io.setTurretGoal(goal);
+  }
 
-  public void stopTurret() {}
+  public void stopTurret() {
+    io.stopTurret();
+  }
 
   public boolean atTurretPositionGoal() {
+    io.atTurretPositionGoal();
     return false;
   }
 
-  public void updateGains(double kP, double kD, double kV, double kA) {}
+  public void updateGains(double kP, double kD, double kV, double kA) {
+    io.updateGains(kP, kD, kV, kA);
+  }
 
-  public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {}
+  public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
+    io.updateConstraints(maxAcceleration, maxVelocity, goalTolerance);
+  }
 
-  public void resetTurret() {}
-  
+  public void resetTurret() {
+    io.resetTurret();
+  }
 }
