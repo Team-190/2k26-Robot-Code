@@ -5,12 +5,12 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotState;
-
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 
 public class V0_FunkyHoodConstants {
   public static final int MOTOR_CAN_ID;
+  public static final boolean IS_CAN_FD;
 
   public static final double GEAR_RATIO;
   public static final double CURRENT_LIMIT;
@@ -24,7 +24,8 @@ public class V0_FunkyHoodConstants {
   public static final Constraints CONSTRAINTS;
 
   static {
-    MOTOR_CAN_ID = 7;
+    MOTOR_CAN_ID = 7; //TODO: IDEK what the correct ids are
+    IS_CAN_FD = true;
 
     GEAR_RATIO = 85.0;
     CURRENT_LIMIT = 40.0;

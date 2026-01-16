@@ -1,13 +1,12 @@
 package frc.robot.subsystems.v0_Funky.hood;
-import static edu.wpi.first.units.Units.*;
 
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for Funky's hood subsystem. */

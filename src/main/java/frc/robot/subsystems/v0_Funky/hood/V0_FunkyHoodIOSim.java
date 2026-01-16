@@ -25,7 +25,9 @@ public class V0_FunkyHoodIOSim implements V0_FunkyHoodIO {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                V0_FunkyHoodConstants.MOTOR_CONFIG, V0_FunkyHoodConstants.MOMENT_OF_INERTIA, V0_FunkyHoodConstants.GEAR_RATIO),
+                V0_FunkyHoodConstants.MOTOR_CONFIG,
+                V0_FunkyHoodConstants.MOMENT_OF_INERTIA,
+                V0_FunkyHoodConstants.GEAR_RATIO),
             V0_FunkyHoodConstants.MOTOR_CONFIG,
             V0_FunkyHoodConstants.GEAR_RATIO,
             V0_FunkyHoodConstants.LENGTH_METERS,

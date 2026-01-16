@@ -10,30 +10,43 @@ import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.util.InternalLoggedTracer;
+import frc.robot.util.NTPrefixes;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class V0_FunkyRobotState {
-  private static AprilTagFieldLayout fieldLayout;
-  private static List<FieldZone> fieldZones;
-  private static Localization localization;
+  private static final AprilTagFieldLayout fieldLayout;
+  private static final List<FieldZone> fieldZones;
+  private static final Localization localization;
 
   private static Rotation2d robotHeading;
   private static Rotation2d headingOffset;
   private static SwerveModulePosition[] modulePositions;
 
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
+  @Getter
+  private static final Rotation2d scoreAngle;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
+  @Getter
+  private static final Rotation2d feedAngle;
+
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    FieldZone globalZone =
-        new FieldZone(fieldLayout.getTags().stream().collect(Collectors.toSet()));
+    FieldZone globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
 
     fieldZones = List.of(globalZone);
 
     localization =
         new Localization(
             fieldZones, V0_FunkyConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(), 2);
+
+    scoreAngle = new Rotation2d();
+    feedAngle = new Rotation2d();
   }
 
   public static void periodic(
@@ -54,11 +67,16 @@ public class V0_FunkyRobotState {
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
     localization.addPoseObservations(observations);
   }
-import org.littletonrobotics.junction.AutoLogOutput;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.team190.gompeilib.core.robot.RobotState;
-import frc.robot.util.NTPrefixes;
-import lombok.Getter;
+  public static void resetPose(Pose2d pose) {
+    localization.resetPose(pose);
+  }
 
-public class V0_FunkyRobotState implements RobotState {}
+  public static Rotation2d getHeading() {
+    return localization.getEstimatedPose(fieldZones.get(0)).getRotation();
+  }
+
+  public static Pose2d getGlobalPose() {
+    return localization.getEstimatedPose(fieldZones.get(0));
+  }
+}

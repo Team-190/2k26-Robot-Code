@@ -29,7 +29,7 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
   private StatusSignal<Current> supplyCurrent;
   private StatusSignal<Current> torqueCurrent;
   private StatusSignal<Voltage> appliedVolts;
-    
+
   private TalonFXConfiguration config;
   private VoltageOut voltageControlRequest;
   private MotionMagicVoltage positionControlRequest;
@@ -52,7 +52,7 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
         V0_FunkyHoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
         V0_FunkyHoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-         config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(V0_FunkyHoodConstants.MIN_ANGLE)
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(V0_FunkyHoodConstants.MIN_ANGLE)
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(V0_FunkyHoodConstants.MIN_ANGLE)
         .withReverseSoftLimitEnable(true);
@@ -70,7 +70,7 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
     positionErrorRotations = hoodMotor.getClosedLoopError();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        1/GompeiLib.getLoopPeriod(),
+        1 / GompeiLib.getLoopPeriod(),
         positionRotations,
         velocity,
         torqueCurrent,
@@ -81,7 +81,8 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
         positionErrorRotations);
     hoodMotor.optimizeBusUtilization();
 
-    PhoenixUtil.registerSignals(false, 
+    PhoenixUtil.registerSignals(
+        V0_FunkyHoodConstants.IS_CAN_FD,
         positionRotations,
         velocity,
         torqueCurrent,
@@ -94,8 +95,6 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
     voltageControlRequest = new VoltageOut(0.0);
     positionControlRequest = new MotionMagicVoltage(HoodGoal.STOW.getAngle().getRotations());
     positionGoal = HoodGoal.STOW.getAngle();
-
-
   }
 
   @Override
