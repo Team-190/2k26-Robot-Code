@@ -35,7 +35,7 @@ public class V0_FunkyTurretIOTalonFX {
   private static final double GEAR_0_TOOTH_COUNT = 70.0; // fake values, update later
   private static final double GEAR_1_TOOTH_COUNT = 30.0;
   private static final double GEAR_2_TOOTH_COUNT = 20.0;
-  private static final double SLOPE = (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
+  private static final double  SLOPE = (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
       / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
 
   public V0_FunkyTurretIOTalonFX() {
@@ -85,14 +85,15 @@ public class V0_FunkyTurretIOTalonFX {
   }
 
   public void setTurretGoal(double goalRadians) {
-    double directionalGoal;
+    double directionalGoal = 0;
     double positiveDiff = goalRadians - positionRotations.getValue().in(Units.Radians);
     double negativeDiff = positiveDiff - 2*Math.PI;
-    if ( Math.abs(positiveDiff) < Math.abs(negativeDiff) && goalRadians <= V0_FunkyTurretConstants.MAX_ANGLE && goalRadians >= V0_FunkyTurretConstants.MIN_ANGLE){
+    if ( Math.abs(positiveDiff) < Math.abs(negativeDiff) && goalRadians <= maxAngle && goalRadians >= minAngle){
       directionalGoal = positiveDiff;
     }
     else if ((goalRadians - 2*Math.PI) <= maxAngle && (goalRadians - 2*Math.PI) >= minAngle){
       directionalGoal = negativeDiff;
+    }
     InternalLoggedTracer.reset();
     talonFX.setControl(
         positionVoltageRequest
@@ -137,20 +138,20 @@ public class V0_FunkyTurretIOTalonFX {
   }
 
   public static double calculateTurretAngle(double e1, double e2) {
-    double difference = e2 - e1;
-    if (difference > maxAngle) {
-      difference -= Math.toRadians(360);
-    } else if (difference < minAngle) {
-      difference += Math.toRadians(360);
+    double diff = e2 - e1;
+    if (diff > V0_FunkyTurretConstants.MAX_ANGLE) {
+      diff -= Math.toRadians(360);
+    } else if (diff < V0_FunkyTurretConstants.MIN_ANGLE) {
+      diff += Math.toRadians(360);
     }
-    difference *= SLOPE;
+    diff *= SLOPE;
 
-    double e1Rotations = (difference * GEAR_0_TOOTH_COUNT / GEAR_1_TOOTH_COUNT) / 360.0;
+    double e1Rotations = (diff * GEAR_0_TOOTH_COUNT / GEAR_1_TOOTH_COUNT) / 360.0;
     double e1RotationsFloored = Math.floor(e1Rotations);
     double turretAngle = (e1RotationsFloored * 360 + e1) * (GEAR_1_TOOTH_COUNT / GEAR_0_TOOTH_COUNT);
-    if (turretAngle - difference < -100) {
+    if (turretAngle - diff < -100) {
       turretAngle += GEAR_1_TOOTH_COUNT / GEAR_0_TOOTH_COUNT * 360;
-    } else if (turretAngle - difference > 100) {
+    } else if (turretAngle - diff > 100) {
       turretAngle -= GEAR_1_TOOTH_COUNT / GEAR_0_TOOTH_COUNT * 360;
     }
     return turretAngle;
@@ -180,8 +181,9 @@ public class V0_FunkyTurretIOTalonFX {
     setTurretGoal(angle);
   }
 
+  public void goToFieldRelativeAngle(double angleRadians) {
+    double turretAngle = angleRadians - positionRotations.getValue().in(Units.Radians);
+    setTurretGoal(turretAngle);
   }
 
- 
-  
-}
+  }
