@@ -17,8 +17,8 @@ public class V0_FunkyTurretConstants {
 
   static {
     CAN_ID = 1;
-    MAX_ANGLE = 200; // Output angle in degress
-    MIN_ANGLE = -240;
+    MAX_ANGLE = Math.PI; // Output angle in degress
+    MIN_ANGLE = -Math.PI;
     GEAR_RATIO = 5;
     SUPPLY_CURRENT_LIMIT = 30;
     STATOR_CURRENT_LIMIT = 30;

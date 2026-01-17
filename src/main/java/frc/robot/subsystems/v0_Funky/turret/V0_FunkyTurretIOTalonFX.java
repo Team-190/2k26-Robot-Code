@@ -7,13 +7,13 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.*;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotState;
 import frc.robot.util.InternalLoggedTracer;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.units.*;
 
 public class V0_FunkyTurretIOTalonFX {
 
@@ -23,11 +23,11 @@ public class V0_FunkyTurretIOTalonFX {
   private double positionGoalRadians;
   private MotionMagicVoltage positionVoltageRequest;
   private VoltageOut voltageRequest;
-  private CANcoder rightCANcoder;
-  private CANcoder leftCanCoder;
+  private static CANcoder rightCANcoder;
+  private static CANcoder leftCanCoder;
 
-  private double e1 = rightCANcoder.getPosition().getValue().in(Units.Radians);
-  private double e2 = leftCanCoder.getPosition().getValue().in(Units.Radians);
+  private double e1;
+  private double e2;
 
   private double maxAngle = V0_FunkyTurretConstants.MAX_ANGLE;
   private double minAngle = V0_FunkyTurretConstants.MIN_ANGLE;
@@ -35,8 +35,9 @@ public class V0_FunkyTurretIOTalonFX {
   private static final double GEAR_0_TOOTH_COUNT = 70.0; // fake values, update later
   private static final double GEAR_1_TOOTH_COUNT = 30.0;
   private static final double GEAR_2_TOOTH_COUNT = 20.0;
-  private static final double  SLOPE = (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
-      / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
+  private static final double SLOPE =
+      (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
+          / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
 
   public V0_FunkyTurretIOTalonFX() {
 
@@ -72,6 +73,21 @@ public class V0_FunkyTurretIOTalonFX {
     voltageRequest = new VoltageOut(0);
   }
 
+  public static double getEncoder1Value() {
+    return rightCANcoder.getPosition().getValue().in(Units.Radians);
+  }
+
+  public static double getEncoder2Value() {
+    return leftCanCoder.getPosition().getValue().in(Units.Radians);
+  }
+
+  // If we need to log encoder values
+
+  // public void periodic() {
+  //   e1 = getEncoder1Value();
+  //   e2 = getEncoder2Value();
+  // }
+
   public void setPosition(double radians) {
     InternalLoggedTracer.reset();
     talonFX.setPosition(radians * V0_FunkyTurretConstants.GEAR_RATIO);
@@ -86,29 +102,28 @@ public class V0_FunkyTurretIOTalonFX {
 
   public void setTurretGoal(double goalRadians) {
     double directionalGoal = 0;
-    double positiveDiff = goalRadians - positionRotations.getValue().in(Units.Radians);
-    double negativeDiff = positiveDiff - 2*Math.PI;
-    if ( Math.abs(positiveDiff) < Math.abs(negativeDiff) && goalRadians <= maxAngle && goalRadians >= minAngle){
+    double positiveDiff = goalRadians - calculateTurretAngle();
+    double negativeDiff = positiveDiff - 2 * Math.PI;
+    if (Math.abs(positiveDiff) < Math.abs(negativeDiff)
+        && goalRadians <= maxAngle
+        && goalRadians >= minAngle) {
       directionalGoal = positiveDiff;
-    }
-    else if ((goalRadians - 2*Math.PI) <= maxAngle && (goalRadians - 2*Math.PI) >= minAngle){
+    } else if ((goalRadians - 2 * Math.PI) <= maxAngle && (goalRadians - 2 * Math.PI) >= minAngle) {
       directionalGoal = negativeDiff;
     }
     InternalLoggedTracer.reset();
     talonFX.setControl(
         positionVoltageRequest
-            .withPosition(directionalGoal * V0_FunkyTurretConstants.GEAR_RATIO/(2*Math.PI))
+            .withPosition(directionalGoal * V0_FunkyTurretConstants.GEAR_RATIO / (2 * Math.PI))
             .withSlot(0));
     InternalLoggedTracer.record("Set Goal", "Turret/TalonFX");
-    
   }
 
   public void updateInputs(V0_FunkyTurretIOInputsAutoLogged inputs) {
-    inputs.turretAngle =
-        new Rotation2d(
-            positionRotations.getValue().in(Units.Rotations));
+    inputs.turretAngle = new Rotation2d(positionRotations.getValue().in(Units.Rotations));
     inputs.turretVelocityRadiansPerSecond =
-        talonFX.getVelocity().getValue().in(Units.RadiansPerSecond) / V0_FunkyTurretConstants.GEAR_RATIO;
+        talonFX.getVelocity().getValue().in(Units.RadiansPerSecond)
+            / V0_FunkyTurretConstants.GEAR_RATIO;
     inputs.turretAppliedVolts = talonFX.getMotorVoltage().getValueAsDouble();
     inputs.turretSupplyCurrentAmps = talonFX.getSupplyCurrent().getValueAsDouble();
     inputs.turretTorqueCurrentAmps = talonFX.getStatorCurrent().getValueAsDouble();
@@ -137,7 +152,9 @@ public class V0_FunkyTurretIOTalonFX {
     talonFX.getConfigurator().apply(config);
   }
 
-  public static double calculateTurretAngle(double e1, double e2) {
+  public static double calculateTurretAngle() {
+    double e1 = getEncoder1Value();
+    double e2 = getEncoder2Value();
     double diff = e2 - e1;
     if (diff > V0_FunkyTurretConstants.MAX_ANGLE) {
       diff -= Math.toRadians(360);
@@ -148,7 +165,8 @@ public class V0_FunkyTurretIOTalonFX {
 
     double e1Rotations = (diff * GEAR_0_TOOTH_COUNT / GEAR_1_TOOTH_COUNT) / 360.0;
     double e1RotationsFloored = Math.floor(e1Rotations);
-    double turretAngle = (e1RotationsFloored * 360 + e1) * (GEAR_1_TOOTH_COUNT / GEAR_0_TOOTH_COUNT);
+    double turretAngle =
+        (e1RotationsFloored * 360 + e1) * (GEAR_1_TOOTH_COUNT / GEAR_0_TOOTH_COUNT);
     if (turretAngle - diff < -100) {
       turretAngle += GEAR_1_TOOTH_COUNT / GEAR_0_TOOTH_COUNT * 360;
     } else if (turretAngle - diff > 100) {
@@ -158,7 +176,8 @@ public class V0_FunkyTurretIOTalonFX {
   }
 
   public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
-    config.MotionMagic.MotionMagicAcceleration = maxAcceleration * V0_FunkyTurretConstants.GEAR_RATIO;
+    config.MotionMagic.MotionMagicAcceleration =
+        maxAcceleration * V0_FunkyTurretConstants.GEAR_RATIO;
     config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity * V0_FunkyTurretConstants.GEAR_RATIO;
     talonFX.getConfigurator().apply(config);
   }
@@ -185,5 +204,4 @@ public class V0_FunkyTurretIOTalonFX {
     double turretAngle = angleRadians - positionRotations.getValue().in(Units.Radians);
     setTurretGoal(turretAngle);
   }
-
-  }
+}
