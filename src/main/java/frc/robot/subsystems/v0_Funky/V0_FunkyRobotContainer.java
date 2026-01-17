@@ -19,6 +19,9 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -26,6 +29,8 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterConstants;
 import java.util.List;
@@ -33,6 +38,7 @@ import java.util.List;
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private Shooter shooter;
+  private Feeder feeder;
   private Vision vision;
 
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -64,6 +70,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           shooter =
               new Shooter(
                   new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOTalonFX(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -97,6 +104,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   V0_FunkyRobotState::resetPose);
           shooter =
               new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -121,6 +129,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
     if (shooter == null) {
       shooter = new Shooter(new GenericFlywheelIO() {});
+    }
+
+    if (feeder == null) {
+      feeder = new Feeder(new GenericRollerIO() {});
     }
 
     if (vision == null) {
@@ -158,6 +170,11 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   shooter.setVoltage(12 * driver.getRightTriggerAxis());
                 }))
         .whileFalse(Commands.runOnce(() -> shooter.setVoltage(0)));
+
+    driver
+        .leftBumper()
+        .whileTrue(Commands.run(() -> feeder.setVoltage(-12.0)))
+        .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
   }
 
   private void configureAutos() {

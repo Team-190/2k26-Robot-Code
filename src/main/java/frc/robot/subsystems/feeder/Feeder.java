@@ -11,6 +11,11 @@ public class Feeder extends SubsystemBase {
     roller = new GenericRoller(io, this, 0);
   }
 
+  @Override
+  public void periodic() {
+    roller.periodic();
+  }
+
   public void setVoltage(double voltage) {
     roller.setVoltage(voltage);
   }
