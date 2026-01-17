@@ -15,6 +15,9 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -22,11 +25,13 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.v0_Funky.feed.V0_Feed;
 import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private Vision vision;
+  private V0_Feed feed;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -64,6 +69,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       NetworkTablesJNI::now,
                       List.of(V0_FunkyRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
+          feed = new V0_Feed(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           break;
 
         case V0_FUNKY_SIM:
@@ -88,6 +94,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+          feed = new V0_Feed(new GenericRollerIOSim(V0_FunkyConstants.FEED_CONSTANTS));
           break;
 
         default:
@@ -109,6 +116,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
     if (vision == null) {
       new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+    if (feed == null) {
+      feed = new V0_Feed(new GenericRollerIO() {});
     }
 
     configureButtonBindings();
@@ -124,6 +133,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
             () -> -driver.getLeftX(),
             () -> driver.getRightX(),
             V0_FunkyRobotState::getHeading));
+
+    feed.setDefaultCommand(feed.setVoltageCommand(() -> driver.getLeftTriggerAxis() * 7.0));
 
     driver
         .povDown()
