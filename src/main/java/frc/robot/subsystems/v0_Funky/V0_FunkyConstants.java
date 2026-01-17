@@ -18,7 +18,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.Gains;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.PIDControllerConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.GenericFlywheelParameters;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
@@ -93,18 +92,17 @@ public class V0_FunkyConstants {
           true,
           60.0,
           0.05,
-          SHOOTER_MOTORS,
           new GenericFlywheelConstants.Gains(
               new LoggedTunableNumber("Shooter/Kp"),
               new LoggedTunableNumber("Shooter/Kd"),
               new LoggedTunableNumber("Shooter/Ks"),
               new LoggedTunableNumber("Shooter/Kv"),
               new LoggedTunableNumber("Shooter/Ka")),
+          SHOOTER_MOTORS[0],
           new GenericFlywheelConstants.Constraints(
               new LoggedTunableNumber("Shooter/MaxAccel"),
               new LoggedTunableNumber("Shooter/CruiseVel"),
               new LoggedTunableNumber("Shooter/GoalTolerance")),
-          new GenericFlywheelParameters(DCMotor.getKrakenX60(1), 60.0, 0, 0, 1),
           1.0,
           InvertedValue.CounterClockwise_Positive);
 

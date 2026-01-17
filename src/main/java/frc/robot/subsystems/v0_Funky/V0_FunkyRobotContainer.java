@@ -175,6 +175,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return shoot.runSysID();
   }
 }
