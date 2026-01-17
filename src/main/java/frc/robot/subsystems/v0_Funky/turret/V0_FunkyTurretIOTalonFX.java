@@ -32,6 +32,13 @@ public class V0_FunkyTurretIOTalonFX {
   private double maxAngle = V0_FunkyTurretConstants.MAX_ANGLE;
   private double minAngle = V0_FunkyTurretConstants.MIN_ANGLE;
 
+  private double directionalGoal;
+
+  /*
+   * Gear Information:
+   * Variables that store amount of gear teeth
+   */
+
   private static final double GEAR_0_TOOTH_COUNT = 70.0; // fake values, update later
   private static final double GEAR_1_TOOTH_COUNT = 30.0;
   private static final double GEAR_2_TOOTH_COUNT = 20.0;
@@ -39,6 +46,10 @@ public class V0_FunkyTurretIOTalonFX {
       (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
           / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
 
+
+  /**
+   * Constructor for V0_FunkyTurretIOTalonFX
+   */
   public V0_FunkyTurretIOTalonFX() {
 
     talonFX = new TalonFX(V0_FunkyTurretConstants.CAN_ID);
@@ -73,43 +84,63 @@ public class V0_FunkyTurretIOTalonFX {
     voltageRequest = new VoltageOut(0);
   }
 
+  /**
+   * Method that gets encoder 1 value
+   * @return rightCANcoder value
+   */
   public static double getEncoder1Value() {
     return rightCANcoder.getPosition().getValue().in(Units.Radians);
   }
 
+  /**
+   * Method that gets encoder 2 value
+   * @return leftCANcoder value
+   */
   public static double getEncoder2Value() {
     return leftCanCoder.getPosition().getValue().in(Units.Radians);
   }
 
-  // If we need to log encoder value
+  // If we need to log encoder value, must log in periodic
 
   // public void periodic() {
   //   e1 = getEncoder1Value();
   //   e2 = getEncoder2Value();
   // }
 
+  /**
+   * Method that sets position of turret
+   * @param radians
+   */
   public void setPosition(double radians) {
     InternalLoggedTracer.reset();
     talonFX.setPosition(radians * V0_FunkyTurretConstants.GEAR_RATIO);
     InternalLoggedTracer.record("Set Position", "Turret/TalonFX");
   }
 
+  /**
+   * Sets voltage of turret
+   * @param volts
+   */
   public void setTurretVoltage(double volts) {
     InternalLoggedTracer.reset();
     talonFX.setControl(voltageRequest.withOutput(volts));
     InternalLoggedTracer.record("Set Voltage", "Turret/TalonFX");
   }
 
+  /**
+   * Method that sets goal position of turret and applies voltage to go to that poisition
+   * @param goalRadians
+   */
   public void setTurretGoal(double goalRadians) {
-    double directionalGoal = 0;
-    double positiveDiff = goalRadians - calculateTurretAngle();
+    double directionalGoalRadians = 0;
+    double positiveDiff = goalRadians - calculateTurretAngle(e1, e2);
     double negativeDiff = positiveDiff - 2 * Math.PI;
     if (Math.abs(positiveDiff) < Math.abs(negativeDiff)
         && goalRadians <= maxAngle
         && goalRadians >= minAngle) {
-      directionalGoal = positiveDiff;
+      directionalGoalRadians = positiveDiff;
     } else if ((goalRadians - 2 * Math.PI) <= maxAngle && (goalRadians - 2 * Math.PI) >= minAngle) {
-      directionalGoal = negativeDiff;
+      directionalGoalRadians = negativeDiff;
     }
     InternalLoggedTracer.reset();
     talonFX.setControl(
@@ -118,7 +149,10 @@ public class V0_FunkyTurretIOTalonFX {
             .withSlot(0));
     InternalLoggedTracer.record("Set Goal", "Turret/TalonFX");
   }
-
+  /**
+   * Method that updates inputs of turret
+   * @param inputs
+   */
   public void updateInputs(V0_FunkyTurretIOInputsAutoLogged inputs) {
     inputs.turretAngle = new Rotation2d(positionRotations.getValue().in(Units.Rotations));
     inputs.turretVelocityRadiansPerSecond =
@@ -134,16 +168,30 @@ public class V0_FunkyTurretIOTalonFX {
     inputs.turretGoal = positionGoalRadians;
   }
 
+  /**
+   * Method that stops turret
+   */
   public void stopTurret() {
     setTurretVoltage(0);
   }
 
+  /**
+   * Method that checks if turret is at goal position
+   * @return boolean value of whether turret is at goal position
+   */
   public boolean atTurretPositionGoal() {
     double positionRadians = positionRotations.getValue().in(Units.Radians);
     return (Math.abs(positionGoalRadians - positionRadians)
         <= V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
   }
 
+  /**
+   * Method that updates gains of turret
+   * @param kP
+   * @param kD
+   * @param kV
+   * @param kA
+   */
   public void updateGains(double kP, double kD, double kV, double kA) {
     config.Slot0.kP = kP;
     config.Slot0.kD = kD;
@@ -152,9 +200,13 @@ public class V0_FunkyTurretIOTalonFX {
     talonFX.getConfigurator().apply(config);
   }
 
-  public static double calculateTurretAngle() {
-    double e1 = getEncoder1Value();
-    double e2 = getEncoder2Value();
+  /**
+   * Method that calculates turret angle based on encoder values
+   * @return
+   */
+  public static double calculateTurretAngle(double e1, double e2) {
+    e1 = getEncoder1Value();
+    e2 = getEncoder2Value();
     double diff = e2 - e1;
     if (diff > V0_FunkyTurretConstants.MAX_ANGLE) {
       diff -= Math.toRadians(360);
@@ -175,6 +227,12 @@ public class V0_FunkyTurretIOTalonFX {
     return turretAngle;
   }
 
+  /**
+   * Method that updates constraints of turret
+   * @param maxAcceleration
+   * @param maxVelocity
+   * @param goalTolerance
+   */
   public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
     config.MotionMagic.MotionMagicAcceleration =
         maxAcceleration * V0_FunkyTurretConstants.GEAR_RATIO;
@@ -182,14 +240,25 @@ public class V0_FunkyTurretIOTalonFX {
     talonFX.getConfigurator().apply(config);
   }
 
+  /**
+   * Method that resets turret position to zero
+   */
   public void resetTurret() {
     setPosition(0);
   }
 
+  /**
+   * Method that sets turret position to zero
+   */
   public void goToZero() {
     setTurretGoal(0.0);
   }
 
+  /**
+   * Method that sets turret goal based on Pose3d goal
+   * @param goal
+   * 
+   */
   public void setTurretGoal(Pose3d goal) {
     Pose2d robotPosition = V0_FunkyRobotState.getGlobalPose();
     Pose2d aimGoal = goal.toPose2d();
@@ -200,6 +269,10 @@ public class V0_FunkyTurretIOTalonFX {
     setTurretGoal(angle);
   }
 
+  /**
+   * Method that sets turret goal based on field relative angle
+   * @param angleRadians: field relative angle in radians
+   */
   public void goToFieldRelativeAngle(double angleRadians) {
     double turretAngle = angleRadians - positionRotations.getValue().in(Units.Radians);
     setTurretGoal(turretAngle);
