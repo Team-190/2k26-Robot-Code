@@ -81,7 +81,7 @@ public class V0_FunkyTurretIOTalonFX {
     return leftCanCoder.getPosition().getValue().in(Units.Radians);
   }
 
-  // If we need to log encoder values
+  // If we need to log encoder value
 
   // public void periodic() {
   //   e1 = getEncoder1Value();
