@@ -1,8 +1,8 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import org.littletonrobotics.junction.AutoLog;
 import edu.wpi.first.math.geometry.Rotation2d;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface V0_FunkyTurretIO {
 
@@ -25,13 +25,16 @@ public interface V0_FunkyTurretIO {
 
   public default void setTurretGoal(Pose3d goal) {}
 
+  public default void setTurretGoal(double goal) {}
 
+  public default void shortestPath(double goal) {}
 
   public default void stopTurret() {}
 
   public default boolean atTurretPositionGoal() {
     return false;
   }
+
   public default void updateGains(double kP, double kD, double kV, double kA) {}
 
   public default void updateConstraints(
@@ -39,7 +42,7 @@ public interface V0_FunkyTurretIO {
 
   public default void setPosition(double angle) {}
 
-  public default void setPositionGoal(double angle) {}
-
   public default void resetTurret() {}
+
+  public default void goToZero() {}
 }

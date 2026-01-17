@@ -105,23 +105,39 @@ deploy {
     }
 }
 
+def GLibRepoPath = "edu.wpi.team190:gompeilib:2026.+"
+
 repositories {
-    // This tells Gradle that the following repository should ONLY be used
-    // for dependencies that match the filter.
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "GompeiLibGitHubPackages"
-                url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
-                credentials {
-                    username = project.findProperty("gpr.user")
-                    password = project.findProperty("gpr.key")
+    def gprUser = project.findProperty("gpr.user")
+    def gprKey = project.findProperty("gpr.key")
+
+    if (gprUser != null && gprKey != null) {
+        // Use GitHub Packages if credentials exist
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "GompeiLibGitHubPackages"
+                    url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
+                    credentials {
+                        username = gprUser
+                        password = gprKey
+                    }
                 }
             }
+            filter {
+                includeGroup "edu.wpi.team190"
+            }
         }
-        // The filter tells Gradle to only look for dependencies in the "edu.wpi.team190" group.
-        filter {
-            includeGroup "edu.wpi.team190"
+    } else {
+        GLibRepoPath = "com.github.Team-190:gompeilib:2026.+"
+        // Fallback to JitPack if credentials are missing
+        exclusiveContent {
+            forRepository {
+                maven { url = uri("https://jitpack.io") }
+            }
+            filter {
+                includeGroup "com.github.Team-190"
+            }
         }
     }
 }
@@ -290,7 +306,7 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
 
-    implementation 'edu.wpi.team190:gompeilib:2026.+'
+    implementation "$GLibRepoPath"
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'

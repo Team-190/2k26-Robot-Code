@@ -2,7 +2,6 @@ package frc.robot.subsystems.v0_Funky.turret;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIO.V0_FunkyTurretIOInputs;
 import org.littletonrobotics.junction.Logger;
 
@@ -19,7 +18,7 @@ public class V0_FunkyTurret {
     this.io = io;
     inputs = new V0_FunkyTurretIOInputsAutoLogged();
 
-    // previousPosition = inputs.position;
+    previousPosition = inputs.turretAngle;
     desiredRotations = new Rotation2d();
   }
 
@@ -60,7 +59,7 @@ public class V0_FunkyTurret {
   public void incrementTurret(double increment) {
     Rotation2d incrementRotation = new Rotation2d(increment);
     Rotation2d currentPosition = inputs.turretAngle;
-    io.setPositionGoal(currentPosition.getDegrees() + incrementRotation.getDegrees());
+    io.setTurretGoal(currentPosition.getDegrees() + incrementRotation.getDegrees());
   }
 
   public void updateGains(double kP, double kD, double kV, double kA) {
@@ -74,6 +73,4 @@ public class V0_FunkyTurret {
   public void resetTurret() {
     io.resetTurret();
   }
-
-
 }
