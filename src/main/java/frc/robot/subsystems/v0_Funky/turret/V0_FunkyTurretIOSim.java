@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -14,15 +13,12 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 
 public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
 
-  private ProfiledPIDController feedback;
-  private SimpleMotorFeedforward feedforward;
-
-  private double e1;
-  private double e2;
+  private final ProfiledPIDController feedback;
+  private final SimpleMotorFeedforward feedforward;
 
   private double directionalGoalRadians;
 
-  private DCMotorSim sim;
+  private final DCMotorSim sim;
 
   private Rotation2d positionGoal = new Rotation2d();
   private double appliedVolts = 0.0;
@@ -55,16 +51,17 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
 
   @Override
   public void updateInputs(V0_FunkyTurretIOInputs inputs) {
-    sim.setInputVoltage(MathUtil.clamp(appliedVolts, -12.0, 12.0));
+    appliedVolts = MathUtil.clamp(appliedVolts, -12.0, 12.0);
+    sim.setInputVoltage(appliedVolts);
     sim.update(GompeiLib.getLoopPeriod());
 
-    inputs.turretAngle = Rotation2d.fromRadians(sim.getAngularPositionRotations());
+    inputs.turretAngle = Rotation2d.fromRadians(sim.getAngularPositionRad());
     inputs.turretVelocityRadiansPerSecond = sim.getAngularVelocityRadPerSec();
     inputs.turretAppliedVolts = appliedVolts;
     inputs.turretSupplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.turretGoal = positionGoal.getRadians();
-    inputs.turretPositionSetpoint = feedback.getSetpoint().position;
-    inputs.turretPositionError = feedback.getPositionError();
+    inputs.turretGoal = new Rotation2d(positionGoal.getMeasure());
+    inputs.turretPositionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
+    inputs.turretPositionError = Rotation2d.fromRadians(feedback.getPositionError());
   }
 
   @Override
@@ -73,28 +70,22 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   }
 
   @Override
-  public void setTurretGoal(Pose3d goal) {
-    positionGoal = goal.toPose2d().getRotation();
-  }
+  public void setTurretGoal(Rotation2d goal) {
+    positionGoal = goal;
 
-  @Override
-  public void setTurretGoal(double goal) {
-    double directionalGoalRadians = 0;
-    double positiveDiff = goal - V0_FunkyTurretIOTalonFX.calculateTurretAngle(e1, e2);
+    double directionalGoalRadians;
+    double positiveDiff = goal.getRadians() - sim.getAngularPositionRad();
     double negativeDiff = positiveDiff - 2 * Math.PI;
     if (Math.abs(positiveDiff) < Math.abs(negativeDiff)
-        && goal <= V0_FunkyTurretConstants.MAX_ANGLE
-        && goal >= V0_FunkyTurretConstants.MIN_ANGLE) {
+        && goal.getRadians() <= V0_FunkyTurretConstants.MAX_ANGLE
+        && goal.getRadians() >= V0_FunkyTurretConstants.MIN_ANGLE) {
       directionalGoalRadians = positiveDiff;
-    } else if ((goal - 2 * Math.PI) <= V0_FunkyTurretConstants.MAX_ANGLE
-        && (goal - 2 * Math.PI) >= V0_FunkyTurretConstants.MIN_ANGLE) {
+    } else {
       directionalGoalRadians = negativeDiff;
     }
-  }
-
-  @Override
-  public void stopTurret() {
-    setTurretVoltage(0);
+    appliedVolts =
+        feedback.calculate(sim.getAngularPositionRad(), directionalGoalRadians)
+            + feedforward.calculate(sim.getAngularVelocityRadPerSec());
   }
 
   @Override
@@ -103,13 +94,8 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   }
 
   @Override
-  public void setPosition(double angle) {
-    setPosition(angle * V0_FunkyTurretConstants.GEAR_RATIO);
-  }
-
-  @Override
-  public void goToZero() {
-    positionGoal = new Rotation2d(0.0);
+  public void setPosition(Rotation2d angle) {
+    feedback.reset(angle.getRadians(), 0.0);
   }
 
   @Override
@@ -120,5 +106,19 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
       appliedVolts =
           -1 * (directionalGoalRadians * V0_FunkyTurretConstants.GEAR_RATIO / (2 * Math.PI));
     }
+  }
+
+  @Override
+  public void updateGains(double kP, double kD, double kS, double kV, double kA) {
+    feedback.setPID(kP, 0.0, kD);
+    feedforward.setKa(kA);
+    feedforward.setKs(kS);
+    feedforward.setKv(kV);
+  }
+
+  @Override
+  public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
+    feedback.setConstraints(new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
+    feedback.setTolerance(goalTolerance);
   }
 }

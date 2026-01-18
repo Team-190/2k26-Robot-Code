@@ -18,7 +18,7 @@ public class V0_FunkyHood {
   private final String aKitTopic;
   private final V0_FunkyHoodIOInputsAutoLogged inputs;
 
-  private SysIdRoutine characterizationRoutine;
+  private final SysIdRoutine characterizationRoutine;
 
   private boolean isClosedLoop;
   private HoodGoal goal;
@@ -48,6 +48,7 @@ public class V0_FunkyHood {
     isClosedLoop = false;
     goal = HoodGoal.STOW;
   }
+
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
   @Trace
   public void periodic() {
@@ -58,6 +59,7 @@ public class V0_FunkyHood {
       io.setPosition(goal.getAngle());
     }
   }
+
   /**
    * Tells the hood what position it should be in.
    *
@@ -71,6 +73,7 @@ public class V0_FunkyHood {
           isClosedLoop = true;
         });
   }
+
   /**
    * Sets the voltage being passed into the hood subsystem.
    *
@@ -90,10 +93,11 @@ public class V0_FunkyHood {
    *
    * @return If the hood is within tolerance of the goal (true) or not (false).
    */
-  @AutoLogOutput(key = "Hood/At Goal")
+  @AutoLogOutput(key = "aKitTopic" + "/At Goal")
   public boolean atGoal() {
     return io.atGoal();
   }
+
   /**
    * Waits until hood at goal/in tolerance.
    *

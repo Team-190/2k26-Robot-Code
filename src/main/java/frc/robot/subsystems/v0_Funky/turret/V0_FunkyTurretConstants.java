@@ -7,7 +7,10 @@ import lombok.Setter;
 
 public class V0_FunkyTurretConstants {
 
-  public static final int CAN_ID;
+  public static final int TURRET_CAN_ID;
+  public static final boolean IS_CAN_FD;
+  public static final int LEFT_ENCODER_ID;
+  public static final int RIGHT_ENCODER_ID;
   public static final double MAX_ANGLE;
   public static final double MIN_ANGLE;
   public static final double GEAR_RATIO;
@@ -24,9 +27,13 @@ public class V0_FunkyTurretConstants {
   public static final double STATOR_CURRENT_LIMIT;
   public static final DCMotor MOTOR_CONFIG;
   public static final double MOMENT_OF_INERTIA;
+  public static final TurretAngleCalculation TURRET_ANGLE_CALCULATION;
 
   static {
-    CAN_ID = 1;
+    IS_CAN_FD = true;
+    TURRET_CAN_ID = 1;
+    LEFT_ENCODER_ID = 2;
+    RIGHT_ENCODER_ID = 3;
     MAX_ANGLE = Math.PI; // Output angle in degress
     MIN_ANGLE = -Math.PI;
     GEAR_RATIO = 5;
@@ -52,17 +59,27 @@ public class V0_FunkyTurretConstants {
             new LoggedTunableNumber("Turret/Max Acceleration", 0),
             new LoggedTunableNumber("Turret/Cruising Velocity", 0),
             new LoggedTunableNumber("Turrent/Goal Tolerance", 0));
+
+    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 30, 20);
   }
 
-  public static record Gains(
+  public record Gains(
       LoggedTunableNumber kP,
       LoggedTunableNumber kD,
       LoggedTunableNumber kV,
       LoggedTunableNumber kA,
       LoggedTunableNumber kS) {}
 
-  public static record Constraints(
+  public record Constraints(
       LoggedTunableNumber MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED,
       LoggedTunableNumber CRUISING_VELOCITY_RADIANS_PER_SECOND,
       LoggedTunableNumber GOAL_TOLERANCE_RADIANS) {}
+
+  public record TurretAngleCalculation(
+      double GEAR_0_TOOTH_COUNT, double GEAR_1_TOOTH_COUNT, double GEAR_2_TOOTH_COUNT) {
+    public double SLOPE() {
+      return (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
+          / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
+    }
+  }
 }
