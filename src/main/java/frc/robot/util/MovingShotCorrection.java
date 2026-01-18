@@ -9,7 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import java.util.function.Function;
 
-class MovingShotCorrection {
+public interface MovingShotCorrection {
+
     /**
      * Calculates a corrected pose for a moving target based on the shooter's current velocity.
      * 
@@ -31,16 +32,16 @@ class MovingShotCorrection {
         Translation2d shooterOffset = centerToShooterCenter.getTranslation();
         Rotation2d changeInAngle = initialPose.getRotation().plus(centerToShooterCenter.getRotation());
 
-        double xVelocityMetersPerSecond = shooterOffset.getNorm() * 
+        double shooterXVelocityMetersPerSecond = shooterOffset.getNorm() * 
         velocityMetersPerSecond.omegaRadiansPerSecond * changeInAngle.plus(new Rotation2d(Math.PI/2)).getCos() + 
         velocityMetersPerSecond.vxMetersPerSecond;
 
-        double yVelocityMetersPerSecond = shooterOffset.getNorm() * 
+        double shooterYVelocityMetersPerSecond = shooterOffset.getNorm() * 
         velocityMetersPerSecond.omegaRadiansPerSecond * changeInAngle.plus(new Rotation2d(Math.PI/2)).getSin() + 
         velocityMetersPerSecond.vyMetersPerSecond;
 
-        double correctedX = targetPose.getX() - xVelocityMetersPerSecond * time;
-        double correctedY = targetPose.getY() - yVelocityMetersPerSecond * time;
+        double correctedX = targetPose.getX() - shooterXVelocityMetersPerSecond * time;
+        double correctedY = targetPose.getY() - shooterYVelocityMetersPerSecond * time;
         
         return new Translation2d(correctedX, correctedY);
     }
