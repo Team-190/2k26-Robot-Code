@@ -1,6 +1,5 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import lombok.Getter;
@@ -17,14 +16,14 @@ public class V0_FunkyTurretConstants {
 
   public static final double E1_OFFSET_RADIANS;
   public static final double E2_OFFSET_RADIANS;
-  
+
   @Getter @Setter public static double CURRENT_ANGLE;
   @Getter @Setter public static double VOLTAGE;
 
   public static final double SUPPLY_CURRENT_LIMIT;
   public static final double STATOR_CURRENT_LIMIT;
-public static final DCMotor MOTOR_CONFIG;
-public static final double MOMENT_OF_INERTIA;
+  public static final DCMotor MOTOR_CONFIG;
+  public static final double MOMENT_OF_INERTIA;
 
   static {
     CAN_ID = 1;
@@ -45,7 +44,8 @@ public static final double MOMENT_OF_INERTIA;
             new edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber("Turret/kP", 0),
             new LoggedTunableNumber("Turret/kD", 0),
             new LoggedTunableNumber("Turret/kV", 0),
-            new LoggedTunableNumber("Turret/kA", 0));
+            new LoggedTunableNumber("Turret/kA", 0),
+            new LoggedTunableNumber("Turret/kS", 0));
 
     CONSTRAINTS =
         new Constraints(
@@ -58,11 +58,11 @@ public static final double MOMENT_OF_INERTIA;
       LoggedTunableNumber kP,
       LoggedTunableNumber kD,
       LoggedTunableNumber kV,
-      LoggedTunableNumber kA) {}
+      LoggedTunableNumber kA,
+      LoggedTunableNumber kS) {}
 
   public static record Constraints(
-      LoggedTunableNumber MAX_ACCELERATION_ROTATIONS_PER_SECOND_SQUARED,
-      LoggedTunableNumber CRUISING_VELOCITY_ROTATIONS_PER_SECOND,
+      LoggedTunableNumber MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED,
+      LoggedTunableNumber CRUISING_VELOCITY_RADIANS_PER_SECOND,
       LoggedTunableNumber GOAL_TOLERANCE_RADIANS) {}
-
 }

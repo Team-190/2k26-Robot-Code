@@ -1,5 +1,7 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -9,8 +11,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIO.V0_FunkyTurretIOInputs;
 import org.littletonrobotics.junction.Logger;
-
-import static edu.wpi.first.units.Units.*;
 
 public class V0_FunkyTurret {
   private final V0_FunkyTurretIO io;
@@ -34,13 +34,15 @@ public class V0_FunkyTurret {
     previousPosition = inputs.turretAngle;
     desiredRotations = new Rotation2d();
 
-    characterizationRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            Volts.of(0.5).per(Seconds),
-            Volts.of(3.5),
-            Seconds.of(10),
-            (state) -> Logger.recordOutput("Turret/sysIDState", state.toString())),
-        new SysIdRoutine.Mechanism((volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
+    characterizationRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(0.5).per(Seconds),
+                Volts.of(3.5),
+                Seconds.of(10),
+                (state) -> Logger.recordOutput("Turret/sysIDState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
 
     aKitTopic = subsystem.getName() + "/Hood" + index;
     isClosedLoop = false;
@@ -108,8 +110,8 @@ public class V0_FunkyTurret {
     io.resetTurret();
   }
 
-  public void unwrap() {
-    io.unwrap();
+  public void checkDirectionalMotion() {
+    io.checkDirectionalMotion();
   }
 
   public boolean isInRange(Rotation2d angle) {
@@ -120,13 +122,13 @@ public class V0_FunkyTurret {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> isClosedLoop = false),
-        characterizationRoutine.quasistatic(Direction.kForward)
-            .until(() -> !isInRange(
-                Rotation2d.fromRadians(V0_FunkyTurretConstants.CURRENT_ANGLE))),
+        characterizationRoutine
+            .quasistatic(Direction.kForward)
+            .until(() -> !isInRange(Rotation2d.fromRadians(V0_FunkyTurretConstants.CURRENT_ANGLE))),
         Commands.waitSeconds(3),
-        characterizationRoutine.quasistatic(Direction.kReverse)
-            .until(() -> !isInRange(
-                Rotation2d.fromRadians(V0_FunkyTurretConstants.CURRENT_ANGLE))),
+        characterizationRoutine
+            .quasistatic(Direction.kReverse)
+            .until(() -> !isInRange(Rotation2d.fromRadians(V0_FunkyTurretConstants.CURRENT_ANGLE))),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
