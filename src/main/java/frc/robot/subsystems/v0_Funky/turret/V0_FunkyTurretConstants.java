@@ -1,7 +1,10 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import lombok.Getter;
+import lombok.Setter;
 
 public class V0_FunkyTurretConstants {
 
@@ -12,8 +15,16 @@ public class V0_FunkyTurretConstants {
   public static final Gains GAINS;
   public static final Constraints CONSTRAINTS;
 
+  public static final double E1_OFFSET_RADIANS;
+  public static final double E2_OFFSET_RADIANS;
+  
+  @Getter @Setter public static double CURRENT_ANGLE;
+  @Getter @Setter public static double VOLTAGE;
+
   public static final double SUPPLY_CURRENT_LIMIT;
   public static final double STATOR_CURRENT_LIMIT;
+public static final DCMotor MOTOR_CONFIG;
+public static final double MOMENT_OF_INERTIA;
 
   static {
     CAN_ID = 1;
@@ -22,6 +33,12 @@ public class V0_FunkyTurretConstants {
     GEAR_RATIO = 5;
     SUPPLY_CURRENT_LIMIT = 30;
     STATOR_CURRENT_LIMIT = 30;
+    CURRENT_ANGLE = 0;
+    VOLTAGE = 0;
+    E1_OFFSET_RADIANS = 0;
+    E2_OFFSET_RADIANS = 0;
+    MOTOR_CONFIG = null;
+    MOMENT_OF_INERTIA = 0;
 
     GAINS =
         new Gains(
@@ -48,15 +65,4 @@ public class V0_FunkyTurretConstants {
       LoggedTunableNumber CRUISING_VELOCITY_ROTATIONS_PER_SECOND,
       LoggedTunableNumber GOAL_TOLERANCE_RADIANS) {}
 
-  private final double voltage = 0;
-
-  public double getVoltage() {
-    return voltage;
-  }
-
-  private final Rotation2d angle = new Rotation2d();
-
-  public Rotation2d getAngle() {
-    return angle;
-  }
 }

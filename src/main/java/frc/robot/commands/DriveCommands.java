@@ -35,11 +35,11 @@ public final class DriveCommands {
           // Apply deadband
           double linearMagnitude =
               MathUtil.applyDeadband(
-                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), 0.1);
+                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), driveConstants.DRIVER_DEADBAND);
           Rotation2d linearDirection =
               new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), 0.1);
+          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), driveConstants.DRIVER_DEADBAND);
           linearMagnitude *= linearMagnitude;
 
           // Calculate new linear velocities

@@ -47,7 +47,7 @@ public interface V0_FunkyTurretIO {
     return false;
   }
 
-  public default void updateGains(double kP, double kD, double kV, double kA) {}
+  public default void updateGains(double kP, double kD, double kS, double kV, double kA) {}
 
   public default void updateConstraints(
       double maxAcceleration, double maxVelocity, double goalTolerance) {}
@@ -63,4 +63,8 @@ public interface V0_FunkyTurretIO {
 
   /**Sets the turret's goal to 0. */
   public default void goToZero() {}
+
+  /** Performs end-of-travel unwrapping depending on which way the turret is moving. */
+  public default void checkDirectionalMotion() {}
+
 }
