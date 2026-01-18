@@ -15,8 +15,8 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 public class V0_FunkyHoodIOSim implements V0_FunkyHoodIO {
   private final SingleJointedArmSim motorSim;
 
-  private ProfiledPIDController feedback;
-  private SimpleMotorFeedforward feedforward;
+  private final ProfiledPIDController feedback;
+  private final SimpleMotorFeedforward feedforward;
 
   private Rotation2d positionGoal = new Rotation2d();
   private double appliedVolts = 0.0;
@@ -84,7 +84,9 @@ public class V0_FunkyHoodIOSim implements V0_FunkyHoodIO {
 
   @Override
   public void setFeedforward(double ks, double kv, double ka) {
-    feedforward = new SimpleMotorFeedforward(ks, kv, ka);
+    feedforward.setKa(ka);
+    feedforward.setKs(ks);
+    feedforward.setKv(kv);
   }
 
   @Override
