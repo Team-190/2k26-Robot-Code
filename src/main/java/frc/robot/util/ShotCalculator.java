@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.function.Function;
 
-public interface MovingShotCorrection {
+public interface ShotCalculator {
   /**
    * Calculates a corrected pose for a moving target based on the shooter's current velocity.
    *
@@ -16,7 +16,7 @@ public interface MovingShotCorrection {
    * @param distanceToTimeFunction A function that converts distance to time.
    * @return The corrected pose to aim at.
    */
-  public default Translation2d getCorrection(
+  public default Translation2d getAdjustedTargetPose(
       Pose2d initialPose,
       Pose2d targetPose,
       ChassisSpeeds robotVelocityMetersPerSecond,
