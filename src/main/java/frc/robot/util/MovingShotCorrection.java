@@ -1,6 +1,5 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,10 +27,11 @@ public interface MovingShotCorrection {
     Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
 
     Translation2d shooterVelocityMetersPerSecond =
-        new Translation2d(-centerToShooterCenter.getRotation().getSin(),
+        new Translation2d(
+                -centerToShooterCenter.getRotation().getSin(),
                 centerToShooterCenter.getRotation().getCos())
-                .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
-                .times(centerToShooterCenter.getTranslation().getNorm());
+            .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
+            .times(centerToShooterCenter.getTranslation().getNorm());
 
     double xVelocityMetersPerSecond =
         shooterVelocityMetersPerSecond.getX() * initialPose.getRotation().getCos()
