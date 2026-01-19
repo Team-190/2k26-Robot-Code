@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v0_Funky.hood;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -10,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodConstants.HoodGoal;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class V0_FunkyHood {
@@ -54,6 +54,7 @@ public class V0_FunkyHood {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+    Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
 
     if (isClosedLoop) {
       io.setPosition(goal.getAngle());
@@ -93,7 +94,6 @@ public class V0_FunkyHood {
    *
    * @return If the hood is within tolerance of the goal (true) or not (false).
    */
-  @AutoLogOutput(key = "aKitTopic" + "/At Goal")
   public boolean atGoal() {
     return io.atGoal();
   }

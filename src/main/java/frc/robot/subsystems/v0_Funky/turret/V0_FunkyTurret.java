@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIO.V0_FunkyTurretIOInputs;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,9 +25,7 @@ public class V0_FunkyTurret {
 
   private final SysIdRoutine characterizationRoutine;
 
-  private boolean isClosedLoop;
-
-  private Rotation2d goal;
+  private V0_FunkyTurretState state;
 
   public V0_FunkyTurret(V0_FunkyTurretIO io, Subsystem subsystem, int index) {
     this.io = io;
@@ -47,7 +44,7 @@ public class V0_FunkyTurret {
                 (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
 
     aKitTopic = subsystem.getName() + "/Turret" + index;
-    isClosedLoop = false;
+    state = V0_FunkyTurretState.IDLE;
   }
 
   public void periodic() {
@@ -56,13 +53,13 @@ public class V0_FunkyTurret {
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
 
-    if (isClosedLoop) {
-      io.setPosition(goal);
+    if (state.equals(V0_FunkyTurretState.CLOSED_LOOP_ABSOLUTE_POSITION)) {
+      io.setTurretGoal(state.getRotation());
+    } else if (state.equals(V0_FunkyTurretState.OPEN_LOOP_VOLTAGE_CONTROL)) {
+      io.setTurretVoltage(state.getVoltage());
+    } else if (state.equals(V0_FunkyTurretState.CLOSED_LOOP_RELATIVE_POSITION)) {
+      io.setTurretGoal(inputs.turretAngle.plus(state.getRotation()));
     }
-  }
-
-  public void incrementAngle(Rotation2d increment) {
-    io.incrementAngle(increment);
   }
 
   public boolean outOfRange(Rotation2d angle) {
@@ -72,30 +69,36 @@ public class V0_FunkyTurret {
             >= V0_FunkyTurretConstants.MIN_ANGLE));
   }
 
-  public void updateInputs(V0_FunkyTurretIOInputs inputs) {
-    io.updateInputs(inputs);
+  public Command setTurretVoltage(double volts) {
+    return Commands.run(
+        () -> {
+          state = V0_FunkyTurretState.OPEN_LOOP_VOLTAGE_CONTROL;
+          state.setVoltage(volts);
+        });
   }
 
-  public void setTurretVoltage(double volts) {
-    isClosedLoop = false;
-    io.setTurretVoltage(volts);
+  public Command setTurretGoal(Rotation2d goal) {
+    return Commands.run(
+        () -> {
+          state = V0_FunkyTurretState.CLOSED_LOOP_ABSOLUTE_POSITION;
+          state.setRotation(goal);
+        });
   }
 
-  public void setTurretGoal(Rotation2d goal) {
-    isClosedLoop = true;
-    this.goal = goal;
-  }
-
-  public void stopTurret() {
-    io.setTurretVoltage(0);
+  public Command stopTurret() {
+    return setTurretVoltage(0);
   }
 
   public boolean atTurretPositionGoal() {
     return io.atTurretPositionGoal();
   }
 
-  public void incrementTurret(Rotation2d increment) {
-    setTurretGoal(increment.plus(inputs.turretAngle));
+  public Command incrementTurret(Rotation2d increment) {
+    return Commands.run(
+        () -> {
+          state = V0_FunkyTurretState.CLOSED_LOOP_RELATIVE_POSITION;
+          state.setRotation(increment);
+        });
   }
 
   public void updateGains(double kP, double kD, double kS, double kV, double kA) {
@@ -112,7 +115,7 @@ public class V0_FunkyTurret {
 
   public Command runSysId() {
     return Commands.sequence(
-        Commands.runOnce(() -> isClosedLoop = false),
+        Commands.runOnce(() -> state = V0_FunkyTurretState.CHARACTERIZING),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> outOfRange(Rotation2d.fromRadians(V0_FunkyTurretConstants.CURRENT_ANGLE))),

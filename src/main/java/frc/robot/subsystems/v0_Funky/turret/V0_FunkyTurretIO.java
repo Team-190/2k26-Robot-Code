@@ -49,9 +49,4 @@ public interface V0_FunkyTurretIO {
    * @param position the position is a rotation2d object of the turret's angle on the 2d plane.
    */
   default void setPosition(Rotation2d position) {}
-
-  /** Performs end-of-travel unwrapping depending on which way the turret is moving. */
-  default void checkDirectionalMotion() {}
-
-  default void incrementAngle(Rotation2d increment) {}
 }

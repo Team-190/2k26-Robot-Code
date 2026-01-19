@@ -1,7 +1,5 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
-import static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -88,11 +86,6 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
         feedback.calculate(sim.getAngularPositionRad(), targetGoal)
             + feedforward.calculate(feedback.getSetpoint().velocity);
     positionGoal = Rotation2d.fromRadians(targetGoal);
-  }
-
-  @Override
-  public void incrementAngle(Rotation2d increment) {
-    setTurretGoal(increment.plus(new Rotation2d(sim.getAngularPositionRad())));
   }
 
   @Override
