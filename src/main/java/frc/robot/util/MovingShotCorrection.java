@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,28 +25,25 @@ public interface MovingShotCorrection {
       Transform2d centerToShooterCenter) {
 
     Pose2d shooterPose = initialPose.plus(centerToShooterCenter);
-    Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
+    Transform2d shooterToTargetRobotSpace = new Transform2d(shooterPose, targetPose);
 
     Translation2d shooterVelocityMetersPerSecond =
-        new Translation2d(
-                -centerToShooterCenter.getRotation().getSin(),
+        new Translation2d(-centerToShooterCenter.getRotation().getSin(),
                 centerToShooterCenter.getRotation().getCos())
-            .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
-            .times(centerToShooterCenter.getTranslation().getNorm());
+                .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
+                .times(centerToShooterCenter.getTranslation().getNorm());
 
-    double xVelocityMetersPerSecond =
+    Translation2d velocityMetersPerSecond = new Translation2d(
         shooterVelocityMetersPerSecond.getX() * initialPose.getRotation().getCos()
-            - shooterVelocityMetersPerSecond.getY() * initialPose.getRotation().getSin()
-            + robotVelocityMetersPerSecond.vxMetersPerSecond;
-    double yVelocityMetersPerSecond =
+            - shooterVelocityMetersPerSecond.getY() * initialPose.getRotation().getSin(),
         shooterVelocityMetersPerSecond.getY() * initialPose.getRotation().getCos()
-            + shooterVelocityMetersPerSecond.getX() * initialPose.getRotation().getSin()
-            + robotVelocityMetersPerSecond.vyMetersPerSecond;
+            + shooterVelocityMetersPerSecond.getX() * initialPose.getRotation().getSin())
+            .plus(new Translation2d(robotVelocityMetersPerSecond.vxMetersPerSecond,robotVelocityMetersPerSecond.vyMetersPerSecond));
 
-    double deltaT = distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
+    double deltaT = distanceToTimeFunction.apply(shooterToTargetRobotSpace.getTranslation().getNorm());
 
-    double correctedX = targetPose.getX() - xVelocityMetersPerSecond * deltaT;
-    double correctedY = targetPose.getY() - yVelocityMetersPerSecond * deltaT;
+    double correctedX = targetPose.getX() - velocityMetersPerSecond.getX() * deltaT;
+    double correctedY = targetPose.getY() - velocityMetersPerSecond.getY() * deltaT;
 
     return new Translation2d(correctedX, correctedY);
   }
