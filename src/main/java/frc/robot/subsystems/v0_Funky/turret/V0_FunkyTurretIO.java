@@ -8,7 +8,7 @@ public interface V0_FunkyTurretIO {
 
   /** Inputs for Funky's turret subsystem */
   @AutoLog
-  public static class V0_FunkyTurretIOInputs {
+  class V0_FunkyTurretIOInputs {
     public Rotation2d turretAngle = new Rotation2d();
     public double turretVelocityRadiansPerSecond = 0.0;
     public double turretAppliedVolts = 0.0;
@@ -21,35 +21,37 @@ public interface V0_FunkyTurretIO {
   }
 
   /** Updates AdvantageKit inputs. */
-  public default void updateInputs(V0_FunkyTurretIOInputs inputs) {}
+  default void updateInputs(V0_FunkyTurretIOInputs inputs) {}
 
   /** Sets the turret motor voltage. */
-  public default void setTurretVoltage(double volts) {}
+  default void setTurretVoltage(double volts) {}
 
   /**
    * Sets the turret goal.
    *
    * @param goal The turret goal as a Pose3d type.
    */
-  public default void setTurretGoal(Rotation2d goal) {}
+  default void setTurretGoal(Rotation2d goal) {}
 
   /** Checks whether the turret is within the tolerance of its goal and returns a boolean. */
-  public default boolean atTurretPositionGoal() {
+  default boolean atTurretPositionGoal() {
     return false;
   }
 
-  public default void updateGains(double kP, double kD, double kS, double kV, double kA) {}
+  default void updateGains(double kP, double kD, double kS, double kV, double kA) {}
 
-  public default void updateConstraints(
+  default void updateConstraints(
       double maxAcceleration, double maxVelocity, double goalTolerance) {}
 
   /**
    * Sets the turret's current position to a value.
    *
-   * @param angle The angle is type double and is in radians.
+   * @param position the position is a rotation2d object of the turret's angle on the 2d plane.
    */
-  public default void setPosition(Rotation2d position) {}
+  default void setPosition(Rotation2d position) {}
 
   /** Performs end-of-travel unwrapping depending on which way the turret is moving. */
-  public default void checkDirectionalMotion() {}
+  default void checkDirectionalMotion() {}
+
+  default void incrementAngle(Rotation2d increment) {}
 }

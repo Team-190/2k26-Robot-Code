@@ -208,12 +208,6 @@ public class V0_FunkyTurretIOTalonFX {
   }
 
   /**
-   * Method that calculates turret angle based on encoder values
-   *
-   * @return
-   */
-
-  /**
    * Method that updates constraints of turret
    *
    * @param maxAcceleration

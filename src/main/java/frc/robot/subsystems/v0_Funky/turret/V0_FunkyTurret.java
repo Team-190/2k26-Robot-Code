@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -59,6 +58,10 @@ public class V0_FunkyTurret {
     if (isClosedLoop) {
       io.setPosition(goal);
     }
+  }
+
+  public void incrementAngle(Rotation2d increment) {
+    io.incrementAngle(increment);
   }
 
   public boolean outOfRange(Rotation2d angle) {
@@ -123,8 +126,11 @@ public class V0_FunkyTurret {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
+  /** Method that calculates turret angle based on encoder values */
+
+  /*
   @AutoLogOutput(key = "aKitTopic" + "/Current Angle")
-  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) { // TODO: pls check this
     double diff =
         Math.abs(
             e2.in(Units.Radians)
@@ -158,5 +164,29 @@ public class V0_FunkyTurret {
               / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
     }
     return Rotation2d.fromRadians(turretAngle);
+
+  }
+
+   */
+  @AutoLogOutput(key = "aKitTopic" + "/Current Angle")
+  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+
+    return Rotation2d.fromRadians(turretAngle);
+  }
+
+  static long modInverse(long a, long m) {
+    long m0 = m, x0 = 0, x1 = 1;
+    while (a > 1) {
+      long q = a / m;
+      long t = m;
+
+      m = a % m;
+      a = t;
+      t = x0;
+      x0 = x1 - q * x0;
+      x1 = t;
+    }
+
+    return x1 < 0 ? x1 + m0 : x1;
   }
 }

@@ -89,6 +89,11 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   }
 
   @Override
+  public void incrementAngle(Rotation2d increment) {
+    setPosition(increment.plus(new Rotation2d(sim.getAngularPositionRad())));
+  }
+
+  @Override
   public boolean atTurretPositionGoal() {
     return feedback.atGoal();
   }
