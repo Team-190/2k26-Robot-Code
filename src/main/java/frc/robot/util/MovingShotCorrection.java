@@ -33,7 +33,7 @@ public interface MovingShotCorrection {
             .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
             .times(centerToShooterCenter.getTranslation().getNorm());
 
-    Translation2d velocityMetersPerSecond =
+    Translation2d shooterFieldFrameVelocityMetersPerSecond =
         shooterRobotFrameVelocityMetersPerSecond
             .rotateBy(initialPose.getRotation())
             .plus(
@@ -43,8 +43,8 @@ public interface MovingShotCorrection {
 
     double deltaT = distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
 
-    double correctedX = targetPose.getX() - velocityMetersPerSecond.getX() * deltaT;
-    double correctedY = targetPose.getY() - velocityMetersPerSecond.getY() * deltaT;
+    double correctedX = targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
+    double correctedY = targetPose.getY() - shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
 
     return new Translation2d(correctedX, correctedY);
   }
