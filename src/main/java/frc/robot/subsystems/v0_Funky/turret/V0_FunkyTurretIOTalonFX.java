@@ -11,12 +11,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.*;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
-import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIO.V0_FunkyTurretIOInputs;
-import frc.robot.util.InternalLoggedTracer;
 
 public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
 
@@ -36,11 +34,8 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
   private final TalonFX talonFX;
   private final TalonFXConfiguration config;
 
-  private static CANcoder rightCANCoder;
-  private static CANcoder leftCANCoder;
-
-  private final double maxAngle = V0_FunkyTurretConstants.MAX_ANGLE;
-  private final double minAngle = V0_FunkyTurretConstants.MIN_ANGLE;
+  private final CANcoder rightCANCoder;
+  private final CANcoder leftCANCoder;
 
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
@@ -126,34 +121,33 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     voltageControlRequest = new VoltageOut(0.0);
   }
 
+  @Override
   public void setPosition(Rotation2d radians) {
-    InternalLoggedTracer.reset();
     talonFX.setPosition(radians.getRotations());
-    InternalLoggedTracer.record("Set Position", "Turret/TalonFX");
   }
 
   @Override
   public void setTurretVoltage(double volts) {
-    InternalLoggedTracer.reset();
     talonFX.setControl(voltageControlRequest.withOutput(volts));
-    InternalLoggedTracer.record("Set Voltage", "Turret/TalonFX");
   }
 
   @Override
   public void setTurretGoal(Rotation2d goal) {
     // Wrap the goal into the valid range
     double targetGoal = goal.getRadians();
-    while (targetGoal < minAngle) {
+    while (targetGoal < V0_FunkyTurretConstants.MIN_ANGLE) {
       targetGoal += 2 * Math.PI;
     }
-    while (targetGoal > maxAngle) {
+    while (targetGoal > V0_FunkyTurretConstants.MAX_ANGLE) {
       targetGoal -= 2 * Math.PI;
     }
 
     // Clamp to valid range as safety
-    targetGoal = Math.max(minAngle, Math.min(maxAngle, targetGoal));
+    targetGoal =
+        Math.max(
+            V0_FunkyTurretConstants.MIN_ANGLE,
+            Math.min(V0_FunkyTurretConstants.MAX_ANGLE, targetGoal));
 
-    InternalLoggedTracer.reset();
     // Send absolute position to MotionMagic in rotations
     talonFX.setControl(
         positionControlRequest
@@ -161,12 +155,12 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
             .withUseTimesync(true)
             .withUpdateFreqHz(200)
             .withEnableFOC(true));
-    InternalLoggedTracer.record("Set Goal", "Turret/TalonFX");
   }
 
+  @Override
   public void updateInputs(V0_FunkyTurretIOInputs inputs) {
 
-    inputs.turretAngle = new Rotation2d(position.getValue());
+    inputs.turretAngle = new Rotation2d(position.getValueAsDouble());
     inputs.turretVelocityRadiansPerSecond = velocity.getValue().in(Units.RadiansPerSecond);
     inputs.turretAppliedVolts = appliedVolts.getValueAsDouble();
     inputs.turretSupplyCurrentAmps = supplyCurrent.getValueAsDouble();
@@ -177,12 +171,15 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     inputs.turretGoal = new Rotation2d(positionGoal.getValueAsDouble());
   }
 
+  @Override
   public boolean atTurretPositionGoal() {
-    double positionRotations = position.getValue().in(Units.Rotations);
+    double positionRotations =
+        V0_FunkyTurret.calculateTurretAngle(e1.getValue(), e2.getValue()).getRotations();
     return Math.abs(positionGoal.getValue() - positionRotations) * 2 * Math.PI
         <= V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get();
   }
 
+  @Override
   public void updateGains(double kP, double kD, double kS, double kV, double kA) {
     config.Slot0.kP = kP;
     config.Slot0.kD = kD;
@@ -192,6 +189,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
   }
 
+  @Override
   public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
     config.MotionMagic.MotionMagicAcceleration = maxAcceleration;
     config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity;

@@ -1,8 +1,8 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.hardware.CANcoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
@@ -27,9 +27,6 @@ public class V0_FunkyTurret {
   private final SysIdRoutine characterizationRoutine;
 
   private boolean isClosedLoop;
-
-  private static CANcoder rightCANCoder;
-  private static CANcoder leftCANCoder;
 
   private Rotation2d goal;
 
@@ -56,6 +53,8 @@ public class V0_FunkyTurret {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+
+    Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
 
     if (isClosedLoop) {
       io.setPosition(goal);
@@ -91,7 +90,6 @@ public class V0_FunkyTurret {
     io.setTurretVoltage(0);
   }
 
-  @AutoLogOutput(key = "aKitTopic" + "/At Goal")
   public boolean atTurretPositionGoal() {
     return io.atTurretPositionGoal();
   }
@@ -129,7 +127,7 @@ public class V0_FunkyTurret {
   }
 
   /** Method that calculates turret angle based on encoder values */
-  @AutoLogOutput(key = "aKitTopic" + "/Current Angle")
+  @AutoLogOutput(key = "Turret" + "/Current Angle")
   public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
     // Apply offsets and wrap to [-pi, pi)
     double a1 =
@@ -161,21 +159,5 @@ public class V0_FunkyTurret {
     turretAngle *= slope;
 
     return Rotation2d.fromRadians(turretAngle);
-  }
-
-  static long modInverse(long a, long m) {
-    long m0 = m, x0 = 0, x1 = 1;
-    while (a > 1) {
-      long q = a / m;
-      long t = m;
-
-      m = a % m;
-      a = t;
-      t = x0;
-      x0 = x1 - q * x0;
-      x1 = t;
-    }
-
-    return x1 < 0 ? x1 + m0 : x1;
   }
 }
