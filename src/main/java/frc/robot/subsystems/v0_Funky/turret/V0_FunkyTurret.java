@@ -3,7 +3,9 @@ package frc.robot.subsystems.v0_Funky.turret;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.hardware.CANcoder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -127,49 +129,36 @@ public class V0_FunkyTurret {
   }
 
   /** Method that calculates turret angle based on encoder values */
-
-  /*
-  @AutoLogOutput(key = "aKitTopic" + "/Current Angle")
-  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) { // TODO: pls check this
-    double diff =
-        Math.abs(
-            e2.in(Units.Radians)
-                - V0_FunkyTurretConstants.E2_OFFSET_RADIANS
-                - e1.in(Units.Radians)
-                - V0_FunkyTurretConstants.E1_OFFSET_RADIANS);
-    if (diff > V0_FunkyTurretConstants.MAX_ANGLE) {
-      diff -= Math.toRadians(360);
-    } else if (diff < V0_FunkyTurretConstants.MIN_ANGLE) {
-      diff += Math.toRadians(360);
-    }
-    diff *= V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.SLOPE();
-
-    double e1Rotations =
-        edu.wpi.first.math.util.Units.radiansToRotations(
-            diff
-                * V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT());
-    double e1RotationsFloored = Math.floor(e1Rotations);
-    double turretAngle =
-        (e1RotationsFloored + e1.in(Radians))
-            * (V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT()
-                / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT());
-    if (turretAngle - diff < -100) {
-      turretAngle +=
-          V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT()
-              / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
-    } else if (turretAngle - diff > 100) {
-      turretAngle -=
-          V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT()
-              / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
-    }
-    return Rotation2d.fromRadians(turretAngle);
-
-  }
-
-   */
   @AutoLogOutput(key = "aKitTopic" + "/Current Angle")
   public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+    // Apply offsets and wrap to [-pi, pi)
+    double a1 =
+        MathUtil.angleModulus(e1.in(Units.Radians) - V0_FunkyTurretConstants.E1_OFFSET_RADIANS);
+
+    double a2 =
+        MathUtil.angleModulus(e2.in(Units.Radians) - V0_FunkyTurretConstants.E2_OFFSET_RADIANS);
+
+    // Gear ratios
+    double g0 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
+    double g1 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
+    double slope = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.SLOPE();
+
+    // Initial estimate from encoder 1
+    double baseTurret = a1 / g0;
+
+    // Period of ambiguity from encoder 1
+    double period = (2.0 * Math.PI) / g0;
+
+    // Predicted encoder 2 value based on encoder 1
+    double predictedA2 = MathUtil.angleModulus(g1 * baseTurret);
+
+    // Error between predicted and actual encoder 2
+    double error = MathUtil.angleModulus(predictedA2 - a2);
+
+    double k = Math.round(error / (g1 * period));
+    double turretAngle = baseTurret - k * period;
+
+    turretAngle *= slope;
 
     return Rotation2d.fromRadians(turretAngle);
   }

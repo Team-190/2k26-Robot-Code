@@ -16,8 +16,6 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   private final ProfiledPIDController feedback;
   private final SimpleMotorFeedforward feedforward;
 
-  private double directionalGoalRadians;
-
   private final DCMotorSim sim;
 
   private Rotation2d positionGoal = new Rotation2d();
@@ -43,6 +41,8 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
                     .MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED()
                     .get()));
     feedback.setTolerance(V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
+
+    feedback.disableContinuousInput();
 
     feedforward =
         new SimpleMotorFeedforward(
@@ -71,26 +71,28 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
 
   @Override
   public void setTurretGoal(Rotation2d goal) {
-    positionGoal = goal;
+    double targetGoal = goal.getRadians();
 
-    double directionalGoalRadians;
-    double positiveDiff = goal.getRadians() - sim.getAngularPositionRad();
-    double negativeDiff = positiveDiff - 2 * Math.PI;
-    if (Math.abs(positiveDiff) < Math.abs(negativeDiff)
-        && goal.getRadians() <= V0_FunkyTurretConstants.MAX_ANGLE
-        && goal.getRadians() >= V0_FunkyTurretConstants.MIN_ANGLE) {
-      directionalGoalRadians = positiveDiff;
-    } else {
-      directionalGoalRadians = negativeDiff;
+    while (targetGoal < V0_FunkyTurretConstants.MIN_ANGLE) {
+      targetGoal += 2 * Math.PI;
     }
+    while (targetGoal > V0_FunkyTurretConstants.MAX_ANGLE) {
+      targetGoal -= 2 * Math.PI;
+    }
+
+    targetGoal =
+        MathUtil.clamp(
+            targetGoal, V0_FunkyTurretConstants.MIN_ANGLE, V0_FunkyTurretConstants.MAX_ANGLE);
+
     appliedVolts =
-        feedback.calculate(sim.getAngularPositionRad(), directionalGoalRadians)
-            + feedforward.calculate(sim.getAngularVelocityRadPerSec());
+        feedback.calculate(sim.getAngularPositionRad(), targetGoal)
+            + feedforward.calculate(feedback.getSetpoint().velocity);
+    positionGoal = Rotation2d.fromRadians(targetGoal);
   }
 
   @Override
   public void incrementAngle(Rotation2d increment) {
-    setPosition(increment.plus(new Rotation2d(sim.getAngularPositionRad())));
+    setTurretGoal(increment.plus(new Rotation2d(sim.getAngularPositionRad())));
   }
 
   @Override
@@ -100,25 +102,16 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
 
   @Override
   public void setPosition(Rotation2d angle) {
+    sim.setState(angle.getRadians(), 0.0);
     feedback.reset(angle.getRadians(), 0.0);
-  }
-
-  @Override
-  public void checkDirectionalMotion() {
-    if (positionGoal.getRadians() < V0_FunkyTurretConstants.MIN_ANGLE) {
-      appliedVolts = (directionalGoalRadians * V0_FunkyTurretConstants.GEAR_RATIO / (2 * Math.PI));
-    } else if (positionGoal.getRadians() > V0_FunkyTurretConstants.MAX_ANGLE) {
-      appliedVolts =
-          -1 * (directionalGoalRadians * V0_FunkyTurretConstants.GEAR_RATIO / (2 * Math.PI));
-    }
   }
 
   @Override
   public void updateGains(double kP, double kD, double kS, double kV, double kA) {
     feedback.setPID(kP, 0.0, kD);
-    feedforward.setKa(kA);
     feedforward.setKs(kS);
     feedforward.setKv(kV);
+    feedforward.setKa(kA);
   }
 
   @Override
