@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import java.util.function.Function;
 
-class MovingShotCorrection {
+public interface MovingShotCorrection {
     /**
      * Calculates a corrected pose for a moving target based on the shooter's current velocity.
      * 
@@ -20,27 +20,33 @@ class MovingShotCorrection {
      * @return The corrected pose to aim at.
      */
 
-    public static Translation2d getCorrection(Pose2d initialPose, 
+    public default Translation2d getCorrection(Pose2d initialPose, 
                                               Pose2d targetPose, 
                                               ChassisSpeeds velocityMetersPerSecond, 
                                               Function<Double, Double> distanceToTimeFunction,
                                               Transform2d centerToShooterCenter) {
-          
-        double distanceMeters = initialPose.getTranslation().getDistance(targetPose.getTranslation());
-        double time = distanceToTimeFunction.apply(distanceMeters);
-        Translation2d shooterOffset = centerToShooterCenter.getTranslation();
-        Rotation2d changeInAngle = initialPose.getRotation().plus(centerToShooterCenter.getRotation());
 
-        double xVelocityMetersPerSecond = shooterOffset.getNorm() * 
-        velocityMetersPerSecond.omegaRadiansPerSecond * changeInAngle.plus(new Rotation2d(Math.PI/2)).getCos() + 
+
+
+        Pose2d shooterPose = new Pose2d(initialPose.getX() + initialPose.getRotation().getCos() * centerToShooterCenter.getX() - initialPose.getRotation().getSin() * centerToShooterCenter.getY(),
+                                        initialPose.getY() + initialPose.getRotation().getSin() * centerToShooterCenter.getX() + initialPose.getRotation().getCos() * centerToShooterCenter.getY(),
+                                        initialPose.getRotation().plus(centerToShooterCenter.getRotation()));
+
+        Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
+
+        double shooterXVelocityMetersPerSecond = centerToShooterCenter.getTranslation().getNorm() * 
+        velocityMetersPerSecond.omegaRadiansPerSecond * -centerToShooterCenter.getRotation().getSin() + 
         velocityMetersPerSecond.vxMetersPerSecond;
 
-        double yVelocityMetersPerSecond = shooterOffset.getNorm() * 
-        velocityMetersPerSecond.omegaRadiansPerSecond * changeInAngle.plus(new Rotation2d(Math.PI/2)).getSin() + 
+        double shooterYVelocityMetersPerSecond = centerToShooterCenter.getTranslation().getNorm() * 
+        velocityMetersPerSecond.omegaRadiansPerSecond * centerToShooterCenter.getRotation().getCos() +
         velocityMetersPerSecond.vyMetersPerSecond;
 
-        double correctedX = targetPose.getX() - xVelocityMetersPerSecond * time;
-        double correctedY = targetPose.getY() - yVelocityMetersPerSecond * time;
+        double xVelocityMetersPerSecond = shooterXVelocityMetersPerSecond * initialPose.getRotation().getCos() - shooterYVelocityMetersPerSecond * initialPose.getRotation().getSin() + velocityMetersPerSecond.vxMetersPerSecond;
+        double yVelocityMetersPerSecond = shooterYVelocityMetersPerSecond * initialPose.getRotation().getCos() + shooterXVelocityMetersPerSecond * initialPose.getRotation().getSin() + velocityMetersPerSecond.vyMetersPerSecond;
+
+        double correctedX = targetPose.getX() - xVelocityMetersPerSecond * distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
+        double correctedY = targetPose.getY() - yVelocityMetersPerSecond * distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
         
         return new Translation2d(correctedX, correctedY);
     }
