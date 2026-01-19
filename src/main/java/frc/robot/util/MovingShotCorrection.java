@@ -25,22 +25,22 @@ public interface MovingShotCorrection {
       Transform2d centerToShooterCenter) {
 
     Pose2d shooterPose = initialPose.plus(centerToShooterCenter);
-    Transform2d shooterToTargetRobotSpace = new Transform2d(shooterPose, targetPose);
+    Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
 
-    Translation2d shooterVelocityMetersPerSecond =
+    Translation2d shooterRobotFrameVelocityMetersPerSecond =
         new Translation2d(-centerToShooterCenter.getRotation().getSin(),
                 centerToShooterCenter.getRotation().getCos())
                 .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
                 .times(centerToShooterCenter.getTranslation().getNorm());
 
     Translation2d velocityMetersPerSecond = new Translation2d(
-        shooterVelocityMetersPerSecond.getX() * initialPose.getRotation().getCos()
-            - shooterVelocityMetersPerSecond.getY() * initialPose.getRotation().getSin(),
-        shooterVelocityMetersPerSecond.getY() * initialPose.getRotation().getCos()
-            + shooterVelocityMetersPerSecond.getX() * initialPose.getRotation().getSin())
+        shooterRobotFrameVelocityMetersPerSecond.getX() * initialPose.getRotation().getCos()
+            - shooterRobotFrameVelocityMetersPerSecond.getY() * initialPose.getRotation().getSin(),
+        shooterRobotFrameVelocityMetersPerSecond.getY() * initialPose.getRotation().getCos()
+            + shooterRobotFrameVelocityMetersPerSecond.getX() * initialPose.getRotation().getSin())
             .plus(new Translation2d(robotVelocityMetersPerSecond.vxMetersPerSecond,robotVelocityMetersPerSecond.vyMetersPerSecond));
 
-    double deltaT = distanceToTimeFunction.apply(shooterToTargetRobotSpace.getTranslation().getNorm());
+    double deltaT = distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
 
     double correctedX = targetPose.getX() - velocityMetersPerSecond.getX() * deltaT;
     double correctedY = targetPose.getY() - velocityMetersPerSecond.getY() * deltaT;
