@@ -169,13 +169,13 @@ task checkRoboRIOtoRobotType {
     doLast {
         def ROBORIO_COMMENT = fetchNameUsingJSch(
                 roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
-        )
+                )
         println "RoboRIO Name: ${ROBORIO_COMMENT}"
 
         // Ensure the build output directory is in the classpath
         def buildOutputDir = file('build/classes/java/main')
         URLClassLoader loader = new URLClassLoader([
-                buildOutputDir.toURI().toURL()
+            buildOutputDir.toURI().toURL()
         ] as URL[], this.class.classLoader)
 
         // Set file path names and constants
@@ -467,9 +467,9 @@ tasks.register('appendBuildVersion') {
 
         def dep = configurations.detachedConfiguration(
                 dependencies.create(GLibRepoPath)
-        ).resolvedConfiguration.firstLevelModuleDependencies.find {
-            it.moduleName == "gompeilib"
-        }
+                ).resolvedConfiguration.firstLevelModuleDependencies.find {
+                    it.moduleName == "gompeilib"
+                }
 
         def ver = dep?.moduleVersion ?: "unknown"
         "${src}:${ver}"

@@ -21,7 +21,6 @@ public class V0_FunkyTurret {
     private final V0_FunkyTurretIOInputsAutoLogged inputs;
 
     private final Rotation2d previousPosition;
-    private final Rotation2d desiredRotations;
 
     private final SysIdRoutine characterizationRoutine;
 
@@ -53,11 +52,11 @@ public class V0_FunkyTurret {
 
         Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
 
-
         switch (state) {
             case CLOSED_LOOP_ABSOLUTE_POSITION -> io.setTurretGoal(state.getRotation());
             case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
-            case CLOSED_LOOP_RELATIVE_POSITION -> io.setTurretGoal(inputs.turretAngle.plus(state.getRotation()));
+            case CLOSED_LOOP_RELATIVE_POSITION -> io.setTurretGoal(
+                    inputs.turretAngle.plus(state.getRotation()));
             default -> {
             }
         }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -13,6 +14,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 
@@ -114,6 +116,37 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
 
     e1 = leftCANCoder.getPosition();
     e2 = rightCANCoder.getPosition();
+
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        1 / GompeiLib.getLoopPeriod(),
+        position,
+        velocity,
+        temperature,
+        positionSetpoint,
+        positionError,
+        positionGoal,
+        supplyCurrent,
+        torqueCurrent,
+        appliedVolts,
+        e1,
+        e2);
+    talonFX.optimizeBusUtilization();
+    leftCANCoder.optimizeBusUtilization();
+    rightCANCoder.optimizeBusUtilization();
+
+    PhoenixUtil.registerSignals(
+        V0_FunkyTurretConstants.IS_CAN_FD,
+        position,
+        velocity,
+        temperature,
+        positionSetpoint,
+        positionError,
+        positionGoal,
+        supplyCurrent,
+        torqueCurrent,
+        appliedVolts,
+        e1,
+        e2);
 
     positionControlRequest =
         new MotionMagicVoltage(
