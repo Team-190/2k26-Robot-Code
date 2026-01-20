@@ -7,11 +7,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.team190.gompeilib.GompeiLib;
-import org.aspectj.weaver.tools.Trace;
+import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodConstants.HoodGoal;
 import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodState.HoodState;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -36,12 +35,12 @@ public class V0_FunkyHood {
    * @param subsystem the parent subsystem
    * @param index the index of the hood in the subsystem
    */
-  public V0_FunkyHood(V0_FunkyHoodIO io, Subsystem subsystem, int index, HoodState currentState, double volts) {
+  public V0_FunkyHood(
+      V0_FunkyHoodIO io, Subsystem subsystem, int index, HoodState currentState, double volts) {
     inputs = new V0_FunkyHoodIOInputsAutoLogged();
     this.io = io;
     this.currentState = currentState;
     this.volts = volts;
-
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -50,10 +49,11 @@ public class V0_FunkyHood {
                 Volts.of(3.5),
                 Seconds.of(10),
                 (state) -> Logger.recordOutput("Arm/sysIDState", state.toString())),
-            new SysIdRoutine.Mechanism((this.volts) -> io.setVoltage(volts.in(Volts)), null, subsystem));
+            new SysIdRoutine.Mechanism(
+                (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
 
     aKitTopic = subsystem.getName() + "/Hood" + index;
-    
+
     goal = HoodGoal.STOW;
   }
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
@@ -61,16 +61,16 @@ public class V0_FunkyHood {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
-      switch (currentState) {
-        case SET_ANGLE:
-          io.setPosition(goal.getAngle());
-          break;
-        case SET_VOLTAGE:
-          io.setVoltage(0);
-          break;
-        case IDLE:
-          break;
-      }
+    switch (currentState) {
+      case SET_ANGLE:
+        io.setPosition(goal.getAngle());
+        break;
+      case SET_VOLTAGE:
+        io.setVoltage(0);
+        break;
+      case IDLE:
+        break;
+    }
   }
   /**
    * Tells the hood what position it should be in.
