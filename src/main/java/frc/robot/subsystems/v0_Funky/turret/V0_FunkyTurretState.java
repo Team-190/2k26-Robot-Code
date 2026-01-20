@@ -9,7 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public enum V0_FunkyTurretState {
   IDLE,
-  CHARACTERIZING,
   CLOSED_LOOP_ABSOLUTE_POSITION(new Rotation2d()),
   OPEN_LOOP_VOLTAGE_CONTROL(0.0),
   CLOSED_LOOP_RELATIVE_POSITION(new Rotation2d());

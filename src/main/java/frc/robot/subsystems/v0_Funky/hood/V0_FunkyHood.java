@@ -35,16 +35,16 @@ public class V0_FunkyHood {
     inputs = new V0_FunkyHoodIOInputsAutoLogged();
     this.io = io;
 
+    aKitTopic = subsystem.getName() + "/Hood" + index;
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 Volts.of(0.5).per(Seconds),
                 Volts.of(3.5),
                 Seconds.of(10),
-                (state) -> Logger.recordOutput("Arm/sysIDState", state.toString())),
+                (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
             new SysIdRoutine.Mechanism((volts) -> io.setVoltage(volts.in(Volts)), null, subsystem));
 
-    aKitTopic = subsystem.getName() + "/Hood" + index;
     isClosedLoop = false;
     goal = HoodGoal.STOW;
   }
