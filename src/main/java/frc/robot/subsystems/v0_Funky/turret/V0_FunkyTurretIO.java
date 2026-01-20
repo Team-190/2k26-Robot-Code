@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -49,4 +50,19 @@ public interface V0_FunkyTurretIO {
    * @param position the position is a rotation2d object of the turret's angle on the 2d plane.
    */
   default void setPosition(Rotation2d position) {}
+
+  default double clampAngle(double targetAngle) {
+
+    while (targetAngle < V0_FunkyTurretConstants.MIN_ANGLE) {
+      targetAngle += 2 * Math.PI;
+    }
+    while (targetAngle > V0_FunkyTurretConstants.MAX_ANGLE) {
+      targetAngle -= 2 * Math.PI;
+    }
+
+    targetAngle =
+        MathUtil.clamp(
+            targetAngle, V0_FunkyTurretConstants.MIN_ANGLE, V0_FunkyTurretConstants.MAX_ANGLE);
+    return targetAngle;
+  }
 }

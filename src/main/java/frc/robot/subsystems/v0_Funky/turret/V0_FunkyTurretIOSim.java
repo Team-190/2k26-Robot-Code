@@ -70,18 +70,7 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   @Override
   public void setTurretGoal(Rotation2d goal) {
     double targetGoal = goal.getRadians();
-
-    while (targetGoal < V0_FunkyTurretConstants.MIN_ANGLE) {
-      targetGoal += 2 * Math.PI;
-    }
-    while (targetGoal > V0_FunkyTurretConstants.MAX_ANGLE) {
-      targetGoal -= 2 * Math.PI;
-    }
-
-    targetGoal =
-        MathUtil.clamp(
-            targetGoal, V0_FunkyTurretConstants.MIN_ANGLE, V0_FunkyTurretConstants.MAX_ANGLE);
-
+    targetGoal = clampAngle(targetGoal);
     appliedVolts =
         feedback.calculate(sim.getAngularPositionRad(), targetGoal)
             + feedforward.calculate(feedback.getSetpoint().velocity);

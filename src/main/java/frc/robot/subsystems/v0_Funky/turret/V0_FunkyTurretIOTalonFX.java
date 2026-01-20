@@ -168,18 +168,8 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
   public void setTurretGoal(Rotation2d goal) {
     // Wrap the goal into the valid range
     double targetGoal = goal.getRadians();
-    while (targetGoal < V0_FunkyTurretConstants.MIN_ANGLE) {
-      targetGoal += 2 * Math.PI;
-    }
-    while (targetGoal > V0_FunkyTurretConstants.MAX_ANGLE) {
-      targetGoal -= 2 * Math.PI;
-    }
 
-    // Clamp to valid range as safety
-    targetGoal =
-        Math.max(
-            V0_FunkyTurretConstants.MIN_ANGLE,
-            Math.min(V0_FunkyTurretConstants.MAX_ANGLE, targetGoal));
+    targetGoal = clampAngle(targetGoal);
 
     // Send absolute position to MotionMagic in rotations
     talonFX.setControl(
