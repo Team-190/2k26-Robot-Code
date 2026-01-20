@@ -3,10 +3,7 @@ package frc.robot.subsystems.v0_Funky.turret;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -76,7 +73,7 @@ public class V0_FunkyTurret {
     return Commands.run(
         () -> {
           state = V0_FunkyTurretState.CLOSED_LOOP_POSITION_CONTROL;
-          state.setRotation(goal);
+          state.setRotation(clampShortest(goal, inputs.turretAngle));
         });
   }
 
@@ -94,11 +91,7 @@ public class V0_FunkyTurret {
   }
 
   public Command incrementTurret(Rotation2d increment) {
-    return Commands.run(
-        () -> {
-          state = V0_FunkyTurretState.CLOSED_LOOP_POSITION_CONTROL;
-          state.setRotation(inputs.turretAngle.plus(increment));
-        });
+    return setTurretGoal(inputs.turretAngle.plus(increment));
   }
 
   public void updateGains(double kP, double kD, double kS, double kV, double kA) {
@@ -131,37 +124,41 @@ public class V0_FunkyTurret {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
-  /** Method that calculates turret angle based on encoder values */
-  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    // Apply offsets and wrap to [-pi, pi)
-    double a1 =
-        MathUtil.angleModulus(e1.in(Units.Radians) - V0_FunkyTurretConstants.E1_OFFSET_RADIANS);
+  private Rotation2d clampShortest(Rotation2d target, Rotation2d current) {
+    double targetRad = target.getRadians();
+    double currentRad = current.getRadians();
+    double minRad = V0_FunkyTurretConstants.MIN_ANGLE;
+    double maxRad = V0_FunkyTurretConstants.MAX_ANGLE;
 
-    double a2 =
-        MathUtil.angleModulus(e2.in(Units.Radians) - V0_FunkyTurretConstants.E2_OFFSET_RADIANS);
+    // Try both the direct target and the wrapped alternatives
+    double[] candidates = {targetRad, targetRad + 2 * Math.PI, targetRad - 2 * Math.PI};
 
-    // Gear ratios
-    double g0 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
-    double g1 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
-    double slope = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.SLOPE();
+    double bestValid = Double.NaN;
+    double bestDistance = Double.POSITIVE_INFINITY;
 
-    // Initial estimate from encoder 1
-    double baseTurret = a1 / g0;
+    for (double candidate : candidates) {
+      // Check if this candidate is within limits
+      if (candidate >= minRad && candidate <= maxRad) {
+        double distance = Math.abs(candidate - currentRad);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestValid = candidate;
+        }
+      }
+    }
 
-    // Period of ambiguity from encoder 1
-    double period = (2.0 * Math.PI) / g0;
+    // If we found a valid angle, use it
+    if (!Double.isNaN(bestValid)) {
+      return Rotation2d.fromRadians(bestValid);
+    }
 
-    // Predicted encoder 2 value based on encoder 1
-    double predictedA2 = MathUtil.angleModulus(g1 * baseTurret);
-
-    // Error between predicted and actual encoder 2
-    double error = MathUtil.angleModulus(predictedA2 - a2);
-
-    double k = Math.round(error / (g1 * period));
-    double turretAngle = baseTurret - k * period;
-
-    turretAngle *= slope;
-
-    return Rotation2d.fromRadians(turretAngle);
+    return Rotation2d.fromRadians(
+        currentRad < minRad
+            ? minRad
+            : currentRad > maxRad
+                ? maxRad
+                : (Math.abs(currentRad - minRad) < Math.abs(currentRad - maxRad)
+                    ? minRad
+                    : maxRad));
   }
 }

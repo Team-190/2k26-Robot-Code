@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
@@ -149,9 +150,9 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
         e2);
 
     positionControlRequest =
-        new MotionMagicVoltage(
-            V0_FunkyTurret.calculateTurretAngle(e1.getValue(), e2.getValue()).getRotations());
+        new MotionMagicVoltage(calculateTurretAngle(e1.getValue(), e2.getValue()).getRotations());
     voltageControlRequest = new VoltageOut(0.0);
+    talonFX.setPosition(calculateTurretAngle(e1.getValue(), e2.getValue()).getRotations());
   }
 
   @Override
@@ -166,15 +167,9 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
 
   @Override
   public void setTurretGoal(Rotation2d goal) {
-    // Wrap the goal into the valid range
-    double targetGoal = goal.getRadians();
-
-    targetGoal = clampAngle(targetGoal);
-
-    // Send absolute position to MotionMagic in rotations
     talonFX.setControl(
         positionControlRequest
-            .withPosition(targetGoal / (2 * Math.PI)) // Convert radians to rotations
+            .withPosition(goal.getRotations())
             .withUseTimesync(true)
             .withUpdateFreqHz(200)
             .withEnableFOC(true));
@@ -196,8 +191,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
 
   @Override
   public boolean atTurretPositionGoal() {
-    double positionRotations =
-        V0_FunkyTurret.calculateTurretAngle(e1.getValue(), e2.getValue()).getRotations();
+    double positionRotations = calculateTurretAngle(e1.getValue(), e2.getValue()).getRotations();
     return Math.abs(positionGoal.getValue() - positionRotations) * 2 * Math.PI
         <= V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get();
   }
@@ -217,5 +211,39 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     config.MotionMagic.MotionMagicAcceleration = maxAcceleration;
     config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity;
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
+  }
+
+  /** Method that calculates turret angle based on encoder values */
+  private Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+    // Apply offsets and wrap to [-pi, pi)
+    double a1 =
+        MathUtil.angleModulus(e1.in(Units.Radians) - V0_FunkyTurretConstants.E1_OFFSET_RADIANS);
+
+    double a2 =
+        MathUtil.angleModulus(e2.in(Units.Radians) - V0_FunkyTurretConstants.E2_OFFSET_RADIANS);
+
+    // Gear ratios
+    double g0 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
+    double g1 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
+    double slope = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.SLOPE();
+
+    // Initial estimate from encoder 1
+    double baseTurret = a1 / g0;
+
+    // Period of ambiguity from encoder 1
+    double period = (2.0 * Math.PI) / g0;
+
+    // Predicted encoder 2 value based on encoder 1
+    double predictedA2 = MathUtil.angleModulus(g1 * baseTurret);
+
+    // Error between predicted and actual encoder 2
+    double error = MathUtil.angleModulus(predictedA2 - a2);
+
+    double k = Math.round(error / (g1 * period));
+    double turretAngle = baseTurret - k * period;
+
+    turretAngle *= slope;
+
+    return Rotation2d.fromRadians(turretAngle);
   }
 }
