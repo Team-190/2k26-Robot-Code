@@ -19,13 +19,13 @@ public class V0_FunkyHood {
   private final String aKitTopic;
   private final V0_FunkyHoodIOInputsAutoLogged inputs;
 
-  private final HoodState currentState;
-  private final double volts;
-
   private SysIdRoutine characterizationRoutine;
-  private HoodGoal goal;
 
-  private boolean isClosedLoop;
+  private HoodState currentState;
+
+  private HoodGoal positionGoal;
+
+  private double voltageGoal;
 
   /**
    * Constructor for the Funky hood subsystem. Makes a routine that sets the voltage passed into the
@@ -36,11 +36,11 @@ public class V0_FunkyHood {
    * @param index the index of the hood in the subsystem
    */
   public V0_FunkyHood(
-      V0_FunkyHoodIO io, Subsystem subsystem, int index, HoodState currentState, double volts) {
+      V0_FunkyHoodIO io, Subsystem subsystem, int index) {
     inputs = new V0_FunkyHoodIOInputsAutoLogged();
     this.io = io;
-    this.currentState = currentState;
-    this.volts = volts;
+
+    this.currentState = HoodState.IDLE;
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -53,8 +53,6 @@ public class V0_FunkyHood {
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
 
     aKitTopic = subsystem.getName() + "/Hood" + index;
-
-    goal = HoodGoal.STOW;
   }
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
   @Trace
@@ -62,11 +60,11 @@ public class V0_FunkyHood {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
     switch (currentState) {
-      case SET_ANGLE:
-        io.setPosition(goal.getAngle());
+      case CLOSED_LOOP_POSITION_CONTROL:
+        io.setPosition(positionGoal.getAngle());
         break;
-      case SET_VOLTAGE:
-        io.setVoltage(0);
+      case OPEN_LOOP_VOLTAGE_CONTROL:
+        io.setVoltage(voltageGoal);
         break;
       case IDLE:
         break;
@@ -81,8 +79,8 @@ public class V0_FunkyHood {
   public Command setGoal(HoodGoal goal) {
     return Commands.runOnce(
         () -> {
-          isClosedLoop = true;
-          this.goal = goal;
+          
+          this.positionGoal = goal;
         });
   }
   /**
@@ -160,6 +158,7 @@ public class V0_FunkyHood {
    */
   public Command runSysId() {
     return Commands.sequence(
+        Commands.runOnce(() -> currentState = HoodState.IDLE),
         characterizationRoutine.quasistatic(Direction.kForward),
         Commands.waitSeconds(3),
         characterizationRoutine.quasistatic(Direction.kReverse),
