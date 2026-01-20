@@ -24,7 +24,6 @@ public class V0_FunkyHood {
   private HoodState currentState;
 
   private HoodGoal positionGoal;
-
   private double voltageGoal;
 
   /**
