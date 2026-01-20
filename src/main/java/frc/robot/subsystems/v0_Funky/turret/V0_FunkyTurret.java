@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.team190.gompeilib.core.GompeiLib;
 import org.littletonrobotics.junction.Logger;
 
 public class V0_FunkyTurret {
@@ -85,6 +86,11 @@ public class V0_FunkyTurret {
 
   public boolean atTurretPositionGoal() {
     return io.atTurretPositionGoal();
+  }
+
+  public Command waitUntilTurretAtGoal() {
+    return Commands.waitSeconds(GompeiLib.getLoopPeriod())
+        .andThen(Commands.waitUntil(this::atTurretPositionGoal));
   }
 
   public Command incrementTurret(Rotation2d increment) {
