@@ -8,19 +8,20 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public enum V0_FunkyTurretState {
-  IDLE,
-  CLOSED_LOOP_ABSOLUTE_POSITION(new Rotation2d()),
-  OPEN_LOOP_VOLTAGE_CONTROL(0.0),
-  CLOSED_LOOP_RELATIVE_POSITION(new Rotation2d());
+    IDLE,
+    CLOSED_LOOP_POSITION_CONTROL(new Rotation2d()),
+    OPEN_LOOP_VOLTAGE_CONTROL(0.0);
 
-  @Setter private Rotation2d rotation;
-  @Setter private double voltage;
+    @Setter
+    private Rotation2d rotation;
+    @Setter
+    private double voltage;
 
-  V0_FunkyTurretState(Rotation2d rotation) {
-    this.rotation = rotation;
-  }
+    V0_FunkyTurretState(Rotation2d rotation) {
+        this.rotation = rotation;
+    }
 
-  V0_FunkyTurretState(Double voltage) {
-    this.voltage = voltage;
-  }
+    V0_FunkyTurretState(Double voltage) {
+        this.voltage = voltage;
+    }
 }
