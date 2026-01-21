@@ -14,7 +14,6 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
-import frc.robot.subsystems.v0_Poot.V0_PootRobotContainer;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -56,6 +55,7 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     super(Constants.LOOP_PERIOD_SECONDS);
+    GompeiLib.init(Constants.getMode(), Constants.TUNING_MODE, Constants.LOOP_PERIOD_SECONDS);
   }
 
   public static boolean isJitting() {
@@ -76,6 +76,7 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+    Logger.recordMetadata("GompeiLib_Version", BuildConstants.VERSION);
     switch (BuildConstants.DIRTY) {
       case 0:
         Logger.recordMetadata("GitDirty", "All changes committed");
@@ -122,13 +123,10 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer =
-        switch (Constants.ROBOT) {
+        switch (RobotConfig.ROBOT) {
           case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
-          case V0_POOT, V0_POOT_SIM -> new V0_PootRobotContainer();
           default -> new RobotContainer() {};
         };
-
-    GompeiLib.init(Constants.getMode(), Constants.TUNING_MODE, Constants.LOOP_PERIOD_SECONDS);
 
     Elastic.selectTab("Autonomous");
     DriverStation.silenceJoystickConnectionWarning(true);
@@ -168,7 +166,7 @@ public class Robot extends LoggedRobot {
 
     String DEPLOY_DIR =
         Filesystem.getDeployDirectory().getPath()
-            + Constants.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
+            + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
     try {
       var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
       m.setAccessible(true);

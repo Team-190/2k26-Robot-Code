@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2026.1.1"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "io.freefair.lombok" version "8.4"
     id "com.diffplug.spotless" version "6.12.0"
@@ -10,6 +10,7 @@ plugins {
 ext {
     deploySrcDir = "src/main/deploy"
     deployRobotDir = "/home/lvuser/deploy"
+    useLocalGompeiLib = project.hasProperty("useLocalGompeiLib")
 }
 
 java {
@@ -29,7 +30,7 @@ gradle.projectsEvaluated {
 
     try {
         def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
-        def constantsClass = loader.loadClass("frc.robot.Constants")
+        def constantsClass = loader.loadClass("frc.robot.RobotConfig")
         def robotField = constantsClass.getDeclaredField("ROBOT")
         robotField.setAccessible(true)
         def robotEnumValue = robotField.get(null)  // static field
@@ -105,24 +106,47 @@ deploy {
     }
 }
 
+def GLibRepoPath = "edu.wpi.team190:gompeilib:2026.+"
+
 repositories {
-    // This tells Gradle that the following repository should ONLY be used
-    // for dependencies that match the filter.
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "GompeiLibGitHubPackages"
-                url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
-                credentials {
-                    username = project.findProperty("gpr.user")
-                    password = project.findProperty("gpr.key")
+
+    def gprUser = project.findProperty("gpr.user")
+    def gprKey = project.findProperty("gpr.key")
+
+    if (!useLocalGompeiLib && gprUser != null && gprKey != null) {
+        // Use GitHub Packages if credentials exist
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "GompeiLibGitHubPackages"
+                    url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
+                    credentials {
+                        username = gprUser
+                        password = gprKey
+                    }
                 }
             }
+            filter {
+                includeGroup "edu.wpi.team190"
+            }
         }
-        // The filter tells Gradle to only look for dependencies in the "edu.wpi.team190" group.
-        filter {
-            includeGroup "edu.wpi.team190"
+    } else if (!useLocalGompeiLib) {
+        println "Using JitPack for GompeiLib."
+        GLibRepoPath = "com.github.Team-190:gompeilib:2026.+"
+        // Fallback to JitPack if credentials are missing
+        exclusiveContent {
+            forRepository {
+                maven { url = uri("https://jitpack.io") }
+            }
+            filter {
+                includeGroup "com.github.Team-190"
+            }
         }
+    } else {
+        println "Using local GompeiLib build."
+
+        mavenLocal()
+        GLibRepoPath = "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
     }
 }
 
@@ -156,7 +180,7 @@ task checkRoboRIOtoRobotType {
 
         // Set file path names and constants
         def robotTypeClassName = 'frc.robot.Constants$RobotType'
-        def constantsClassName = 'frc.robot.Constants'
+        def constantsClassName = 'frc.robot.RobotConfig'
         def robotType = null
         def constantsClass = null
         def robotFieldName = 'ROBOT'
@@ -290,7 +314,7 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
 
-    implementation 'edu.wpi.team190:gompeilib:2026.+'
+    implementation GLibRepoPath
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
@@ -343,7 +367,7 @@ wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
 // Configure string concat to always inline compile
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
@@ -359,7 +383,7 @@ gversion {
 }
 
 // Create commit with working changes on event branches
-task(eventDeploy) {
+tasks.register('eventDeploy') {
     doLast {
         if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
             def branchPrefix = "event"
@@ -432,3 +456,39 @@ spotless {
         endWithNewline()
     }
 }
+
+tasks.register('appendBuildVersion') {
+    doLast {
+        def src = useLocalGompeiLib
+                ? "GompeiLib:local"
+                : ((project.hasProperty("gpr.user") && project.hasProperty("gpr.key"))
+                ? "GompeiLib:github-packages"
+                : "GompeiLib:jitpack")
+
+        def dep = configurations.detachedConfiguration(
+                dependencies.create(GLibRepoPath)
+                ).resolvedConfiguration.firstLevelModuleDependencies.find {
+                    it.moduleName == "gompeilib"
+                }
+
+        def ver = dep?.moduleVersion ?: "unknown"
+        "${src}:${ver}"
+        def outFile = file("src/main/java/frc/robot/BuildConstants.java")
+        if (!outFile.exists()) throw new GradleException("BuildConstants.java not found. Run gversion first.")
+
+        def contents = outFile.text
+
+        // Replace existing VERSION field if present, otherwise append before last brace
+        if (contents =~ /public static final String VERSION\s*=\s*".*";/) {
+            contents = contents.replaceFirst(/public static final String VERSION\s*=\s*".*";/,
+                    "public static final String VERSION = \"${src}:${ver}\";")
+        } else {
+            contents = contents.replaceFirst(/\}\s*$/, "    public static final String VERSION = \"${src}:${ver}\";\n}")
+        }
+
+        outFile.text = contents
+        println "VERSION field set to ${src}:${ver}"
+    }
+}
+
+createVersionFile.finalizedBy appendBuildVersion
