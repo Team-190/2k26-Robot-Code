@@ -36,8 +36,8 @@ public class V0_FunkyTurretConstants {
     STATOR_CURRENT_LIMIT = 30;
     E1_OFFSET_RADIANS = 0;
     E2_OFFSET_RADIANS = 0;
-    MOTOR_CONFIG = null;
-    MOMENT_OF_INERTIA = 0;
+    MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+    MOMENT_OF_INERTIA = 0.004;
 
     GAINS =
         new Gains(
@@ -51,9 +51,9 @@ public class V0_FunkyTurretConstants {
         new Constraints(
             new LoggedTunableNumber("Turret/Max Acceleration", 0),
             new LoggedTunableNumber("Turret/Cruising Velocity", 0),
-            new LoggedTunableNumber("Turrent/Goal Tolerance", 0));
+            new LoggedTunableNumber("Turret/Goal Tolerance", 0));
 
-    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 30, 20);
+    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 69, 71);
   }
 
   public record Gains(

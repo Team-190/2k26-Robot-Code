@@ -1,6 +1,9 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for V0 (Funky)'s turret subsystem */
@@ -49,4 +52,12 @@ public interface V0_FunkyTurretIO {
    * @param position the position is a rotation2d object of the turret's angle on the 2d plane.
    */
   default void setPosition(Rotation2d position) {}
+
+  default Angle getE1() {
+    return Angle.ofBaseUnits(0, Radians);
+  }
+
+  default Angle getE2() {
+    return Angle.ofBaseUnits(0, Radians);
+  }
 }

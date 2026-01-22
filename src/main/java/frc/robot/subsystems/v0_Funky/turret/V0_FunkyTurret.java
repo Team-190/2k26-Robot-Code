@@ -3,7 +3,10 @@ package frc.robot.subsystems.v0_Funky.turret;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -39,11 +42,15 @@ public class V0_FunkyTurret {
                 (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
 
     state = V0_FunkyTurretState.IDLE;
+
+    io.setPosition(calculateTurretAngle(io.getE1(), io.getE2()));
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+
+    System.out.println(state.toString());
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
 
@@ -160,5 +167,39 @@ public class V0_FunkyTurret {
                 : (Math.abs(currentRad - minRad) < Math.abs(currentRad - maxRad)
                     ? minRad
                     : maxRad));
+  }
+
+  /** Method that calculates turret angle based on encoder values */
+  private Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+    // Apply offsets and wrap to [-pi, pi)
+    double a1 =
+        MathUtil.angleModulus(e1.in(Units.Radians) - V0_FunkyTurretConstants.E1_OFFSET_RADIANS);
+
+    double a2 =
+        MathUtil.angleModulus(e2.in(Units.Radians) - V0_FunkyTurretConstants.E2_OFFSET_RADIANS);
+
+    // Gear ratios
+    double g0 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
+    double g1 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
+    double slope = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.SLOPE();
+
+    // Initial estimate from encoder 1
+    double baseTurret = a1 / g0;
+
+    // Period of ambiguity from encoder 1
+    double period = (2.0 * Math.PI) / g0;
+
+    // Predicted encoder 2 value based on encoder 1
+    double predictedA2 = MathUtil.angleModulus(g1 * baseTurret);
+
+    // Error between predicted and actual encoder 2
+    double error = MathUtil.angleModulus(predictedA2 - a2);
+
+    double k = Math.round(error / (g1 * period));
+    double turretAngle = baseTurret - k * period;
+
+    turretAngle *= slope;
+
+    return Rotation2d.fromRadians(turretAngle);
   }
 }

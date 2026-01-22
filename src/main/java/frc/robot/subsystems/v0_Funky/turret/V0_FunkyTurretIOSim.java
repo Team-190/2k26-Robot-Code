@@ -1,23 +1,32 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import java.util.Random;
 
 public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
 
   private final ProfiledPIDController feedback;
   private final SimpleMotorFeedforward feedforward;
 
+  private final Random random = new Random();
+
   private final DCMotorSim sim;
 
   private Rotation2d positionGoal = new Rotation2d();
   private double appliedVolts = 0.0;
+
+  private Angle encoderValue1;
+  private Angle encoderValue2;
 
   public V0_FunkyTurretIOSim() {
     sim =
@@ -45,6 +54,9 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
     feedforward =
         new SimpleMotorFeedforward(
             V0_FunkyTurretConstants.GAINS.kS().get(), V0_FunkyTurretConstants.GAINS.kV().get());
+
+    encoderValue1 = Angle.ofBaseUnits(random.nextDouble(0, 2 * Math.PI), Radians);
+    encoderValue2 = Angle.ofBaseUnits(random.nextDouble(0, 1), Radians);
   }
 
   @Override
@@ -99,5 +111,15 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
     feedback.setConstraints(new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
     feedback.setTolerance(goalTolerance);
+  }
+
+  @Override
+  public Angle getE1() {
+    return encoderValue1;
+  }
+
+  @Override
+  public Angle getE2() {
+    return encoderValue2;
   }
 }
