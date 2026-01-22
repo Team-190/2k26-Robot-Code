@@ -61,22 +61,22 @@ public class V0_FunkyRobotState {
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
-    Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
+    // Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
     localization.addPoseObservations(observations);
   }
 
-  public static void resetPose(Pose2d pose) {
-    localization.resetPose(pose);
-  }
+  // public static void resetPose(Pose2d pose) {
+  //   localization.resetPose(pose);
+  // }
 
-  public static Rotation2d getHeading() {
-    return localization.getEstimatedPose(fieldZones.get(0)).getRotation();
-  }
+  // public static Rotation2d getHeading() {
+  //   return localization.getEstimatedPose(fieldZones.get(0)).getRotation();
+  // }
 
-  public static Pose2d getGlobalPose() {
-    return localization.getEstimatedPose(fieldZones.get(0));
-  }
+  // public static Pose2d getGlobalPose() {
+  //   return localization.getEstimatedPose(fieldZones.get(0));
+  // }
 }
