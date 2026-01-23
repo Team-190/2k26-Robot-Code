@@ -21,14 +21,47 @@ public interface V1_GammaClimberIO {
     public Temperature temperature = Celsius.zero();
   }
 
-  public default void updateInputs(V1_GammaClimberIOInputs inputs) {}
+  /**
+   * Updates the inputs for the V1_GammaClimberIO interface.
+   * 
+   * This method is intended to be called periodically by the robot code to update the
+   * inputs for the V1_GammaClimberIO interface.
+   * 
+   * @param inputs the inputs to update
+   */
+  public default void updateInputs(V1_GammaClimberIOInputs inputs) {
+    
+  }
 
-  public default void setVoltage(double volts) {}
 
+  /**
+   * Sets the voltage to the climber motor
+   * @param volts the voltage to set, in volts
+   */
+  public default void setVoltage(double volts) {
+    
+  }
+
+
+/**
+ * Returns whether the climber is currently at the first
+ * climb position
+ *
+ * @return whether the climber is currently at the first
+ *         climb position
+ */
   public default boolean isClimbedL1() {
     return false;
   }
 
+
+/**
+ * Returns whether the climber is currently at the second
+ * climb position
+ *
+ * @return whether the climber is currently at the second
+ *         climb position
+ */
   public default boolean isClimbedL2() {
     return false;
   }
