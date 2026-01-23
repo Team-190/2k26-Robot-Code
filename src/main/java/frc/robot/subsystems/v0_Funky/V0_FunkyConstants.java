@@ -18,22 +18,22 @@ import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConf
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V0_FunkyConstants {
-//   public static final DriveConfig DRIVE_CONFIG =
-//       new DriveConfig(
-//           V0_FunkyTunerConstants.kCANBus,
-//           V0_FunkyTunerConstants.DrivetrainConstants.Pigeon2Id,
-//           V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-//           V0_FunkyTunerConstants.kWheelRadius.in(Meters),
-//           DCMotor.getKrakenX60Foc(1),
-//           DCMotor.getKrakenX44Foc(1),
-//           V0_FunkyTunerConstants.FrontLeft,
-//           V0_FunkyTunerConstants.FrontRight,
-//           V0_FunkyTunerConstants.BackLeft,
-//           V0_FunkyTunerConstants.BackRight,
-//           V0_FunkyTunerConstants.kDriveClosedLoopOutput,
-//           V0_FunkyTunerConstants.kSteerClosedLoopOutput,
-//           Units.inchesToMeters(34.5),
-//           Units.inchesToMeters(34.5));
+  public static final DriveConfig DRIVE_CONFIG =
+      new DriveConfig(
+          V0_FunkyTunerConstants.kCANBus,
+          V0_FunkyTunerConstants.DrivetrainConstants.Pigeon2Id,
+          V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
+          V0_FunkyTunerConstants.kWheelRadius.in(Meters),
+          DCMotor.getKrakenX60Foc(1),
+          DCMotor.getKrakenX44Foc(1),
+          V0_FunkyTunerConstants.FrontLeft,
+          V0_FunkyTunerConstants.FrontRight,
+          V0_FunkyTunerConstants.BackLeft,
+          V0_FunkyTunerConstants.BackRight,
+          V0_FunkyTunerConstants.kDriveClosedLoopOutput,
+          V0_FunkyTunerConstants.kSteerClosedLoopOutput,
+          Units.inchesToMeters(34.5),
+          Units.inchesToMeters(34.5));
   public static final Gains GAINS =
       new Gains(
           new LoggedTunableNumber("Drive/Teleop/Drive Ks", V0_FunkyTunerConstants.driveGains.kS),
@@ -70,15 +70,15 @@ public class V0_FunkyConstants {
   public static final double DRIVER_DEADBAND = 0.1;
   public static final double OPERATOR_DEADBAND = 0.1;
 
-//   public static final SwerveDriveConstants DRIVE_CONSTANTS =
-//       new SwerveDriveConstants(
-//           DRIVE_CONFIG,
-//           GAINS,
-//           AUTO_GAINS,
-//           AUTO_ALIGN_NEAR_CONSTANTS,
-//           OPERATOR_DEADBAND,
-//           ODOMETRY_FREQUENCY,
-//           DRIVER_DEADBAND);
+  public static final SwerveDriveConstants DRIVE_CONSTANTS =
+      new SwerveDriveConstants(
+          DRIVE_CONFIG,
+          GAINS,
+          AUTO_GAINS,
+          AUTO_ALIGN_NEAR_CONSTANTS,
+          OPERATOR_DEADBAND,
+          ODOMETRY_FREQUENCY,
+          DRIVER_DEADBAND);
 
   public static final LimelightConfig LIMELIGHT_CONFIG =
       LimelightConfig.builder()

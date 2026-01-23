@@ -61,7 +61,7 @@ public class V0_FunkyRobotState {
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
-    // Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
+    Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
