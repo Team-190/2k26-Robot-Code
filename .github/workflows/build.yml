@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     container: wpilib/roborio-cross-ubuntu:2024-22.04
     steps:
+      - name: Clear Gradle cache
+        run: rm -rf ~/.gradle/caches
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Grant execute permission
