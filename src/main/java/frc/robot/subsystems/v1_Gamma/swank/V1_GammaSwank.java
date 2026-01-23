@@ -14,7 +14,7 @@ public class V1_GammaSwank extends SubsystemBase {
         this.io = io;
         this.inputs = new V1_GammaSwankIOInputsAutoLogged();    
         
-        aKitTopic = this.getName() + "/Swank" + index; // check with elliot
+        aKitTopic = this.getName() + "/Swank" + index; 
       }
       
       public void periodic() {
