@@ -18,10 +18,19 @@ public class V1_GammaSwank extends SubsystemBase {
     Logger.processInputs("Swank", inputs);
   }
 
+  /**
+   * Command that sets robot voltage
+   * @param voltage
+   * @return
+   */
   public Command runVoltageCommand(double voltage) {
     return runOnce(() -> io.setVoltage(voltage));
   }
 
+  /**
+   * Command that stops robot by setting its voltage to 0
+   * @return
+   */
   public Command stopCommand() {
     return runOnce(() -> io.setVoltage(0));
   }
