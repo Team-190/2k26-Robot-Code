@@ -12,8 +12,8 @@ jobs:
     steps:
       - name: Clear Gradle cache
         run: rm -rf ~/.gradle/caches
-      - name: Delete build constants
-        run: rm src/main/java/frc/robot/BuildConstants.java
+      # - name: Delete build constants
+      #   run: rm src/main/java/frc/robot/BuildConstants.java
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Grant execute permission
