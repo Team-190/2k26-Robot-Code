@@ -89,7 +89,6 @@ public class V0_FunkyTunerConstants {
   private static final double kSteerGearRatio = 21.428571428571427;
   public static final Distance kWheelRadius = Inches.of(2);
 
-  private static final boolean kInvertLeftSide = true;
   private static final boolean kInvertRightSide = false;
 
   private static final int kPigeonId = 50;
@@ -213,7 +212,7 @@ public class V0_FunkyTunerConstants {
               kBackLeftEncoderOffset,
               kBackLeftXPos,
               kBackLeftYPos,
-              kInvertLeftSide,
+              true,
               kBackLeftSteerMotorInverted,
               kBackLeftEncoderInverted);
   public static final SwerveModuleConstants<

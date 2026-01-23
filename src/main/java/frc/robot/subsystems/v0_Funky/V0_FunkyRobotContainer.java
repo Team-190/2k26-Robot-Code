@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -28,15 +29,17 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.v0_Funky.feed.V0_Feed;
-import frc.robot.subsystems.v0_Funky.shoot.V0_Shoot;
+import frc.robot.subsystems.v0_Funky.feeder.Feeder;
+import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
+import frc.robot.subsystems.v0_Funky.shooter.Shooter;
+import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
 import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
+  private Shooter shooter;
+  private Feeder feeder;
   private Vision vision;
-  private V0_Feed feed;
-  private V0_Shoot shoot;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -64,6 +67,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   V0_FunkyRobotState::getGlobalPose,
                   V0_FunkyRobotState::resetPose);
+          shooter =
+              new Shooter(
+                  new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOTalonFX(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -72,10 +79,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.LIMELIGHT_CONFIG,
                       V0_FunkyRobotState::getHeading,
                       NetworkTablesJNI::now,
-                      List.of(V0_FunkyRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of(),
                       List.of()));
-          feed = new V0_Feed(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
-          shoot = new V0_Shoot(new GenericFlywheelIOTalonFX(V0_FunkyConstants.SHOOT_CONSTANTS));
           break;
 
         case V0_FUNKY_SIM:
@@ -97,11 +102,12 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
+          shooter =
+              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
-          feed = new V0_Feed(new GenericRollerIOSim(V0_FunkyConstants.FEED_CONSTANTS));
-          shoot = new V0_Shoot(new GenericFlywheelIOSim(V0_FunkyConstants.SHOOT_CONSTANTS));
           break;
 
         default:
@@ -121,16 +127,16 @@ public class V0_FunkyRobotContainer implements RobotContainer {
               V0_FunkyRobotState::resetPose);
     }
 
-    if (vision == null) {
-      vision =
-          new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+    if (shooter == null) {
+      shooter = new Shooter(new GenericFlywheelIO() {});
     }
 
-    if (feed == null) {
-      feed = new V0_Feed(new GenericRollerIO() {});
+    if (feeder == null) {
+      feeder = new Feeder(new GenericRollerIO() {});
     }
-    if (shoot == null) {
-      shoot = new V0_Shoot(new GenericFlywheelIO() {});
+
+    if (vision == null) {
+      new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
     }
 
     configureButtonBindings();
@@ -142,13 +148,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         DriveCommands.joystickDrive(
             drive,
             V0_FunkyConstants.DRIVE_CONSTANTS,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
+            () -> driver.getLeftY(),
+            () -> driver.getLeftX(),
             () -> driver.getRightX(),
-            V0_FunkyRobotState::getHeading));
-
-    feed.setDefaultCommand(feed.setVoltageCommand(() -> driver.getLeftTriggerAxis() * 7.0));
-    shoot.setDefaultCommand(shoot.setVoltageCommand(() -> driver.getRightTriggerAxis() * 12.0));
+            drive::getRawGyroRotation));
 
     driver
         .povDown()
@@ -157,6 +160,21 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 drive,
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
+
+    driver
+        .rightTrigger(0.05)
+        .whileTrue(
+            Commands.run(
+                () -> {
+                  System.out.println("Speed: " + driver.getRightTriggerAxis());
+                  shooter.setVoltage(12 * driver.getRightTriggerAxis());
+                }))
+        .whileFalse(Commands.runOnce(() -> shooter.setVoltage(0)));
+
+    driver
+        .leftBumper()
+        .whileTrue(Commands.run(() -> feeder.setVoltage(-12.0)))
+        .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
   }
 
   private void configureAutos() {
@@ -165,16 +183,11 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public void robotPeriodic() {
-
-    V0_FunkyRobotState.periodic(
-        drive.getRawGyroRotation(),
-        NetworkTablesJNI.now(),
-        drive.getYawVelocity(),
-        drive.getModulePositions());
+    V0_FunkyRobotState.periodic(drive.getRawGyroRotation(), drive.getModulePositions());
   }
 
   @Override
   public Command getAutonomousCommand() {
-    return shoot.runSysID();
+    return autoChooser.selectedCommand();
   }
 }

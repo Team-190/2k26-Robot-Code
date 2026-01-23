@@ -118,9 +118,188 @@ deploy {
     }
 }
 
-/* =====================================================
- * Dependencies
- * ===================================================== */
+repositories {
+    exclusiveContent {
+        forRepositories(
+                mavenLocal(),
+                maven {
+                    name = "GompeiLibGitHubPackages"
+                    url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
+                    credentials {
+                        username = project.findProperty("gpr.user")
+                        password = project.findProperty("gpr.key")
+                    }
+                }
+                )
+        filter {
+            includeGroup "edu.wpi.team190"
+        }
+    }
+
+    // Normal repos for everything else
+    mavenCentral()
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/release") }
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release") }
+    maven { url = uri("https://maven.ctr-electronics.com/release/") }
+}
+
+
+// Grab the roboRIO comment via SSH
+
+import com.jcraft.jsch.JSch
+import edu.wpi.first.gradlerio.GradleRIOPlugin
+import groovy.json.JsonSlurper
+
+ext {
+    // RoboRIO SSH details
+    roboRIOHost = 'roboRIO-190-FRC.local' // Replace with your team number
+    roboRIOUser = 'admin'                 // Default user
+    roboRIOPassword = ''                  // Default password
+    machineInfoFile = '/etc/machine-info' // Path to the file to read
+}
+
+task checkRoboRIOtoRobotType {
+    dependsOn compileJava
+    doLast {
+        def ROBORIO_COMMENT = fetchNameUsingJSch(
+                roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
+                )
+        println "RoboRIO Name: ${ROBORIO_COMMENT}"
+
+        // Ensure the build output directory is in the classpath
+        def buildOutputDir = file('build/classes/java/main')
+        URLClassLoader loader = new URLClassLoader([
+            buildOutputDir.toURI().toURL()
+        ] as URL[], this.class.classLoader)
+
+        // Set file path names and constants
+        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
+        def constantsClassName = 'frc.robot.RobotConfig'
+        def robotType = null
+        def constantsClass = null
+        def robotFieldName = 'ROBOT'
+
+        try {
+            // Load the class from the extended classloader
+            robotType = loader.loadClass(robotTypeClassName)
+            println "Loaded class: ${robotType.name}"
+
+            def constants = robotType.enumConstants
+            println "Enum constants: ${constants.collect { it.name() }}"
+
+        } catch (ClassNotFoundException e) {
+            println "Error: Class ${robotTypeClassName} not found. ${e.message}"
+        }
+
+        // Check for valid name of roboRIO comment
+        boolean foundMatch = false
+        for (enumConstant in robotType.enumConstants) {
+            if (enumConstant.toString().equalsIgnoreCase(ROBORIO_COMMENT)) {
+                foundMatch = true
+                break // Exit the loop once a match is found
+            }
+        }
+
+        if (foundMatch) {
+            println "Match found for possible RobotType"
+        } else {
+            throw new GradleException("Error: '${ROBORIO_COMMENT}' is not a valid RobotType\nTo Fix: Enter valid RoboRIO comment of valid RobotType in file '${machineInfoFile}' or via Webserver!")
+        }
+
+        try {
+            // Load the class from the extended classloader
+            constantsClass = loader.loadClass(constantsClassName)
+            println "Loaded class: ${constantsClass.name}"
+
+        } catch (ClassNotFoundException e) {
+            println "Error: Class ${constantsClassName} not found. ${e.message}"
+        }
+
+        // Get the ROBOT field
+        def robotField = constantsClass.getDeclaredField(robotFieldName)
+        robotField.setAccessible(true)
+
+        // Get the value of the ROBOT field
+        def robotEnumValue = robotField.get(null) // For static fields, pass `null`
+        println "Declared ROBOT in Constants.java: ${robotEnumValue}"
+
+        // Compare roboRIO name with ROBOT value
+        if (ROBORIO_COMMENT.equalsIgnoreCase(robotEnumValue.name())) {
+            println "The roboRIO name matches the ROBOT value in Constants.java!"
+        } else {
+            throw new GradleException("Mismatch! The RoboRIO comment '${ROBORIO_COMMENT}' does not match the ROBOT value '${robotEnumValue.name()}'\nTo Fix: Match RoboRIO comment to ROBOT in file '${constantsClassName}'")
+        }
+
+    }
+}
+
+// Function to fetch the file content using JSch
+def fetchNameUsingJSch(host, user, password, remoteFile) {
+    def session = null
+    def channel = null
+    try {
+        JSch jsch = new JSch()
+        session = jsch.getSession(user, host, 22)
+        session.setPassword(password)
+
+        // Skip strict host key checking for simplicity
+        session.setConfig("StrictHostKeyChecking", "no")
+
+        // Connect to the session
+        session.connect()
+
+        // Open an exec channel to run the command
+        channel = session.openChannel("exec")
+        def command = "cat ${remoteFile}"
+        channel.setCommand(command)
+
+        // Capture the output
+        def inputStream = channel.inputStream
+        channel.connect()
+
+        def output = inputStream.text.trim()
+        if (output.isEmpty()) {
+            throw new GradleException("Failed to fetch data from ${remoteFile}")
+        }
+
+        // Extract the name within quotes if the output contains PRETTY_HOSTNAME
+        def matcher = output =~ /PRETTY_HOSTNAME="(.+?)"/
+        if (matcher.find()) {
+            return matcher.group(1) // The name within quotes
+        } else {
+            throw new GradleException("RoboRIO Comment is Empty in file '${remoteFile}'\nTo Fix: Add RoboRIO Comment in file '${remoteFile}' or via Webserver!")
+        }
+    } catch (Exception e) {
+        throw new GradleException("Error during SSH connection: ${e.message}", e)
+    } finally {
+        if (channel != null) {
+            channel.disconnect()
+        }
+        if (session != null) {
+            session.disconnect()
+        }
+    }
+}
+
+deployroborio.dependsOn(checkRoboRIOtoRobotType)
+
+
+def deployArtifact = deploy.targets.roborio.artifacts.frcJava
+
+// Set to true to use debug for JNI.
+wpi.java.debugJni = false
+
+// Set this to true to enable desktop support.
+def includeDesktopSupport = true
+
+// Configuration for AdvantageKit
+task(replayWatch, type: JavaExec) {
+    mainClass = "org.littletonrobotics.junction.ReplayWatch"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+// Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
+// Also defines JUnit 4.
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
@@ -129,15 +308,10 @@ dependencies {
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
-    // GompeiLib resolution
-    if (useLocalGompeiLib) {
-        implementation "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
-    } else if (project.findProperty("gpr.user") != null) {
-        implementation "edu.wpi.team190:gompeilib:2026.+"
-    } else {
-        implementation "com.github.Team-190:gompeilib:2026.+"
-    }
 
+    // implementation 'edu.wpi.team190:gompeilib:2026.+'
+    implementation "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
+    // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
 
