@@ -34,8 +34,7 @@ public class V0_FunkyHood {
    * @param subsystem the parent subsystem
    * @param index the index of the hood in the subsystem
    */
-  public V0_FunkyHood(
-      V0_FunkyHoodIO io, Subsystem subsystem, int index) {
+  public V0_FunkyHood(V0_FunkyHoodIO io, Subsystem subsystem, int index) {
     inputs = new V0_FunkyHoodIOInputsAutoLogged();
     this.io = io;
 
@@ -78,7 +77,6 @@ public class V0_FunkyHood {
   public Command setGoal(HoodGoal goal) {
     return Commands.runOnce(
         () -> {
-          
           this.positionGoal = goal;
         });
   }
