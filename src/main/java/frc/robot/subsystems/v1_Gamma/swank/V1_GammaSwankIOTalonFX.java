@@ -1,54 +1,55 @@
 package frc.robot.subsystems.v1_Gamma.swank;
 
-import com.ctre.phoenix6.StatusSignal;
-
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 
 public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
 
-    private StatusSignal<Angle> positionRotations;
-    private StatusSignal<AngularVelocity> velocityRotationsPerSecond;
-    private StatusSignal<Voltage> appliedVolts;
-    private StatusSignal<Current> supplyCurrentAmps;
-    private StatusSignal<Current> torqueCurrentAmps;
-    private StatusSignal<Temperature> temperatureCelsius;
+  private StatusSignal<Angle> positionRotations;
+  private StatusSignal<AngularVelocity> velocityRotationsPerSecond;
+  private StatusSignal<Voltage> appliedVolts;
+  private StatusSignal<Current> supplyCurrentAmps;
+  private StatusSignal<Current> torqueCurrentAmps;
+  private StatusSignal<Temperature> temperatureCelsius;
 
-    private TalonFXConfiguration config;
+  private TalonFXConfiguration config;
 
-    private TalonFX motor;
-    
+  private TalonFX motor;
 
-    public V1_GammaSwankIOTalonFX() {
-        motor = new TalonFX(V1_GammaSwankConstants.MOTOR_CAN_ID);
+  public V1_GammaSwankIOTalonFX() {
+    motor = new TalonFX(V1_GammaSwankConstants.MOTOR_CAN_ID);
 
-        config = new TalonFXConfiguration();
-        config.CurrentLimits.SupplyCurrentLimit = V1_GammaSwankConstants.CURRENT_LIMIT;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.Feedback.SensorToMechanismRatio = V1_GammaSwankConstants.GEAR_RATIO;
+    config = new TalonFXConfiguration();
+    config.CurrentLimits.SupplyCurrentLimit = V1_GammaSwankConstants.SUPPLY_CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = V1_GammaSwankConstants.STATOR_CURRENT_LIMIT;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.Inverted = V1_GammaSwankConstants.REVERSED;
+    config.Feedback.SensorToMechanismRatio = V1_GammaSwankConstants.GEAR_RATIO;
 
-        PhoenixUtil.tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
 
-        positionRotations = motor.getPosition();
-        velocityRotationsPerSecond = motor.getVelocity();
-        torqueCurrentAmps = motor.getTorqueCurrent();
-        supplyCurrentAmps = motor.getSupplyCurrent();
-        temperatureCelsius = motor.getDeviceTemp();
-        appliedVolts = motor.getMotorVoltage();
+    positionRotations = motor.getPosition();
+    velocityRotationsPerSecond = motor.getVelocity();
+    torqueCurrentAmps = motor.getTorqueCurrent();
+    supplyCurrentAmps = motor.getSupplyCurrent();
+    temperatureCelsius = motor.getDeviceTemp();
+    appliedVolts = motor.getMotorVoltage();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(
+    BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
         positionRotations,
         velocityRotationsPerSecond,
@@ -56,7 +57,6 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
         supplyCurrentAmps,
         appliedVolts,
         temperatureCelsius);
-    
 
     PhoenixUtil.registerSignals(
         V1_GammaSwankConstants.IS_CAN_FD,
@@ -66,9 +66,9 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
         supplyCurrentAmps,
         appliedVolts,
         temperatureCelsius);
-    }
+  }
 
-    public void updateInputs(V1_GammaSwankIOInputs inputs) {
+  public void updateInputs(V1_GammaSwankIOInputs inputs) {
     BaseStatusSignal.refreshAll(
         positionRotations,
         velocityRotationsPerSecond,
@@ -89,5 +89,4 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
   public void setVoltage(double volts) {
     motor.setControl(new VoltageOut(volts));
   }
-
 }
