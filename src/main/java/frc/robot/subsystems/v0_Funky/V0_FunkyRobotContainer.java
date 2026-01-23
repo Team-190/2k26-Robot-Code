@@ -29,10 +29,10 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederConstants;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterConstants;
+import frc.robot.subsystems.v0_Funky.feeder.Feeder;
+import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
+import frc.robot.subsystems.v0_Funky.shooter.Shooter;
+import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
 import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {

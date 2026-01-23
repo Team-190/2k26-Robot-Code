@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shooter;
+package frc.robot.subsystems.v0_Funky.shooter;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -6,7 +6,6 @@ import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.Constraints;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.Gains;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.GenericFlywheelParameters;
 
 public class ShooterConstants {
   public static final GenericFlywheelConstants SHOOTER_FLYWHEEL_CONSTANTS =
@@ -16,18 +15,17 @@ public class ShooterConstants {
           false,
           40.0,
           0.004,
-          new DCMotor[] {DCMotor.getKrakenX60Foc(1)},
           new Gains(
               new LoggedTunableNumber("Ks", 0),
               new LoggedTunableNumber("Kv", 0),
               new LoggedTunableNumber("Ka", 0),
               new LoggedTunableNumber("Kp", 0),
               new LoggedTunableNumber("Kd", 0)),
+          DCMotor.getKrakenX60Foc(1),
           new Constraints(
               new LoggedTunableNumber("max accel", 0),
               new LoggedTunableNumber("max vel", 0),
               new LoggedTunableNumber("tolerance", 1)),
-          new GenericFlywheelParameters(DCMotor.getKrakenX60Foc(1), 0, 0, 0, 0),
           1,
           InvertedValue.CounterClockwise_Positive);
 }
