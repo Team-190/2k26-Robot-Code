@@ -8,13 +8,24 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
+import frc.robot.util.NTPrefixes;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class V0_FunkyRobotState {
   private static AprilTagFieldLayout fieldLayout;
   private static List<FieldZone> fieldZones;
   private static Localization localization;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
+  @Getter
+  private static final Rotation2d scoreAngle;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
+  @Getter
+  private static final Rotation2d feedAngle;
 
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
@@ -27,6 +38,9 @@ public class V0_FunkyRobotState {
     localization =
         new Localization(
             fieldZones, V0_FunkyConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(), 2);
+
+    scoreAngle = Rotation2d.kZero;
+    feedAngle = Rotation2d.kZero;
   }
 
   public static void periodic(Rotation2d heading, SwerveModulePosition[] modulePositions) {
