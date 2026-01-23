@@ -20,12 +20,12 @@ public class V1_GammaSpindexerIOSim implements V1_GammaSpindexerIO{
             new DCMotorSim(
                 LinearSystemId.createDCMotorSystem(
                     consts.MOTOR_CONFIG,
-                    consts.MOMENT_OF_INERTIA.baseUnitMagnitude(),
+                    consts.MOMENT_OF_INERTIA,
                     consts.GEAR_RATIO), consts.MOTOR_CONFIG);
 
         appliedVolts = 0.0;
     }
-
+    
     @Override
     public void updateInputs(V1_GammaSpindexerIOInputs inputs) {
         appliedVolts = MathUtil.clamp(appliedVolts, -12.0, 12.0);

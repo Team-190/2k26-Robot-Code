@@ -13,7 +13,12 @@ import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLog;
 
+/** Interface for Gamma's Spindexer subsystem. */
 public interface V1_GammaSpindexerIO {
+
+  /**
+   * Inputs for Gamma's Spindexer subsystem. 
+   */
   @AutoLog
   public static class V1_GammaSpindexerIOInputs {
     public Rotation2d position = new Rotation2d();
