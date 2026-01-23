@@ -9,7 +9,7 @@ public class V1_GammaSwank extends SubsystemBase {
   private final V1_GammaSwankIOInputsAutoLogged inputs;
   private final String aKitTopic;
 
-  public V1_GammaSwank(V1_GammaSwankIO io, int index) {
+  public V1_GammaSwank(V1_GammaSwankIO io) {
     this.io = io;
     this.inputs = new V1_GammaSwankIOInputsAutoLogged();
 

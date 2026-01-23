@@ -37,7 +37,7 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
     config.CurrentLimits.StatorCurrentLimit = V1_GammaSwankConstants.STATOR_CURRENT_LIMIT;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-    config.MotorOutput.Inverted = V1_GammaSwankConstants.REVERSED;
+    config.MotorOutput.Inverted = V1_GammaSwankConstants.INVERSION;
     config.Feedback.SensorToMechanismRatio = V1_GammaSwankConstants.GEAR_RATIO;
 
     PhoenixUtil.tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
