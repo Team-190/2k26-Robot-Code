@@ -29,8 +29,8 @@ public class V0_FunkyTurretConstants {
     TURRET_CAN_ID = 1;
     LEFT_ENCODER_ID = 2;
     RIGHT_ENCODER_ID = 3;
-    MAX_ANGLE = Math.PI; // Output angle in rads
-    MIN_ANGLE = -Math.PI;
+    MAX_ANGLE = 2 * Math.PI; // Output angle in rads
+    MIN_ANGLE = -2 * Math.PI;
     GEAR_RATIO = 5;
     SUPPLY_CURRENT_LIMIT = 30;
     STATOR_CURRENT_LIMIT = 30;
@@ -53,7 +53,7 @@ public class V0_FunkyTurretConstants {
             new LoggedTunableNumber("Turret/Cruising Velocity", 0),
             new LoggedTunableNumber("Turret/Goal Tolerance", 0));
 
-    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 69, 71);
+    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 36, 38);
   }
 
   public record Gains(

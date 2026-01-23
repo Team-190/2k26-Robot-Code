@@ -48,9 +48,10 @@ public class V0_FunkyTurret {
 
   public void periodic() {
     io.updateInputs(inputs);
+    inputs.turretAngle = calculateTurretAngle(io.getE1(), io.getE2());
     Logger.processInputs(aKitTopic, inputs);
 
-    System.out.println(state.toString());
+    // System.out.println(state.toString());
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
 
