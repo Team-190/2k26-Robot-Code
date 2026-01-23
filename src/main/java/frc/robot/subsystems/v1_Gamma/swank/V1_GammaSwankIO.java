@@ -21,7 +21,15 @@ public interface V1_GammaSwankIO {
     public Temperature temperature = Celsius.zero();
   }
 
+/**
+ * Method that updates inputs for swank subsystem
+ * @param inputs
+ */
   public default void updateInputs(V1_GammaSwankIOInputs inputs) {}
 
+  /**
+   * Method that sets voltage for Swank subsystem
+   * @param volts
+   */
   public default void setVoltage(double volts) {}
 }
