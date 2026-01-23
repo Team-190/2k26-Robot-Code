@@ -8,7 +8,7 @@ public class Shooter extends SubsystemBase {
   private GenericFlywheel flywheel;
 
   public Shooter(GenericFlywheelIO io) {
-    flywheel = new GenericFlywheel(io, this, 0);
+    flywheel = new GenericFlywheel(io, this, "Flywheel 1");
   }
 
   @Override

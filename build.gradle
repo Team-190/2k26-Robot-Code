@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2026.1.1"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "io.freefair.lombok" version "8.4"
     id "com.diffplug.spotless" version "6.12.0"
@@ -20,20 +20,105 @@ java {
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
-/* =====================================================
- * Repositories
- * ===================================================== */
+gradle.projectsEvaluated {
+    def buildDir = new File("${project.buildDir}/classes/java/main")
+    if (!buildDir.exists()) {
+        println "⚠️ Warning: compiled classes not found. Make sure compileJava runs first."
+        project.ext.deploySrcDir = "src/main/deploy"
+        return
+    }
+
+    try {
+        def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
+        def constantsClass = loader.loadClass("frc.robot.RobotConfig")
+        def robotField = constantsClass.getDeclaredField("ROBOT")
+        robotField.setAccessible(true)
+        def robotEnumValue = robotField.get(null)  // static field
+
+        println "Detected RobotType: ${robotEnumValue}"
+
+        def baseName = robotEnumValue.toString().toLowerCase().replaceAll(/_sim$/, "")
+        def candidateDir = "src/main/deploy/${baseName}"
+
+        if (file(candidateDir).exists()) {
+            project.ext.deploySrcDir = candidateDir
+            project.ext.deployRobotDir = "/home/lvuser/deploy/${baseName}"
+        } else {
+            println "Folder '${candidateDir}' does not exist. Using default deploy folder."
+        }
+
+        println "deploySrcDir set to: ${project.ext.deploySrcDir}"
+
+    } catch (Throwable e) {
+        println "Could not read RobotType: ${e.message}"
+        project.ext.deploySrcDir = "src/main/deploy"
+    }
+}
+
+// Define my targets (RoboRIO) and artifacts (deployable files)
+// This is added by GradleRIO's backing project DeployUtils.
+deploy {
+    targets {
+        roborio(getTargetTypeClass('RoboRIO')) {
+            // Team number is loaded either from the .wpilib/wpilib_preferences.json
+            // or from command line. If not found an exception will be thrown.
+            // You can use getTeamOrDefault(team) instead of getTeamNumber if you
+            // want to store a team number in this file.
+            team = project.frc.getTeamNumber()
+            debug = project.frc.getDebugOrDefault(false)
+
+            artifacts {
+                // First part is artifact name, 2nd is artifact type
+                // getTargetTypeClass is a shortcut to get the class type using a string
+
+                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
+                    jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
+                    jvmArgs.add("-XX:GCTimeRatio=5")
+                    jvmArgs.add("-XX:+UseSerialGC")
+                    jvmArgs.add("-XX:MaxGCPauseMillis=50")
+
+                    // The options below may improve performance, but should only be enabled on the RIO 2
+
+                    final MAX_JAVA_HEAP_SIZE_MB = 100
+                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
+
+                    // Enable VisualVM connection
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    // jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    // jvmArgs.add("-Djava.rmi.server.hostname=10.1.90.2") // Replace TE.AM with team number
+                }
+
+                // Static files artifact
+                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    files = project.fileTree(project.ext.deploySrcDir)
+                    directory = deployRobotDir
+                    // Change to true to delete files on roboRIO that no
+                    // longer exist in deploy directory on roboRIO
+                    deleteOldFiles = false
+                }
+            }
+        }
+    }
+}
+
+def GLibRepoPath = "edu.wpi.team190:gompeilib:2026.+"
+
 repositories {
-    // REQUIRED for local SNAPSHOT resolution
-    mavenLocal()
 
     def gprUser = project.findProperty("gpr.user")
     def gprKey = project.findProperty("gpr.key")
 
     if (!useLocalGompeiLib && gprUser != null && gprKey != null) {
+        // Use GitHub Packages if credentials exist
         exclusiveContent {
             forRepository {
                 maven {
+                    name = "GompeiLibGitHubPackages"
                     url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
                     credentials {
                         username = gprUser
@@ -46,6 +131,9 @@ repositories {
             }
         }
     } else if (!useLocalGompeiLib) {
+        println "Using JitPack for GompeiLib."
+        GLibRepoPath = "com.github.Team-190:gompeilib:2026.+"
+        // Fallback to JitPack if credentials are missing
         exclusiveContent {
             forRepository {
                 maven { url = uri("https://jitpack.io") }
@@ -54,95 +142,13 @@ repositories {
                 includeGroup "com.github.Team-190"
             }
         }
+    } else {
+        println "Using local GompeiLib build."
+
+        mavenLocal()
+        GLibRepoPath = "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
     }
 }
-
-/* =====================================================
- * Detect RobotType → deploy folder
- * ===================================================== */
-gradle.projectsEvaluated {
-    def buildDir = file("$buildDir/classes/java/main")
-    if (!buildDir.exists()) {
-        project.ext.deploySrcDir = "src/main/deploy"
-        return
-    }
-
-    try {
-        def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
-        def constantsClass = loader.loadClass("frc.robot.RobotConfig")
-        def robotField = constantsClass.getDeclaredField("ROBOT")
-        robotField.setAccessible(true)
-        def robotEnumValue = robotField.get(null)
-
-        def baseName = robotEnumValue.toString().toLowerCase().replaceAll(/_sim$/, "")
-        def candidateDir = "src/main/deploy/$baseName"
-
-        if (file(candidateDir).exists()) {
-            project.ext.deploySrcDir = candidateDir
-            project.ext.deployRobotDir = "/home/lvuser/deploy/$baseName"
-        }
-    } catch (Throwable ignored) {
-        project.ext.deploySrcDir = "src/main/deploy"
-    }
-}
-
-/* =====================================================
- * Deploy Configuration
- * ===================================================== */
-deploy {
-    targets {
-        roborio(getTargetTypeClass('RoboRIO')) {
-            team = project.frc.getTeamNumber()
-            debug = project.frc.getDebugOrDefault(false)
-
-            artifacts {
-                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
-                    jvmArgs.addAll([
-                        "-XX:+UnlockExperimentalVMOptions",
-                        "-XX:GCTimeRatio=5",
-                        "-XX:+UseSerialGC",
-                        "-XX:MaxGCPauseMillis=50",
-                        "-Xmx100M",
-                        "-Xms100M",
-                        "-XX:+AlwaysPreTouch"
-                    ])
-                }
-
-                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
-                    files = project.fileTree(project.ext.deploySrcDir)
-                    directory = deployRobotDir
-                    deleteOldFiles = false
-                }
-            }
-        }
-    }
-}
-
-repositories {
-    exclusiveContent {
-        forRepositories(
-                mavenLocal(),
-                maven {
-                    name = "GompeiLibGitHubPackages"
-                    url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
-                    credentials {
-                        username = project.findProperty("gpr.user")
-                        password = project.findProperty("gpr.key")
-                    }
-                }
-                )
-        filter {
-            includeGroup "edu.wpi.team190"
-        }
-    }
-
-    // Normal repos for everything else
-    mavenCentral()
-    maven { url = uri("https://frcmaven.wpi.edu/artifactory/release") }
-    maven { url = uri("https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release") }
-    maven { url = uri("https://maven.ctr-electronics.com/release/") }
-}
-
 
 // Grab the roboRIO comment via SSH
 
@@ -173,7 +179,7 @@ task checkRoboRIOtoRobotType {
         ] as URL[], this.class.classLoader)
 
         // Set file path names and constants
-        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
+        def robotTypeClassName = 'frc.robot.Constants$RobotType'
         def constantsClassName = 'frc.robot.RobotConfig'
         def robotType = null
         def constantsClass = null
@@ -304,13 +310,11 @@ dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
-
     implementation 'org.jgrapht:jgrapht-core:1.5.1'
     implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
 
-    // implementation 'edu.wpi.team190:gompeilib:2026.+'
-    implementation "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
+    implementation GLibRepoPath
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
@@ -329,59 +333,162 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    def akitJson = new groovy.json.JsonSlurper()
-            .parseText(file("vendordeps/AdvantageKit.json").text)
+    def akitJson = new JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
 
 test {
     useJUnitPlatform()
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
-/* =====================================================
- * Jar + WPILib
- * ===================================================== */
+// Simulation configuration (e.g. environment variables).
+//
+// The sim GUI is *disabled* by default to support running
+// AdvantageKit log replay from the command line. Set the
+// value to "true" to enable the sim GUI by default (this
+// is the standard WPILib behavior).
+wpi.sim.addGui().defaultEnabled = false
+wpi.sim.addDriverstation()
+
+// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
+// in order to make them all available at runtime. Also adding the manifest so WPILib
+// knows where to look for our Robot Class.
 jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     from sourceSets.main.allSource
-    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
+    manifest GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-deploy.targets.roborio.artifacts.frcJava.jarTask = jar
+// Configure jar and deploy tasks
+deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
-/* =====================================================
- * Compiler / Versioning
- * ===================================================== */
-tasks.withType(JavaCompile) {
+// Configure string concat to always inline compile
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-compileJava.dependsOn(createVersionFile)
-
+// Create version file
+project.compileJava.dependsOn(createVersionFile)
 gversion {
     srcDir = "src/main/java/"
     classPackage = "frc.robot"
     className = "BuildConstants"
     dateFormat = "yyyy-MM-dd HH:mm:ss z"
     timeZone = "America/New_York"
+    indent = "  "
 }
 
-/* =====================================================
- * Spotless
- * ===================================================== */
-compileJava.dependsOn(spotlessApply)
+// Create commit with working changes on event branches
+tasks.register('eventDeploy') {
+    doLast {
+        if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
+            def branchPrefix = "event"
+            def branch = 'git branch --show-current'.execute().text.trim()
+            def commitMessage = "Update at '${new Date().toString()}'"
+
+            if (branch.startsWith(branchPrefix)) {
+                exec {
+                    workingDir(projectDir)
+                    executable 'git'
+                    args 'add', '-A'
+                }
+                exec {
+                    workingDir(projectDir)
+                    executable 'git'
+                    args 'commit', '-m', commitMessage
+                    ignoreExitValue = true
+                }
+
+                println "Committed to branch: '$branch'"
+                println "Commit message: '$commitMessage'"
+            } else {
+                println "Not on an event branch, skipping commit"
+            }
+        } else {
+            println "Not running deploy task, skipping commit"
+        }
+    }
+}
+createVersionFile.dependsOn(eventDeploy)
+
+// Spotless formatting
+project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
         target fileTree(".") {
             include "**/*.java"
-            exclude "**/build/**"
+            exclude "**/build/**", "**/build-*/**"
         }
+        toggleOffOn()
         googleJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
     }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    json {
+        target fileTree(".") {
+            include "**/*.json"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        gson().indentWithSpaces(2)
+    }
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
 }
+
+tasks.register('appendBuildVersion') {
+    doLast {
+        def src = useLocalGompeiLib
+                ? "GompeiLib:local"
+                : ((project.hasProperty("gpr.user") && project.hasProperty("gpr.key"))
+                ? "GompeiLib:github-packages"
+                : "GompeiLib:jitpack")
+
+        def dep = configurations.detachedConfiguration(
+                dependencies.create(GLibRepoPath)
+                ).resolvedConfiguration.firstLevelModuleDependencies.find {
+                    it.moduleName == "gompeilib"
+                }
+
+        def ver = dep?.moduleVersion ?: "unknown"
+        "${src}:${ver}"
+        def outFile = file("src/main/java/frc/robot/BuildConstants.java")
+        if (!outFile.exists()) throw new GradleException("BuildConstants.java not found. Run gversion first.")
+
+        def contents = outFile.text
+
+        // Replace existing VERSION field if present, otherwise append before last brace
+        if (contents =~ /public static final String VERSION\s*=\s*".*";/) {
+            contents = contents.replaceFirst(/public static final String VERSION\s*=\s*".*";/,
+                    "public static final String VERSION = \"${src}:${ver}\";")
+        } else {
+            contents = contents.replaceFirst(/\}\s*$/, "    public static final String VERSION = \"${src}:${ver}\";\n}")
+        }
+
+        outFile.text = contents
+        println "VERSION field set to ${src}:${ver}"
+    }
+}
+
+createVersionFile.finalizedBy appendBuildVersion
