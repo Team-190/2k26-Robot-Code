@@ -13,7 +13,7 @@ public class V1_GammaSwank extends SubsystemBase {
     this.io = io;
     this.inputs = new V1_GammaSwankIOInputsAutoLogged();
 
-    aKitTopic = this.getName() + "/Swank";
+    aKitTopic = this.getName();
   }
 
   public void periodic() {
