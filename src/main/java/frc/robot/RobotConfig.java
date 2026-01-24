@@ -6,7 +6,7 @@ public final class RobotConfig {
   public enum RobotType {
     V0_FUNKY,
     V0_FUNKY_SIM,
-    V0_POOT,
+    V1_POOT,
     V0_POOT_SIM,
   }
 }
