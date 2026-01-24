@@ -15,6 +15,7 @@ public class V1_GammaSpindexerConstants {
   public static final double MOMENT_OF_INERTIA;
   public static final DCMotor MOTOR_CONFIG;
   public static final InvertedValue SPINDEXER_INVERTED_VALUE;
+  public static final boolean IS_CAN_FD;
  
 
   static {
@@ -25,6 +26,7 @@ public class V1_GammaSpindexerConstants {
     MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1); //TODO: Replace with actual motor.
     MOMENT_OF_INERTIA = 0; 
     SPINDEXER_INVERTED_VALUE = InvertedValue.Clockwise_Positive; //TODO: Replace with actual value.
+    IS_CAN_FD = false;
 
         
  } 

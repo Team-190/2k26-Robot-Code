@@ -56,7 +56,7 @@ public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
         velocity, torqueCurrent, supplyCurrent, appliedVolts, temperature);
     spindexerMotor.optimizeBusUtilization();
 
-    PhoenixUtil.registerSignals(false, positionRotations,
+    PhoenixUtil.registerSignals(V1_GammaSpindexerConstants.IS_CAN_FD, positionRotations,
         velocity, torqueCurrent, supplyCurrent, appliedVolts, temperature);
 
     PhoenixUtil.tryUntilOk(5, () -> spindexerMotor.getConfigurator().apply(config, 0.25));

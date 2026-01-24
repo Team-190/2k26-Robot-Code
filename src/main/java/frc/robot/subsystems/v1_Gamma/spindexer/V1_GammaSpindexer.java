@@ -12,6 +12,7 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 public class V1_GammaSpindexer extends SubsystemBase {
     private final V1_GammaSpindexerIO io;
     private final V1_GammaSpindexerIOInputsAutoLogged inputs;
+    private double voltageGoal;
 
     /**
      * Constructor for the Gamma Spindexer subsystem. 
@@ -28,6 +29,10 @@ public class V1_GammaSpindexer extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs(getName(), inputs);
+        Commands.runOnce(
+            () -> {
+            io.setVoltage(voltageGoal);
+            });
     }
 
       /**
@@ -37,8 +42,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
        */
     public Command setVoltage(double volts) {
         return Commands.runOnce(
-            () -> {
-            io.setVoltage(volts);
+            () -> {voltageGoal = volts;
             });
     }
 
