@@ -12,12 +12,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
+
 
 public class AutoAlignCommand extends Command {
     private final SwerveDrive drive;
     private final Pose2d targetPose;
     private final BooleanSupplier valid;
     private final Supplier<Pose2d> robotPose;
+    private final AutoAlignNearConstants constants;
 
     private ChassisSpeeds speeds;
 
@@ -25,42 +29,43 @@ public class AutoAlignCommand extends Command {
     private final ProfiledPIDController alignYController;
     private final ProfiledPIDController alignHeadingController;
 
-    public AutoAlignCommand(SwerveDrive drive, Pose2d targetPose, BooleanSupplier valid, Supplier<Pose2d> robotPose) {
+    public AutoAlignCommand(SwerveDrive drive, Pose2d targetPose, BooleanSupplier valid, Supplier<Pose2d> robotPose, AutoAlignNearConstants constants) {
         this.addRequirements(drive);
         this.drive = drive;
         this.targetPose = targetPose;
         this.valid = valid;
         this.robotPose = robotPose;
+        this.constants = constants;
 
         alignXController =
         new ProfiledPIDController(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().kP().get(),
+            constants.xPIDConstants().kP().get(),
             0.0,
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().kD().get(),
+            constants.xPIDConstants().kD().get(),
             new TrapezoidProfile.Constraints(
-                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS
+                constants
                     .xPIDConstants()
                     .maxVelocity()
                     .get(),
                 Double.POSITIVE_INFINITY));
         alignYController =
             new ProfiledPIDController(
-                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().kP().get(),
+                constants.yPIDConstants().kP().get(),
                 0.0,
-                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().kD().get(),
+                constants.yPIDConstants().kD().get(),
                 new TrapezoidProfile.Constraints(
-                    DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS
+                    constants
                         .yPIDConstants()
                         .maxVelocity()
                         .get(),
                     Double.POSITIVE_INFINITY));
         alignHeadingController =
             new ProfiledPIDController(
-                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().kP().get(),
+                constants.omegaPIDConstants().kP().get(),
                 0.0,
-                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().kD().get(),
+                constants.omegaPIDConstants().kD().get(),
                 new TrapezoidProfile.Constraints(
-                    DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS
+                    constants
                         .omegaPIDConstants()
                         .maxVelocity()
                         .get(),
@@ -68,20 +73,20 @@ public class AutoAlignCommand extends Command {
 
 
         alignXController.setTolerance(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().tolerance().get());
+            constants.xPIDConstants().tolerance().get());
         alignYController.setTolerance(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().tolerance().get());
+            constants.yPIDConstants().tolerance().get());
 
         alignXController.setTolerance(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().tolerance().get());
+            constants.xPIDConstants().tolerance().get());
         alignYController.setTolerance(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().tolerance().get());
+            constants.yPIDConstants().tolerance().get());
 
         alignHeadingController.enableContinuousInput(-Math.PI, Math.PI);
         alignHeadingController.setTolerance(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().tolerance().get());
+            constants.omegaPIDConstants().tolerance().get());
         alignHeadingController.setTolerance(
-            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().tolerance().get());
+            constants.omegaPIDConstants().tolerance().get());
         
         speeds = new ChassisSpeeds();
 
@@ -236,7 +241,7 @@ public class AutoAlignCommand extends Command {
     double thetaSpeed = 0.0;
 
     alignHeadingController.setTolerance(
-        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().tolerance().get());
+        constants.omegaPIDConstants().tolerance().get());
 
     alignHeadingController.enableContinuousInput(-Math.PI, Math.PI);
 
