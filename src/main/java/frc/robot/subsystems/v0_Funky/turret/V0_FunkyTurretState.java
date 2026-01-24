@@ -9,7 +9,8 @@ import lombok.Setter;
 public enum V0_FunkyTurretState {
   IDLE,
   CLOSED_LOOP_POSITION_CONTROL(new Rotation2d()),
-  OPEN_LOOP_VOLTAGE_CONTROL(0.0);
+  OPEN_LOOP_VOLTAGE_CONTROL(0.0),
+  CLOSED_LOOP_AUTO_AIM_CONTROL(new Rotation2d());
 
   @Getter @Setter private Rotation2d rotation;
   @Getter @Setter private double voltage;
