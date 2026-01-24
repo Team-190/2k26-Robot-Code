@@ -15,27 +15,33 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
+import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodConstants.HoodGoal;
 
 public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
   private final TalonFX hoodMotor;
 
-  private StatusSignal<Angle> positionRotations;
-  private StatusSignal<AngularVelocity> velocity;
-  private StatusSignal<Temperature> temperature;
+  private final StatusSignal<Angle> positionRotations;
+  private final StatusSignal<AngularVelocity> velocity;
+  private final StatusSignal<Temperature> temperature;
   private Rotation2d positionGoal;
-  private StatusSignal<Double> positionSetpointRotations;
-  private StatusSignal<Double> positionErrorRotations;
-  private StatusSignal<Current> supplyCurrent;
-  private StatusSignal<Current> torqueCurrent;
-  private StatusSignal<Voltage> appliedVolts;
+  private final StatusSignal<Double> positionSetpointRotations;
+  private final StatusSignal<Double> positionErrorRotations;
+  private final StatusSignal<Current> supplyCurrent;
+  private final StatusSignal<Current> torqueCurrent;
+  private final StatusSignal<Voltage> appliedVolts;
 
-  private TalonFXConfiguration config;
-  private VoltageOut voltageControlRequest;
-  private MotionMagicVoltage positionControlRequest;
+  private final TalonFXConfiguration config;
+  private final VoltageOut voltageControlRequest;
+  private final MotionMagicVoltage positionControlRequest;
 
   public V0_FunkyHoodIOTalonFX() {
-    hoodMotor = new TalonFX(V0_FunkyHoodConstants.MOTOR_CAN_ID);
+    if (V0_FunkyHoodConstants.IS_CAN_FD) {
+      hoodMotor =
+          new TalonFX(V0_FunkyHoodConstants.MOTOR_CAN_ID, V0_FunkyConstants.DRIVE_CONFIG.canBus());
+    } else {
+      hoodMotor = new TalonFX(V0_FunkyHoodConstants.MOTOR_CAN_ID);
+    }
 
     config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = V0_FunkyHoodConstants.CURRENT_LIMIT;
@@ -99,16 +105,6 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
 
   @Override
   public void updateInputs(V0_FunkyHoodIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        positionRotations,
-        velocity,
-        torqueCurrent,
-        supplyCurrent,
-        appliedVolts,
-        temperature,
-        positionSetpointRotations,
-        positionErrorRotations);
-
     inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.velocity = velocity.getValue();
     inputs.supplyCurrent = supplyCurrent.getValue();
