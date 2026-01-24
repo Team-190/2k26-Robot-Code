@@ -1,9 +1,12 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,6 +14,7 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import frc.robot.util.AllianceFlipUtil;
+import lombok.Getter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.function.DoubleSupplier;
@@ -18,6 +22,83 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
+
+  @Getter private static final ProfiledPIDController alignXController;
+  @Getter private static final ProfiledPIDController alignYController;
+  private static final ProfiledPIDController alignHeadingController;
+
+  @Getter private static final PIDController autoXController;
+  @Getter private static final PIDController autoYController;
+  @Getter private static final PIDController autoHeadingController;
+
+
+  static {
+    alignXController =
+        new ProfiledPIDController(
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().kP().get(),
+            0.0,
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS
+                    .xPIDConstants()
+                    .maxVelocity()
+                    .get(),
+                Double.POSITIVE_INFINITY));
+    alignYController =
+        new ProfiledPIDController(
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().kP().get(),
+            0.0,
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS
+                    .yPIDConstants()
+                    .maxVelocity()
+                    .get(),
+                Double.POSITIVE_INFINITY));
+    alignHeadingController =
+        new ProfiledPIDController(
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().kP().get(),
+            0.0,
+            DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS
+                    .omegaPIDConstants()
+                    .maxVelocity()
+                    .get(),
+                Double.POSITIVE_INFINITY));
+
+    autoHeadingController =
+        new PIDController(
+            DriveConstants.AUTO_GAINS.rotation_Kp().get(),
+            0.0,
+            DriveConstants.AUTO_GAINS.rotation_Kd().get(),
+            0.02);
+    autoXController = new PIDController(DriveConstants.AUTO_GAINS.translation_Kp().get(), 0.0, 0.0);
+    autoYController =
+        new PIDController(
+            DriveConstants.AUTO_GAINS.translation_Kp().get(),
+            0.0,
+            DriveConstants.AUTO_GAINS.translation_Kd().get());
+
+    alignXController.setTolerance(
+        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().tolerance().get());
+    alignYController.setTolerance(
+        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().tolerance().get());
+
+    alignXController.setTolerance(
+        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.xPIDConstants().tolerance().get());
+    alignYController.setTolerance(
+        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.yPIDConstants().tolerance().get());
+
+    alignHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+    alignHeadingController.setTolerance(
+        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().tolerance().get());
+    alignHeadingController.setTolerance(
+        DriveConstants.ALIGN_ROBOT_TO_APRIL_TAG_CONSTANTS.omegaPIDConstants().tolerance().get());
+
+    autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+    autoHeadingController.setTolerance(Units.degreesToRadians(1.0));
+  }
 
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
