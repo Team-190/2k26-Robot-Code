@@ -26,6 +26,6 @@ public class V1_GammaSwank extends SubsystemBase {
   }
 
   public Command stop() {
-    return runOnce(() -> io.setVoltage(0));
+    return runOnce(() -> voltageGoal = 0);
   }
 }
