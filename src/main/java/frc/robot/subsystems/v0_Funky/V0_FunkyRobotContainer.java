@@ -16,6 +16,12 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -23,10 +29,16 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.v0_Funky.feeder.Feeder;
+import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
+import frc.robot.subsystems.v0_Funky.shooter.Shooter;
+import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
 import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
+  private Shooter shooter;
+  private Feeder feeder;
   private Vision vision;
 
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -55,6 +67,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   V0_FunkyRobotState::getGlobalPose,
                   V0_FunkyRobotState::resetPose);
+          shooter =
+              new Shooter(
+                  new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOTalonFX(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -63,7 +79,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.LIMELIGHT_CONFIG,
                       V0_FunkyRobotState::getHeading,
                       NetworkTablesJNI::now,
-                      List.of(V0_FunkyRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of(),
                       List.of()));
           break;
 
@@ -86,6 +102,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
+          shooter =
+              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -109,6 +128,14 @@ public class V0_FunkyRobotContainer implements RobotContainer {
               V0_FunkyRobotState::resetPose);
     }
 
+    if (shooter == null) {
+      shooter = new Shooter(new GenericFlywheelIO() {});
+    }
+
+    if (feeder == null) {
+      feeder = new Feeder(new GenericRollerIO() {});
+    }
+
     if (vision == null) {
       new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
     }
@@ -122,10 +149,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         DriveCommands.joystickDrive(
             drive,
             V0_FunkyConstants.DRIVE_CONSTANTS,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
+            () -> driver.getLeftY(),
+            () -> driver.getLeftX(),
             () -> driver.getRightX(),
-            V0_FunkyRobotState::getHeading));
+            drive::getRawGyroRotation));
 
     driver
         .povDown()
@@ -134,6 +161,21 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 drive,
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
+
+    driver
+        .rightTrigger(0.05)
+        .whileTrue(
+            Commands.run(
+                () -> {
+                  System.out.println("Speed: " + driver.getRightTriggerAxis());
+                  shooter.setVoltage(12 * driver.getRightTriggerAxis());
+                }))
+        .whileFalse(Commands.runOnce(() -> shooter.setVoltage(0)));
+
+    driver
+        .leftBumper()
+        .whileTrue(Commands.run(() -> feeder.setVoltage(-12.0)))
+        .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
   }
 
   private void configureAutos() {
@@ -142,12 +184,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public void robotPeriodic() {
-
-    V0_FunkyRobotState.periodic(
-        drive.getRawGyroRotation(),
-        NetworkTablesJNI.now(),
-        drive.getYawVelocity(),
-        drive.getModulePositions());
+    V0_FunkyRobotState.periodic(drive.getRawGyroRotation(), drive.getModulePositions());
   }
 
   @Override
