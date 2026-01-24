@@ -58,7 +58,7 @@ public interface V0_FunkyTurretIO {
 
   /**
    * Gets the position of encoder 1.
-   * @return
+   * @return position of encoder 1.
    */
   default Angle getEncoder1Position() {
     return Angle.ofBaseUnits(0, Radians);
@@ -66,7 +66,7 @@ public interface V0_FunkyTurretIO {
 
   /**
    * Gets the position of encoder 2.
-   * @return
+   * @return position of encoder 2.
    */
   default Angle getEncoder2Position() {
     return Angle.ofBaseUnits(0, Radians);

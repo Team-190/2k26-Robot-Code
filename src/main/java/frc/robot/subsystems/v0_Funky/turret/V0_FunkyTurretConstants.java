@@ -71,18 +71,22 @@ public class V0_FunkyTurretConstants {
   public record TurretAngleCalculation(
       double GEAR_0_TOOTH_COUNT, double GEAR_1_TOOTH_COUNT, double GEAR_2_TOOTH_COUNT) {
 
-    public double G_1() {
+    public double GEAR1RATIO() {
       return V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
           / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
     }
 
-    public double G_2() {
+    public double GEAR2RATIO() {
       return V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
           / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT();
     }
 
+    /**
+     * Calculates the difference between the gear 1 ratio and gear 2 ratio.
+     * @return the difference between the gear 1 ratio and gear 2 ratio.
+     */
     public double BEAT() {
-      return G_1() - G_2();
+      return GEAR1RATIO() - GEAR2RATIO();
     }
   }
 }

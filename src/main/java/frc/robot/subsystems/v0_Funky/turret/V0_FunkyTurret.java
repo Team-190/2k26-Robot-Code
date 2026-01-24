@@ -186,7 +186,7 @@ public class V0_FunkyTurret {
     // 6. Refine using Encoder 1 (High Precision)
     // We use the coarse angle to find which rotation "k" Encoder 1 is on.
     // Expected = Coarse * n1
-    double expectedEnc1Total = coarseAngle * V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.G_1();
+    double expectedEnc1Total = coarseAngle * V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR1RATIO();
 
     // Find integer k to unwrap a1
     // k = round( (Expected - Actual) / 2pi )
@@ -194,7 +194,7 @@ public class V0_FunkyTurret {
 
     // 7. Calculate Final Angle
     double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
-    double turretAngle = finalEnc1Total / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.G_1();
+    double turretAngle = finalEnc1Total / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR1RATIO();
 
     return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
   }
