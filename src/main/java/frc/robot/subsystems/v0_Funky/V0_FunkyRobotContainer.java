@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -20,21 +21,13 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
-import frc.robot.commands.AutonomousCommands;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.v0_Funky.shooter.V0_FunkyShooter;
-import frc.robot.subsystems.v0_Funky.turret.V0_FunkyTurretIOSim;
 import java.util.List;
-import java.util.Random;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private Vision vision;
-  private V0_FunkyShooter shooter;
-  private final Random random = new Random();
-
-  private double encoderValue = random.nextDouble(0, 1);
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -97,7 +90,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
 
-          shooter = new V0_FunkyShooter(new V0_FunkyTurretIOSim(), 0);
           break;
 
         default:
@@ -160,6 +152,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return AutonomousCommands.moveTurret(shooter, encoderValue);
+    return Commands.none();
   }
 }

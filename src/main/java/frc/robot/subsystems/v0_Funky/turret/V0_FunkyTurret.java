@@ -96,7 +96,11 @@ public class V0_FunkyTurret {
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> io.setTurretGoal(
           clampShortest(
-              state.getRotation().minus(robotPoseSupplier.get().getRotation()),
+              state
+                  .getTranslation()
+                  .minus(robotPoseSupplier.get().getTranslation())
+                  .getAngle()
+                  .minus(robotPoseSupplier.get().getRotation()),
               inputs.turretAngle));
       default -> {}
     }
@@ -152,7 +156,7 @@ public class V0_FunkyTurret {
     return Commands.runOnce(
         () -> {
           state = V0_FunkyTurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
-          state.setRotation(goal.getAngle());
+          state.setTranslation(goal);
         });
   }
 
