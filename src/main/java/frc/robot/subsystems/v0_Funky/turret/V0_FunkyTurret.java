@@ -48,10 +48,7 @@ public class V0_FunkyTurret {
 
   public void periodic() {
     io.updateInputs(inputs);
-    inputs.turretAngle = calculateTurretAngle(io.getE1(), io.getE2());
     Logger.processInputs(aKitTopic, inputs);
-
-    // System.out.println(state.toString());
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
 
@@ -170,37 +167,35 @@ public class V0_FunkyTurret {
                     : maxRad));
   }
 
-  /** Method that calculates turret angle based on encoder values */
+  /** Method that calculates turret angle based on encoder values. Can be non coprime or coprime! */
   private Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    // Apply offsets and wrap to [-pi, pi)
-    double a1 =
-        MathUtil.angleModulus(e1.in(Units.Radians) - V0_FunkyTurretConstants.E1_OFFSET_RADIANS);
+    // 1. Get raw radians in [0, 2pi)
+    // We use 0 to 2pi to clarify the subtraction logic
+    double a1 = MathUtil.inputModulus(e1.in(Units.Radians), 0, 2 * Math.PI);
+    double a2 = MathUtil.inputModulus(e2.in(Units.Radians), 0, 2 * Math.PI);
 
-    double a2 =
-        MathUtil.angleModulus(e2.in(Units.Radians) - V0_FunkyTurretConstants.E2_OFFSET_RADIANS);
+    // 4. Calculate the Phase Difference
+    // We wrap this difference to [-pi, pi) to handle the 0/360 crossover point gracefully.
+    double d_x12 = MathUtil.angleModulus(a1 - a2);
 
-    // Gear ratios
-    double g0 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT();
-    double g1 = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
-    double slope = V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.SLOPE();
+    // 5. Calculate Coarse Angle (The "Vernier" Estimate)
+    // dividing by 'V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
+    // identical to multiplying by SLOPE
+    double coarseAngle = d_x12 / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.BEAT();
 
-    // Initial estimate from encoder 1
-    double baseTurret = a1 / g0;
+    // 6. Refine using Encoder 1 (High Precision)
+    // We use the coarse angle to find which rotation "k" Encoder 1 is on.
+    // Expected = Coarse * n1
+    double expectedEnc1Total = coarseAngle * V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.G_1();
 
-    // Period of ambiguity from encoder 1
-    double period = (2.0 * Math.PI) / g0;
+    // Find integer k to unwrap a1
+    // k = round( (Expected - Actual) / 2pi )
+    double k = Math.round((expectedEnc1Total - a1) / (2.0 * Math.PI));
 
-    // Predicted encoder 2 value based on encoder 1
-    double predictedA2 = MathUtil.angleModulus(g1 * baseTurret);
+    // 7. Calculate Final Angle
+    double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
+    double turretAngle = finalEnc1Total / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.G_1();
 
-    // Error between predicted and actual encoder 2
-    double error = MathUtil.angleModulus(predictedA2 - a2);
-
-    double k = Math.round(error / (g1 * period));
-    double turretAngle = baseTurret - k * period;
-
-    turretAngle *= slope;
-
-    return Rotation2d.fromRadians(turretAngle);
+    return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
   }
 }

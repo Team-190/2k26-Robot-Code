@@ -1,9 +1,10 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -90,17 +91,19 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     var leftCANcoderConfig = new CANcoderConfiguration();
     leftCANcoderConfig
         .MagnetSensor
-        .withMagnetOffset(V0_FunkyTurretConstants.E1_OFFSET_RADIANS / (2 * Math.PI))
         .withAbsoluteSensorDiscontinuityPoint(1)
-        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
+        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+        .withMagnetOffset(Radians.of(V0_FunkyTurretConstants.E1_OFFSET_RADIANS));
     PhoenixUtil.tryUntilOk(5, () -> leftCANCoder.getConfigurator().apply(leftCANcoderConfig, 0.25));
 
     var rightCANcoderConfig =
         leftCANcoderConfig
             .clone()
             .withMagnetSensor(
-                new MagnetSensorConfigs()
-                    .withMagnetOffset(V0_FunkyTurretConstants.E2_OFFSET_RADIANS / (2 * Math.PI)));
+                leftCANcoderConfig
+                    .MagnetSensor
+                    .clone()
+                    .withMagnetOffset(Radians.of(V0_FunkyTurretConstants.E2_OFFSET_RADIANS)));
     PhoenixUtil.tryUntilOk(
         5, () -> rightCANCoder.getConfigurator().apply(rightCANcoderConfig, 0.25));
 
@@ -184,6 +187,9 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     inputs.turretPositionSetpoint = Rotation2d.fromRotations(positionSetpoint.getValueAsDouble());
     inputs.turretPositionError = new Rotation2d(positionError.getValueAsDouble());
     inputs.turretGoal = new Rotation2d(positionGoal.getValueAsDouble());
+
+    inputs.e1Position = new Rotation2d(e1.getValue());
+    inputs.e2Position = new Rotation2d(e2.getValue());
   }
 
   @Override

@@ -53,7 +53,7 @@ public class V0_FunkyTurretConstants {
             new LoggedTunableNumber("Turret/Cruising Velocity", 0),
             new LoggedTunableNumber("Turret/Goal Tolerance", 0));
 
-    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 36, 38);
+    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 38, 36);
   }
 
   public record Gains(
@@ -70,9 +70,19 @@ public class V0_FunkyTurretConstants {
 
   public record TurretAngleCalculation(
       double GEAR_0_TOOTH_COUNT, double GEAR_1_TOOTH_COUNT, double GEAR_2_TOOTH_COUNT) {
-    public double SLOPE() {
-      return (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
-          / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
+
+    public double G_1() {
+      return V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+          / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
+    }
+
+    public double G_2() {
+      return V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+          / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT();
+    }
+
+    public double BEAT() {
+      return G_1() - G_2();
     }
   }
 }

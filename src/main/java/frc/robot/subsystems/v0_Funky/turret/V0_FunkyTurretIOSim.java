@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v0_Funky.turret;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Radian;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -59,8 +58,8 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
         new SimpleMotorFeedforward(
             V0_FunkyTurretConstants.GAINS.kS().get(), V0_FunkyTurretConstants.GAINS.kV().get());
 
-    encoderValue1 = Angle.ofBaseUnits(random.nextDouble(0, 2 * Math.PI), Radians);
-    encoderValue2 = Angle.ofBaseUnits(random.nextDouble(0, 2 * Math.PI), Radians);
+    encoderValue1 = Angle.ofBaseUnits(0, Radian);
+    encoderValue2 = Angle.ofBaseUnits(0, Radian);
   }
 
   @Override
@@ -69,11 +68,22 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
     sim.setInputVoltage(appliedVolts);
     sim.update(GompeiLib.getLoopPeriod());
 
-    encoderValue1 = encoderValue1.plus(Degrees.one());
-    encoderValue2 = encoderValue2.plus(Degrees.one());
-    realAngle = Degrees.of((Timer.getFPGATimestamp() / 360) % 720);
-    Logger.recordOutput("Turret/Sim/Real Angle Degrees", realAngle);
-    System.out.println("Turret Real Angle: " + realAngle);
+    realAngle = Radian.of(MathUtil.angleModulus((Timer.getFPGATimestamp() * 0.1)));
+
+    encoderValue1 =
+        realAngle.times(
+            V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+                / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT());
+    encoderValue2 =
+        realAngle.times(
+            V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+                / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT());
+    Logger.recordOutput("Turret/Sim/Real Angle Radians", realAngle.in(Radian) % (2 * Math.PI));
+
+    Logger.recordOutput(
+        "Turret/Sim/Encoder Value 1 Radians", encoderValue1.in(Radian) % (2 * Math.PI));
+    Logger.recordOutput(
+        "Turret/Sim/Encoder Value 2 Radians", encoderValue2.in(Radian) % (2 * Math.PI));
 
     inputs.turretAngle = Rotation2d.fromRadians(sim.getAngularPositionRad());
     inputs.turretVelocityRadiansPerSecond = sim.getAngularVelocityRadPerSec();
@@ -82,6 +92,9 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
     inputs.turretGoal = new Rotation2d(positionGoal.getMeasure());
     inputs.turretPositionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
     inputs.turretPositionError = Rotation2d.fromRadians(feedback.getPositionError());
+
+    inputs.e1Position = new Rotation2d(encoderValue1);
+    inputs.e2Position = new Rotation2d(encoderValue2);
   }
 
   @Override

@@ -21,6 +21,9 @@ public interface V0_FunkyTurretIO {
     public Rotation2d turretGoal = new Rotation2d();
     public Rotation2d turretPositionSetpoint = new Rotation2d();
     public Rotation2d turretPositionError = new Rotation2d();
+
+    public Rotation2d e1Position = new Rotation2d();
+    public Rotation2d e2Position = new Rotation2d();
   }
 
   /** Updates AdvantageKit inputs. */
