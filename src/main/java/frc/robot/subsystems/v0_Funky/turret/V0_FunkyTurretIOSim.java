@@ -93,8 +93,8 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
     inputs.turretPositionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
     inputs.turretPositionError = Rotation2d.fromRadians(feedback.getPositionError());
 
-    inputs.e1Position = new Rotation2d(encoderValue1);
-    inputs.e2Position = new Rotation2d(encoderValue2);
+    inputs.encoder1Position = new Rotation2d(encoderValue1);
+    inputs.encoder2Position = new Rotation2d(encoderValue2);
   }
 
   @Override
@@ -137,12 +137,12 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   }
 
   @Override
-  public Angle getE1() {
+  public Angle getEncoder1Position() {
     return encoderValue1;
   }
 
   @Override
-  public Angle getE2() {
+  public Angle getEncoder2Position() {
     return encoderValue2;
   }
 }

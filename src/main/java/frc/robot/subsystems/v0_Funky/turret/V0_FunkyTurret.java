@@ -43,7 +43,7 @@ public class V0_FunkyTurret {
 
     state = V0_FunkyTurretState.IDLE;
 
-    io.setPosition(calculateTurretAngle(io.getE1(), io.getE2()));
+    io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
   public void periodic() {

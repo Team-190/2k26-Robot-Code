@@ -188,8 +188,8 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     inputs.turretPositionError = new Rotation2d(positionError.getValueAsDouble());
     inputs.turretGoal = new Rotation2d(positionGoal.getValueAsDouble());
 
-    inputs.e1Position = new Rotation2d(e1.getValue());
-    inputs.e2Position = new Rotation2d(e2.getValue());
+    inputs.encoder1Position = new Rotation2d(e1.getValue());
+    inputs.encoder2Position = new Rotation2d(e2.getValue());
   }
 
   @Override
@@ -217,12 +217,12 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
   }
 
   @Override
-  public Angle getE1() {
+  public Angle getEncoder1Position() {
     return leftCANCoder.getAbsolutePosition().getValue();
   }
 
   @Override
-  public Angle getE2() {
+  public Angle getEncoder2Position() {
     return rightCANCoder.getAbsolutePosition().getValue();
   }
 }

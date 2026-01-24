@@ -22,8 +22,8 @@ public interface V0_FunkyTurretIO {
     public Rotation2d turretPositionSetpoint = new Rotation2d();
     public Rotation2d turretPositionError = new Rotation2d();
 
-    public Rotation2d e1Position = new Rotation2d();
-    public Rotation2d e2Position = new Rotation2d();
+    public Rotation2d encoder1Position = new Rotation2d();
+    public Rotation2d encoder2Position = new Rotation2d();
   }
 
   /** Updates AdvantageKit inputs. */
@@ -56,11 +56,19 @@ public interface V0_FunkyTurretIO {
    */
   default void setPosition(Rotation2d position) {}
 
-  default Angle getE1() {
+  /**
+   * Gets the position of encoder 1.
+   * @return
+   */
+  default Angle getEncoder1Position() {
     return Angle.ofBaseUnits(0, Radians);
   }
 
-  default Angle getE2() {
+  /**
+   * Gets the position of encoder 2.
+   * @return
+   */
+  default Angle getEncoder2Position() {
     return Angle.ofBaseUnits(0, Radians);
   }
 }
