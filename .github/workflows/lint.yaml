@@ -1,11 +1,11 @@
-name: Build
+name: Lint
 
 on:
   push:
   pull_request:
 
 jobs:
-  Build:
+  Lint:
     runs-on: ubuntu-latest
     container: wpilib/roborio-cross-ubuntu:2024-22.04
 
@@ -19,9 +19,8 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Build robot code
+      - name: Spotless lint
         run: |
-          ./gradlew build \
+          ./gradlew spotlessCheck \
             -Pgpr.user=$GPR_USER \
-            -Pgpr.key=$GPR_KEY \
-            --refresh-dependencies
+            -Pgpr.key=$GPR_KEY

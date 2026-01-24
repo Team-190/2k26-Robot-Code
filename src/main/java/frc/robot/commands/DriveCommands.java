@@ -20,6 +20,29 @@ import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
 
+  @Getter private static final PIDController autoXController;
+  @Getter private static final PIDController autoYController;
+  @Getter private static final PIDController autoHeadingController;
+
+
+  static {
+
+    autoHeadingController =
+        new PIDController(
+            DriveConstants.AUTO_GAINS.rotation_Kp().get(),
+            0.0,
+            DriveConstants.AUTO_GAINS.rotation_Kd().get(),
+            0.02);
+    autoXController = new PIDController(DriveConstants.AUTO_GAINS.translation_Kp().get(), 0.0, 0.0);
+    autoYController =
+        new PIDController(
+            DriveConstants.AUTO_GAINS.translation_Kp().get(),
+            0.0,
+            DriveConstants.AUTO_GAINS.translation_Kd().get());
+
+    autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
+    autoHeadingController.setTolerance(Units.degreesToRadians(1.0));
+  }
 
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
@@ -37,11 +60,13 @@ public final class DriveCommands {
           // Apply deadband
           double linearMagnitude =
               MathUtil.applyDeadband(
-                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()), 0.1);
+                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()),
+                  driveConstants.DRIVER_DEADBAND);
           Rotation2d linearDirection =
               new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), 0.1);
+          double omega =
+              MathUtil.applyDeadband(omegaSupplier.getAsDouble(), driveConstants.DRIVER_DEADBAND);
           linearMagnitude *= linearMagnitude;
 
           // Calculate new linear velocities
@@ -81,8 +106,8 @@ public final class DriveCommands {
         drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
   }
   
-//   public static Command autoAlignCommand(SwerveDrive drive) {
-//     return new AutoAlignCommand);
+//   public static Command autoAllignCommand(SwerveDrive drive) {
+//     return new AutoAlignCommand();
 //   }
 
   public static Command wheelRadiusCharacterization(SwerveDrive drive) {
