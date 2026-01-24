@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.v1_Gamma.hood;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -51,7 +51,7 @@ public class V1_GammaHoodIOSim implements V1_GammaHoodIO {
   }
 
   @Override
-  public void updateInputs(V0_FunkyHoodIOInputs inputs) {
+  public void updateInputs(V1_GammaHoodIOInputs inputs) {
     motorSim.setInputVoltage(MathUtil.clamp(appliedVolts, -12.0, 12.0));
     motorSim.update(GompeiLib.getLoopPeriod());
 

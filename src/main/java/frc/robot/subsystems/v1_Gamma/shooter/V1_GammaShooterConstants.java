@@ -1,3 +1,3 @@
 package frc.robot.subsystems.v1_Gamma.shooter;
 
-public interface V1_GammaShooterIO {}
+public class V1_GammaShooterConstants {}

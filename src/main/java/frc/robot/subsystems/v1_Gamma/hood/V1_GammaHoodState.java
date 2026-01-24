@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.v1_Gamma.hood;
 
 public class V1_GammaHoodState {
 

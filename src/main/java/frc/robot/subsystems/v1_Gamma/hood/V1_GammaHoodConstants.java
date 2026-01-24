@@ -1,10 +1,10 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.v1_Gamma.hood;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
-import frc.robot.subsystems.v0_Funky.V0_FunkyRobotState;
+import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 
@@ -52,8 +52,8 @@ public class V1_GammaHoodConstants {
   @RequiredArgsConstructor
   public enum HoodGoal {
     STOW(() -> new Rotation2d()),
-    SCORE(V0_FunkyRobotState::getScoreAngle),
-    FEED(V0_FunkyRobotState::getFeedAngle);
+    SCORE(V1_GammaRobotState::getScoreAngle),
+    FEED(V1_GammaRobotState::getFeedAngle);
 
     private final Supplier<Rotation2d> angle;
 

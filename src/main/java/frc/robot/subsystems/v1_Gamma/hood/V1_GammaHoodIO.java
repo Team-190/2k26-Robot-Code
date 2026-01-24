@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.v1_Gamma.hood;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -17,7 +17,7 @@ public interface V1_GammaHoodIO {
    * motor shaft.
    */
   @AutoLog
-  public static class V0_FunkyHoodIOInputs {
+  public static class V1_GammaHoodIOInputs {
     public Rotation2d position = new Rotation2d();
     public AngularVelocity velocity = RadiansPerSecond.zero();
     public Voltage appliedVolts = Volts.zero();
@@ -30,7 +30,7 @@ public interface V1_GammaHoodIO {
   }
 
   /** Updates AdvantageKit inputs. */
-  public default void updateInputs(V0_FunkyHoodIOInputs inputs) {}
+  public default void updateInputs(V1_GammaHoodIOInputs inputs) {}
 
   /** Sets motor voltage. */
   public default void setVoltage(double volts) {}

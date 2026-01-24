@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.v1_Gamma.hood;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -15,7 +15,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
-import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodConstants.HoodGoal;
+import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHoodConstants.HoodGoal;
 
 public class V1_GammaHoodIOTalonFX implements V1_GammaHoodIO {
   private final TalonFX hoodMotor;
@@ -98,7 +98,7 @@ public class V1_GammaHoodIOTalonFX implements V1_GammaHoodIO {
   }
 
   @Override
-  public void updateInputs(V0_FunkyHoodIOInputs inputs) {
+  public void updateInputs(V1_GammaHoodIOInputs inputs) {
     BaseStatusSignal.refreshAll(
         positionRotations,
         velocity,

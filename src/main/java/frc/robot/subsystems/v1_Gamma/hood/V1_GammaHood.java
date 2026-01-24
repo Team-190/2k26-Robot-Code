@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.v1_Gamma.hood;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -9,15 +9,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
-import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodConstants.HoodGoal;
-import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodState.HoodState;
+import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHoodConstants.HoodGoal;
+import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHoodState.HoodState;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaHood {
   private final V1_GammaHoodIO io;
   private final String aKitTopic;
-  private final V0_FunkyHoodIOInputsAutoLogged inputs;
+  private final V1_GammaHoodIOInputsAutoLogged inputs;
 
   private SysIdRoutine characterizationRoutine;
 
@@ -35,7 +35,7 @@ public class V1_GammaHood {
    * @param index the index of the hood in the subsystem
    */
   public V1_GammaHood(V1_GammaHoodIO io, Subsystem subsystem, int index) {
-    inputs = new V0_FunkyHoodIOInputsAutoLogged();
+    inputs = new V1_GammaHoodIOInputsAutoLogged();
     this.io = io;
 
     this.currentState = HoodState.IDLE;
