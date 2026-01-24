@@ -29,15 +29,15 @@ public class V0_FunkyTurretConstants {
     TURRET_CAN_ID = 1;
     LEFT_ENCODER_ID = 2;
     RIGHT_ENCODER_ID = 3;
-    MAX_ANGLE = Math.PI; // Output angle in rads
-    MIN_ANGLE = -Math.PI;
+    MAX_ANGLE = 2 * Math.PI; // Output angle in rads
+    MIN_ANGLE = -2 * Math.PI;
     GEAR_RATIO = 5;
     SUPPLY_CURRENT_LIMIT = 30;
     STATOR_CURRENT_LIMIT = 30;
     E1_OFFSET_RADIANS = 0;
     E2_OFFSET_RADIANS = 0;
-    MOTOR_CONFIG = null;
-    MOMENT_OF_INERTIA = 0;
+    MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+    MOMENT_OF_INERTIA = 0.004;
 
     GAINS =
         new Gains(
@@ -51,9 +51,9 @@ public class V0_FunkyTurretConstants {
         new Constraints(
             new LoggedTunableNumber("Turret/Max Acceleration", 0),
             new LoggedTunableNumber("Turret/Cruising Velocity", 0),
-            new LoggedTunableNumber("Turrent/Goal Tolerance", 0));
+            new LoggedTunableNumber("Turret/Goal Tolerance", 0));
 
-    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 30, 20);
+    TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 38, 36);
   }
 
   public record Gains(
@@ -70,9 +70,23 @@ public class V0_FunkyTurretConstants {
 
   public record TurretAngleCalculation(
       double GEAR_0_TOOTH_COUNT, double GEAR_1_TOOTH_COUNT, double GEAR_2_TOOTH_COUNT) {
-    public double SLOPE() {
-      return (GEAR_2_TOOTH_COUNT * GEAR_1_TOOTH_COUNT)
-          / ((GEAR_1_TOOTH_COUNT - GEAR_2_TOOTH_COUNT) * GEAR_0_TOOTH_COUNT);
+
+    public double GEAR_1_RATIO() {
+      return V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+          / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT();
+    }
+
+    public double GEAR_2_RATIO() {
+      return V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+          / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT();
+    }
+
+    /**
+     * Calculates the difference between the gear 1 ratio and gear 2 ratio.
+     * @return the difference between the gear 1 ratio and gear 2 ratio.
+     */
+    public double GEAR_RATIO_DIFFERENCE() {
+      return GEAR1RATIO() - GEAR2RATIO();
     }
   }
 }

@@ -3,7 +3,10 @@ package frc.robot.subsystems.v0_Funky.turret;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -39,6 +42,8 @@ public class V0_FunkyTurret {
                 (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
 
     state = V0_FunkyTurretState.IDLE;
+
+    io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
   public void periodic() {
@@ -160,5 +165,37 @@ public class V0_FunkyTurret {
                 : (Math.abs(currentRad - minRad) < Math.abs(currentRad - maxRad)
                     ? minRad
                     : maxRad));
+  }
+
+  /** Method that calculates turret angle based on encoder values. Can be non coprime or coprime! */
+  private Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+    // 1. Get raw radians in [0, 2pi)
+    // We use 0 to 2pi to clarify the subtraction logic
+    double a1 = MathUtil.inputModulus(e1.in(Units.Radians), 0, 2 * Math.PI);
+    double a2 = MathUtil.inputModulus(e2.in(Units.Radians), 0, 2 * Math.PI);
+
+    // 4. Calculate the Phase Difference
+    // We wrap this difference to [-pi, pi) to handle the 0/360 crossover point gracefully.
+    double d_x12 = MathUtil.angleModulus(a1 - a2);
+
+    // 5. Calculate Coarse Angle (The "Vernier" Estimate)
+    // dividing by 'V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
+    // identical to multiplying by SLOPE
+    double coarseAngle = d_x12 / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
+
+    // 6. Refine using Encoder 1 (High Precision)
+    // We use the coarse angle to find which rotation "k" Encoder 1 is on.
+    // Expected = Coarse * n1
+    double expectedEnc1Total = coarseAngle * V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR1RATIO();
+
+    // Find integer k to unwrap a1
+    // k = round( (Expected - Actual) / 2pi )
+    double k = Math.round((expectedEnc1Total - a1) / (2.0 * Math.PI));
+
+    // 7. Calculate Final Angle
+    double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
+    double turretAngle = finalEnc1Total / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR1RATIO();
+
+    return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
   }
 }
