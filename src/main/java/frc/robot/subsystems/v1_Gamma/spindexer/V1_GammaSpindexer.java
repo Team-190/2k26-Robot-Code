@@ -50,9 +50,8 @@ public class V1_GammaSpindexer extends SubsystemBase {
      */
   public Command stopSpindexer() {
     return Commands.runOnce(
-        () -> {
-          io.setVoltage(0);
-        });
+            () -> {voltageGoal = 0;
+            });
   }
 
 }
