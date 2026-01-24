@@ -38,10 +38,10 @@ public interface V1_GammaHoodIO {
   /** Sets motor closed loop position setpoint. */
   public default void setPosition(Rotation2d position) {}
 
-  /** Updates the PID values for the hood.*/
+  /** Updates the PID values for the hood. */
   public default void setPID(double kp, double ki, double kd) {}
 
-  /** Updates the feedforward gains for the hood.*/
+  /** Updates the feedforward gains for the hood. */
   public default void setFeedforward(double ks, double kv, double ka) {}
 
   /** Updates the profile constraints. */

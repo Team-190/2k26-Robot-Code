@@ -15,9 +15,7 @@ public class V1_GammaShooter extends SubsystemBase {
 
   private GenericFlywheel flywheel;
 
-  public V1_GammaShooter(
-      GenericFlywheelIO flywheelIO, V1_GammaHoodIO hoodIO) {
-  
+  public V1_GammaShooter(GenericFlywheelIO flywheelIO, V1_GammaHoodIO hoodIO) {
 
     flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
     hood = new V1_GammaHood(hoodIO, this, 1);
