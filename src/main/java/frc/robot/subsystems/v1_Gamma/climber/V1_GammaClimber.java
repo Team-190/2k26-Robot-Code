@@ -50,6 +50,9 @@ public class V1_GammaClimber extends SubsystemBase {
     return Commands.sequence(
         setPosition(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)),
         waitUntilPosition(),
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoPositionGoal)));
+        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoPositionGoal)),
+        waitUntilPosition(),
+        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoFlipGoal)),
+        waitUntilPosition());
   }
 }
