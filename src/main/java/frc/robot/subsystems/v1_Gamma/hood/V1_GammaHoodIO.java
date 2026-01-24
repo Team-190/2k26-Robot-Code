@@ -38,14 +38,18 @@ public interface V1_GammaHoodIO {
   /** Sets motor closed loop position setpoint. */
   public default void setPosition(Rotation2d position) {}
 
+  /** Updates the PID values for the hood.*/
   public default void setPID(double kp, double ki, double kd) {}
 
+  /** Updates the feedforward gains for the hood.*/
   public default void setFeedforward(double ks, double kv, double ka) {}
 
+  /** Updates the profile constraints. */
   public default void setProfile(
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {}
+
   /** Checks if the hood is within tolerance */
   public default boolean atGoal() {
     return false;

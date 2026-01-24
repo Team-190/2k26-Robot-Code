@@ -11,15 +11,13 @@ import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHoodIO;
 
 public class V1_GammaShooter extends SubsystemBase {
 
-  private final V1_GammaShooterIO io;
-
   private V1_GammaHood hood;
 
   private GenericFlywheel flywheel;
 
   public V1_GammaShooter(
-      V1_GammaShooterIO io, GenericFlywheelIO flywheelIO, V1_GammaHoodIO hoodIO) {
-    this.io = io;
+      GenericFlywheelIO flywheelIO, V1_GammaHoodIO hoodIO) {
+  
 
     flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
     hood = new V1_GammaHood(hoodIO, this, 1);
