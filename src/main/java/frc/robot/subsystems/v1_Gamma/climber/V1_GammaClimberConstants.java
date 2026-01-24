@@ -54,6 +54,7 @@ public class V1_GammaClimberConstants {
 
   public static final double levelOnePositionGoal = 0;
   public static final double levelTwoPositionGoal = 0;
+  public static final double levelTwoFlipGoal = 0;
 
   public static final ArmConstants CLIMBER_CONSTANTS =
       new ArmConstants(
