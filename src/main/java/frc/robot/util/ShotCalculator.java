@@ -43,8 +43,10 @@ public interface ShotCalculator {
 
     double deltaT = distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
 
-    double correctedX = targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
-    double correctedY = targetPose.getY() - shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
+    double correctedX =
+        targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
+    double correctedY =
+        targetPose.getY() - shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
 
     return new Translation2d(correctedX, correctedY);
   }
