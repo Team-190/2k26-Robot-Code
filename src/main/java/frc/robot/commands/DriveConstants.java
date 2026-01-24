@@ -1,11 +1,13 @@
 package frc.robot.commands;
-
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -108,7 +110,8 @@ public class DriveConstants {
                 new LoggedTunableNumber(
                     "Drive/Align Robot To April Tag/Omega Constants/maxVelocity", Math.PI)),
             new LoggedTunableNumber(
-                "Drive/Align Robot To April Tag/positionThresholdDegrees", 0.02));
+                "Drive/Align Robot To April Tag/positionThresholdDegrees", 0.02),
+                new Pose2d(5, 5, new Rotation2d(5)));
   }
 
   public record DriveConfig(
@@ -177,5 +180,6 @@ public class DriveConstants {
       PIDControllerConstants xPIDConstants,
       PIDControllerConstants yPIDConstants,
       PIDControllerConstants omegaPIDConstants,
-      LoggedTunableNumber positionThresholdMeters) {}
+      LoggedTunableNumber positionThresholdMeters,
+      Pose2d targetPose) {}
 }
