@@ -108,6 +108,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+
           break;
 
         default:
@@ -188,6 +189,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return Commands.none();
   }
 }

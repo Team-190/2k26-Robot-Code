@@ -69,7 +69,7 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
         appliedVolts,
         temperatureCelsius);
 
-        voltageControlRequest = new VoltageOut(0.0);
+    voltageControlRequest = new VoltageOut(0.0);
   }
 
   public void updateInputs(V1_GammaSwankIOInputs inputs) {
