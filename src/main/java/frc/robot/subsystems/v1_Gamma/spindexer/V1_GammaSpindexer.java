@@ -29,10 +29,8 @@ public class V1_GammaSpindexer extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs(getName(), inputs);
-        Commands.runOnce(
-            () -> {
-            io.setVoltage(voltageGoal);
-            });
+        io.setVoltage(voltageGoal);
+
     }
 
       /**
