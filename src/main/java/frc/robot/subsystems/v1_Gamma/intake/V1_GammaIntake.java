@@ -7,43 +7,43 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 
 public class V1_GammaIntake extends SubsystemBase {
-  public GenericFlywheel topFlywheel;
-  public GenericFlywheel bottomFlywheel;
+  public GenericFlywheel topRoller;
+  public GenericFlywheel bottomRoller;
 
   public V1_GammaIntake(GenericFlywheelIO topIO, GenericFlywheelIO bottomIO) {
-    topFlywheel = new GenericFlywheel(topIO, this, "IntakeTopFlywheel");
-    bottomFlywheel = new GenericFlywheel(bottomIO, this, "IntakeBottomFlywheel");
+    topRoller = new GenericFlywheel(topIO, this, "IntakeTopFlywheel");
+    bottomRoller = new GenericFlywheel(bottomIO, this, "IntakeBottomFlywheel");
   }
 
   @Override
   public void periodic() {
-    topFlywheel.periodic();
-    bottomFlywheel.periodic();
+    topRoller.periodic();
+    bottomRoller.periodic();
   }
 
   public Command setVoltage(double voltage) {
     return Commands.runOnce(
         () -> {
-          topFlywheel.setVoltage(voltage);
-          bottomFlywheel.setVoltage(voltage);
+          topRoller.setVoltage(voltage);
+          bottomRoller.setVoltage(voltage);
         });
   }
 
   public Command setVelocityGoal(double velocityGoal) {
     return Commands.runOnce(
         () -> {
-          topFlywheel.setGoal(velocityGoal);
-          bottomFlywheel.setGoal(velocityGoal);
+          topRoller.setGoal(velocityGoal);
+          bottomRoller.setGoal(velocityGoal);
         });
   }
 
   public Command stop() {
     return Commands.runOnce(
         () -> {
-          topFlywheel.setVoltage(0);
-          bottomFlywheel.setVoltage(0);
-          topFlywheel.setGoal(0);
-          bottomFlywheel.setGoal(0);
+          topRoller.setVoltage(0);
+          bottomRoller.setVoltage(0);
+          topRoller.setGoal(0);
+          bottomRoller.setGoal(0);
         });
   }
 }
