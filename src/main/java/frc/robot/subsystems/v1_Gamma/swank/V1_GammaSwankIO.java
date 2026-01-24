@@ -14,7 +14,7 @@ public interface V1_GammaSwankIO {
 
   @AutoLog
   public static class V1_GammaSwankIOInputs {
-    public Rotation2d angle = new Rotation2d();
+    public Rotation2d position = new Rotation2d();
     public AngularVelocity velocity = RadiansPerSecond.zero();
     public Voltage appliedVolts = Volts.zero();
     public Current supplyCurrent = Amps.zero();
