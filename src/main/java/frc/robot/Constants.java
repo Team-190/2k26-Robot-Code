@@ -26,9 +26,4 @@ public final class Constants {
       System.exit(1);
     }
   }
-
-  public enum RobotType {
-    V0_FUNKY,
-    V0_FUNKY_SIM,
-  }
 }
