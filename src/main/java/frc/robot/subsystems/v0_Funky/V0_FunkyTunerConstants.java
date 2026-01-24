@@ -89,7 +89,6 @@ public class V0_FunkyTunerConstants {
   private static final double kSteerGearRatio = 21.428571428571427;
   public static final Distance kWheelRadius = Inches.of(2);
 
-  private static final boolean kInvertLeftSide = true;
   private static final boolean kInvertRightSide = false;
 
   private static final int kPigeonId = 50;
@@ -213,7 +212,7 @@ public class V0_FunkyTunerConstants {
               kBackLeftEncoderOffset,
               kBackLeftXPos,
               kBackLeftYPos,
-              kInvertLeftSide,
+              true,
               kBackLeftSteerMotorInverted,
               kBackLeftEncoderInverted);
   public static final SwerveModuleConstants<
@@ -280,9 +279,9 @@ public class V0_FunkyTunerConstants {
      * @param odometryUpdateFrequency The frequency to run the odometry loop. If unspecified or set
      *     to 0 Hz, this is 250 Hz on CAN FD, and 100 Hz on CAN 2.0.
      * @param odometryStandardDeviation The standard deviation for odometry calculation in the form
-     *     [x, y, theta]áµ€, with units in meters and radians
+     *     [x, y, theta], with units in meters and radians
      * @param visionStandardDeviation The standard deviation for vision calculation in the form [x,
-     *     y, theta]áµ€, with units in meters and radians
+     *     y, theta], with units in meters and radians
      * @param modules Constants for each specific module
      */
     public TunerSwerveDrivetrain(
