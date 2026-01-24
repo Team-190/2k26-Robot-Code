@@ -181,7 +181,7 @@ public class V0_FunkyTurret {
     // 5. Calculate Coarse Angle (The "Vernier" Estimate)
     // dividing by 'V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
     // identical to multiplying by SLOPE
-    double coarseAngle = d_x12 / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.BEAT();
+    double coarseAngle = d_x12 / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
 
     // 6. Refine using Encoder 1 (High Precision)
     // We use the coarse angle to find which rotation "k" Encoder 1 is on.

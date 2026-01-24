@@ -85,7 +85,7 @@ public class V0_FunkyTurretConstants {
      * Calculates the difference between the gear 1 ratio and gear 2 ratio.
      * @return the difference between the gear 1 ratio and gear 2 ratio.
      */
-    public double BEAT() {
+    public double GEAR_RATIO_DIFFERENCE() {
       return GEAR1RATIO() - GEAR2RATIO();
     }
   }

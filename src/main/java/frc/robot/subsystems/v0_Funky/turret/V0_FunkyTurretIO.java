@@ -26,10 +26,16 @@ public interface V0_FunkyTurretIO {
     public Rotation2d encoder2Position = new Rotation2d();
   }
 
-  /** Updates AdvantageKit inputs. */
+  /** Updates AdvantageKit inputs. 
+   * 
+   * @param inputs The V0_FunkyTurretIOInputs object to be populated.
+  */
   default void updateInputs(V0_FunkyTurretIOInputs inputs) {}
 
-  /** Sets the turret motor voltage. */
+  /** Sets the turret motor voltage. 
+   * 
+   * @param volts The voltage to set the turret motor to.
+  */
   default void setTurretVoltage(double volts) {}
 
   /**
