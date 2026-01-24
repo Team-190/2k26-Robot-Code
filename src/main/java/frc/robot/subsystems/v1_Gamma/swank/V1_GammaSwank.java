@@ -8,6 +8,8 @@ public class V1_GammaSwank extends SubsystemBase {
   private final V1_GammaSwankIO io;
   private final V1_GammaSwankIOInputsAutoLogged inputs;
 
+  private double voltageGoal;
+
   public V1_GammaSwank(V1_GammaSwankIO io) {
     this.io = io;
     this.inputs = new V1_GammaSwankIOInputsAutoLogged();
@@ -16,13 +18,14 @@ public class V1_GammaSwank extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Swank", inputs);
+    io.setVoltage(voltageGoal);
   }
 
-  public Command runVoltageCommand(double voltage) {
-    return runOnce(() -> io.setVoltage(voltage));
+  public Command setVoltage(double voltage) {
+    return runOnce(() -> voltageGoal = voltage);
   }
 
-  public Command stopCommand() {
+  public Command stop() {
     return runOnce(() -> io.setVoltage(0));
   }
 }
