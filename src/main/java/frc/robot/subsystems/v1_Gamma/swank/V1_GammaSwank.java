@@ -7,33 +7,25 @@ import org.littletonrobotics.junction.Logger;
 public class V1_GammaSwank extends SubsystemBase {
   private final V1_GammaSwankIO io;
   private final V1_GammaSwankIOInputsAutoLogged inputs;
-  private final String aKitTopic;
+
+  private double voltageGoal;
 
   public V1_GammaSwank(V1_GammaSwankIO io) {
     this.io = io;
     this.inputs = new V1_GammaSwankIOInputsAutoLogged();
-
-    aKitTopic = this.getName();
   }
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs(aKitTopic, inputs);
+    Logger.processInputs("Swank", inputs);
+    io.setVoltage(voltageGoal);
   }
 
-  public void runVoltage(double voltage) {
-    io.setVoltage(voltage);
+  public Command setVoltage(double voltage) {
+    return runOnce(() -> voltageGoal = voltage);
   }
 
-  public void stop() {
-    io.setVoltage(0.0);
-  }
-
-  public Command runVoltageCommand(double voltage) {
-    return runOnce(() -> io.setVoltage(voltage));
-  }
-
-  public Command stopCommand() {
+  public Command stop() {
     return runOnce(() -> io.setVoltage(0));
   }
 }

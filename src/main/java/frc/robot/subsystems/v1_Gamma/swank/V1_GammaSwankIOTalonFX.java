@@ -28,6 +28,8 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
 
   private TalonFX motor;
 
+  private final VoltageOut voltageControlRequest;
+
   public V1_GammaSwankIOTalonFX() {
     motor = new TalonFX(V1_GammaSwankConstants.MOTOR_CAN_ID);
 
@@ -66,6 +68,8 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
         supplyCurrentAmps,
         appliedVolts,
         temperatureCelsius);
+
+        voltageControlRequest = new VoltageOut(0.0);
   }
 
   public void updateInputs(V1_GammaSwankIOInputs inputs) {
@@ -87,6 +91,6 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
 
   @Override
   public void setVoltage(double volts) {
-    motor.setControl(new VoltageOut(volts));
+    motor.setControl(voltageControlRequest.withOutput(volts));
   }
 }
