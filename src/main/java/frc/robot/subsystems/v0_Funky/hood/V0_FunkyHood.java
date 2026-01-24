@@ -89,7 +89,7 @@ public class V0_FunkyHood {
   public Command setVoltage(double volts) {
     return Commands.runOnce(
         () -> {
-          io.setVoltage(volts);
+          this.voltageGoal = volts;
         });
   }
 
