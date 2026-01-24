@@ -1,0 +1,69 @@
+package frc.robot.subsystems.v1_Gamma.climber;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants;
+import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.ArmParameters;
+import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Constraints;
+import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.CurrentLimits;
+import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Gains;
+
+public class V1_GammaClimberConstants {
+  public static final int MOTOR_CAN_ID = 15;
+  public static final ArmParameters ARM_PARAMETERS =
+      new ArmParameters(
+          new DCMotor(0, 0, 0, 0, 0, 0), new Rotation2d(), new Rotation2d(), 1, 12, 3.0, 4.0, 5.0);
+  public static final Gains SLOT_1_GAINS =
+      new Gains(
+          new LoggedTunableNumber("Ks", 0),
+          new LoggedTunableNumber("Kv", 0),
+          new LoggedTunableNumber("Ka", 0),
+          new LoggedTunableNumber("Kg", 0),
+          new LoggedTunableNumber("Kp", 0),
+          new LoggedTunableNumber("Kd", 0));
+  public static final Gains SLOT_2_GAINS =
+      new Gains(
+          new LoggedTunableNumber("Ks", 0),
+          new LoggedTunableNumber("Kv", 0),
+          new LoggedTunableNumber("Ka", 0),
+          new LoggedTunableNumber("Kg", 0),
+          new LoggedTunableNumber("Kp", 0),
+          new LoggedTunableNumber("Kd", 0));
+  public static final Gains SLOT_3_GAINS =
+      new Gains(
+          new LoggedTunableNumber("Ks", 0),
+          new LoggedTunableNumber("Kv", 0),
+          new LoggedTunableNumber("Ka", 0),
+          new LoggedTunableNumber("Kg", 0),
+          new LoggedTunableNumber("Kp", 0),
+          new LoggedTunableNumber("Kd", 0));
+
+  public static final Constraints CONSTRAINTS =
+      new Constraints(
+          new LoggedTunableNumber("MaxAccelerationRotationsPerSecondSquared", 6),
+          new LoggedTunableNumber("CruisingVelocityRotationsPerSecondSquared", 4),
+          new LoggedTunableNumber("GoalToleranceRadians", 0.05));
+
+  public static final CurrentLimits CURRENT_LIMITS = new CurrentLimits(40, 60, 1000);
+
+  public static final double MOMENT_OF_INERTIA_KG_M2 = 0.05;
+  public static boolean ENABLE_FOC = false;
+
+  public static final double positionToleranceRadians = 0.01;
+
+  public static final double levelOnePositionGoal = 0;
+  public static final double levelTwoPositionGoal = 0;
+
+  public static final ArmConstants CLIMBER_CONSTANTS =
+      new ArmConstants(
+          MOTOR_CAN_ID,
+          ARM_PARAMETERS,
+          SLOT_1_GAINS,
+          SLOT_2_GAINS,
+          SLOT_3_GAINS,
+          CONSTRAINTS,
+          CURRENT_LIMITS,
+          MOMENT_OF_INERTIA_KG_M2,
+          ENABLE_FOC);
+}
