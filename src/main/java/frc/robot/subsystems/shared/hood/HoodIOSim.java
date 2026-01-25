@@ -46,8 +46,7 @@ public class HoodIOSim implements HoodIO {
                 HoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
     feedback.setTolerance(HoodConstants.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
-        new SimpleMotorFeedforward(
-            HoodConstants.GAINS.ks().get(), HoodConstants.GAINS.kv().get());
+        new SimpleMotorFeedforward(HoodConstants.GAINS.ks().get(), HoodConstants.GAINS.kv().get());
   }
 
   @Override

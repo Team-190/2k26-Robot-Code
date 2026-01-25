@@ -11,7 +11,6 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 

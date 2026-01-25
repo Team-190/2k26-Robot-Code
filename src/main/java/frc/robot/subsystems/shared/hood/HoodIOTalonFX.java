@@ -36,8 +36,7 @@ public class HoodIOTalonFX implements HoodIO {
 
   public HoodIOTalonFX() {
     if (HoodConstants.IS_CAN_FD) {
-      hoodMotor =
-          new TalonFX(HoodConstants.MOTOR_CAN_ID, HoodConstants.DRIVE_CONFIG.canBus());
+      hoodMotor = new TalonFX(HoodConstants.MOTOR_CAN_ID, HoodConstants.DRIVE_CONFIG.canBus());
     } else {
       hoodMotor = new TalonFX(HoodConstants.MOTOR_CAN_ID);
     }

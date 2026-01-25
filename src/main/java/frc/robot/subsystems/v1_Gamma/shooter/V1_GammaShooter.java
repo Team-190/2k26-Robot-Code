@@ -9,7 +9,6 @@ import frc.robot.subsystems.shared.hood.Hood;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 
-
 public class V1_GammaShooter extends SubsystemBase {
 
   private Hood hood;
