@@ -24,6 +24,8 @@ public class AutoAlignCommand extends Command {
   private final ProfiledPIDController alignYController;
   private final ProfiledPIDController alignHeadingController;
 
+  private final double maxAccelerationMetersPerSecond;
+
   /**
    * Creates a new AutoAlignCommand.
    *
@@ -39,7 +41,9 @@ public class AutoAlignCommand extends Command {
       Pose2d targetPose,
       BooleanSupplier valid,
       Supplier<Pose2d> robotPose,
-      AutoAlignNearConstants constants) {
+      AutoAlignNearConstants constants,
+      double maxAccelerationMetersPerSecond) {
+    this.maxAccelerationMetersPerSecond = maxAccelerationMetersPerSecond;
     this.addRequirements(drive);
     this.drive = drive;
     this.targetPose = targetPose;
@@ -53,7 +57,7 @@ public class AutoAlignCommand extends Command {
             0.0,
             constants.xPIDConstants().kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.xPIDConstants().maxVelocity().get(), Double.POSITIVE_INFINITY));
+                constants.xPIDConstants().maxVelocity().get(), maxAccelerationMetersPerSecond));
     alignYController =
         new ProfiledPIDController(
             constants.yPIDConstants().kP().get(),
