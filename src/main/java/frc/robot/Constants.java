@@ -20,11 +20,6 @@ public final class Constants {
     }
   }
 
-  public enum RobotType {
-    V0_FUNKY,
-    V0_FUNKY_SIM
-  }
-
   public static void main(String... args) {
     if (getMode().equals(RobotMode.SIM)) {
       System.err.println("Cannot deploy, invalid mode selected: " + RobotConfig.ROBOT);

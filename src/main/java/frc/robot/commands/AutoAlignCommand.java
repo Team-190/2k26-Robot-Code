@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +24,16 @@ public class AutoAlignCommand extends Command {
   private final ProfiledPIDController alignYController;
   private final ProfiledPIDController alignHeadingController;
 
+  /**
+   * Creates a new AutoAlignCommand.
+   *
+   * @param drive The swerve drive subsystem on which this command will run
+   * @param targetPose The pose to which the robot will attempt to align
+   * @param valid A boolean supplier that returns true when auto aligning is possible (e.g. when
+   *     tags are visible)
+   * @param robotPose A supplier that returns the robot's current pose
+   * @param constants The swerve drive constants
+   */
   public AutoAlignCommand(
       SwerveDrive drive,
       Pose2d targetPose,
@@ -60,88 +69,57 @@ public class AutoAlignCommand extends Command {
             new TrapezoidProfile.Constraints(
                 constants.omegaPIDConstants().maxVelocity().get(), Double.POSITIVE_INFINITY));
 
-    alignXController.setTolerance(constants.xPIDConstants().tolerance().get());
-    alignYController.setTolerance(constants.yPIDConstants().tolerance().get());
-
-    alignXController.setTolerance(constants.xPIDConstants().tolerance().get());
-    alignYController.setTolerance(constants.yPIDConstants().tolerance().get());
+    alignXController.setTolerance(constants.xPIDConstants().tolerance().get(), 0);
+    alignYController.setTolerance(constants.yPIDConstants().tolerance().get(), 0);
 
     alignHeadingController.enableContinuousInput(-Math.PI, Math.PI);
-    alignHeadingController.setTolerance(constants.omegaPIDConstants().tolerance().get());
-    alignHeadingController.setTolerance(constants.omegaPIDConstants().tolerance().get());
-
+    alignHeadingController.setTolerance(constants.omegaPIDConstants().tolerance().get(), 0);
     speeds = new ChassisSpeeds();
   }
 
   @Override
   public void initialize() {
-    if (!valid.getAsBoolean()) {
-      alignHeadingController.reset(robotPose.get().getRotation().getRadians());
-      alignXController.reset(robotPose.get().getX());
-      alignYController.reset(robotPose.get().getY());
-    }
+    alignHeadingController.reset(
+        robotPose.get().getRotation().getRadians(),
+        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond);
+    alignXController.reset(
+        robotPose.get().getX(), drive.getMeasuredChassisSpeeds().vxMetersPerSecond);
+    alignYController.reset(
+        robotPose.get().getY(), drive.getMeasuredChassisSpeeds().vyMetersPerSecond);
   }
 
   @Override
   public void execute() {
 
     if (valid.getAsBoolean()) {
-      double xSpeed = 0.0;
-      double ySpeed = 0.0;
-
-      double ex = targetPose.getX() - robotPose.get().getX();
-      double ey = targetPose.getY() - robotPose.get().getY();
-
-      // Rotate errors into the reef post's coordinate frame
-      double ex_prime =
-          ex * Math.cos(targetPose.getRotation().getRadians())
-              + ey * Math.sin(targetPose.getRotation().getRadians());
-      double ey_prime =
-          -ex * Math.sin(targetPose.getRotation().getRadians())
-              + ey * Math.cos(targetPose.getRotation().getRadians());
-
       ChassisSpeeds measuredSpeeds = drive.getMeasuredChassisSpeeds();
-      double vx_prime =
-          measuredSpeeds.vxMetersPerSecond * Math.cos(targetPose.getRotation().getRadians())
-              + measuredSpeeds.vyMetersPerSecond * Math.sin(targetPose.getRotation().getRadians());
 
-      double vy_prime =
-          -measuredSpeeds.vxMetersPerSecond * Math.sin(targetPose.getRotation().getRadians())
-              + measuredSpeeds.vyMetersPerSecond * Math.cos(targetPose.getRotation().getRadians());
-
-      if (!alignXController.atSetpoint()) {
-        xSpeed = alignXController.calculate(0, ex_prime);
-      } else {
-        alignXController.reset(ex_prime, vx_prime);
-      }
-
-      if (!alignYController.atSetpoint()) {
-        ySpeed = alignYController.calculate(0, ey_prime);
-
-      } else {
-        alignYController.reset(ey_prime, vy_prime);
-      }
-
-      // Re-rotate the speeds into field relative coordinate frame
       double adjustedXSpeed =
-          xSpeed * Math.cos(targetPose.getRotation().getRadians())
-              - ySpeed * Math.sin(targetPose.getRotation().getRadians());
+          calculate(
+              alignXController,
+              targetPose.getX(),
+              robotPose.get().getX(),
+              measuredSpeeds.vxMetersPerSecond);
       double adjustedYSpeed =
-          xSpeed * Math.sin(targetPose.getRotation().getRadians())
-              + ySpeed * Math.cos(targetPose.getRotation().getRadians());
+          calculate(
+              alignYController,
+              targetPose.getY(),
+              robotPose.get().getY(),
+              measuredSpeeds.vyMetersPerSecond);
+      double adjustedThetaSpeed =
+          calculate(
+              alignHeadingController,
+              targetPose.getRotation().getRadians(),
+              robotPose.get().getRotation().getRadians(),
+              measuredSpeeds.omegaRadiansPerSecond);
       speeds =
           ChassisSpeeds.fromFieldRelativeSpeeds(
-              -adjustedXSpeed,
-              -adjustedYSpeed,
-              reefThetaSpeedCalculate(),
-              robotPose.get().getRotation().plus(new Rotation2d(Math.PI)));
+              adjustedXSpeed, adjustedYSpeed, adjustedThetaSpeed, robotPose.get().getRotation());
 
     } else {
       speeds = new ChassisSpeeds();
     }
-    Logger.recordOutput("Drive/Auto Align/xSpeed", -speeds.vxMetersPerSecond);
-    Logger.recordOutput("Drive/Auto Align/ySpeed", -speeds.vyMetersPerSecond);
-    Logger.recordOutput("Drive/Auto Align/thetaSpeed", speeds.omegaRadiansPerSecond);
+    Logger.recordOutput("Drive/Auto Align/speeds", speeds);
     drive.runVelocity(speeds);
   }
 
@@ -156,26 +134,18 @@ public class AutoAlignCommand extends Command {
   @Override
   public boolean isFinished() {
     // Return true when the command should end
-    return Math.abs(targetPose.getX() - robotPose.get().getX()) < 0.1
-        && Math.abs(targetPose.getY() - robotPose.get().getY()) < 0.1
-        && Math.abs(
-                targetPose.getRotation().getDegrees() - robotPose.get().getRotation().getDegrees())
-            < 5.0;
+    return alignXController.atGoal()
+        && alignYController.atGoal()
+        && alignHeadingController.atGoal();
   }
 
-  private double reefThetaSpeedCalculate() {
-    double thetaSpeed = 0.0;
+  private double calculate(
+      ProfiledPIDController controller, double setpoint, double measurement, double speed) {
+    double pidOutput = 0.0;
 
-    alignHeadingController.setTolerance(constants.omegaPIDConstants().tolerance().get());
+    if (!controller.atSetpoint()) pidOutput = controller.calculate(measurement, setpoint);
+    else controller.reset(measurement, speed);
 
-    alignHeadingController.enableContinuousInput(-Math.PI, Math.PI);
-
-    if (!alignHeadingController.atSetpoint())
-      thetaSpeed =
-          alignHeadingController.calculate(
-              robotPose.get().getRotation().getRadians(), targetPose.getRotation().getRadians());
-    else alignHeadingController.reset(robotPose.get().getRotation().getRadians());
-
-    return thetaSpeed;
+    return pidOutput;
   }
 }

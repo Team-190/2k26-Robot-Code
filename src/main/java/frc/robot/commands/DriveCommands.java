@@ -84,7 +84,8 @@ public final class DriveCommands {
         drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
   }
 
-  public static Command autoAlignCommand(SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier) {
+  public static Command autoAlignTowerCommand(
+      SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier) {
     return new AutoAlignCommand(
         drive,
         new Pose2d(FieldConstants.Tower.centerPoint, new Rotation2d()),
