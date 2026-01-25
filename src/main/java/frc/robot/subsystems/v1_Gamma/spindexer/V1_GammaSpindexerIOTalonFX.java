@@ -17,7 +17,7 @@ import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 
 public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
 
-  private final TalonFX spindexerMotor;
+  protected final TalonFX spindexerMotor;
 
   private StatusSignal<Angle> positionRotations;
   private StatusSignal<AngularVelocity> velocity;
