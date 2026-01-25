@@ -1,6 +1,6 @@
 package frc.robot.commands;
+
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,7 +11,6 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import frc.robot.util.AllianceFlipUtil;
-import lombok.Getter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.function.DoubleSupplier;
@@ -19,30 +18,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
-
-  @Getter private static final PIDController autoXController;
-  @Getter private static final PIDController autoYController;
-  @Getter private static final PIDController autoHeadingController;
-
-
-  static {
-
-    autoHeadingController =
-        new PIDController(
-            DriveConstants.AUTO_GAINS.rotation_Kp().get(),
-            0.0,
-            DriveConstants.AUTO_GAINS.rotation_Kd().get(),
-            0.02);
-    autoXController = new PIDController(DriveConstants.AUTO_GAINS.translation_Kp().get(), 0.0, 0.0);
-    autoYController =
-        new PIDController(
-            DriveConstants.AUTO_GAINS.translation_Kp().get(),
-            0.0,
-            DriveConstants.AUTO_GAINS.translation_Kd().get());
-
-    autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
-    autoHeadingController.setTolerance(Units.degreesToRadians(1.0));
-  }
 
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
@@ -105,10 +80,10 @@ public final class DriveCommands {
     return new KSCharacterization(
         drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
   }
-  
-//   public static Command autoAllignCommand(SwerveDrive drive) {
-//     return new AutoAlignCommand();
-//   }
+
+  //   public static Command autoAllignCommand(SwerveDrive drive) {
+  //     return new AutoAlignCommand();
+  //   }
 
   public static Command wheelRadiusCharacterization(SwerveDrive drive) {
     double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
@@ -181,8 +156,6 @@ public final class DriveCommands {
                               + " inches");
                     })));
   }
-
-  
 
   private static class WheelRadiusCharacterizationState {
     double[] positions = new double[4];

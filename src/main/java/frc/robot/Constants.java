@@ -20,7 +20,7 @@ public final class Constants {
     }
   }
 
-  public enum RobotType{
+  public enum RobotType {
     V0_FUNKY,
     V0_FUNKY_SIM
   }
