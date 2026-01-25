@@ -1,10 +1,14 @@
-package frc.robot.subsystems.v0_Funky.hood;
+
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
-import frc.robot.subsystems.v0_Funky.RobotState;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
+import frc.robot.RobotConfig;
+
+import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
+
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 
@@ -22,14 +26,19 @@ public class HoodConstants {
 
   public static final Gains GAINS;
   public static final Constraints CONSTRAINTS;
+  public static final DriveConfig DRIVE_CONFIG;
 
   static {
-    switch(Constants.ROBOT){
+    switch(RobotConfig.ROBOT){
 
-      case (V0_FUNKY):
+      case V0_FUNKY:
+      case V0_FUNKY_SIM:
+      
       MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
       IS_CAN_FD = true;
 
+      DRIVE_CONFIG = V0_FunkyConstants.DRIVE_CONFIG;
+
       GEAR_RATIO = 85.0;
       CURRENT_LIMIT = 40.0;
       MOMENT_OF_INERTIA = 0.004;
@@ -51,10 +60,14 @@ public class HoodConstants {
               new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
               new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
 
-    case (V1_GAMMA):
+    case V1_GAMMA:
+    case V1_GAMMA_SIM:
      MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
       IS_CAN_FD = true;
 
+      DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
+
+
       GEAR_RATIO = 85.0;
       CURRENT_LIMIT = 40.0;
       MOMENT_OF_INERTIA = 0.004;
@@ -75,6 +88,8 @@ public class HoodConstants {
               new LoggedTunableNumber("Hood/Max Velocity", 120.0),
               new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
               new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
+
+      break;
       default:
          MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
       IS_CAN_FD = true;
@@ -108,8 +123,8 @@ public class HoodConstants {
   @RequiredArgsConstructor
   public enum HoodGoal {
     STOW(() -> new Rotation2d()),
-    SCORE(RobotState::getScoreAngle),
-    FEED(RobotState::getFeedAngle);
+    SCORE(() -> new Rotation2d()),
+    FEED(() -> new Rotation2d());
 
     private final Supplier<Rotation2d> angle;
 

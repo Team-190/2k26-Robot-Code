@@ -1,6 +1,6 @@
 package frc.robot.subsystems.shared.hood;
 
-public class HoodState {
+public class GenericHoodState {
 
   public enum HoodState {
     OPEN_LOOP_VOLTAGE_CONTROL,
