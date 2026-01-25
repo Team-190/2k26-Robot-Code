@@ -5,20 +5,23 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
-import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHood;
-import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHoodConstants.HoodGoal;
-import frc.robot.subsystems.v1_Gamma.hood.V1_GammaHoodIO;
+import frc.robot.subsystems.shared.hood.Hood;
+import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
+import frc.robot.subsystems.shared.hood.HoodIO;
+import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 
 public class V1_GammaShooter extends SubsystemBase {
 
-  private V1_GammaHood hood;
+  private Hood hood;
 
   private GenericFlywheel flywheel;
 
-  public V1_GammaShooter(GenericFlywheelIO flywheelIO, V1_GammaHoodIO hoodIO) {
+  public V1_GammaShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
 
     flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
-    hood = new V1_GammaHood(hoodIO, this, 1);
+    hood =
+        new Hood(
+            hoodIO, this, 1, V1_GammaRobotState::getScoreAngle, V1_GammaRobotState::getFeedAngle);
   }
 
   @Override

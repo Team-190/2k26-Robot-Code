@@ -19,8 +19,6 @@ import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-
-
 public class Turret {
   private final TurretIO io;
   private final String aKitTopic;
@@ -34,8 +32,7 @@ public class Turret {
 
   private final Supplier<Pose2d> robotPoseSupplier;
 
-  public Turret(
-      TurretIO io, Subsystem subsystem, int index, Supplier<Pose2d> robotPoseSupplier) {
+  public Turret(TurretIO io, Subsystem subsystem, int index, Supplier<Pose2d> robotPoseSupplier) {
     this.io = io;
     inputs = new TurretIOInputsAutoLogged();
     previousPosition = inputs.turretAngle;
@@ -77,9 +74,7 @@ public class Turret {
         hashCode(),
         () ->
             io.updateConstraints(
-                TurretConstants.CONSTRAINTS
-                    .MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED()
-                    .get(),
+                TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get(),
                 TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
                 TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get()),
         TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED(),
@@ -109,10 +104,8 @@ public class Turret {
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return (!(previousPosition.getDegrees() + angle.getDegrees()
-            <= TurretConstants.MAX_ANGLE)
-        || !(previousPosition.getDegrees() + angle.getDegrees()
-            >= TurretConstants.MIN_ANGLE));
+    return (!(previousPosition.getDegrees() + angle.getDegrees() <= TurretConstants.MAX_ANGLE)
+        || !(previousPosition.getDegrees() + angle.getDegrees() >= TurretConstants.MIN_ANGLE));
   }
 
   public Command setTurretVoltage(double volts) {
@@ -230,8 +223,7 @@ public class Turret {
     // 5. Calculate Coarse Angle (The "Vernier" Estimate)
     // dividing by 'TurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
     // identical to multiplying by SLOPE
-    double coarseAngle =
-        d_x12 / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
+    double coarseAngle = d_x12 / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
 
     // 6. Refine using Encoder 1 (High Precision)
     // We use the coarse angle to find which rotation "k" Encoder 1 is on.
@@ -245,8 +237,7 @@ public class Turret {
 
     // 7. Calculate Final Angle
     double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
-    double turretAngle =
-        finalEnc1Total / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
+    double turretAngle = finalEnc1Total / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
 
     return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
   }

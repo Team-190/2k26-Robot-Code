@@ -14,12 +14,14 @@ public class V1_GammaSpindexerIOSim implements V1_GammaSpindexerIO {
 
   private double appliedVolts;
 
-  public V1_GammaSpindexerIOSim(V1_GammaSpindexerConstants consts) {
+  public V1_GammaSpindexerIOSim() {
     motorSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                consts.MOTOR_CONFIG, consts.MOMENT_OF_INERTIA, consts.GEAR_RATIO),
-            consts.MOTOR_CONFIG);
+                V1_GammaSpindexerConstants.MOTOR_CONFIG,
+                V1_GammaSpindexerConstants.MOMENT_OF_INERTIA,
+                V1_GammaSpindexerConstants.GEAR_RATIO),
+            V1_GammaSpindexerConstants.MOTOR_CONFIG);
 
     appliedVolts = 0.0;
   }
