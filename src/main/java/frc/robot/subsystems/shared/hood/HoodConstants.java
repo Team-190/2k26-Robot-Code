@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shared.hood;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
@@ -8,8 +7,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import frc.robot.RobotConfig;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
-import java.util.function.Supplier;
-import lombok.RequiredArgsConstructor;
 
 public class HoodConstants {
   public static final int MOTOR_CAN_ID;
@@ -117,17 +114,10 @@ public class HoodConstants {
     }
   }
 
-  @RequiredArgsConstructor
   public enum HoodGoal {
-    STOW(() -> new Rotation2d()),
-    SCORE(() -> new Rotation2d()),
-    FEED(() -> new Rotation2d());
-
-    private final Supplier<Rotation2d> angle;
-
-    public Rotation2d getAngle() {
-      return angle.get();
-    }
+    SCORE,
+    FEED,
+    STOW
   }
 
   public record Gains(

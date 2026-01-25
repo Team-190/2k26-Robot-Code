@@ -15,7 +15,6 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 
 public class HoodIOTalonFX implements HoodIO {
   private final TalonFX hoodMotor;
@@ -62,8 +61,6 @@ public class HoodIOTalonFX implements HoodIO {
         .withReverseSoftLimitEnable(true);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
 
-    hoodMotor.setPosition(HoodGoal.STOW.getAngle().getRotations());
-
     positionRotations = hoodMotor.getPosition();
     velocity = hoodMotor.getVelocity();
     torqueCurrent = hoodMotor.getTorqueCurrent();
@@ -97,8 +94,8 @@ public class HoodIOTalonFX implements HoodIO {
         positionErrorRotations);
 
     voltageControlRequest = new VoltageOut(0.0);
-    positionControlRequest = new MotionMagicVoltage(HoodGoal.STOW.getAngle().getRotations());
-    positionGoal = HoodGoal.STOW.getAngle();
+    positionControlRequest = new MotionMagicVoltage(0.0);
+    positionGoal = Rotation2d.kZero;
   }
 
   @Override

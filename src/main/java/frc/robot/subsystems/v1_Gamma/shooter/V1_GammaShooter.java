@@ -8,6 +8,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
+import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 
 public class V1_GammaShooter extends SubsystemBase {
 
@@ -18,7 +19,9 @@ public class V1_GammaShooter extends SubsystemBase {
   public V1_GammaShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
 
     flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
-    hood = new Hood(hoodIO, this, 1);
+    hood =
+        new Hood(
+            hoodIO, this, 1, V1_GammaRobotState::getScoreAngle, V1_GammaRobotState::getFeedAngle);
   }
 
   @Override

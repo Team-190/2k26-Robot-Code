@@ -2,6 +2,7 @@ package frc.robot.subsystems.shared.hood;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -11,6 +12,7 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,6 +28,9 @@ public class Hood {
   private HoodGoal positionGoal;
   private double voltageGoal;
 
+  private Supplier<Rotation2d> scoreRotationSupplier;
+  private Supplier<Rotation2d> feedRotationSupplier;
+
   /**
    * Constructor for the Funky hood subsystem. Makes a routine that sets the voltage passed into the
    * hood and adds a default hood goal.
@@ -34,7 +39,12 @@ public class Hood {
    * @param subsystem the parent subsystem
    * @param index the index of the hood in the subsystem
    */
-  public Hood(HoodIO io, Subsystem subsystem, int index) {
+  public Hood(
+      HoodIO io,
+      Subsystem subsystem,
+      int index,
+      Supplier<Rotation2d> scoreRotationSupplier,
+      Supplier<Rotation2d> feedRotationSupplier) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
@@ -51,6 +61,9 @@ public class Hood {
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
 
     aKitTopic = subsystem.getName() + "/Hood" + index;
+
+    this.scoreRotationSupplier = scoreRotationSupplier;
+    this.feedRotationSupplier = feedRotationSupplier;
   }
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
   @Trace
@@ -59,7 +72,20 @@ public class Hood {
     Logger.processInputs(aKitTopic, inputs);
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
-        io.setPosition(positionGoal.getAngle());
+        Rotation2d position;
+        switch (positionGoal) {
+          case SCORE:
+            position = scoreRotationSupplier.get();
+            break;
+          case FEED:
+            position = feedRotationSupplier.get();
+            break;
+          case STOW:
+          default:
+            position = Rotation2d.kZero;
+            break;
+        }
+        io.setPosition(position);
         break;
       case OPEN_LOOP_VOLTAGE_CONTROL:
         io.setVoltage(voltageGoal);
