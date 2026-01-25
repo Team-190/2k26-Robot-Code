@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -10,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
+import frc.robot.FieldConstants;
+import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -81,9 +84,18 @@ public final class DriveCommands {
         drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
   }
 
-  //   public static Command autoAllignCommand(SwerveDrive drive) {
-  //     return new AutoAlignCommand();
-  //   }
+    public static Command autoAlignCommand(SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier) {
+      return new AutoAlignCommand(
+        drive, 
+        new Pose2d(
+          FieldConstants.Tower.centerPoint,
+          new Rotation2d()
+        ),
+        () -> true,
+        robotPoseSupplier,
+        V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS
+      );
+    }
 
   public static Command wheelRadiusCharacterization(SwerveDrive drive) {
     double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
