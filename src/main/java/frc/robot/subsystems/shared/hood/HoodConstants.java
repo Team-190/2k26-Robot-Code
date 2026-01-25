@@ -1,4 +1,4 @@
-
+package frc.robot.subsystems.shared.hood;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -8,6 +8,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import frc.robot.RobotConfig;
 
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
+import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,7 @@ public class HoodConstants {
               new LoggedTunableNumber("Hood/Max Velocity", 120.0),
               new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
               new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
+      break;
 
     case V1_GAMMA:
     case V1_GAMMA_SIM:
@@ -94,6 +96,8 @@ public class HoodConstants {
          MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
       IS_CAN_FD = true;
 
+      DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
+
       GEAR_RATIO = 85.0;
       CURRENT_LIMIT = 40.0;
       MOMENT_OF_INERTIA = 0.004;
@@ -114,7 +118,7 @@ public class HoodConstants {
               new LoggedTunableNumber("Hood/Max Velocity", 120.0),
               new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
               new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
-
+      break;
 
 
     }
