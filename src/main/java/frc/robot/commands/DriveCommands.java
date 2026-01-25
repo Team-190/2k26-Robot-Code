@@ -84,18 +84,14 @@ public final class DriveCommands {
         drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
   }
 
-    public static Command autoAlignCommand(SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier) {
-      return new AutoAlignCommand(
-        drive, 
-        new Pose2d(
-          FieldConstants.Tower.centerPoint,
-          new Rotation2d()
-        ),
+  public static Command autoAlignCommand(SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier) {
+    return new AutoAlignCommand(
+        drive,
+        new Pose2d(FieldConstants.Tower.centerPoint, new Rotation2d()),
         () -> true,
         robotPoseSupplier,
-        V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS
-      );
-    }
+        V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS);
+  }
 
   public static Command wheelRadiusCharacterization(SwerveDrive drive) {
     double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
