@@ -8,5 +8,7 @@ public final class RobotConfig {
     V0_FUNKY_SIM,
     V0_POOT,
     V0_POOT_SIM,
+    V1_GAMMA,
+    V1_GAMMA_SIM
   }
 }
