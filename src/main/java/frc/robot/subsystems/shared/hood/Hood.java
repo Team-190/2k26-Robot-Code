@@ -75,7 +75,7 @@ public class Hood {
    * @param goal The position that the robot should be in.
    * @return The command that moves the robot towards the goal state.
    */
-  public Command setGoal(frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal goal) {
+  public Command setGoal(HoodGoal goal) {
     return Commands.runOnce(
         () -> {
           this.positionGoal = goal;
@@ -90,7 +90,7 @@ public class Hood {
   public Command setVoltage(double volts) {
     return Commands.runOnce(
         () -> {
-          io.setVoltage(volts);
+          this.voltageGoal = volts;
         });
   }
 
