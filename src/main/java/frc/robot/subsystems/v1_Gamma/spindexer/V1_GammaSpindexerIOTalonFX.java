@@ -6,7 +6,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -19,7 +18,7 @@ import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
 
   private final TalonFX spindexerMotor;
-  
+
   private StatusSignal<Angle> positionRotations;
   private StatusSignal<AngularVelocity> velocity;
   private StatusSignal<Current> supplyCurrent;
@@ -52,19 +51,31 @@ public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
     voltageControlRequest = new VoltageOut(0.0);
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        1 / GompeiLib.getLoopPeriod(), positionRotations,
-        velocity, torqueCurrent, supplyCurrent, appliedVolts, temperature);
+        1 / GompeiLib.getLoopPeriod(),
+        positionRotations,
+        velocity,
+        torqueCurrent,
+        supplyCurrent,
+        appliedVolts,
+        temperature);
     spindexerMotor.optimizeBusUtilization();
 
-    PhoenixUtil.registerSignals(V1_GammaSpindexerConstants.IS_CAN_FD, positionRotations,
-        velocity, torqueCurrent, supplyCurrent, appliedVolts, temperature);
+    PhoenixUtil.registerSignals(
+        V1_GammaSpindexerConstants.IS_CAN_FD,
+        positionRotations,
+        velocity,
+        torqueCurrent,
+        supplyCurrent,
+        appliedVolts,
+        temperature);
 
     PhoenixUtil.tryUntilOk(5, () -> spindexerMotor.getConfigurator().apply(config, 0.25));
   }
 
   @Override
   public void updateInputs(V1_GammaSpindexerIOInputs inputs) {
-    BaseStatusSignal.refreshAll(torqueCurrent, supplyCurrent, appliedVolts, temperature, positionRotations, velocity);
+    BaseStatusSignal.refreshAll(
+        torqueCurrent, supplyCurrent, appliedVolts, temperature, positionRotations, velocity);
 
     inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.velocity = velocity.getValue();
