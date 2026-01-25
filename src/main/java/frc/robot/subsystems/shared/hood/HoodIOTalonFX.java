@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.shared.hood;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -15,10 +15,9 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
-import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
-import frc.robot.subsystems.v0_Funky.hood.V0_FunkyHoodConstants.HoodGoal;
+import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 
-public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
+public class HoodIOTalonFX implements HoodIO {
   private final TalonFX hoodMotor;
 
   private final StatusSignal<Angle> positionRotations;
@@ -35,32 +34,31 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
 
-  public V0_FunkyHoodIOTalonFX() {
-    if (V0_FunkyHoodConstants.IS_CAN_FD) {
-      hoodMotor =
-          new TalonFX(V0_FunkyHoodConstants.MOTOR_CAN_ID, V0_FunkyConstants.DRIVE_CONFIG.canBus());
+  public HoodIOTalonFX() {
+    if (HoodConstants.IS_CAN_FD) {
+      hoodMotor = new TalonFX(HoodConstants.MOTOR_CAN_ID, HoodConstants.DRIVE_CONFIG.canBus());
     } else {
-      hoodMotor = new TalonFX(V0_FunkyHoodConstants.MOTOR_CAN_ID);
+      hoodMotor = new TalonFX(HoodConstants.MOTOR_CAN_ID);
     }
 
     config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = V0_FunkyHoodConstants.CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimit = HoodConstants.CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.SensorToMechanismRatio = V0_FunkyHoodConstants.GEAR_RATIO;
-    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = V0_FunkyHoodConstants.MIN_ANGLE;
-    config.Slot0.kP = V0_FunkyHoodConstants.GAINS.kp().get();
-    config.Slot0.kD = V0_FunkyHoodConstants.GAINS.kd().get();
-    config.Slot0.kS = V0_FunkyHoodConstants.GAINS.ks().get();
-    config.Slot0.kV = V0_FunkyHoodConstants.GAINS.kv().get();
-    config.Slot0.kA = V0_FunkyHoodConstants.GAINS.ka().get();
+    config.Feedback.SensorToMechanismRatio = HoodConstants.GEAR_RATIO;
+    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = HoodConstants.MIN_ANGLE;
+    config.Slot0.kP = HoodConstants.GAINS.kp().get();
+    config.Slot0.kD = HoodConstants.GAINS.kd().get();
+    config.Slot0.kS = HoodConstants.GAINS.ks().get();
+    config.Slot0.kV = HoodConstants.GAINS.kv().get();
+    config.Slot0.kA = HoodConstants.GAINS.ka().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        V0_FunkyHoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
+        HoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
-        V0_FunkyHoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(V0_FunkyHoodConstants.MIN_ANGLE)
+        HoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(HoodConstants.MIN_ANGLE)
         .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(V0_FunkyHoodConstants.MIN_ANGLE)
+        .withReverseSoftLimitThreshold(HoodConstants.MIN_ANGLE)
         .withReverseSoftLimitEnable(true);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
 
@@ -88,7 +86,7 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
     hoodMotor.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        V0_FunkyHoodConstants.IS_CAN_FD,
+        HoodConstants.IS_CAN_FD,
         positionRotations,
         velocity,
         torqueCurrent,
@@ -104,7 +102,7 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
   }
 
   @Override
-  public void updateInputs(V0_FunkyHoodIOInputs inputs) {
+  public void updateInputs(HoodIOInputs inputs) {
     inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.velocity = velocity.getValue();
     inputs.supplyCurrent = supplyCurrent.getValue();
@@ -158,6 +156,6 @@ public class V0_FunkyHoodIOTalonFX implements V0_FunkyHoodIO {
   @Override
   public boolean atGoal() {
     return Math.abs(positionGoal.getRotations() - positionRotations.getValueAsDouble())
-        <= V0_FunkyHoodConstants.CONSTRAINTS.goalToleranceRadians().get();
+        <= HoodConstants.CONSTRAINTS.goalToleranceRadians().get();
   }
 }
