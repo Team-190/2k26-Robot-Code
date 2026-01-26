@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.turret;
+package frc.robot.subsystems.shared.turret;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -19,23 +19,22 @@ import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-public class V0_FunkyTurret {
-  private final V0_FunkyTurretIO io;
+public class Turret {
+  private final TurretIO io;
   private final String aKitTopic;
-  private final V0_FunkyTurretIOInputsAutoLogged inputs;
+  private final TurretIOInputsAutoLogged inputs;
 
   private final Rotation2d previousPosition;
 
   private final SysIdRoutine characterizationRoutine;
 
-  private V0_FunkyTurretState state;
+  private TurretState state;
 
   private final Supplier<Pose2d> robotPoseSupplier;
 
-  public V0_FunkyTurret(
-      V0_FunkyTurretIO io, Subsystem subsystem, int index, Supplier<Pose2d> robotPoseSupplier) {
+  public Turret(TurretIO io, Subsystem subsystem, int index, Supplier<Pose2d> robotPoseSupplier) {
     this.io = io;
-    inputs = new V0_FunkyTurretIOInputsAutoLogged();
+    inputs = new TurretIOInputsAutoLogged();
     previousPosition = inputs.turretAngle;
     aKitTopic = subsystem.getName() + "/Turret" + index;
     characterizationRoutine =
@@ -50,7 +49,7 @@ public class V0_FunkyTurret {
 
     this.robotPoseSupplier = robotPoseSupplier;
 
-    state = V0_FunkyTurretState.IDLE;
+    state = TurretState.IDLE;
 
     io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
@@ -60,29 +59,27 @@ public class V0_FunkyTurret {
         hashCode(),
         () ->
             io.updateGains(
-                V0_FunkyTurretConstants.GAINS.kP().get(),
-                V0_FunkyTurretConstants.GAINS.kD().get(),
-                V0_FunkyTurretConstants.GAINS.kS().get(),
-                V0_FunkyTurretConstants.GAINS.kV().get(),
-                V0_FunkyTurretConstants.GAINS.kA().get()),
-        V0_FunkyTurretConstants.GAINS.kP(),
-        V0_FunkyTurretConstants.GAINS.kD(),
-        V0_FunkyTurretConstants.GAINS.kS(),
-        V0_FunkyTurretConstants.GAINS.kV(),
-        V0_FunkyTurretConstants.GAINS.kA());
+                TurretConstants.GAINS.kP().get(),
+                TurretConstants.GAINS.kD().get(),
+                TurretConstants.GAINS.kS().get(),
+                TurretConstants.GAINS.kV().get(),
+                TurretConstants.GAINS.kA().get()),
+        TurretConstants.GAINS.kP(),
+        TurretConstants.GAINS.kD(),
+        TurretConstants.GAINS.kS(),
+        TurretConstants.GAINS.kV(),
+        TurretConstants.GAINS.kA());
 
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
             io.updateConstraints(
-                V0_FunkyTurretConstants.CONSTRAINTS
-                    .MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED()
-                    .get(),
-                V0_FunkyTurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
-                V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get()),
-        V0_FunkyTurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED(),
-        V0_FunkyTurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND(),
-        V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS());
+                TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get(),
+                TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
+                TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get()),
+        TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED(),
+        TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND(),
+        TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS());
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
@@ -107,16 +104,14 @@ public class V0_FunkyTurret {
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return (!(previousPosition.getDegrees() + angle.getDegrees()
-            <= V0_FunkyTurretConstants.MAX_ANGLE)
-        || !(previousPosition.getDegrees() + angle.getDegrees()
-            >= V0_FunkyTurretConstants.MIN_ANGLE));
+    return (!(previousPosition.getDegrees() + angle.getDegrees() <= TurretConstants.MAX_ANGLE)
+        || !(previousPosition.getDegrees() + angle.getDegrees() >= TurretConstants.MIN_ANGLE));
   }
 
   public Command setTurretVoltage(double volts) {
     return Commands.runOnce(
         () -> {
-          state = V0_FunkyTurretState.OPEN_LOOP_VOLTAGE_CONTROL;
+          state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
           state.setVoltage(volts);
         });
   }
@@ -124,7 +119,7 @@ public class V0_FunkyTurret {
   public Command setTurretGoal(Rotation2d goal) {
     return Commands.runOnce(
         () -> {
-          state = V0_FunkyTurretState.CLOSED_LOOP_POSITION_CONTROL;
+          state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
           state.setRotation(goal);
         });
   }
@@ -155,14 +150,14 @@ public class V0_FunkyTurret {
   public Command setFieldRelativeGoal(Translation2d goal) {
     return Commands.runOnce(
         () -> {
-          state = V0_FunkyTurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
+          state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
           state.setTranslation(goal);
         });
   }
 
   public Command runSysId() {
     return Commands.sequence(
-        Commands.runOnce(() -> state = V0_FunkyTurretState.IDLE),
+        Commands.runOnce(() -> state = TurretState.IDLE),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> outOfRange(previousPosition)),
@@ -179,8 +174,8 @@ public class V0_FunkyTurret {
   private Rotation2d clampShortest(Rotation2d target, Rotation2d current) {
     double targetRad = target.getRadians();
     double currentRad = current.getRadians();
-    double minRad = V0_FunkyTurretConstants.MIN_ANGLE;
-    double maxRad = V0_FunkyTurretConstants.MAX_ANGLE;
+    double minRad = TurretConstants.MIN_ANGLE;
+    double maxRad = TurretConstants.MAX_ANGLE;
 
     // Try both the direct target and the wrapped alternatives
     double[] candidates = {targetRad, targetRad + 2 * Math.PI, targetRad - 2 * Math.PI};
@@ -226,16 +221,15 @@ public class V0_FunkyTurret {
     double d_x12 = MathUtil.angleModulus(a1 - a2);
 
     // 5. Calculate Coarse Angle (The "Vernier" Estimate)
-    // dividing by 'V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
+    // dividing by 'TurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
     // identical to multiplying by SLOPE
-    double coarseAngle =
-        d_x12 / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
+    double coarseAngle = d_x12 / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
 
     // 6. Refine using Encoder 1 (High Precision)
     // We use the coarse angle to find which rotation "k" Encoder 1 is on.
     // Expected = Coarse * n1
     double expectedEnc1Total =
-        coarseAngle * V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
+        coarseAngle * TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
 
     // Find integer k to unwrap a1
     // k = round( (Expected - Actual) / 2pi )
@@ -243,8 +237,7 @@ public class V0_FunkyTurret {
 
     // 7. Calculate Final Angle
     double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
-    double turretAngle =
-        finalEnc1Total / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
+    double turretAngle = finalEnc1Total / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
 
     return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
   }

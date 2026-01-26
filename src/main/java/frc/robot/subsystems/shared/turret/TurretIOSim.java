@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.turret;
+package frc.robot.subsystems.shared.turret;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radian;
@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import java.util.Random;
 
-public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
+public class TurretIOSim implements TurretIO {
 
   private final ProfiledPIDController feedback;
   private final SimpleMotorFeedforward feedforward;
@@ -31,32 +31,30 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   private Angle encoderValue2;
   private Angle realAngle;
 
-  public V0_FunkyTurretIOSim() {
+  public TurretIOSim() {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                V0_FunkyTurretConstants.MOTOR_CONFIG,
-                V0_FunkyTurretConstants.MOMENT_OF_INERTIA,
-                V0_FunkyTurretConstants.GEAR_RATIO),
-            V0_FunkyTurretConstants.MOTOR_CONFIG);
+                TurretConstants.MOTOR_CONFIG,
+                TurretConstants.MOMENT_OF_INERTIA,
+                TurretConstants.GEAR_RATIO),
+            TurretConstants.MOTOR_CONFIG);
 
     feedback =
         new ProfiledPIDController(
-            V0_FunkyTurretConstants.GAINS.kP().get(),
+            TurretConstants.GAINS.kP().get(),
             0.0,
-            V0_FunkyTurretConstants.GAINS.kD().get(),
+            TurretConstants.GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                V0_FunkyTurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
-                V0_FunkyTurretConstants.CONSTRAINTS
-                    .MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED()
-                    .get()));
-    feedback.setTolerance(V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
+                TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
+                TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get()));
+    feedback.setTolerance(TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
 
     feedback.disableContinuousInput();
 
     feedforward =
         new SimpleMotorFeedforward(
-            V0_FunkyTurretConstants.GAINS.kS().get(), V0_FunkyTurretConstants.GAINS.kV().get());
+            TurretConstants.GAINS.kS().get(), TurretConstants.GAINS.kV().get());
     realAngle = Radian.of(MathUtil.angleModulus((Timer.getFPGATimestamp() * 0.1)));
 
     encoderValue1 = Angle.ofBaseUnits(0, Radian);
@@ -64,7 +62,7 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
   }
 
   @Override
-  public void updateInputs(V0_FunkyTurretIOInputs inputs) {
+  public void updateInputs(TurretIOInputs inputs) {
     appliedVolts = MathUtil.clamp(appliedVolts, -12.0, 12.0);
     sim.setInputVoltage(appliedVolts);
     sim.update(GompeiLib.getLoopPeriod());
@@ -74,16 +72,16 @@ public class V0_FunkyTurretIOSim implements V0_FunkyTurretIO {
     encoderValue1 =
         realAngle
             .times(
-                V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                    / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT())
+                TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+                    / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT())
             .plus(
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));
     encoderValue2 =
         realAngle
             .times(
-                V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                    / V0_FunkyTurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT())
+                TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+                    / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT())
             .plus(
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));

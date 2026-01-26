@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.hood;
+package frc.robot.subsystems.shared.hood;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -10,14 +10,14 @@ import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for Funky's hood subsystem. */
-public interface V0_FunkyHoodIO {
+public interface HoodIO {
 
   /**
    * Inputs for Funky's hood subsystem. Positions and velocities are of the output shaft, not the
    * motor shaft.
    */
   @AutoLog
-  public static class V0_FunkyHoodIOInputs {
+  public static class HoodIOInputs {
     public Rotation2d position = new Rotation2d();
     public AngularVelocity velocity = RadiansPerSecond.zero();
     public Voltage appliedVolts = Volts.zero();
@@ -30,7 +30,7 @@ public interface V0_FunkyHoodIO {
   }
 
   /** Updates AdvantageKit inputs. */
-  public default void updateInputs(V0_FunkyHoodIOInputs inputs) {}
+  public default void updateInputs(HoodIOInputs inputs) {}
 
   /** Sets motor voltage. */
   public default void setVoltage(double volts) {}

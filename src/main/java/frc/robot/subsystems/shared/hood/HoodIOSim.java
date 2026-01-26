@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v1_Gamma.hood;
+package frc.robot.subsystems.shared.hood;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -12,46 +12,45 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
-public class V1_GammaHoodIOSim implements V1_GammaHoodIO {
+public class HoodIOSim implements HoodIO {
   private final SingleJointedArmSim motorSim;
 
-  private ProfiledPIDController feedback;
-  private SimpleMotorFeedforward feedforward;
+  private final ProfiledPIDController feedback;
+  private final SimpleMotorFeedforward feedforward;
 
   private Rotation2d positionGoal = new Rotation2d();
   private double appliedVolts = 0.0;
 
-  public V1_GammaHoodIOSim() {
+  public HoodIOSim() {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                V1_GammaHoodConstants.MOTOR_CONFIG,
-                V1_GammaHoodConstants.MOMENT_OF_INERTIA,
-                V1_GammaHoodConstants.GEAR_RATIO),
-            V1_GammaHoodConstants.MOTOR_CONFIG,
-            V1_GammaHoodConstants.GEAR_RATIO,
-            V1_GammaHoodConstants.LENGTH_METERS,
-            V1_GammaHoodConstants.MIN_ANGLE,
-            V1_GammaHoodConstants.MAX_ANGLE,
+                HoodConstants.MOTOR_CONFIG,
+                HoodConstants.MOMENT_OF_INERTIA,
+                HoodConstants.GEAR_RATIO),
+            HoodConstants.MOTOR_CONFIG,
+            HoodConstants.GEAR_RATIO,
+            HoodConstants.LENGTH_METERS,
+            HoodConstants.MIN_ANGLE,
+            HoodConstants.MAX_ANGLE,
             true,
-            V1_GammaHoodConstants.MIN_ANGLE);
+            HoodConstants.MIN_ANGLE);
 
     feedback =
         new ProfiledPIDController(
-            V1_GammaHoodConstants.GAINS.kp().get(),
+            HoodConstants.GAINS.kp().get(),
             0.0,
-            V1_GammaHoodConstants.GAINS.kd().get(),
+            HoodConstants.GAINS.kd().get(),
             new TrapezoidProfile.Constraints(
-                V1_GammaHoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                V1_GammaHoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedback.setTolerance(V1_GammaHoodConstants.CONSTRAINTS.goalToleranceRadians().get());
+                HoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
+                HoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
+    feedback.setTolerance(HoodConstants.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
-        new SimpleMotorFeedforward(
-            V1_GammaHoodConstants.GAINS.ks().get(), V1_GammaHoodConstants.GAINS.kv().get());
+        new SimpleMotorFeedforward(HoodConstants.GAINS.ks().get(), HoodConstants.GAINS.kv().get());
   }
 
   @Override
-  public void updateInputs(V1_GammaHoodIOInputs inputs) {
+  public void updateInputs(HoodIOInputs inputs) {
     motorSim.setInputVoltage(MathUtil.clamp(appliedVolts, -12.0, 12.0));
     motorSim.update(GompeiLib.getLoopPeriod());
 
@@ -84,7 +83,9 @@ public class V1_GammaHoodIOSim implements V1_GammaHoodIO {
 
   @Override
   public void setFeedforward(double ks, double kv, double ka) {
-    feedforward = new SimpleMotorFeedforward(ks, kv, ka);
+    feedforward.setKa(ka);
+    feedforward.setKs(ks);
+    feedforward.setKv(kv);
   }
 
   @Override

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.turret;
+package frc.robot.subsystems.shared.turret;
 
 import static edu.wpi.first.units.Units.Radians;
 
@@ -19,7 +19,7 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 
-public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
+public class TurretIOTalonFX implements TurretIO {
 
   private final StatusSignal<Angle> position;
   private final StatusSignal<AngularVelocity> velocity;
@@ -49,43 +49,41 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
    */
 
   /** Constructor for V0_FunkyTurretIOTalonFX */
-  public V0_FunkyTurretIOTalonFX() {
+  public TurretIOTalonFX() {
 
-    if (V0_FunkyTurretConstants.IS_CAN_FD) {
-      talonFX =
-          new TalonFX(
-              V0_FunkyTurretConstants.TURRET_CAN_ID, V0_FunkyConstants.DRIVE_CONFIG.canBus());
+    if (TurretConstants.IS_CAN_FD) {
+      talonFX = new TalonFX(TurretConstants.TURRET_CAN_ID, V0_FunkyConstants.DRIVE_CONFIG.canBus());
     } else {
-      talonFX = new TalonFX(V0_FunkyTurretConstants.TURRET_CAN_ID);
+      talonFX = new TalonFX(TurretConstants.TURRET_CAN_ID);
     }
 
-    leftCANCoder = new CANcoder(V0_FunkyTurretConstants.LEFT_ENCODER_ID, talonFX.getNetwork());
-    rightCANCoder = new CANcoder(V0_FunkyTurretConstants.RIGHT_ENCODER_ID, talonFX.getNetwork());
+    leftCANCoder = new CANcoder(TurretConstants.LEFT_ENCODER_ID, talonFX.getNetwork());
+    rightCANCoder = new CANcoder(TurretConstants.RIGHT_ENCODER_ID, talonFX.getNetwork());
 
     config = new TalonFXConfiguration();
-    config.Feedback.SensorToMechanismRatio = V0_FunkyTurretConstants.GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = TurretConstants.GEAR_RATIO;
 
-    config.Slot0.kP = V0_FunkyTurretConstants.GAINS.kP().get();
-    config.Slot0.kD = V0_FunkyTurretConstants.GAINS.kD().get();
-    config.Slot0.kV = V0_FunkyTurretConstants.GAINS.kV().get();
-    config.Slot0.kA = V0_FunkyTurretConstants.GAINS.kA().get();
-    config.Slot0.kS = V0_FunkyTurretConstants.GAINS.kS().get();
+    config.Slot0.kP = TurretConstants.GAINS.kP().get();
+    config.Slot0.kD = TurretConstants.GAINS.kD().get();
+    config.Slot0.kV = TurretConstants.GAINS.kV().get();
+    config.Slot0.kA = TurretConstants.GAINS.kA().get();
+    config.Slot0.kS = TurretConstants.GAINS.kS().get();
 
-    config.CurrentLimits.SupplyCurrentLimit = V0_FunkyTurretConstants.SUPPLY_CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimit = TurretConstants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = V0_FunkyTurretConstants.STATOR_CURRENT_LIMIT;
+    config.CurrentLimits.StatorCurrentLimit = TurretConstants.STATOR_CURRENT_LIMIT;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-        V0_FunkyTurretConstants.MAX_ANGLE / (2 * Math.PI);
+        TurretConstants.MAX_ANGLE / (2 * Math.PI);
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-        V0_FunkyTurretConstants.MIN_ANGLE / (2 * Math.PI);
+        TurretConstants.MIN_ANGLE / (2 * Math.PI);
     config.MotionMagic.MotionMagicAcceleration =
-        V0_FunkyTurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get();
+        TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        V0_FunkyTurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get();
+        TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
     var leftCANcoderConfig = new CANcoderConfiguration();
@@ -93,7 +91,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
         .MagnetSensor
         .withAbsoluteSensorDiscontinuityPoint(1)
         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-        .withMagnetOffset(Radians.of(V0_FunkyTurretConstants.E1_OFFSET_RADIANS));
+        .withMagnetOffset(Radians.of(TurretConstants.E1_OFFSET_RADIANS));
     PhoenixUtil.tryUntilOk(5, () -> leftCANCoder.getConfigurator().apply(leftCANcoderConfig, 0.25));
 
     var rightCANcoderConfig =
@@ -103,7 +101,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
                 leftCANcoderConfig
                     .MagnetSensor
                     .clone()
-                    .withMagnetOffset(Radians.of(V0_FunkyTurretConstants.E2_OFFSET_RADIANS)));
+                    .withMagnetOffset(Radians.of(TurretConstants.E2_OFFSET_RADIANS)));
     PhoenixUtil.tryUntilOk(
         5, () -> rightCANCoder.getConfigurator().apply(rightCANcoderConfig, 0.25));
 
@@ -138,7 +136,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
     rightCANCoder.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        V0_FunkyTurretConstants.IS_CAN_FD,
+        TurretConstants.IS_CAN_FD,
         position,
         velocity,
         temperature,
@@ -176,7 +174,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
   }
 
   @Override
-  public void updateInputs(V0_FunkyTurretIOInputs inputs) {
+  public void updateInputs(TurretIOInputs inputs) {
 
     inputs.turretAngle = new Rotation2d(position.getValueAsDouble());
     inputs.turretVelocityRadiansPerSecond = velocity.getValue().in(Units.RadiansPerSecond);
@@ -196,7 +194,7 @@ public class V0_FunkyTurretIOTalonFX implements V0_FunkyTurretIO {
   public boolean atTurretPositionGoal() {
     double positionRotations = position.getValueAsDouble();
     return Math.abs(positionGoal.getValue() - positionRotations) * 2 * Math.PI
-        <= V0_FunkyTurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get();
+        <= TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get();
   }
 
   @Override

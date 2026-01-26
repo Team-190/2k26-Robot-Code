@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.turret;
+package frc.robot.subsystems.shared.turret;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-public enum V0_FunkyTurretState {
+public enum TurretState {
   IDLE,
   CLOSED_LOOP_POSITION_CONTROL(new Rotation2d()),
   OPEN_LOOP_VOLTAGE_CONTROL(0.0),
@@ -17,15 +17,15 @@ public enum V0_FunkyTurretState {
   @Getter @Setter private double voltage;
   @Getter @Setter private Translation2d translation;
 
-  V0_FunkyTurretState(Rotation2d rotation) {
+  TurretState(Rotation2d rotation) {
     this.rotation = rotation;
   }
 
-  V0_FunkyTurretState(double voltage) {
+  TurretState(double voltage) {
     this.voltage = voltage;
   }
 
-  V0_FunkyTurretState(Translation2d translation) {
+  TurretState(Translation2d translation) {
     this.translation = translation;
   }
 }

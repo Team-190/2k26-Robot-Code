@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v0_Funky.turret;
+package frc.robot.subsystems.shared.turret;
 
 import static edu.wpi.first.units.Units.Radians;
 
@@ -7,11 +7,11 @@ import edu.wpi.first.units.measure.Angle;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for V0 (Funky)'s turret subsystem */
-public interface V0_FunkyTurretIO {
+public interface TurretIO {
 
   /** Inputs for Funky's turret subsystem */
   @AutoLog
-  class V0_FunkyTurretIOInputs {
+  class TurretIOInputs {
     public Rotation2d turretAngle = new Rotation2d();
     public double turretVelocityRadiansPerSecond = 0.0;
     public double turretAppliedVolts = 0.0;
@@ -29,9 +29,9 @@ public interface V0_FunkyTurretIO {
   /**
    * Updates AdvantageKit inputs.
    *
-   * @param inputs The V0_FunkyTurretIOInputs object to be populated.
+   * @param inputs The TurretIOInputs object to be populated.
    */
-  default void updateInputs(V0_FunkyTurretIOInputs inputs) {}
+  default void updateInputs(TurretIOInputs inputs) {}
 
   /**
    * Sets the turret motor voltage.
