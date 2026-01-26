@@ -27,8 +27,8 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
-import frc.robot.commands.CompositeCommands.SharedCommands;
-import frc.robot.commands.DriveCommands;
+import frc.robot.commands.shared.DriveCommands;
+import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
@@ -157,7 +157,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     driver
         .povDown()
         .onTrue(
-            SharedCommands.resetHeading(
+            SharedCompositeCommands.resetHeading(
                 drive,
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
