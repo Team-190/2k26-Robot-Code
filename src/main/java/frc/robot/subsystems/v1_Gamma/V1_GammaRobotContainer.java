@@ -20,8 +20,8 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
-import frc.robot.commands.CompositeCommands.SharedCommands;
-import frc.robot.commands.DriveCommands;
+import frc.robot.commands.shared.DriveCommands;
+import frc.robot.commands.shared.SharedCompositeCommands;
 import java.util.List;
 
 public class V1_GammaRobotContainer implements RobotContainer {
@@ -128,7 +128,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
     driver
         .povDown()
         .onTrue(
-            SharedCommands.resetHeading(
+            SharedCompositeCommands.resetHeading(
                 drive,
                 V1_GammaRobotState::resetPose,
                 () -> V1_GammaRobotState.getGlobalPose().getTranslation()));

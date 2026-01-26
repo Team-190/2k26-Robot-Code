@@ -1,7 +1,8 @@
-package frc.robot.commands;
+package frc.robot.commands.shared;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -10,6 +11,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
+import frc.robot.FieldConstants;
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -79,6 +83,24 @@ public final class DriveCommands {
   public static Command feedforwardCharacterization(SwerveDrive drive) {
     return new KSCharacterization(
         drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
+  }
+
+  public static Command autoAlignPoseCommand(
+      SwerveDrive drive,
+      Supplier<Pose2d> robotPoseSupplier,
+      Pose2d targetPose,
+      AutoAlignNearConstants constants) {
+    return new AutoAlignCommand(
+        drive, targetPose, () -> true, robotPoseSupplier, constants, Double.POSITIVE_INFINITY);
+  }
+
+  public static Command autoAlignTowerCommand(
+      SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier, AutoAlignNearConstants constants) {
+    return autoAlignPoseCommand(
+        drive,
+        robotPoseSupplier,
+        new Pose2d(FieldConstants.Tower.centerPoint, new Rotation2d()),
+        constants);
   }
 
   public static Command wheelRadiusCharacterization(SwerveDrive drive) {
