@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.shared;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
