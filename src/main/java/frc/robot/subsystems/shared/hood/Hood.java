@@ -50,17 +50,17 @@ public class Hood {
 
     this.currentState = HoodState.IDLE;
 
+    aKitTopic = subsystem.getName() + "/Hood" + index;
+
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 Volts.of(0.5).per(Seconds),
                 Volts.of(3.5),
                 Seconds.of(10),
-                (state) -> Logger.recordOutput("Arm/sysIDState", state.toString())),
+                (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
-
-    aKitTopic = subsystem.getName() + "/Hood" + index;
 
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
@@ -103,6 +103,7 @@ public class Hood {
   public Command setGoal(HoodGoal goal) {
     return Commands.runOnce(
         () -> {
+          currentState = HoodState.CLOSED_LOOP_POSITION_CONTROL;
           this.positionGoal = goal;
         });
   }
@@ -115,6 +116,7 @@ public class Hood {
   public Command setVoltage(double volts) {
     return Commands.runOnce(
         () -> {
+          currentState = HoodState.OPEN_LOOP_VOLTAGE_CONTROL;
           this.voltageGoal = volts;
         });
   }
