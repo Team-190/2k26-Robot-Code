@@ -120,8 +120,7 @@ public class HoodIOTalonFX implements HoodIO {
   @Override
   public void setPosition(Rotation2d position) {
     positionGoal = position;
-    hoodMotor.setControl(
-        positionControlRequest.withPosition(positionGoal.getRotations()));
+    hoodMotor.setControl(positionControlRequest.withPosition(positionGoal.getRotations()));
   }
 
   @Override
