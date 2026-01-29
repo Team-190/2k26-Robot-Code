@@ -13,11 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class V0_FunkyRobotState {
-  private static AprilTagFieldLayout fieldLayout;
-  private static List<FieldZone> fieldZones;
-  private static Localization localization;
+  private static final AprilTagFieldLayout fieldLayout;
+  private static final List<FieldZone> fieldZones;
+  private static final Localization localization;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
@@ -46,6 +47,7 @@ public class V0_FunkyRobotState {
   public static void periodic(Rotation2d heading, SwerveModulePosition[] modulePositions) {
 
     localization.addOdometryObservation(Timer.getTimestamp(), heading, modulePositions);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Global Pose", getGlobalPose());
   }
 
   public static void resetPose(Pose2d pose) {
