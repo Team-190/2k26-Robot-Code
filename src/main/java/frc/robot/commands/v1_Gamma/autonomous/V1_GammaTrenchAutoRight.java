@@ -1,8 +1,8 @@
 package frc.robot.commands.v1_Gamma.autonomous;
 
-import choreo.trajectory.Trajectory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
@@ -14,11 +14,9 @@ import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimberConstants;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.shooter.V1_GammaShooter;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
-import frc.robot.util.AllianceFlipUtil;
-import java.util.Optional;
 
+/** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
 public class V1_GammaTrenchAutoRight {
-  private static Command TRENCH_RIGHT_PATH_CMD;
 
   private static final double INTAKE_VOLTAGE = 3;
   private static final double SPINDEXER_VOLTAGE = 3;
@@ -31,29 +29,27 @@ public class V1_GammaTrenchAutoRight {
    * @param shooter The Shooter subsystem
    * @param spindexer The Spindexer subsystem
    * @param climber The Climber subsystem
-   * @return Command that returns the Autonomous Path for gathering fuel from the depot, going to
-   *     the tower, scoring the fuel, then climbing to level 1
+   * @return Routine that returns the Autonomous Routine for gathering fuel from the neutral zone
+   *     (from the right trench), going to the tower, scoring the fuel, then climbing to level 1
    */
-  public static final Command getTrenchRight(
+  public static final AutoRoutine V1_GammaTrenchRight(
       SwerveDrive drive,
       V1_GammaIntake intake,
       V1_GammaShooter shooter,
       V1_GammaSpindexer spindexer,
       V1_GammaClimber climber) {
 
-    drive.getAutoFactory().cache().loadTrajectory("TRENCH_RIGHT_PATH");
-    TRENCH_RIGHT_PATH_CMD = drive.getAutoFactory().trajectoryCmd("TRENCH_RIGHT_PATH");
-    Optional<? extends Trajectory<?>> TRENCH_RIGHT =
-        drive.getAutoFactory().cache().loadTrajectory("TRENCH_RIGHT");
+    // Create the routine and the trajectory
 
-    return Commands.sequence(
-        Commands.runOnce(
-            () ->
-                V1_GammaRobotState.resetPose(
-                    TRENCH_RIGHT.get().getInitialPose(AllianceFlipUtil.shouldFlip()).get())),
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("trenchAutoRight");
+
+    AutoTrajectory RIGHT_TRENCH = routine.trajectory("RIGHT_TRENCH");
+
+    Commands.sequence(
+        RIGHT_TRENCH.resetOdometry(),
         Commands.print("Deploy Intake"),
         intake.setVoltage(INTAKE_VOLTAGE),
-        TRENCH_RIGHT_PATH_CMD,
+        RIGHT_TRENCH.cmd(),
         Commands.parallel(
             intake.stop(),
             shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
@@ -68,5 +64,7 @@ public class V1_GammaTrenchAutoRight {
                 V1_GammaRobotState::getGlobalPose,
                 V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
         climber.setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)));
+
+    return routine;
   }
 }

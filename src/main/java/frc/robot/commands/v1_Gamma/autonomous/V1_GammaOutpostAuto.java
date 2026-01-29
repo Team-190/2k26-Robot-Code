@@ -1,8 +1,8 @@
 package frc.robot.commands.v1_Gamma.autonomous;
 
-import choreo.trajectory.Trajectory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
@@ -14,12 +14,10 @@ import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimberConstants;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.shooter.V1_GammaShooter;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
-import frc.robot.util.AllianceFlipUtil;
-import java.util.Optional;
 
 /**
- * Autonomous Path for gathering fuel from the outpost, going to the tower, scoring the fuel, then
- * climbing to level 1
+ * Autonomous Routine for gathering fuel from the outpost, going to the tower, scoring the fuel,
+ * then climbing to level 1
  */
 public class V1_GammaOutpostAuto {
 
@@ -30,8 +28,8 @@ public class V1_GammaOutpostAuto {
   private static final double SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND = 10;
 
   /**
-   * Command that returns the Autonomous Path for gathering fuel from the outpost, waiting, and then
-   * running another autonomous path for going to the tower, scoring the fuel, then climbing to
+   * Method that returns the Autonomous Routine for gathering fuel from the outpost, waiting, and
+   * then running another autonomous path for going to the tower, scoring the fuel, then climbing to
    * level 1
    *
    * @param drive The Swerve Drive subsystem
@@ -39,61 +37,65 @@ public class V1_GammaOutpostAuto {
    * @param shooter The Shooter subsystem
    * @param spindexer The Spindexer subsystem
    * @param climber The Climber subsystem
-   * @return the Command for the entire Outpost Autonomous Path
+   * @return the Routine for the entire Outpost Autonomous Routine
    */
-  public static final Command V1_GammaOutpost(
+  public static final AutoRoutine V1_GammaOutpost(
       SwerveDrive drive,
       V1_GammaIntake intake,
       V1_GammaShooter shooter,
       V1_GammaSpindexer spindexer,
       V1_GammaClimber climber) {
 
-    // Load the trajectory and commands for the first part of the outpost auto
-    Optional<? extends Trajectory<?>> OUTPOST_1 =
-        drive.getAutoFactory().cache().loadTrajectory("OUTPOST_1");
-    Command OUTPOST_CMD_1 = drive.getAutoFactory().trajectoryCmd("OUTPOST_1");
+    // Create the routine and the trajectory for the first part of the outpost auto
 
-    // Load the commands for the second part of the outpost auto
-    Command OUTPOST_CMD_2 = drive.getAutoFactory().trajectoryCmd("OUTPOST_2");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("outpostRoutine");
 
-    return Commands.sequence(
+    AutoTrajectory OUTPOST_1 = routine.trajectory("OUTPOST_1");
 
-        // Set initial pose for the first path
-        Commands.runOnce(
-            () ->
-                V1_GammaRobotState.resetPose(
-                    OUTPOST_1.get().getInitialPose(AllianceFlipUtil.shouldFlip()).get())),
+    // Create the trajectory for the second part of the outpost auto
+    AutoTrajectory OUTPOST_2 = routine.trajectory("OUTPOST_2");
 
-        // Run the first path
-        OUTPOST_CMD_1,
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
 
-        // Wait until the fuel has been dumped into the robot
-        Commands.waitSeconds(WAIT_TIME),
+                // Set initial pose for the first path
+                OUTPOST_1.resetOdometry(),
 
-        // Follow the path and set the shooter goal in parallel
-        Commands.parallel(
-            OUTPOST_CMD_2,
-            shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
+                // Run the first path
+                OUTPOST_1.cmd(),
 
-        // Stop the intake
-        intake.setVoltage(0),
+                // Wait until the fuel has been dumped into the robot
+                Commands.waitSeconds(WAIT_TIME),
 
-        // Start the spindexer
-        spindexer.setVoltage(SPINDEXER_VOLTAGE),
+                // Follow the path and set the shooter goal in parallel
+                Commands.parallel(
+                    OUTPOST_2.cmd(),
+                    shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
 
-        // Wait for shooting
-        Commands.waitSeconds(SHOOT_TIME),
+                // Stop the intake
+                intake.setVoltage(0),
 
-        // Stop shooter and spindexer, then auto-align to the tower
-        Commands.parallel(
-            shooter.stopFlywheel(),
-            spindexer.setVoltage(0),
-            DriveCommands.autoAlignTowerCommand(
-                drive,
-                V1_GammaRobotState::getGlobalPose,
-                V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
+                // Start the spindexer
+                spindexer.setVoltage(SPINDEXER_VOLTAGE),
 
-        // Climb to L1
-        climber.setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)));
+                // Wait for shooting
+                Commands.waitSeconds(SHOOT_TIME),
+
+                // Stop shooter and spindexer, then auto-align to the tower
+                Commands.parallel(
+                    shooter.stopFlywheel(),
+                    spindexer.setVoltage(0),
+                    DriveCommands.autoAlignTowerCommand(
+                        drive,
+                        V1_GammaRobotState::getGlobalPose,
+                        V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
+
+                // Climb to L1
+                climber.setPositionGoal(
+                    new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal))));
+
+    return routine;
   }
 }
