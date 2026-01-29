@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaSpindexer extends SubsystemBase {
   private final V1_GammaSpindexerIO io;
+
   private final V1_GammaSpindexerIOInputsAutoLogged inputs;
   private double voltageGoal;
 
@@ -18,6 +19,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
    */
   public V1_GammaSpindexer(V1_GammaSpindexerIO io) {
     this.io = io;
+
     inputs = new V1_GammaSpindexerIOInputsAutoLogged();
   }
 
@@ -26,7 +28,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
   @Trace
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs(getName(), inputs);
+    Logger.processInputs("Spindexer", inputs);
     io.setVoltage(voltageGoal);
   }
 

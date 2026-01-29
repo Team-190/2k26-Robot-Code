@@ -20,22 +20,27 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
+import frc.robot.commands.AutonomousCommands;
 import frc.robot.commands.CompositeCommands.SharedCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
+import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexerIOTalonFXSim;
 import java.util.List;
 
 public class V1_GammaRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private Vision vision;
+  private V1_GammaSpindexer spindexer;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
   private final AutoChooser autoChooser = new AutoChooser();
 
   public V1_GammaRobotContainer() {
+
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
-        case V0_FUNKY:
+        case V1_GAMMA:
           drive =
               new SwerveDrive(
                   V1_GammaConstants.DRIVE_CONSTANTS,
@@ -66,7 +71,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
                       List.of()));
           break;
 
-        case V0_FUNKY_SIM:
+        case V1_GAMMA_SIM:
           drive =
               new SwerveDrive(
                   V1_GammaConstants.DRIVE_CONSTANTS,
@@ -85,6 +90,8 @@ public class V1_GammaRobotContainer implements RobotContainer {
                       V1_GammaConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V1_GammaRobotState::resetPose);
+
+          spindexer = new V1_GammaSpindexer(new V1_GammaSpindexerIOTalonFXSim());
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -135,7 +142,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    // Autos here
+    // add autos here
   }
 
   @Override
@@ -150,6 +157,6 @@ public class V1_GammaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return AutonomousCommands.spindexerTest(spindexer);
   }
 }

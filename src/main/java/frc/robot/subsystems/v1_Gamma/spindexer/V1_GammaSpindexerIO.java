@@ -20,7 +20,7 @@ public interface V1_GammaSpindexerIO {
   public static class V1_GammaSpindexerIOInputs {
     public Rotation2d position = new Rotation2d();
     public AngularVelocity velocity = RadiansPerSecond.zero();
-    public Voltage appliedVolts = Volts.zero();
+    public double appliedVolts = 0.0;
     public Current supplyCurrent = Amps.zero();
     public Current torqueCurrent = Amps.zero();
     public Temperature temperature = Celsius.zero();

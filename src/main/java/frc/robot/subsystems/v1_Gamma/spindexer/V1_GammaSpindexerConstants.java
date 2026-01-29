@@ -15,16 +15,16 @@ public class V1_GammaSpindexerConstants {
   public static final ChassisReference SPINDEXER_ORIENTATION;
   public static final boolean IS_CAN_FD;
 
-
   static {
     MOTOR_CAN_ID = 0;
-    GEAR_RATIO = 0;
-    STATOR_CURRENT_LIMIT = 0;
-    SUPPLY_CURRENT_LIMIT = 0;
+    GEAR_RATIO = 1;
+    STATOR_CURRENT_LIMIT = 10;
+    SUPPLY_CURRENT_LIMIT = 10;
     MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1); // TODO: Replace with actual motor.
-    MOMENT_OF_INERTIA = 0;
+    MOMENT_OF_INERTIA = 1;
     SPINDEXER_INVERTED_VALUE = InvertedValue.Clockwise_Positive; // TODO: Replace with actual value.
-    SPINDEXER_ORIENTATION = ChassisReference.CounterClockwise_Positive; //TODO: Replace with actual value
+    SPINDEXER_ORIENTATION =
+        ChassisReference.CounterClockwise_Positive; // TODO: Replace with actual value
     IS_CAN_FD = false;
   }
 }
