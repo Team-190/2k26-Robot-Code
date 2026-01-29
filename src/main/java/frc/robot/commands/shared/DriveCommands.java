@@ -13,7 +13,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
 import frc.robot.FieldConstants;
-import frc.robot.commands.AutoAlignCommand;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
