@@ -17,11 +17,11 @@ public class V1_GammaSpindexerConstants {
 
   static {
     MOTOR_CAN_ID = 0;
-    GEAR_RATIO = 1;
+    GEAR_RATIO = 6;
     STATOR_CURRENT_LIMIT = 10;
     SUPPLY_CURRENT_LIMIT = 10;
     MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1); // TODO: Replace with actual motor.
-    MOMENT_OF_INERTIA = 1;
+    MOMENT_OF_INERTIA = 0.067;
     SPINDEXER_INVERTED_VALUE = InvertedValue.Clockwise_Positive; // TODO: Replace with actual value.
     SPINDEXER_ORIENTATION =
         ChassisReference.CounterClockwise_Positive; // TODO: Replace with actual value
