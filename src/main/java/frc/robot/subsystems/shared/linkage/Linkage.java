@@ -3,6 +3,10 @@ package frc.robot.subsystems.shared.linkage;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.List;
+import java.util.ArrayList;
+
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -180,6 +184,9 @@ public class Linkage {
     io.setProfileLeft(
         maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
   }
+  public List<Pose3d> getLinkagePoses() { //TODO: Work in progress
+    return new ArrayList<Pose3d>();
+  }
 
   /**
    * Runs the system ID
@@ -205,3 +212,4 @@ public class Linkage {
         characterizationRoutineLeft.dynamic(Direction.kReverse));
   }
 }
+
