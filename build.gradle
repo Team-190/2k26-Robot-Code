@@ -179,7 +179,7 @@ task checkRoboRIOtoRobotType {
         ] as URL[], this.class.classLoader)
 
         // Set file path names and constants
-        def robotTypeClassName = 'frc.robot.Constants$RobotType'
+        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
         def constantsClassName = 'frc.robot.RobotConfig'
         def robotType = null
         def constantsClass = null
