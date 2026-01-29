@@ -74,8 +74,6 @@ public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
 
   @Override
   public void updateInputs(V1_GammaSpindexerIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        torqueCurrent, supplyCurrent, appliedVolts, temperature, positionRotations, velocity);
 
     inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.velocity = velocity.getValue();
