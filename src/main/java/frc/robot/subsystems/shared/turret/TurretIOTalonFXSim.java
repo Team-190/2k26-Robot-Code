@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared.turret;
 
+import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
@@ -12,8 +13,8 @@ public class TurretIOTalonFXSim extends TurretIOTalonFX { // is this even right?
   private final DCMotorSim motorSim;
   private TalonFXSimState talonFXSim;
   private double motorVoltage;
-  private TalonFXSimState encoder1SimState;
-  private TalonFXSimState encoder2SimState;
+  private CANcoderSimState encoder1SimState;
+  private CANcoderSimState encoder2SimState;
 
   public TurretIOTalonFXSim() {
     talonFXSim = talonFX.getSimState();
@@ -42,11 +43,11 @@ public class TurretIOTalonFXSim extends TurretIOTalonFX { // is this even right?
     double rotorPositionRotations = motorSim.getAngularPositionRotations() * motorSim.getGearing();
     double rotorVelocityRotationsPerSecond =
         motorSim.getAngularVelocityRadPerSec() / (Math.PI * 2) * motorSim.getGearing();
-    encoder1SimState.setRawRotorPosition(
+    encoder1SimState.setRawPosition(
         motorSim.getAngularPositionRotations()
                 * TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO()
             + TurretConstants.E2_OFFSET_RADIANS);
-    encoder2SimState.setRawRotorPosition(
+    encoder2SimState.setRawPosition(
         motorSim.getAngularPositionRotations()
                 * TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_RATIO()
             + TurretConstants.E2_OFFSET_RADIANS);
