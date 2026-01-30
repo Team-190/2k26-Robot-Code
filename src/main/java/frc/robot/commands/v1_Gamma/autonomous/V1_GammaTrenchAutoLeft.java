@@ -14,6 +14,7 @@ import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimberConstants;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.shooter.V1_GammaShooter;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
+import frc.robot.util.PathCache;
 
 /** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
 public class V1_GammaTrenchAutoLeft {
@@ -22,6 +23,7 @@ public class V1_GammaTrenchAutoLeft {
   private static final double SPINDEXER_VOLTAGE = 3;
   private static final double SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND = 400;
   private static final double WAIT_TIME = 4;
+  private static final double SHOOT_TIME = 4;
 
   /**
    * @param drive The Swerve Drive subsystem
@@ -43,27 +45,61 @@ public class V1_GammaTrenchAutoLeft {
 
     AutoRoutine routine = drive.getAutoFactory().newRoutine("trenchAutoLeft");
 
-    AutoTrajectory LEFT_TRENCH = routine.trajectory("LEFT_TRENCH");
+    AutoTrajectory LEFT_TRENCH = routine.trajectory(PathCache.getTrajectory("LEFT_TRENCH"));
 
-    Commands.sequence(
-        LEFT_TRENCH.resetOdometry(),
-        Commands.print("Deploy Intake"),
-        intake.setVoltage(INTAKE_VOLTAGE),
-        LEFT_TRENCH.cmd(),
-        Commands.parallel(
-            intake.stop(),
-            shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
-        Commands.waitSeconds(WAIT_TIME),
-        spindexer.setVoltage(SPINDEXER_VOLTAGE),
-        Commands.waitSeconds(WAIT_TIME),
-        Commands.parallel(
-            spindexer.stopSpindexer(),
-            shooter.setGoal(HoodGoal.STOW, 0),
-            DriveCommands.autoAlignTowerCommand(
-                drive,
-                V1_GammaRobotState::getGlobalPose,
-                V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
-        climber.setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)));
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
+
+                // Set the inital pose
+
+                LEFT_TRENCH.resetOdometry(),
+
+                // Deploy the intake
+
+                Commands.print("Deploy Intake"), // TODO: IMPL
+
+                // Start the intake
+
+                intake.setVoltage(INTAKE_VOLTAGE),
+
+                // Folow the path
+
+                LEFT_TRENCH.cmd(),
+
+                // Stop the intake and align the shooter in parallel
+
+                Commands.parallel(
+                    intake.stop(),
+                    shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
+
+                // Wait to reach the goal
+
+                Commands.waitSeconds(WAIT_TIME),
+
+                // Start the spindexer
+
+                spindexer.setVoltage(SPINDEXER_VOLTAGE),
+
+                // Wait for shooter to finish shooting
+
+                Commands.waitSeconds(SHOOT_TIME),
+
+                // Stop the spindexer, stow the hood, and align to tower in parallel
+
+                Commands.parallel(
+                    spindexer.stopSpindexer(),
+                    shooter.setGoal(HoodGoal.STOW, 0),
+                    DriveCommands.autoAlignTowerCommand(
+                        drive,
+                        V1_GammaRobotState::getGlobalPose,
+                        V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
+
+                // Climb to L1
+
+                climber.setPositionGoal(
+                    new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal))));
 
     return routine;
   }
