@@ -22,38 +22,30 @@ public interface LinkageIO {
   }
 
   /** Updates AdvantageKit inputs. */
-  public default void updateInputs(LinkageIOInputs inputs) {
-  }
+  public default void updateInputs(LinkageIOInputs inputs) {}
 
   /** Sets motor voltage. */
-  public default void setVoltage(double volts) {
-  }
+  public default void setVoltage(double volts) {}
 
   /** Sets motor closed loop position. */
-  public default void setPosition(Rotation2d position) {
-  }
+  public default void setPosition(Rotation2d position) {}
 
   /** Sets motor closed loop position setpoint. */
-  public default void setPositionGoal(Rotation2d position) {
-  }
+  public default void setPositionGoal(Rotation2d position) {}
 
   /** Sets motor PID gains. */
-  public default void setPID(double kp, double ki, double kd) {
-  }
+  public default void setPID(double kp, double ki, double kd) {}
 
   /** Sets feedforward gains */
-  public default void setFeedforward(double ks, double kv, double ka) {
-  }
+  public default void setFeedforward(double ks, double kv, double ka) {}
 
   /** Sets motor profile. */
   public default void setProfile(
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-  }
+      double goalToleranceRadians) {}
 
   public default boolean atGoal() {
     return false;
   }
-
 }

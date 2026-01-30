@@ -10,14 +10,12 @@ public class LinkageConstants {
 
   public static final boolean IS_CAN_FD;
 
-  public static final int RIGHT_MOTOR_CAN_ID;
-  public static final int LEFT_MOTOR_CAN_ID;
+  public static final int MOTOR_CAN_ID;
 
   public static final double GEAR_RATIO;
   public static final double CURRENT_LIMIT;
   public static final double MOMENT_OF_INERTIA;
-  public static final DCMotor MOTOR_CONFIG_RIGHT;
-  public static final DCMotor MOTOR_CONFIG_LEFT;
+  public static final DCMotor MOTOR_CONFIG;
   public static final double LENGTH_METERS;
   public static final double MIN_ANGLE;
   public static final double MAX_ANGLE;
@@ -28,13 +26,11 @@ public class LinkageConstants {
 
   static {
     IS_CAN_FD = false;
-    RIGHT_MOTOR_CAN_ID = 8; // TODO: set correct ID
-    LEFT_MOTOR_CAN_ID = 9; // TODO: set correct ID
+    MOTOR_CAN_ID = 8; // TODO: set correct ID
     GEAR_RATIO = 1;
     CURRENT_LIMIT = 40;
     MOMENT_OF_INERTIA = 0.004;
-    MOTOR_CONFIG_RIGHT = DCMotor.getKrakenX60Foc(1);
-    MOTOR_CONFIG_LEFT = DCMotor.getKrakenX60Foc(1);
+    MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
     LENGTH_METERS = 0.3;
     MIN_ANGLE = 0;
     MAX_ANGLE = 2 * Math.PI;

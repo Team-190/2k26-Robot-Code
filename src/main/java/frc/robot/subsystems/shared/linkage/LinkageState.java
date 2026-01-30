@@ -7,10 +7,10 @@ public enum LinkageState {
   CLOSED_LOOP_POSITION_CONTROL,
   IDLE;
 
-  public Output set(double leftVolts, double rightVolts) {
+  public Output set(double volts) {
     switch (this) {
       case OPEN_LOOP_VOLTAGE_CONTROL, IDLE -> {
-        return new Output.Voltage(leftVolts, rightVolts);
+        return new Output.Voltage(volts);
       }
       case CLOSED_LOOP_POSITION_CONTROL -> throw new IllegalStateException(
           "Not voltage controlled");
@@ -19,10 +19,10 @@ public enum LinkageState {
   }
 
   // Construct Output for position-controlled states
-  public Output set(Rotation2d left, Rotation2d right) {
+  public Output set(Rotation2d position) {
     switch (this) {
       case CLOSED_LOOP_POSITION_CONTROL -> {
-        return new Output.Position(left, right);
+        return new Output.Position(position);
       }
       default -> throw new IllegalStateException("Not position controlled");
     }
@@ -34,39 +34,23 @@ public enum LinkageState {
         java.util.function.Function<Voltage, T> voltage,
         java.util.function.Function<Position, T> position);
 
-    default double leftVolts() {
+    default double volts() {
       return match(
-          Voltage::leftVolts,
+          Voltage::volts,
           p -> {
             throw new IllegalStateException("Not voltage output");
           });
     }
 
-    default double rightVolts() {
-      return match(
-          Voltage::rightVolts,
-          p -> {
-            throw new IllegalStateException("Not voltage output");
-          });
-    }
-
-    default Rotation2d leftPosition() {
+    default Rotation2d position() {
       return match(
           v -> {
             throw new IllegalStateException("Not position output");
           },
-          Position::left);
+          Position::position);
     }
 
-    default Rotation2d rightPosition() {
-      return match(
-          v -> {
-            throw new IllegalStateException("Not position output");
-          },
-          Position::right);
-    }
-
-    record Voltage(double leftVolts, double rightVolts) implements Output {
+    record Voltage(double volts) implements Output {
 
       @Override
       public <T> T match(
@@ -76,7 +60,7 @@ public enum LinkageState {
       }
     }
 
-    record Position(Rotation2d left, Rotation2d right) implements Output {
+    record Position(Rotation2d position) implements Output {
 
       @Override
       public <T> T match(

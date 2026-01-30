@@ -15,26 +15,22 @@ import frc.robot.subsystems.shared.linkage.LinkageIO.LinkageIOInputs;
 
 public class LinkageIOSim {
 
-  private final SingleJointedArmSim motorSimLeft;
-  private final SingleJointedArmSim motorSimRight;
+  private final SingleJointedArmSim motorSim;
 
-  private final ProfiledPIDController feedbackRight;
-  private final ProfiledPIDController feedbackLeft;
+  private final ProfiledPIDController feedback;
 
-  private final SimpleMotorFeedforward feedforwardRight;
-  private final SimpleMotorFeedforward feedforwardLeft;
+  private final SimpleMotorFeedforward feedforward;
 
-  private double appliedVoltsRight = 0.0;
-  private double appliedVoltsLeft = 0.0;
+  private double appliedVolts = 0.0;
 
   public LinkageIOSim() {
-    motorSimRight =
+    motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                LinkageConstants.MOTOR_CONFIG_RIGHT,
+                LinkageConstants.MOTOR_CONFIG,
                 LinkageConstants.MOMENT_OF_INERTIA,
                 LinkageConstants.GEAR_RATIO),
-            LinkageConstants.MOTOR_CONFIG_RIGHT,
+            LinkageConstants.MOTOR_CONFIG,
             LinkageConstants.GEAR_RATIO,
             LinkageConstants.LENGTH_METERS,
             LinkageConstants.MIN_ANGLE,
@@ -42,21 +38,7 @@ public class LinkageIOSim {
             true,
             LinkageConstants.MIN_ANGLE);
 
-    motorSimLeft =
-        new SingleJointedArmSim(
-            LinearSystemId.createDCMotorSystem(
-                LinkageConstants.MOTOR_CONFIG_LEFT,
-                LinkageConstants.MOMENT_OF_INERTIA,
-                LinkageConstants.GEAR_RATIO),
-            LinkageConstants.MOTOR_CONFIG_LEFT,
-            LinkageConstants.GEAR_RATIO,
-            LinkageConstants.LENGTH_METERS,
-            LinkageConstants.MIN_ANGLE,
-            LinkageConstants.MAX_ANGLE,
-            true,
-            LinkageConstants.MIN_ANGLE);
-
-    feedbackLeft =
+    feedback =
         new ProfiledPIDController(
             LinkageConstants.GAINS.kp().get(),
             0.0,
@@ -64,128 +46,66 @@ public class LinkageIOSim {
             new TrapezoidProfile.Constraints(
                 LinkageConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
                 LinkageConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedbackLeft.setTolerance(LinkageConstants.CONSTRAINTS.goalToleranceRadians().get());
-    feedforwardLeft =
-        new SimpleMotorFeedforward(
-            LinkageConstants.GAINS.ks().get(), LinkageConstants.GAINS.kv().get());
-
-    feedbackRight =
-        new ProfiledPIDController(
-            LinkageConstants.GAINS.kp().get(),
-            0.0,
-            LinkageConstants.GAINS.kd().get(),
-            new TrapezoidProfile.Constraints(
-                LinkageConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                LinkageConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedbackRight.setTolerance(LinkageConstants.CONSTRAINTS.goalToleranceRadians().get());
-    feedforwardRight =
+    feedback.setTolerance(LinkageConstants.CONSTRAINTS.goalToleranceRadians().get());
+    feedforward =
         new SimpleMotorFeedforward(
             LinkageConstants.GAINS.ks().get(), LinkageConstants.GAINS.kv().get());
   }
 
   public void updateInputs(LinkageIOInputs inputs) {
-    appliedVoltsLeft = MathUtil.clamp(appliedVoltsLeft, -12.0, 12.0);
-    appliedVoltsRight = MathUtil.clamp(appliedVoltsRight, -12.0, 12.0);
+    appliedVolts = MathUtil.clamp(appliedVolts, -12.0, 12.0);
 
-    motorSimLeft.setInputVoltage(appliedVoltsLeft);
-    motorSimRight.setInputVoltage(appliedVoltsRight);
+    motorSim.setInputVoltage(appliedVolts);
 
-    motorSimRight.update(GompeiLib.getLoopPeriod());
-    motorSimLeft.update(GompeiLib.getLoopPeriod());
+    motorSim.update(GompeiLib.getLoopPeriod());
 
-    inputs.leftPosition = Rotation2d.fromRadians(motorSimLeft.getAngleRads());
-    inputs.leftVelocity = Radians.per(Second).of(motorSimLeft.getVelocityRadPerSec());
-    inputs.leftSupplyCurrent = Amps.of(motorSimLeft.getCurrentDrawAmps());
-    inputs.leftAppliedVolts = Volts.of(appliedVoltsLeft);
-    inputs.leftPositionGoal = Rotation2d.fromRadians(feedbackLeft.getGoal().position);
-    inputs.leftPositionSetpoint = Rotation2d.fromRadians(feedbackLeft.getSetpoint().position);
-    inputs.leftPositionError = Rotation2d.fromRadians(feedbackLeft.getPositionError());
-
-    inputs.rightPosition = Rotation2d.fromRadians(motorSimRight.getAngleRads());
-    inputs.rightVelocity = RadiansPerSecond.of(motorSimRight.getVelocityRadPerSec());
-    inputs.rightSupplyCurrent = Amps.of(motorSimRight.getCurrentDrawAmps());
-    inputs.rightAppliedVolts = Volts.of(appliedVoltsRight);
-    inputs.rightPositionGoal = Rotation2d.fromRadians(feedbackRight.getGoal().position);
-    inputs.rightPositionSetpoint = Rotation2d.fromRadians(feedbackRight.getSetpoint().position);
-    inputs.rightPositionError = Rotation2d.fromRadians(feedbackRight.getPositionError());
+    inputs.position = Rotation2d.fromRadians(motorSim.getAngleRads());
+    inputs.velocity = RadiansPerSecond.of(motorSim.getVelocityRadPerSec());
+    inputs.supplyCurrent = Amps.of(motorSim.getCurrentDrawAmps());
+    inputs.appliedVolts = Volts.of(appliedVolts);
+    inputs.positionGoal = Rotation2d.fromRadians(feedback.getGoal().position);
+    inputs.positionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
+    inputs.positionError = Rotation2d.fromRadians(feedback.getPositionError());
   }
 
   /** Set voltage. */
-  public void setVoltageRight(double volts) {
-    appliedVoltsRight = volts;
-  }
-
-  public void setVoltageLeft(double volts) {
-    appliedVoltsLeft = volts;
+  public void setVoltage(double volts) {
+    appliedVolts = volts;
   }
 
   /** Set closed loop position setpoint. */
-  public void setPositionGoalRight(Rotation2d position) {
-    appliedVoltsRight =
-        feedbackRight.calculate(motorSimRight.getAngleRads(), position.getRadians())
-            + feedforwardRight.calculate(feedbackRight.getSetpoint().velocity);
+  public void setPositionGoal(Rotation2d position) {
+    appliedVolts =
+        feedback.calculate(motorSim.getAngleRads(), position.getRadians())
+            + feedforward.calculate(feedback.getSetpoint().velocity);
   }
 
-  public void setPositionGoalLeft(Rotation2d position) {
-    appliedVoltsLeft =
-        feedbackLeft.calculate(motorSimLeft.getAngleRads(), position.getRadians())
-            + feedforwardLeft.calculate(feedbackLeft.getSetpoint().velocity);
+  public void setPosition(Rotation2d position) {
+    motorSim.setState(position.getRadians(), motorSim.getVelocityRadPerSec());
+    feedback.reset(position.getRadians(), motorSim.getVelocityRadPerSec());
   }
 
-  public void setPositionRight(Rotation2d position) {
-    motorSimRight.setState(position.getRadians(), motorSimRight.getVelocityRadPerSec());
-    feedbackRight.reset(position.getRadians(), motorSimRight.getVelocityRadPerSec());
+  public void setPID(double kp, double ki, double kd) {
+    feedback.setPID(kp, ki, kd);
   }
 
-  public void setPositionLeft(Rotation2d position) {
-    motorSimLeft.setState(position.getRadians(), motorSimLeft.getVelocityRadPerSec());
-    feedbackLeft.reset(position.getRadians(), motorSimLeft.getVelocityRadPerSec());
+  public void setFeedforward(double ks, double kv, double ka) {
+    feedforward.setKs(ks);
+    feedforward.setKv(kv);
+    feedforward.setKa(ka);
   }
 
-  public void setPIDRight(double kp, double ki, double kd) {
-    feedbackRight.setPID(kp, ki, kd);
-  }
-
-  public void setPIDLeft(double kp, double ki, double kd) {
-    feedbackLeft.setPID(kp, ki, kd);
-  }
-
-  public void setFeedforwardRight(double ks, double kv, double ka) {
-    feedforwardRight.setKs(ks);
-    feedforwardRight.setKv(kv);
-    feedforwardRight.setKa(ka);
-  }
-
-  public void setFeedforwardLeft(double ks, double kv, double ka) {
-    feedforwardLeft.setKs(ks);
-    feedforwardLeft.setKv(kv);
-    feedforwardLeft.setKa(ka);
-  }
-
-  public void setProfileRight(
+  public void setProfile(
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    feedbackRight.setConstraints(
+    feedback.setConstraints(
         new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedbackRight.setTolerance(goalToleranceRadians);
-  }
-
-  public void setProfileLeft(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    feedbackLeft.setConstraints(
-        new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedbackLeft.setTolerance(goalToleranceRadians);
+    feedback.setTolerance(goalToleranceRadians);
   }
 
   /** Check if the linkage is within tolerance */
   public boolean atGoalRight() {
-    return feedbackRight.atGoal();
-  }
-
-  public boolean atGoalLeft() {
-    return feedbackLeft.atGoal();
+    return feedback.atGoal();
   }
 }

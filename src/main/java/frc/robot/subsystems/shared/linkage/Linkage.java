@@ -3,9 +3,6 @@ package frc.robot.subsystems.shared.linkage;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import java.util.ArrayList;
+import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class Linkage {
@@ -42,7 +41,6 @@ public class Linkage {
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
-  
   }
 
   public void periodic() {
@@ -61,7 +59,6 @@ public class Linkage {
       default -> {}
     }
   }
-
 
   /**
    * Sets the voltage being passed into the linkage subsystem.
@@ -104,8 +101,6 @@ public class Linkage {
         .andThen(Commands.waitUntil(this::atGoal));
   }
 
-
-
   /**
    * Updates the PID values for the linkage.
    *
@@ -131,8 +126,7 @@ public class Linkage {
         maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
   }
 
-  
-  public List<Pose3d> getLinkagePoses() { //TODO: Work in progress
+  public List<Pose3d> getLinkagePoses() { // TODO: Work in progress
     return new ArrayList<Pose3d>();
   }
 
@@ -153,4 +147,3 @@ public class Linkage {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 }
-

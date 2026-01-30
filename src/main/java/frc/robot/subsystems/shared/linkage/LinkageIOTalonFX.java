@@ -33,8 +33,7 @@ public class LinkageIOTalonFX implements LinkageIO {
 
   public LinkageIOTalonFX() {
     if (LinkageConstants.IS_CAN_FD) {
-      talonFX =
-          new TalonFX(LinkageConstants.MOTOR_CAN_ID, LinkageConstants.DRIVE_CONFIG.canBus());
+      talonFX = new TalonFX(LinkageConstants.MOTOR_CAN_ID, LinkageConstants.DRIVE_CONFIG.canBus());
     } else {
       talonFX = new TalonFX(LinkageConstants.MOTOR_CAN_ID);
     }
@@ -55,9 +54,7 @@ public class LinkageIOTalonFX implements LinkageIO {
         LinkageConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
         LinkageConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-    config
-        .SoftwareLimitSwitch
-        .withForwardSoftLimitThreshold(LinkageConstants.MAX_ANGLE)
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(LinkageConstants.MAX_ANGLE)
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(LinkageConstants.MIN_ANGLE)
         .withReverseSoftLimitEnable(true);
@@ -83,8 +80,7 @@ public class LinkageIOTalonFX implements LinkageIO {
         temperature,
         positionGoalRotations,
         positionSetpointRotations,
-        positionErrorRotations
-        );
+        positionErrorRotations);
 
     talonFX.optimizeBusUtilization();
 
@@ -97,8 +93,7 @@ public class LinkageIOTalonFX implements LinkageIO {
         appliedVolts,
         temperature,
         positionSetpointRotations,
-        positionErrorRotations
-        );
+        positionErrorRotations);
 
     voltageControlRequest = new VoltageOut(0.0);
     positionControlRequest = new MotionMagicVoltage(0.0);
@@ -116,8 +111,7 @@ public class LinkageIOTalonFX implements LinkageIO {
     inputs.positionGoal = Rotation2d.fromRotations(positionGoalRotations.getValueAsDouble());
     inputs.positionSetpoint =
         Rotation2d.fromRotations(positionSetpointRotations.getValueAsDouble());
-    inputs.positionError =
-        Rotation2d.fromRotations(positionErrorRotations.getValueAsDouble());
+    inputs.positionError = Rotation2d.fromRotations(positionErrorRotations.getValueAsDouble());
   }
 
   @Override
@@ -156,7 +150,6 @@ public class LinkageIOTalonFX implements LinkageIO {
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
   }
 
-
   @Override
   public void setProfile(
       double maxVelocityRadiansPerSecond,
@@ -172,5 +165,4 @@ public class LinkageIOTalonFX implements LinkageIO {
     return Math.abs(Units.rotationsToRadians(positionErrorRotations.getValueAsDouble()))
         <= LinkageConstants.CONSTRAINTS.goalToleranceRadians().get();
   }
-
 }
