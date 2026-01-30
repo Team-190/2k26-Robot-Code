@@ -9,91 +9,50 @@ import org.littletonrobotics.junction.AutoLog;
 public interface LinkageIO {
   @AutoLog
   public static class LinkageIOInputs {
-    public Rotation2d leftPosition = new Rotation2d();
-    public AngularVelocity leftVelocity = RadiansPerSecond.zero();
-    public Voltage leftAppliedVolts = Volts.zero();
-    public Current leftSupplyCurrent = Amps.zero();
-    public Current leftTorqueCurrent = Amps.zero();
-    public Temperature leftTemperature = Celsius.zero();
-    public Rotation2d leftPositionGoal = new Rotation2d();
-    public Rotation2d leftPositionSetpoint = new Rotation2d();
-    public Rotation2d leftPositionError = new Rotation2d();
 
-    public Rotation2d rightPosition = new Rotation2d();
-    public AngularVelocity rightVelocity = RadiansPerSecond.zero();
-    public Voltage rightAppliedVolts = Volts.zero();
-    public Current rightSupplyCurrent = Amps.zero();
-    public Current rightTorqueCurrent = Amps.zero();
-    public Temperature rightTemperature = Celsius.zero();
-    public Rotation2d rightPositionGoal = new Rotation2d();
-    public Rotation2d rightPositionSetpoint = new Rotation2d();
-    public Rotation2d rightPositionError = new Rotation2d();
+    public Rotation2d position = new Rotation2d();
+    public AngularVelocity velocity = RadiansPerSecond.zero();
+    public Voltage appliedVolts = Volts.zero();
+    public Current supplyCurrent = Amps.zero();
+    public Current torqueCurrent = Amps.zero();
+    public Temperature temperature = Celsius.zero();
+    public Rotation2d positionGoal = new Rotation2d();
+    public Rotation2d positionSetpoint = new Rotation2d();
+    public Rotation2d positionError = new Rotation2d();
   }
 
   /** Updates AdvantageKit inputs. */
   public default void updateInputs(LinkageIOInputs inputs) {
   }
 
-  /** Sets left motor voltage. */
-  public default void setVoltageLeft(double volts) {
+  /** Sets motor voltage. */
+  public default void setVoltage(double volts) {
   }
 
-  /** Sets right motor voltage. */
-  public default void setVoltageRight(double volts) {
+  /** Sets motor closed loop position. */
+  public default void setPosition(Rotation2d position) {
   }
 
-  /** Sets left motor closed loop position. */
-  public default void setPositionLeft(Rotation2d position) {
+  /** Sets motor closed loop position setpoint. */
+  public default void setPositionGoal(Rotation2d position) {
   }
 
-  /** Sets right motor closed loop position. */
-  public default void setPositionRight(Rotation2d position) {
+  /** Sets motor PID gains. */
+  public default void setPID(double kp, double ki, double kd) {
   }
 
-  /** Sets left motor closed loop position setpoint. */
-  public default void setPositionGoalLeft(Rotation2d position) {
+  /** Sets feedforward gains */
+  public default void setFeedforward(double ks, double kv, double ka) {
   }
 
-  /** Sets right motor closed loop position setpoint. */
-  public default void setPositionGoalRight(Rotation2d position) {
-  }
-
-  /** Sets left motor PID gains. */
-  public default void setPIDLeft(double kp, double ki, double kd) {
-  }
-
-  /** Sets right motor PID gains. */
-  public default void setPIDRight(double kp, double ki, double kd) {
-  }
-
-  /** Sets right feedforward gains */
-  public default void setFeedforwardRight(double ks, double kv, double ka) {
-  }
-
-  /** Sets left feedforward gains */
-  public default void setFeedforwardLeft(double ks, double kv, double ka) {
-  }
-
-  /** Sets left motor profile. */
-  public default void setProfileLeft(
+  /** Sets motor profile. */
+  public default void setProfile(
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
   }
 
-  /** Sets right motor profile. */
-  public default void setProfileRight(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-  }
-
-  /** Checks if the linkage is within tolerance */
-  public default boolean atGoalRight() {
-    return false;
-  }
-
-  public default boolean atGoalLeft() {
+  public default boolean atGoal() {
     return false;
   }
 

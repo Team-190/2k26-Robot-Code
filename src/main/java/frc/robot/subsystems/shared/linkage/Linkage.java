@@ -24,8 +24,7 @@ public class Linkage {
   private LinkageState currentState;
   private LinkageState.Output currentOutput;
 
-  private final SysIdRoutine characterizationRoutineLeft;
-  private final SysIdRoutine characterizationRoutineRight;
+  private final SysIdRoutine characterizationRoutine;
 
   public Linkage(LinkageIO io, Subsystem subsystem, int index) {
 
@@ -34,46 +33,35 @@ public class Linkage {
 
     aKitTopic = subsystem.getName() + "/Linkage" + index;
 
-    characterizationRoutineLeft =
+    characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 Volts.of(0.5).per(Seconds),
                 Volts.of(3.5),
                 Seconds.of(10),
-                (state) -> Logger.recordOutput(aKitTopic + "/sysIDStateLeft", state.toString())),
+                (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) -> io.setVoltageLeft(voltage.in(Volts)), null, subsystem));
-
-    characterizationRoutineRight =
-        new SysIdRoutine(
-            new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
-                (state) -> Logger.recordOutput(aKitTopic + "/sysIDStateRight", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> io.setVoltageRight(voltage.in(Volts)), null, subsystem));
+                (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
+  
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
 
-    Logger.recordOutput(aKitTopic + "/At Goal Right", atGoalRight());
-    Logger.recordOutput(aKitTopic + "/At Goal Left", atGoalLeft());
+    Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
-        io.setVoltageLeft(currentOutput.leftVolts());
-        io.setVoltageRight(currentOutput.rightVolts());
+        io.setVoltage(currentOutput.volts());
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
-        io.setPositionGoalLeft(currentOutput.leftPosition());
-        io.setPositionGoalRight(currentOutput.rightPosition());
+        io.setPositionGoal(currentOutput.position());
       }
       default -> {}
     }
   }
+
 
   /**
    * Sets the voltage being passed into the linkage subsystem.
@@ -81,19 +69,19 @@ public class Linkage {
    * @param volts the voltage passed into the linkage.
    * @return A command that sets the specified voltage.
    */
-  public Command setVoltage(double leftVolts, double rightVolts) {
+  public Command setVoltage(double volts) {
     return Commands.runOnce(
         () -> {
           currentState = LinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
-          currentState.set(leftVolts, rightVolts);
+          currentState.set(volts);
         });
   }
 
-  public Command setPositionGoal(Rotation2d leftPosition, Rotation2d rightPosition) {
+  public Command setPositionGoal(Rotation2d position) {
     return Commands.runOnce(
         () -> {
           currentState = LinkageState.CLOSED_LOOP_POSITION_CONTROL;
-          currentState.set(leftPosition, rightPosition);
+          currentState.set(position);
         });
   }
 
@@ -102,38 +90,21 @@ public class Linkage {
    *
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
-  public boolean atGoalRight() {
-    return io.atGoalRight();
+  public boolean atGoal() {
+    return io.atGoal();
   }
 
   /**
-   * Checks if the linkage is at the goal position.
-   *
-   * @return If the linkage is within tolerance of the goal (true) or not (false).
-   */
-  public boolean atGoalLeft() {
-    return io.atGoalLeft();
-  }
-
-  /**
-   * Waits until left linkage at goal/in tolerance.
+   * Waits until linkage at goal/in tolerance.
    *
    * @return A command that waits until the linkage is at the goal.
    */
-  public Command waitUntilLinkageLeftAtGoal() {
+  public Command waitUntilLinkageAtGoal() {
     return Commands.waitSeconds(GompeiLib.getLoopPeriod())
-        .andThen(Commands.waitUntil(this::atGoalLeft));
+        .andThen(Commands.waitUntil(this::atGoal));
   }
 
-  /**
-   * Waits until right linkage at goal/in tolerance.
-   *
-   * @return A command that waits until the linkage is at the goal.
-   */
-  public Command waitUntilLinkageRightAtGoal() {
-    return Commands.waitSeconds(GompeiLib.getLoopPeriod())
-        .andThen(Commands.waitUntil(this::atGoalRight));
-  }
+
 
   /**
    * Updates the PID values for the linkage.
@@ -141,18 +112,8 @@ public class Linkage {
    * @param kp the proportional gain
    * @param kd the derivative gain
    */
-  public void setPIDRight(double kp, double kd) {
-    io.setPIDRight(kp, 0.0, kd);
-  }
-
-  /**
-   * Updates the PID values for the linkage.
-   *
-   * @param kp the proportional gain
-   * @param kd the derivative gain
-   */
-  public void setPIDLeft(double kp, double kd) {
-    io.setPIDLeft(kp, 0.0, kd);
+  public void setPID(double kp, double kd) {
+    io.setPID(kp, 0.0, kd);
   }
 
   /**
@@ -162,28 +123,15 @@ public class Linkage {
    * @param maxAccelerationRadiansPerSecondSquared Maximum acceleration (rad/sec^2)
    * @param goalToleranceRadians Tolerance (rad)
    */
-  public void setProfileRight(
+  public void setProfile(
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    io.setProfileRight(
+    io.setProfile(
         maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
   }
 
-  /**
-   * Updates the profile constraints.
-   *
-   * @param maxVelocityRadiansPerSecond Maximum velocity (rad/sec)
-   * @param maxAccelerationRadiansPerSecondSquared Maximum acceleration (rad/sec^2)
-   * @param goalToleranceRadians Tolerance (rad)
-   */
-  public void setProfileLeft(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    io.setProfileLeft(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
-  }
+  
   public List<Pose3d> getLinkagePoses() { //TODO: Work in progress
     return new ArrayList<Pose3d>();
   }
@@ -196,20 +144,13 @@ public class Linkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = LinkageState.IDLE),
-        characterizationRoutineRight.quasistatic(Direction.kForward),
+        characterizationRoutine.quasistatic(Direction.kForward),
         Commands.waitSeconds(3),
-        characterizationRoutineRight.quasistatic(Direction.kReverse),
+        characterizationRoutine.quasistatic(Direction.kReverse),
         Commands.waitSeconds(3),
-        characterizationRoutineRight.dynamic(Direction.kForward),
+        characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
-        characterizationRoutineRight.dynamic(Direction.kReverse),
-        characterizationRoutineLeft.quasistatic(Direction.kForward),
-        Commands.waitSeconds(3),
-        characterizationRoutineLeft.quasistatic(Direction.kReverse),
-        Commands.waitSeconds(3),
-        characterizationRoutineLeft.dynamic(Direction.kForward),
-        Commands.waitSeconds(3),
-        characterizationRoutineLeft.dynamic(Direction.kReverse));
+        characterizationRoutine.dynamic(Direction.kReverse));
   }
 }
 
