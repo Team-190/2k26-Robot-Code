@@ -169,7 +169,6 @@ public class TurretIOTalonFX implements TurretIO {
         positionControlRequest
             .withPosition(goal.getRotations())
             .withUseTimesync(true)
-            .withUpdateFreqHz(200)
             .withEnableFOC(true));
   }
 

@@ -114,14 +114,13 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void setVoltage(double volts) {
-    hoodMotor.setControl(voltageControlRequest.withOutput(volts).withUpdateFreqHz(1000.0));
+    hoodMotor.setControl(voltageControlRequest.withOutput(volts));
   }
 
   @Override
   public void setPosition(Rotation2d position) {
     positionGoal = position;
-    hoodMotor.setControl(
-        positionControlRequest.withPosition(positionGoal.getRotations()).withUpdateFreqHz(1000.0));
+    hoodMotor.setControl(positionControlRequest.withPosition(positionGoal.getRotations()));
   }
 
   @Override

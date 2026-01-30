@@ -73,13 +73,6 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
   }
 
   public void updateInputs(V1_GammaSwankIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        positionRotations,
-        velocityRotationsPerSecond,
-        torqueCurrentAmps,
-        supplyCurrentAmps,
-        appliedVolts,
-        temperatureCelsius);
 
     inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.velocity = velocityRotationsPerSecond.getValue();

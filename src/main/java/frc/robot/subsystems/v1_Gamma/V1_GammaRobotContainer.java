@@ -20,17 +20,27 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
-import frc.robot.commands.AutonomousCommands;
-import frc.robot.commands.CompositeCommands.SharedCommands;
-import frc.robot.commands.DriveCommands;
+import frc.robot.commands.shared.DriveCommands;
+import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.commands.v1_Gamma.autonomous.V1_GammaAutonomousTest;
+import frc.robot.subsystems.shared.turret.Turret;
+import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexerIOTalonFXSim;
+import frc.robot.subsystems.v1_Gamma.swank.V1_GammaSwank;
+import frc.robot.subsystems.v1_Gamma.swank.V1_GammaSwankIOTalonFX;
+import frc.robot.subsystems.v1_Gamma.swank.V1_GammaSwankIOTalonFXSim;
 import java.util.List;
 
 public class V1_GammaRobotContainer implements RobotContainer {
+
   private SwerveDrive drive;
   private Vision vision;
+
   private V1_GammaSpindexer spindexer;
+  private Turret turret;
+  private TurretIO turretIO;
+  private V1_GammaSwank swank;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -59,6 +69,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
                       V1_GammaConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   V1_GammaRobotState::getGlobalPose,
                   V1_GammaRobotState::resetPose);
+          swank = new V1_GammaSwank(new V1_GammaSwankIOTalonFX());
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -92,6 +103,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
                   V1_GammaRobotState::resetPose);
 
           spindexer = new V1_GammaSpindexer(new V1_GammaSpindexerIOTalonFXSim());
+          swank = new V1_GammaSwank(new V1_GammaSwankIOTalonFXSim());
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -135,7 +147,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
     driver
         .povDown()
         .onTrue(
-            SharedCommands.resetHeading(
+            SharedCompositeCommands.resetHeading(
                 drive,
                 V1_GammaRobotState::resetPose,
                 () -> V1_GammaRobotState.getGlobalPose().getTranslation()));
@@ -157,6 +169,6 @@ public class V1_GammaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return AutonomousCommands.spindexerTest(spindexer);
+    return V1_GammaAutonomousTest.swankTest(swank);
   }
 }
