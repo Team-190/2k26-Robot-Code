@@ -112,9 +112,9 @@ public class V0_FunkyConstants {
           GAINS,
           AUTO_GAINS,
           AUTO_ALIGN_NEAR_CONSTANTS,
-          OPERATOR_DEADBAND,
           ODOMETRY_FREQUENCY,
-          DRIVER_DEADBAND);
+          DRIVER_DEADBAND,
+          OPERATOR_DEADBAND);
 
   public static final LimelightConfig LIMELIGHT_CONFIG =
       LimelightConfig.builder()
