@@ -3,8 +3,10 @@ package frc.robot.subsystems.shared.linkage;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -126,7 +128,40 @@ public class Linkage {
         maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
   }
 
-  public List<Pose3d> getLinkagePoses() { // TODO: Work in progress
+  // 23.5 degrees from deployed is when you start running the intake
+  // TODO: Implement in autos and in deployment of intake ELLIOT HELPPPPPPPPPPP MAKE AN ISSUE
+  public List<Pose3d> getLinkagePoses(Pose3d poseLink1) { // TODO: Work in progress
+
+    final Rotation2d theta = new Rotation2d(Math.PI/4);
+    final double AB = -1;
+    final double BC = -1;
+    final double CD = -1;
+    final double AD = -1;
+
+    final Rotation2d aAngleFromHorizontal = Rotation2d.kZero;
+    final Rotation2d dAngleFromHorizontal = Rotation2d.kZero;
+
+    final Rotation2d angleA = aAngleFromHorizontal.minus(dAngleFromHorizontal);
+    final Pose2d poseAngleA = new Pose2d(0, 0, aAngleFromHorizontal);
+
+    final double BD = Math.sqrt(
+        Math.pow(AB, 2)
+            + Math.pow(AD, 2)
+            - 2 * AB * AD * Math.cos(angleA.getRadians()));
+    final Rotation2d angleC =
+        new Rotation2d(
+            Math.acos(BD - Math.pow(BC, 2) - Math.pow(CD, 2))
+                / (-2 * BC * CD));
+    final Rotation2d angleD =
+        new Rotation2d(Math.asin(Math.sin(angleA.getRadians())*AB/BD) + Math.asin(Math.sin(angleC.getRadians())*BC/BD));
+
+    final Rotation2d angleAB =
+        
+
+    final Translation2d pointA = new Translation2d(0, 0);
+    final Translation2d pointD = new Translation2d(-1,1)
+    final Translation2d pointB = new Translation2d(AB*Math.cos(theta.getRadians()), AB*Math.sin(theta.getRadians()));
+    
     return new ArrayList<Pose3d>();
   }
 
