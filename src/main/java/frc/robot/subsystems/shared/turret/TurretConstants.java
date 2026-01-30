@@ -45,7 +45,7 @@ public class TurretConstants {
 
         GAINS =
             new Gains(
-                new edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber("Turret/kP", 0),
+                new LoggedTunableNumber("Turret/kP", 0),
                 new LoggedTunableNumber("Turret/kD", 0),
                 new LoggedTunableNumber("Turret/kV", 0),
                 new LoggedTunableNumber("Turret/kA", 0),
@@ -74,7 +74,7 @@ public class TurretConstants {
 
         GAINS =
             new Gains(
-                new edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber("Turret/kP", 0),
+                new LoggedTunableNumber("Turret/kP", 0),
                 new LoggedTunableNumber("Turret/kD", 0),
                 new LoggedTunableNumber("Turret/kV", 0),
                 new LoggedTunableNumber("Turret/kA", 0),
@@ -103,7 +103,7 @@ public class TurretConstants {
 
         GAINS =
             new Gains(
-                new edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber("Turret/kP", 0),
+                new LoggedTunableNumber("Turret/kP", 0),
                 new LoggedTunableNumber("Turret/kD", 0),
                 new LoggedTunableNumber("Turret/kV", 0),
                 new LoggedTunableNumber("Turret/kA", 0),
