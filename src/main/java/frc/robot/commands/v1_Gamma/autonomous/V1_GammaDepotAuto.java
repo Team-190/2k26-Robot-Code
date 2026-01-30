@@ -14,7 +14,6 @@ import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimberConstants;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.shooter.V1_GammaShooter;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
-import frc.robot.util.PathCache;
 
 /**
  * Autonomous Routine for gathering fuel from the depot, going to the tower, scoring the fuel, then
@@ -50,7 +49,7 @@ public class V1_GammaDepotAuto {
 
     AutoRoutine routine = drive.getAutoFactory().newRoutine("depotRoutine");
 
-    AutoTrajectory DEPOT = routine.trajectory(PathCache.getTrajectory("DEPOT"));
+    AutoTrajectory DEPOT = routine.trajectory(V1_GammaAutoTrajectoryCache.DEPOT);
 
     routine
         .active()
