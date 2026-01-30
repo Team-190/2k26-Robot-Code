@@ -150,10 +150,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         DriveCommands.joystickDrive(
             drive,
             V0_FunkyConstants.DRIVE_CONSTANTS,
-            () -> driver.getLeftY(),
-            () -> driver.getLeftX(),
-            () -> driver.getRightX(),
-            drive::getRawGyroRotation));
+            driver::getLeftY,
+            driver::getLeftX,
+            driver::getRightX,
+            V0_FunkyRobotState::getHeading));
 
     driver
         .povDown()
