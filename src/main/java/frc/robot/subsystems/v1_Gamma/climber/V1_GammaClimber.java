@@ -48,11 +48,11 @@ public class V1_GammaClimber extends SubsystemBase {
 
   public Command climbSequence() {
     return Commands.sequence(
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)),
+        setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)),
         waitUntilPosition(),
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoPositionGoal)),
+        setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelTwoPositionGoal)),
         waitUntilPosition(),
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoFlipGoal)),
+        setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelTwoFlipGoal)),
         waitUntilPosition());
   }
 }
