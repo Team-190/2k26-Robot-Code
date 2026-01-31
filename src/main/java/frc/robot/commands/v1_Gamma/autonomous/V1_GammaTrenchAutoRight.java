@@ -9,7 +9,6 @@ import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimber;
-import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimberConstants;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.shooter.V1_GammaShooter;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
@@ -96,8 +95,7 @@ public class V1_GammaTrenchAutoRight {
 
                 // Climb to L1
 
-                climber.setPositionGoal(
-                    V1_GammaClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition())));
+                climber.climbAutoSequence()));
 
     return routine;
   }

@@ -23,6 +23,7 @@ public class V1_GammaClimber extends SubsystemBase {
 
   @Override
   public void periodic() {
+    arm.setPositionGoal(state.getPosition());
     arm.periodic();
   }
 
