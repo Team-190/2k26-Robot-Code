@@ -2,7 +2,6 @@ package frc.robot.commands.v1_Gamma.autonomous;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
@@ -10,7 +9,6 @@ import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimber;
-import frc.robot.subsystems.v1_Gamma.climber.V1_GammaClimberConstants;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.shooter.V1_GammaShooter;
 import frc.robot.subsystems.v1_Gamma.spindexer.V1_GammaSpindexer;
@@ -89,8 +87,7 @@ public class V1_GammaDepotAuto {
                         V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
 
                 // Climb to L1
-                climber.setPositionGoal(
-                    new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal))));
+                climber.climbAutoSequence()));
 
     return routine;
   }
