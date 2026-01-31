@@ -1,11 +1,14 @@
 package frc.robot.subsystems.shared.linkage;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
+import frc.robot.RobotConfig;
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
+import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntakeConstants;
 
 public class LinkageConstants {
 
@@ -32,8 +35,10 @@ public class LinkageConstants {
   public static final LinkLengths LINK_LENGTHS;
   public static final LinkBounds LINK_BOUNDS;
 
+  public static final LinkConstants LINK_CONST;
 
   public static final double PIN_LENGTH;
+  public static Translation3d LINKAGE_OFFSET;
 
   static {
     IS_CAN_FD = false;
@@ -50,7 +55,7 @@ public class LinkageConstants {
         Rotation2d.fromDegrees(0); // TODO: Figure out the actual static angle offset between
     // points A and D on the intake.
 
-    PIN_LENGTH = 0; //TODO: set to distance of pin from point of rotation.
+    PIN_LENGTH = 0; // TODO: set to distance of pin from point of rotation.
 
     GAINS =
         new Gains(
@@ -67,9 +72,11 @@ public class LinkageConstants {
 
     DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
 
-    LINK_LENGTHS = new LinkLengths(-1, -1, -1, -1);
+    LINK_LENGTHS = new LinkLengths(6, 6, 6, 6);
 
     LINK_BOUNDS = new LinkBounds(0.810921, 2.86545, 4.752162, 6.46545);
+
+    LINK_CONST = new LinkConstants(6.092560, 2.446682, 5.376661);
   }
 
   public enum LinkageGoal {
@@ -92,6 +99,19 @@ public class LinkageConstants {
 
   public record LinkLengths(double AB, double BC, double CD, double DA) {}
 
-
   public record LinkBounds(double MIN, double PHASE_1, double PHASE_2, double MAX) {}
+
+  public record LinkConstants(double RADIUS_1, double RADIUS_2, double CENTER_OFFSET) {}
+
+  static {
+    switch (RobotConfig.ROBOT) {
+      case V1_GAMMA:
+      case V1_GAMMA_SIM:
+        LINKAGE_OFFSET = V1_GammaIntakeConstants.INTAKE_GLOBAL_OFFSET;
+        break;
+      default:
+        LINKAGE_OFFSET = V1_GammaIntakeConstants.INTAKE_GLOBAL_OFFSET;
+        break;
+    }
+  }
 }

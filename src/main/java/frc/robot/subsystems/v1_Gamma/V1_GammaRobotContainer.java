@@ -22,11 +22,14 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import java.util.List;
 
 public class V1_GammaRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private Vision vision;
+
+  private V1_GammaIntake intake;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -150,6 +153,6 @@ public class V1_GammaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return intake.testIntake();
   }
 }

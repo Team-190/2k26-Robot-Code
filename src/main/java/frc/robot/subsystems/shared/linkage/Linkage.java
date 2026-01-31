@@ -3,9 +3,10 @@ package frc.robot.subsystems.shared.linkage;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -128,7 +129,7 @@ public class Linkage {
 
   // 23.5 degrees from deployed is when you start running the intake
   // TODO: Implement in autos and in deployment of intake ELLIOT HELPPPPPPPPPPP MAKE AN ISSUE
-  public List<Pose2d> getLinkagePoses() { // TODO: Work in progress
+  public List<Pose3d> getLinkagePoses() { // TODO: Work in progress
 
     final double AB = LinkageConstants.LINK_LENGTHS.AB();
     final double BC = LinkageConstants.LINK_LENGTHS.BC();
@@ -160,29 +161,61 @@ public class Linkage {
             Math.asin(Math.sin(angleA.getRadians()) * DA / BD)
                 + Math.asin(Math.sin(angleC.getRadians()) * CD / BD));
 
-    final Translation2d pointA = new Translation2d(0, 0);
-    final Translation2d pointD =
+    final Translation3d pointA = LinkageConstants.LINKAGE_OFFSET;
+    final Translation3d pointD =
         pointA.plus(
-            new Translation2d(
+            new Translation3d(
                 DA * Math.cos(LinkageConstants.INTAKE_ANGLE_OFFSET.getRadians()),
+                0,
                 DA * Math.sin(LinkageConstants.INTAKE_ANGLE_OFFSET.getRadians())));
 
-    final Translation2d pointB =
-        new Translation2d(
-            AB * Math.cos(aAngleFromHorizontal.getRadians()),
-            AB * Math.sin(aAngleFromHorizontal.getRadians()));
-    final Translation2d pointC =
+    final Translation3d pointB =
+        pointA.plus(
+            new Translation3d(
+                AB * Math.cos(aAngleFromHorizontal.getRadians()),
+                0,
+                AB * Math.sin(aAngleFromHorizontal.getRadians())));
+    final Translation3d pointC =
         pointB.plus(
-            new Translation2d(
+            new Translation3d(
                 BC * Math.cos((aAngleFromHorizontal.getRadians() + angleB.getRadians()) - Math.PI),
+                0,
                 BC * Math.sin((angleA.getRadians() + angleB.getRadians()) - Math.PI)));
 
-    final Pose2d poseA = new Pose2d(pointA, aAngleFromHorizontal);
-    final Pose2d poseB = new Pose2d(pointB, new Rotation2d(Math.PI).minus(angleB));
-    final Pose2d poseC = new Pose2d(pointC, new Rotation2d(Math.PI).minus(angleC));
-    final Pose2d poseD = new Pose2d(pointD, new Rotation2d(Math.PI).minus(angleD));
+    final Pose3d poseA =
+        new Pose3d(pointA, new Rotation3d(0, aAngleFromHorizontal.getRadians(), 0));
+    final Pose3d poseB = new Pose3d(pointB, new Rotation3d(0, Math.PI - angleB.getRadians(), 0));
+    final Pose3d poseC = new Pose3d(pointC, new Rotation3d(0, Math.PI - angleC.getRadians(), 0));
+    final Pose3d poseD = new Pose3d(pointD, new Rotation3d(0, Math.PI - angleD.getRadians(), 0));
 
     return List.of(poseA, poseB, poseC, poseD);
+  }
+
+  public Pose3d getHopperWallPose() {
+
+    final double yPos = Math.sin(inputs.position.getRadians()) * LinkageConstants.PIN_LENGTH;
+    final double x0 = Math.cos(inputs.position.getRadians()) * LinkageConstants.PIN_LENGTH;
+
+    double xOff = 0;
+
+    final double Y_MIN = LinkageConstants.LINK_BOUNDS.MIN(); // 0.810921
+    final double Y_PHASE_1 = LinkageConstants.LINK_BOUNDS.PHASE_1(); // 2.86545
+    final double Y_PHASE_2 = LinkageConstants.LINK_BOUNDS.PHASE_2(); // 4.752162
+    final double Y_MAX = LinkageConstants.LINK_BOUNDS.MAX(); // 6.46545
+
+    final double RADIUS_1 = LinkageConstants.LINK_CONST.RADIUS_1();
+    final double RADIUS_2 = LinkageConstants.LINK_CONST.RADIUS_2();
+    final double CENTER_OFFSET = LinkageConstants.LINK_CONST.CENTER_OFFSET();
+
+    if (yPos <= Y_PHASE_1 && yPos > Y_MIN) {
+      xOff = Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
+    } else if (yPos <= Y_PHASE_2 && yPos > Y_PHASE_1) {
+      xOff = 0;
+    } else if (yPos <= Y_MAX && yPos > Y_PHASE_2) {
+      xOff = Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
+    }
+
+    return new Pose3d(x0 + xOff, 0, yPos, new Rotation3d(0, 0, 0));
   }
 
   /**
