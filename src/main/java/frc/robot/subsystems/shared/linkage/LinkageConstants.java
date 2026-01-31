@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared.linkage;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
@@ -11,6 +12,10 @@ public class LinkageConstants {
   public static final boolean IS_CAN_FD;
 
   public static final int MOTOR_CAN_ID;
+
+  public static final int CAN_CODER_CAN_ID;
+
+  public static final Rotation2d INTAKE_ANGLE_OFFSET;
 
   public static final double GEAR_RATIO;
   public static final double CURRENT_LIMIT;
@@ -24,9 +29,12 @@ public class LinkageConstants {
   public static final Constraints CONSTRAINTS;
   public static final DriveConfig DRIVE_CONFIG;
 
+  public static final LinkLengths LINK_LENGTHS;
+
   static {
     IS_CAN_FD = false;
     MOTOR_CAN_ID = 8; // TODO: set correct ID
+    CAN_CODER_CAN_ID = 9; // TODO: set correct ID
     GEAR_RATIO = 1;
     CURRENT_LIMIT = 40;
     MOMENT_OF_INERTIA = 0.004;
@@ -34,6 +42,9 @@ public class LinkageConstants {
     LENGTH_METERS = 0.3;
     MIN_ANGLE = 0;
     MAX_ANGLE = 2 * Math.PI;
+    INTAKE_ANGLE_OFFSET =
+        Rotation2d.fromDegrees(0); // TODO: Figure out the actual static angle offset between
+    // points A and D on the intake.
 
     GAINS =
         new Gains(
@@ -49,6 +60,8 @@ public class LinkageConstants {
             new LoggedTunableNumber("Linkage/Goal Tolerance", Units.degreesToRadians(1.0)));
 
     DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
+
+    LINK_LENGTHS = new LinkLengths(-1, -1, -1, -1);
   }
 
   public enum LinkageGoal {
@@ -68,4 +81,6 @@ public class LinkageConstants {
       LoggedTunableNumber maxVelocityRadiansPerSecond,
       LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
       LoggedTunableNumber goalToleranceRadians) {}
+
+  public record LinkLengths(double AB, double BC, double CD, double DA) {}
 }

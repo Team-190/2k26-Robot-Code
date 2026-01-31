@@ -5,6 +5,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +17,8 @@ import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 public class LinkageIOTalonFX implements LinkageIO {
   private final TalonFX talonFX;
 
+  private final CANcoder canCoder;
+
   private final StatusSignal<Angle> positionRotations;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Temperature> temperature;
@@ -25,6 +28,7 @@ public class LinkageIOTalonFX implements LinkageIO {
   private final StatusSignal<Double> positionGoalRotations;
   private final StatusSignal<Double> positionSetpointRotations;
   private final StatusSignal<Double> positionErrorRotations;
+  private final StatusSignal<Angle> absolutePositionRotations;
 
   private final TalonFXConfiguration config;
 
@@ -60,6 +64,10 @@ public class LinkageIOTalonFX implements LinkageIO {
         .withReverseSoftLimitEnable(true);
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
+    canCoder = new CANcoder(LinkageConstants.CAN_CODER_CAN_ID);
+
+    talonFX.setPosition(canCoder.getAbsolutePosition().getValueAsDouble());
+
     positionRotations = talonFX.getPosition();
     velocity = talonFX.getVelocity();
     torqueCurrent = talonFX.getTorqueCurrent();
@@ -69,6 +77,7 @@ public class LinkageIOTalonFX implements LinkageIO {
     positionGoalRotations = talonFX.getClosedLoopReference();
     positionSetpointRotations = talonFX.getClosedLoopReference();
     positionErrorRotations = talonFX.getClosedLoopError();
+    absolutePositionRotations = canCoder.getAbsolutePosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
@@ -80,7 +89,8 @@ public class LinkageIOTalonFX implements LinkageIO {
         temperature,
         positionGoalRotations,
         positionSetpointRotations,
-        positionErrorRotations);
+        positionErrorRotations,
+        absolutePositionRotations);
 
     talonFX.optimizeBusUtilization();
 
@@ -93,7 +103,8 @@ public class LinkageIOTalonFX implements LinkageIO {
         appliedVolts,
         temperature,
         positionSetpointRotations,
-        positionErrorRotations);
+        positionErrorRotations,
+        absolutePositionRotations);
 
     voltageControlRequest = new VoltageOut(0.0);
     positionControlRequest = new MotionMagicVoltage(0.0);
