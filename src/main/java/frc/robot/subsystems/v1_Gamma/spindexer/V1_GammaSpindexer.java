@@ -19,10 +19,10 @@ public class V1_GammaSpindexer extends SubsystemBase {
    *
    * @param io the IO implementation
    */
-  public V1_GammaSpindexer(V1_GammaSpindexerIO io, GenericRollerIO kickerIO, String name) {
+  public V1_GammaSpindexer(V1_GammaSpindexerIO io, GenericRollerIO kickerIO, String kickerName) {
     this.io = io;
     inputs = new V1_GammaSpindexerIOInputsAutoLogged();
-    kicker = new GenericRoller(kickerIO, this, name);
+    kicker = new GenericRoller(kickerIO, this, kickerName);
   }
 
   /** Periodic method for the Spindexer subsystem. Updates inputs periodically. */
@@ -32,8 +32,8 @@ public class V1_GammaSpindexer extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs(getName(), inputs);
     io.setVoltage(voltageGoal);
-    kicker.periodic();
     kicker.setVoltage(voltageGoal);
+    kicker.periodic();
   }
 
   /**
