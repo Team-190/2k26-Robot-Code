@@ -60,11 +60,4 @@ public class V1_GammaSpindexer extends SubsystemBase {
           voltageGoal = 0;
         });
   }
-<<<<<<< HEAD
-=======
-
-  public void setKicker(GenericRoller kicker) {
-    this.kicker = kicker;
-  }
->>>>>>> 571eb3e9a060d715acd230259540bc4810d749e3
 }
