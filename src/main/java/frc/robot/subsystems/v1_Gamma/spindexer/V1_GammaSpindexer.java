@@ -13,17 +13,16 @@ public class V1_GammaSpindexer extends SubsystemBase {
   private final V1_GammaSpindexerIOInputsAutoLogged inputs;
   private double voltageGoal;
   private GenericRoller kicker;
-  private int index;
 
   /**
    * Constructor for the Gamma Spindexer subsystem.
    *
    * @param io the IO implementation
    */
-  public V1_GammaSpindexer(V1_GammaSpindexerIO io, GenericRollerIO kickerIO, int index) {
+  public V1_GammaSpindexer(V1_GammaSpindexerIO io, GenericRollerIO kickerIO, String name) {
     this.io = io;
     inputs = new V1_GammaSpindexerIOInputsAutoLogged();
-    kicker = new GenericRoller(kickerIO, this, "Kicker");
+    kicker = new GenericRoller(kickerIO, this, name);
   }
 
   /** Periodic method for the Spindexer subsystem. Updates inputs periodically. */
@@ -61,4 +60,11 @@ public class V1_GammaSpindexer extends SubsystemBase {
           voltageGoal = 0;
         });
   }
+<<<<<<< HEAD
+=======
+
+  public void setKicker(GenericRoller kicker) {
+    this.kicker = kicker;
+  }
+>>>>>>> 571eb3e9a060d715acd230259540bc4810d749e3
 }
