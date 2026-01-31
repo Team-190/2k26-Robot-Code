@@ -51,12 +51,12 @@ public class V1_GammaClimber extends SubsystemBase {
 
   public Command climbSequenceL3() {
     return Commands.sequence(
-      Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L1_POSITION_GOAL),
-      waitUntilPosition(),
-      Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L2_FLIP_GOAL),
-      waitUntilPosition(),
-      Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L2_POSITION_GOAL),
-      waitUntilPosition());
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L1_POSITION_GOAL),
+        waitUntilPosition(),
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L2_FLIP_GOAL),
+        waitUntilPosition(),
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L2_POSITION_GOAL),
+        waitUntilPosition());
   }
 
   public Command climbAutoSequence() {

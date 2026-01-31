@@ -96,7 +96,8 @@ public class V1_GammaTrenchAutoRight {
 
                 // Climb to L1
 
-                climber.setPositionGoal(V1_GammaClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition())));
+                climber.setPositionGoal(
+                    V1_GammaClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition())));
 
     return routine;
   }
