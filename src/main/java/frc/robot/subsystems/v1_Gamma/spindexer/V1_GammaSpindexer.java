@@ -12,7 +12,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
   private final V1_GammaSpindexerIO io;
   private final V1_GammaSpindexerIOInputsAutoLogged inputs;
   private double voltageGoal;
-  private GenericRoller shooterFeeder;
+  private GenericRoller feeder;
 
   /**
    * Constructor for the Gamma Spindexer subsystem.
@@ -23,7 +23,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
     this.io = io;
     inputs = new V1_GammaSpindexerIOInputsAutoLogged();
 
-    shooterFeeder = new GenericRoller(feederIO, this, feederName);
+    feeder = new GenericRoller(feederIO, this, feederName);
   }
 
   /** Periodic method for the Spindexer subsystem. Updates inputs periodically. */
@@ -34,8 +34,8 @@ public class V1_GammaSpindexer extends SubsystemBase {
     Logger.processInputs(getName(), inputs);
     io.setVoltage(voltageGoal);
 
-    shooterFeeder.periodic();
-    shooterFeeder.setVoltage(voltageGoal);
+    feeder.setVoltage(voltageGoal);
+    feeder.periodic();
   }
 
   /**
