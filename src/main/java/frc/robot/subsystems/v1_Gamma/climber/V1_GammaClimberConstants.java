@@ -59,7 +59,8 @@ public class V1_GammaClimberConstants {
     L1_POSITION_GOAL(new Rotation2d(0)),
     L1_AUTO_POSITION_GOAL(new Rotation2d(0)),
     L2_POSITION_GOAL(new Rotation2d(0)),
-    L2_FLIP_GOAL(new Rotation2d(0));
+    L2_FLIP_GOAL(new Rotation2d(0)),
+    DEFAULT(new Rotation2d(0));
 
     @Getter private Rotation2d position;
   }
