@@ -46,4 +46,21 @@ public class V1_GammaSpindexerConstants {
           GEAR_RATIO,
           KICKER_MOMENT_OF_INERTIA,
           KICKER_ON_CANIVORE);
+  
+  public final int FEEDER_CAN_ID = 0;
+  public final double FEEDER_SUPPLY_CURRENT_LIMIT = 0;
+  public final DCMotor FEEDER_GEARBOX =
+      DCMotor.getKrakenX60Foc(1); // TODO: Replace with actual motor.
+  public final double FEEDER_MOTOR_GEAR_RATIO = 1;
+  public final MomentOfInertia FEEDER_MOMENT_OF_INERTIA = Units.KilogramSquareMeters.of(0.004);
+  public final boolean FEEDER_ON_CANIVORE = false;
+
+  GenericRollerConstants feederConstants =
+      new GenericRollerConstants(
+          FEEDER_CAN_ID,
+          FEEDER_SUPPLY_CURRENT_LIMIT,
+          FEEDER_GEARBOX,
+          FEEDER_MOTOR_GEAR_RATIO,
+          FEEDER_MOMENT_OF_INERTIA,
+          FEEDER_ON_CANIVORE);
 }
