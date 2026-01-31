@@ -19,7 +19,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaRobotState {
   private static final AprilTagFieldLayout fieldLayout;
-  private static final List<FieldZone> fieldZones;
   private static final Localization localization;
 
   private static Rotation2d robotHeading;
@@ -34,16 +33,16 @@ public class V1_GammaRobotState {
   @Getter
   private static final Rotation2d feedAngle;
 
+  private static final FieldZone globalZone;
+
   static {
-    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
-    FieldZone globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
-
-    fieldZones = List.of(globalZone);
+    globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
 
     localization =
         new Localization(
-            fieldZones, V1_GammaConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(), 2);
+            List.of(globalZone), V1_GammaConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(), 2);
 
     scoreAngle = new Rotation2d();
     feedAngle = new Rotation2d();
@@ -73,10 +72,10 @@ public class V1_GammaRobotState {
   }
 
   public static Rotation2d getHeading() {
-    return localization.getEstimatedPose(fieldZones.get(0)).getRotation();
+    return localization.getEstimatedPose(globalZone).getRotation();
   }
 
   public static Pose2d getGlobalPose() {
-    return localization.getEstimatedPose(fieldZones.get(0));
+    return localization.getEstimatedPose(globalZone);
   }
 }
