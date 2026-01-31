@@ -30,6 +30,10 @@ public class LinkageConstants {
   public static final DriveConfig DRIVE_CONFIG;
 
   public static final LinkLengths LINK_LENGTHS;
+  public static final LinkBounds LINK_BOUNDS;
+
+
+  public static final double PIN_LENGTH;
 
   static {
     IS_CAN_FD = false;
@@ -45,6 +49,8 @@ public class LinkageConstants {
     INTAKE_ANGLE_OFFSET =
         Rotation2d.fromDegrees(0); // TODO: Figure out the actual static angle offset between
     // points A and D on the intake.
+
+    PIN_LENGTH = 0; //TODO: set to distance of pin from point of rotation.
 
     GAINS =
         new Gains(
@@ -62,6 +68,8 @@ public class LinkageConstants {
     DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
 
     LINK_LENGTHS = new LinkLengths(-1, -1, -1, -1);
+
+    LINK_BOUNDS = new LinkBounds(0.810921, 2.86545, 4.752162, 6.46545);
   }
 
   public enum LinkageGoal {
@@ -83,4 +91,7 @@ public class LinkageConstants {
       LoggedTunableNumber goalToleranceRadians) {}
 
   public record LinkLengths(double AB, double BC, double CD, double DA) {}
+
+
+  public record LinkBounds(double MIN, double PHASE_1, double PHASE_2, double MAX) {}
 }
