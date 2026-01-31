@@ -8,6 +8,8 @@ import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.ArmParameters;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Constraints;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Gains;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 public class V1_GammaClimberConstants {
   public static final int MOTOR_CAN_ID = 15;
@@ -52,9 +54,15 @@ public class V1_GammaClimberConstants {
 
   public static final double positionToleranceRadians = 0.01;
 
-  public static final double levelOnePositionGoal = 0;
-  public static final double levelTwoPositionGoal = 0;
-  public static final double levelTwoFlipGoal = 0;
+  @AllArgsConstructor
+  public static enum ClimberGoal {
+    L1_POSITION_GOAL(new Rotation2d(0)),
+    L1_AUTO_POSITION_GOAL(new Rotation2d(0)),
+    L2_POSITION_GOAL(new Rotation2d(0)),
+    L2_FLIP_GOAL(new Rotation2d(0));
+
+    @Getter private Rotation2d position;
+  }
 
   public static final ArmConstants CLIMBER_CONSTANTS =
       new ArmConstants(

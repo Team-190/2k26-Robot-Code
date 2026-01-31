@@ -96,8 +96,7 @@ public class V1_GammaOutpostDepotAuto {
                         V1_GammaConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
 
                 // Climb to L1
-                climber.setPositionGoal(
-                    new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal))));
+                climber.setPositionGoal(V1_GammaClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition())));
 
     return routine;
   }

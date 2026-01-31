@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import org.littletonrobotics.junction.AutoLogOutput;
+import frc.robot.subsystems.v1_Gamma.climber.*;
 
 public class V1_GammaClimber extends SubsystemBase {
   private Arm arm;
@@ -46,13 +47,19 @@ public class V1_GammaClimber extends SubsystemBase {
     return Commands.runOnce(() -> arm.setVoltage(0));
   }
 
-  public Command climbSequence() {
+  public Command climbSequenceL3() {
     return Commands.sequence(
-        setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)),
+        setPositionGoal(V1_GammaClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition()),
         waitUntilPosition(),
-        setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelTwoPositionGoal)),
+        setPositionGoal(V1_GammaClimberConstants.ClimberGoal.L2_FLIP_GOAL.getPosition()),
         waitUntilPosition(),
-        setPositionGoal(new Rotation2d(V1_GammaClimberConstants.levelTwoFlipGoal)),
+        setPositionGoal(V1_GammaClimberConstants.ClimberGoal.L2_POSITION_GOAL.getPosition()),
+        waitUntilPosition());
+  }
+
+  public Command climbAutoSequence() {
+    return Commands.sequence(
+        setPositionGoal(V1_GammaClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition()),
         waitUntilPosition());
   }
 }
