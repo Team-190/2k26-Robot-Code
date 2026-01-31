@@ -130,19 +130,7 @@ repositories {
                 includeGroup "edu.wpi.team190"
             }
         }
-    } else if (!useLocalGompeiLib) {
-        println "Using JitPack for GompeiLib."
-        GLibRepoPath = "com.github.Team-190:gompeilib:2026.+"
-        // Fallback to JitPack if credentials are missing
-        exclusiveContent {
-            forRepository {
-                maven { url = uri("https://jitpack.io") }
-            }
-            filter {
-                includeGroup "com.github.Team-190"
-            }
-        }
-    } else {
+    }  else {
         println "Using local GompeiLib build."
 
         mavenLocal()

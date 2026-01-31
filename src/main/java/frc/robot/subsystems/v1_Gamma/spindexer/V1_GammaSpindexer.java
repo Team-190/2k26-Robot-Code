@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
-
 import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaSpindexer extends SubsystemBase {
@@ -24,7 +23,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
   public V1_GammaSpindexer(V1_GammaSpindexerIO io, GenericRollerIO kickerIO, int index) {
     this.io = io;
     inputs = new V1_GammaSpindexerIOInputsAutoLogged();
-    kicker = new GenericRoller(kickerIO, this, index);
+    kicker = new GenericRoller(kickerIO, this, "Kicker");
   }
 
   /** Periodic method for the Spindexer subsystem. Updates inputs periodically. */
@@ -35,6 +34,7 @@ public class V1_GammaSpindexer extends SubsystemBase {
     Logger.processInputs(getName(), inputs);
     io.setVoltage(voltageGoal);
     kicker.periodic();
+    kicker.setVoltage(voltageGoal);
   }
 
   /**
@@ -61,9 +61,4 @@ public class V1_GammaSpindexer extends SubsystemBase {
           voltageGoal = 0;
         });
   }
-  
-  public void setKicker(GenericRoller kicker) {
-    this.kicker = kicker;
-  }
-    
 }

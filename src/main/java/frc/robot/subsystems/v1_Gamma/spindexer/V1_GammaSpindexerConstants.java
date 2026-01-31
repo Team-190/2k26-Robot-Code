@@ -18,7 +18,6 @@ public class V1_GammaSpindexerConstants {
   public static final ChassisReference SPINDEXER_ORIENTATION;
   public static final boolean IS_CAN_FD;
 
-
   static {
     MOTOR_CAN_ID = 0;
     GEAR_RATIO = 0;
@@ -30,15 +29,14 @@ public class V1_GammaSpindexerConstants {
     SPINDEXER_ORIENTATION =
         ChassisReference.CounterClockwise_Positive; // TODO: Replace with actual value
     IS_CAN_FD = false;
-
   }
 
-  public static final int KICKER_CAN_ID = 17;
-  public static final boolean KICKER_ON_CANIVORE = true;
-  public static final double KICKER_CURRENT_LIMIT= 30.0;
+  public static final int KICKER_CAN_ID = 40;
+  public static final boolean KICKER_ON_CANIVORE = false;
+  public static final double KICKER_CURRENT_LIMIT = 30.0;
   public static final MomentOfInertia KICKER_MOMENT_OF_INERTIA = Units.KilogramSquareMeters.of(10);
   public static final double KICKER_GEAR_RATIO = 1.0;
-  public static final DCMotor KICKER_GEARBOX = new DCMotor(0, 0, 0, 0, 0, 0);
+  public static final DCMotor KICKER_GEARBOX = DCMotor.getKrakenX44(KICKER_CAN_ID);
 
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
       new GenericRollerConstants(
