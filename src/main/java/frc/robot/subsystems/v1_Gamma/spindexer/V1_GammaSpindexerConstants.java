@@ -46,7 +46,7 @@ public class V1_GammaSpindexerConstants {
           GEAR_RATIO,
           KICKER_MOMENT_OF_INERTIA,
           KICKER_ON_CANIVORE);
-  
+
   public final int FEEDER_CAN_ID = 0;
   public final double FEEDER_SUPPLY_CURRENT_LIMIT = 0;
   public final DCMotor FEEDER_GEARBOX =
