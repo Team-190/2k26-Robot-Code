@@ -28,9 +28,7 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
-import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
-import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
 import frc.robot.util.XKeysInput;
 import java.util.List;
 
@@ -71,7 +69,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           // shooter =
           //     new Shooter(
           //         new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
-          // feeder = new Feeder(new GenericRollerIOTalonFX(FeederConstants.FEEDER_CONSTANTS));
+          // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -103,9 +101,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
-          shooter =
-              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
-          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
+          shooter = new Shooter(new GenericFlywheelIOSim(V0_FunkyConstants.SHOOT_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOSim(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));

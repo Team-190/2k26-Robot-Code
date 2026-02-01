@@ -12,9 +12,9 @@ import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 
 public class V1_GammaShooter extends SubsystemBase {
 
-  private Hood hood;
+  private final Hood hood;
 
-  private GenericFlywheel flywheel;
+  private final GenericFlywheel flywheel;
 
   public V1_GammaShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
 
@@ -42,8 +42,8 @@ public class V1_GammaShooter extends SubsystemBase {
     return hood.setVoltage(0);
   }
 
-  public Command setFlywheelGoal(double velocityRadiansPerSecond) {
-    return flywheel.setGoal(velocityRadiansPerSecond);
+  public Command setFlywheelGoal(double velocityRadiansPerSecond, boolean useTorqueControl) {
+    return flywheel.setGoal(velocityRadiansPerSecond, useTorqueControl);
   }
 
   public Command setFlywheelVoltage(double volts) {
@@ -55,6 +55,7 @@ public class V1_GammaShooter extends SubsystemBase {
   }
 
   public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
-    return Commands.parallel(setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond));
+    return Commands.parallel(
+        setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, true));
   }
 }
