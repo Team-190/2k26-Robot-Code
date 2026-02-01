@@ -77,17 +77,19 @@ public class V0_FunkyConstants {
 
   public static final GenericRollerConstants FEED_CONSTANTS =
       new GenericRollerConstants(
-          10,
-          60,
-          DCMotor.getKrakenX60(1),
-          2,
-          MomentOfInertia.ofBaseUnits(0.05, KilogramSquareMeters),
+          42,
+          40.0,
+          DCMotor.getKrakenX60Foc(1),
+          1.0,
+          MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters),
           false);
-  public static final int[] SHOOTER_IDS = {11};
-  public static final DCMotor[] SHOOTER_MOTORS = {DCMotor.getKrakenX60(1)};
+
+  public static final int SHOOTER_ID = 11;
+  public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       new GenericFlywheelConstants(
-          SHOOTER_IDS,
+          SHOOTER_ID,
+          2,
           false,
           true,
           60.0,
@@ -98,7 +100,9 @@ public class V0_FunkyConstants {
               new LoggedTunableNumber("Shooter/Ks"),
               new LoggedTunableNumber("Shooter/Kv"),
               new LoggedTunableNumber("Shooter/Ka")),
-          SHOOTER_MOTORS[0],
+          SHOOTER_MOTORS,
+          new int[] {}, // CW CAN_IDs
+          new int[] {2}, // CCW Can Ids
           new GenericFlywheelConstants.Constraints(
               new LoggedTunableNumber("Shooter/MaxAccel"),
               new LoggedTunableNumber("Shooter/CruiseVel"),
