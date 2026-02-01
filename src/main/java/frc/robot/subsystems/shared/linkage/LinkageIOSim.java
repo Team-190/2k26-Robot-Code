@@ -11,9 +11,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import frc.robot.subsystems.shared.linkage.LinkageIO.LinkageIOInputs;
 
-public class LinkageIOSim {
+public class LinkageIOSim implements LinkageIO {
 
   private final SingleJointedArmSim motorSim;
 

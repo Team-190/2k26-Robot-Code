@@ -4,7 +4,10 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
@@ -15,6 +18,8 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -22,6 +27,7 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.subsystems.shared.linkage.LinkageIOSim;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import java.util.List;
 
@@ -38,7 +44,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
   public V1_GammaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
-        case V0_FUNKY:
+        case V1_GAMMA:
           drive =
               new SwerveDrive(
                   V1_GammaConstants.DRIVE_CONSTANTS,
@@ -69,7 +75,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
                       List.of()));
           break;
 
-        case V0_FUNKY_SIM:
+        case V1_GAMMA_SIM:
           drive =
               new SwerveDrive(
                   V1_GammaConstants.DRIVE_CONSTANTS,
@@ -91,6 +97,27 @@ public class V1_GammaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+
+          intake =
+              new V1_GammaIntake(
+                  new GenericRollerIOSim(
+                      new GenericRollerConstants(
+                          1,
+                          1,
+                          DCMotor.getKrakenX60Foc(1),
+                          1,
+                          MomentOfInertia.ofBaseUnits(.004, Units.KilogramSquareMeters),
+                          false)),
+                  new GenericRollerIOSim(
+                      new GenericRollerConstants(
+                          2,
+                          1,
+                          DCMotor.getKrakenX60Foc(1),
+                          1,
+                          MomentOfInertia.ofBaseUnits(.004, Units.KilogramSquareMeters),
+                          false)),
+                  new LinkageIOSim());
+
           break;
 
         default:

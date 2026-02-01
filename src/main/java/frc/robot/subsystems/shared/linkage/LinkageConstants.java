@@ -72,11 +72,20 @@ public class LinkageConstants {
 
     DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
 
-    LINK_LENGTHS = new LinkLengths(6, 6, 6, 6);
+    LINK_LENGTHS = new LinkLengths(0.2, 0.2, 6, 0.2);
 
-    LINK_BOUNDS = new LinkBounds(0.810921, 2.86545, 4.752162, 6.46545);
+    LINK_BOUNDS =
+        new LinkBounds(
+            Units.inchesToMeters(0.810921),
+            Units.inchesToMeters(2.86545),
+            Units.inchesToMeters(4.752162),
+            Units.inchesToMeters(6.46545));
 
-    LINK_CONST = new LinkConstants(6.092560, 2.446682, 5.376661);
+    LINK_CONST =
+        new LinkConstants(
+            Units.inchesToMeters(6.092560),
+            Units.inchesToMeters(2.446682),
+            Units.inchesToMeters(5.376661));
   }
 
   public enum LinkageGoal {

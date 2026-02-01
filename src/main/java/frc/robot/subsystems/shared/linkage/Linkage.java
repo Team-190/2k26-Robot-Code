@@ -42,6 +42,8 @@ public class Linkage {
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
+
+    currentState = LinkageState.IDLE;
   }
 
   public void periodic() {
@@ -187,7 +189,7 @@ public class Linkage {
     final Pose3d poseB = new Pose3d(pointB, new Rotation3d(0, Math.PI - angleB.getRadians(), 0));
     final Pose3d poseC = new Pose3d(pointC, new Rotation3d(0, Math.PI - angleC.getRadians(), 0));
     final Pose3d poseD = new Pose3d(pointD, new Rotation3d(0, Math.PI - angleD.getRadians(), 0));
-
+    System.out.print(poseA.toString() + " " + poseB.toString() + " " + poseC.toString() + " " + poseD.toString());
     return List.of(poseA, poseB, poseC, poseD);
   }
 

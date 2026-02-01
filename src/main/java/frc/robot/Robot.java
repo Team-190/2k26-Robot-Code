@@ -14,6 +14,7 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
+import frc.robot.subsystems.v1_Gamma.V1_GammaRobotContainer;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -125,6 +126,7 @@ public class Robot extends LoggedRobot {
     robotContainer =
         switch (RobotConfig.ROBOT) {
           case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
+          case V1_GAMMA, V1_GAMMA_SIM -> new V1_GammaRobotContainer();
           default -> new RobotContainer() {};
         };
 
