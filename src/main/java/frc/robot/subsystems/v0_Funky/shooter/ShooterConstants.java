@@ -10,7 +10,8 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 public class ShooterConstants {
   public static final GenericFlywheelConstants SHOOTER_FLYWHEEL_CONSTANTS =
       new GenericFlywheelConstants(
-          new int[] {10},
+          10,
+          1,
           false,
           false,
           40.0,
@@ -22,6 +23,8 @@ public class ShooterConstants {
               new LoggedTunableNumber("Kp", 0),
               new LoggedTunableNumber("Kd", 0)),
           DCMotor.getKrakenX60Foc(1),
+          new int[] {1},
+          new int[] {},
           new Constraints(
               new LoggedTunableNumber("max accel", 0),
               new LoggedTunableNumber("max vel", 0),

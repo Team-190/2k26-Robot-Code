@@ -34,10 +34,10 @@ public class V1_GammaIntake extends SubsystemBase {
     // get robot pose from v1_gammaRobotState
     // turn pose2d's into pose 3d's based on offset in linkage constants and robot pose
     // log pose 3ds under intake topics
-    Logger.recordOutput("Intake/Linkage/A", intakeGlobalPose.get(0));
-    Logger.recordOutput("Intake/Linkage/B", intakeGlobalPose.get(1));
-    Logger.recordOutput("Intake/Linkage/C", intakeGlobalPose.get(2));
-    Logger.recordOutput("Intake/Linkage/D", intakeGlobalPose.get(3));
+
+    for (int i = 0; i < intakeGlobalPose.size(); i++) {
+      Logger.recordOutput("Intake/Linkage/Pose" + i, intakeGlobalPose.get(i));
+    }
 
     Pose3d hopperPosition = pivot.getHopperWallPose();
     Logger.recordOutput("Intake/Linkage/HopperWallPose", hopperPosition);
@@ -60,14 +60,17 @@ public class V1_GammaIntake extends SubsystemBase {
   }
 
   public Command deploy() {
-    return runOnce(() -> pivot.setPositionGoal(V1_GammaIntakeConstants.DEPLOY_ANGLE));
+    return pivot.setPositionGoal(V1_GammaIntakeConstants.DEPLOY_ANGLE);
   }
 
   public Command stow() {
-    return runOnce(() -> pivot.setPositionGoal(V1_GammaIntakeConstants.STOW_ANGLE));
+    return pivot.setPositionGoal(V1_GammaIntakeConstants.STOW_ANGLE);
   }
 
   public Command testIntake() {
-    return Commands.sequence(deploy(), Commands.waitSeconds(2), stow());
+    return Commands.sequence(deploy(), Commands.waitSeconds(10), stow(), Commands.waitSeconds(10))
+        .repeatedly();
+
+    // return pivot.setPositionGoal(Rotation2d.kZero);
   }
 }

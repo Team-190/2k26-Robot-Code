@@ -3,6 +3,7 @@ package frc.robot.subsystems.v1_Gamma;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -30,8 +31,8 @@ public class V1_GammaConstants {
           V1_GammaTunerConstants.FrontRight,
           V1_GammaTunerConstants.BackLeft,
           V1_GammaTunerConstants.BackRight,
-          V1_GammaTunerConstants.kDriveClosedLoopOutput,
-          V1_GammaTunerConstants.kSteerClosedLoopOutput,
+          ClosedLoopOutputType.TorqueCurrentFOC,
+          ClosedLoopOutputType.TorqueCurrentFOC,
           Units.inchesToMeters(37.25),
           Units.inchesToMeters(28.25)); // TODO: Double check these
 

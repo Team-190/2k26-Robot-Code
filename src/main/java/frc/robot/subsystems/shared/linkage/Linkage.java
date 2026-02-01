@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -43,7 +44,8 @@ public class Linkage {
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
 
-    currentState = LinkageState.IDLE;
+    currentState = LinkageState.CLOSED_LOOP_POSITION_CONTROL;
+    currentOutput = currentState.set(Rotation2d.fromDegrees(0));
   }
 
   public void periodic() {
@@ -73,7 +75,7 @@ public class Linkage {
     return Commands.runOnce(
         () -> {
           currentState = LinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
-          currentState.set(volts);
+          currentOutput = currentState.set(volts);
         });
   }
 
@@ -81,7 +83,7 @@ public class Linkage {
     return Commands.runOnce(
         () -> {
           currentState = LinkageState.CLOSED_LOOP_POSITION_CONTROL;
-          currentState.set(position);
+          currentOutput = currentState.set(position);
         });
   }
 
@@ -129,68 +131,67 @@ public class Linkage {
         maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
   }
 
-  // 23.5 degrees from deployed is when you start running the intake
-  // TODO: Implement in autos and in deployment of intake ELLIOT HELPPPPPPPPPPP MAKE AN ISSUE
-  public List<Pose3d> getLinkagePoses() { // TODO: Work in progress
+  public List<Pose3d> getLinkagePoses() {
 
-    final double AB = LinkageConstants.LINK_LENGTHS.AB();
-    final double BC = LinkageConstants.LINK_LENGTHS.BC();
-    ;
-    final double CD = LinkageConstants.LINK_LENGTHS.CD();
-    ;
-    final double DA = LinkageConstants.LINK_LENGTHS.DA();
-    ;
+    double L1 = Units.inchesToMeters(6.943050);
+    double L2 = Units.inchesToMeters(8.809879);
+    double L3 = Units.inchesToMeters(8.395737);
+    double L4 = Units.inchesToMeters(6.233032);
 
-    final Rotation2d aAngleFromHorizontal = inputs.position;
-    final Rotation2d dAngleFromHorizontal = LinkageConstants.INTAKE_ANGLE_OFFSET;
+    double theta1 = Units.degreesToRadians(-30.96);
+    double theta2 = inputs.position.getRadians();
 
-    final Rotation2d angleA = aAngleFromHorizontal.minus(dAngleFromHorizontal);
+    double L5 =
+        Math.sqrt(Math.pow(L1, 2) + Math.pow(L4, 2) - (2 * L1 * L4 * Math.cos(theta1 + theta2)));
 
-    final double BD =
-        Math.sqrt(Math.pow(AB, 2) + Math.pow(DA, 2) - 2 * AB * DA * Math.cos(angleA.getRadians()));
+    double k1 = L4 / L1;
+    double k2 = L4 / L3;
+    double k3 =
+        (Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) + Math.pow(L4, 2)) / (2 * L1 * L3);
+    double k4 = L4 / L2;
+    double k5 =
+        (-Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) - Math.pow(L4, 2)) / (2 * L1 * L2);
 
-    final Rotation2d angleC =
-        new Rotation2d(
-            Math.acos(Math.pow(BD, 2) - Math.pow(BC, 2) - Math.pow(CD, 2) / (-2 * BC * CD)));
+    double A = Math.cos(theta2) - k1 - k2 * Math.cos(theta2) + k3;
+    double B = -2 * Math.sin(theta2);
+    double C = k1 - (k2 + 1) * Math.cos(theta2) + k3;
+    double D = Math.cos(theta2) - k1 + k4 * Math.cos(theta2) + k5;
+    double E = -2 * Math.sin(theta2);
+    double F = k1 + (k4 - 1) * Math.cos(theta2) + k5;
 
-    final Rotation2d angleD =
-        new Rotation2d(
-            Math.asin(Math.sin(angleA.getRadians()) * AB / BD)
-                + Math.asin(Math.sin(angleC.getRadians()) * BC / BD));
+    double theta3_num = -E - Math.sqrt(Math.pow(E, 2) - (4 * D * F));
+    double theta3_den = 2 * D;
+    double theta3 = 2 * Math.atan2(theta3_num, theta3_den);
 
-    final Rotation2d angleB =
-        new Rotation2d(
-            Math.asin(Math.sin(angleA.getRadians()) * DA / BD)
-                + Math.asin(Math.sin(angleC.getRadians()) * CD / BD));
+    double theta4_num = -B - Math.sqrt(Math.pow(B, 2) - (4 * A * C));
+    double theta4_den = 2 * A;
+    double theta4 = 2 * Math.atan2(theta4_num, theta4_den);
 
-    final Translation3d pointA = LinkageConstants.LINKAGE_OFFSET;
-    final Translation3d pointD =
-        pointA.plus(
-            new Translation3d(
-                DA * Math.cos(LinkageConstants.INTAKE_ANGLE_OFFSET.getRadians()),
-                0,
-                DA * Math.sin(LinkageConstants.INTAKE_ANGLE_OFFSET.getRadians())));
+    Translation3d point1 = new Translation3d();
 
-    final Translation3d pointB =
-        pointA.plus(
-            new Translation3d(
-                AB * Math.cos(aAngleFromHorizontal.getRadians()),
-                0,
-                AB * Math.sin(aAngleFromHorizontal.getRadians())));
-    final Translation3d pointC =
-        pointB.plus(
-            new Translation3d(
-                BC * Math.cos((aAngleFromHorizontal.getRadians() + angleB.getRadians()) - Math.PI),
-                0,
-                BC * Math.sin((angleA.getRadians() + angleB.getRadians()) - Math.PI)));
+    double x2 = L1 * Math.cos(theta2);
+    double y2 = L1 * Math.sin(theta2);
 
-    final Pose3d poseA =
-        new Pose3d(pointA, new Rotation3d(0, aAngleFromHorizontal.getRadians(), 0));
-    final Pose3d poseB = new Pose3d(pointB, new Rotation3d(0, Math.PI - angleB.getRadians(), 0));
-    final Pose3d poseC = new Pose3d(pointC, new Rotation3d(0, Math.PI - angleC.getRadians(), 0));
-    final Pose3d poseD = new Pose3d(pointD, new Rotation3d(0, Math.PI - angleD.getRadians(), 0));
-    System.out.print(poseA.toString() + " " + poseB.toString() + " " + poseC.toString() + " " + poseD.toString());
-    return List.of(poseA, poseB, poseC, poseD);
+    Translation3d point2 = new Translation3d(x2, 0, y2);
+
+    double x3 = L1 * Math.cos(theta2) + L2 * Math.cos(theta3);
+    double y3 = L1 * Math.sin(theta2) + L2 * Math.sin(theta3);
+
+    Translation3d point3 = new Translation3d(x3, 0, y3);
+
+    double x4 = L4 * Math.cos(theta1);
+    double y4 = L4 * Math.sin(theta1);
+
+    double theta5 = Math.atan2(y4 - y3, x4 - x3);
+
+    Translation3d point4 = new Translation3d(x4, 0, y4);
+
+    Pose3d pose1 = new Pose3d(point1, new Rotation3d(0, -theta2, 0));
+    Pose3d pose2 = new Pose3d(point2, new Rotation3d(0, -theta3, 0));
+    Pose3d pose3 = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
+    Pose3d pose4 = new Pose3d(point4, new Rotation3d(0, Math.PI - theta1, 0));
+
+    return List.of(pose1, pose2, pose3, pose4);
   }
 
   public Pose3d getHopperWallPose() {

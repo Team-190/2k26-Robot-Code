@@ -14,10 +14,8 @@ public class V1_GammaIntakeConstants {
   public static final MomentOfInertia MOMENT_OF_INERTIA_TOP = Units.KilogramSquareMeters.of(67);
   public static final double GEAR_RATIO_TOP = 1.0;
   public static final DCMotor GEARBOX_TOP = new DCMotor(0, 0, 0, 0, 0, 0);
-  public static final Rotation2d STOW_ANGLE =
-      Rotation2d.fromDegrees(90); // TODO: Put in actual value.
-  public static final Rotation2d DEPLOY_ANGLE =
-      Rotation2d.fromDegrees(-90); // TODO: Put in actual value.
+  public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
+  public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       new GenericRollerConstants(
           CAN_IDS_TOP,

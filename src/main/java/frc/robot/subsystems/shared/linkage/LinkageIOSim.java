@@ -34,8 +34,8 @@ public class LinkageIOSim implements LinkageIO {
             LinkageConstants.LENGTH_METERS,
             LinkageConstants.MIN_ANGLE,
             LinkageConstants.MAX_ANGLE,
-            true,
-            LinkageConstants.MIN_ANGLE);
+            false,
+            0.0);
 
     feedback =
         new ProfiledPIDController(
@@ -45,6 +45,9 @@ public class LinkageIOSim implements LinkageIO {
             new TrapezoidProfile.Constraints(
                 LinkageConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
                 LinkageConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
+
+    // feedback.enableContinuousInput(-Math.PI, Math.PI);
+
     feedback.setTolerance(LinkageConstants.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
         new SimpleMotorFeedforward(

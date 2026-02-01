@@ -43,7 +43,7 @@ public class V1_GammaShooter extends SubsystemBase {
   }
 
   public Command setFlywheelGoal(double velocityRadiansPerSecond) {
-    return flywheel.setGoal(velocityRadiansPerSecond);
+    return flywheel.setGoal(velocityRadiansPerSecond, false);
   }
 
   public Command setFlywheelVoltage(double volts) {

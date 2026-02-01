@@ -83,11 +83,12 @@ public class V0_FunkyConstants {
           2,
           MomentOfInertia.ofBaseUnits(0.05, KilogramSquareMeters),
           false);
-  public static final int[] SHOOTER_IDS = {11};
+  public static final int SHOOTER_IDS = 11;
   public static final DCMotor[] SHOOTER_MOTORS = {DCMotor.getKrakenX60(1)};
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       new GenericFlywheelConstants(
           SHOOTER_IDS,
+          1,
           false,
           true,
           60.0,
@@ -99,6 +100,8 @@ public class V0_FunkyConstants {
               new LoggedTunableNumber("Shooter/Kv"),
               new LoggedTunableNumber("Shooter/Ka")),
           SHOOTER_MOTORS[0],
+          new int[] {},
+          new int[] {},
           new GenericFlywheelConstants.Constraints(
               new LoggedTunableNumber("Shooter/MaxAccel"),
               new LoggedTunableNumber("Shooter/CruiseVel"),

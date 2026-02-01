@@ -49,30 +49,36 @@ public class LinkageConstants {
     MOMENT_OF_INERTIA = 0.004;
     MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
     LENGTH_METERS = 0.3;
-    MIN_ANGLE = 0;
-    MAX_ANGLE = 2 * Math.PI;
+    MIN_ANGLE = Units.degreesToRadians(9);
+    MAX_ANGLE = Units.degreesToRadians(170);
     INTAKE_ANGLE_OFFSET =
-        Rotation2d.fromDegrees(0); // TODO: Figure out the actual static angle offset between
+        Rotation2d.fromDegrees(
+            -30.9603232217); // TODO: Figure out the actual static angle offset between
     // points A and D on the intake.
 
     PIN_LENGTH = 0; // TODO: set to distance of pin from point of rotation.
 
     GAINS =
         new Gains(
-            new LoggedTunableNumber("Linkage/KP", 0.0),
-            new LoggedTunableNumber("Linkage/KD", 0.0),
+            new LoggedTunableNumber("Linkage/KP", 1.0),
+            new LoggedTunableNumber("Linkage/KD", 0.1),
             new LoggedTunableNumber("Linkage/KS", 0.0),
             new LoggedTunableNumber("Linkage/KV", 0.0),
             new LoggedTunableNumber("Linkage/KA", 0.0));
     CONSTRAINTS =
         new Constraints(
-            new LoggedTunableNumber("Linkage/Max Velocity", 120.0),
-            new LoggedTunableNumber("Linkage/Max Acceleration", 120.0),
+            new LoggedTunableNumber("Linkage/Max Velocity", 1.0),
+            new LoggedTunableNumber("Linkage/Max Acceleration", 1.0),
             new LoggedTunableNumber("Linkage/Goal Tolerance", Units.degreesToRadians(1.0)));
 
     DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
 
-    LINK_LENGTHS = new LinkLengths(0.2, 0.2, 6, 0.2);
+    LINK_LENGTHS =
+        new LinkLengths(
+            Units.inchesToMeters(6.950079),
+            Units.inchesToMeters(8.809879),
+            Units.inchesToMeters(8.284456),
+            Units.inchesToMeters(6.4213032));
 
     LINK_BOUNDS =
         new LinkBounds(
