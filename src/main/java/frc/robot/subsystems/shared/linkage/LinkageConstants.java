@@ -56,7 +56,8 @@ public class LinkageConstants {
             -30.9603232217); // TODO: Figure out the actual static angle offset between
     // points A and D on the intake.
 
-    PIN_LENGTH = 0; // TODO: set to distance of pin from point of rotation.
+    PIN_LENGTH =
+        Units.inchesToMeters(6.092560); // TODO: set to distance of pin from point of rotation.
 
     GAINS =
         new Gains(

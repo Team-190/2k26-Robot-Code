@@ -133,28 +133,25 @@ public class Linkage {
 
   public List<Pose3d> getLinkagePoses() {
 
-    double L1 = Units.inchesToMeters(6.943050);
-    double L2 = Units.inchesToMeters(8.809879);
-    double L3 = Units.inchesToMeters(8.395737);
-    double L4 = Units.inchesToMeters(6.233032);
+    double L1 = LinkageConstants.LINK_LENGTHS.AB();
+    double L2 = LinkageConstants.LINK_LENGTHS.BC();
+    double L3 = LinkageConstants.LINK_LENGTHS.CD();
+    double L4 = LinkageConstants.LINK_LENGTHS.DA();
 
     double theta1 = Units.degreesToRadians(-30.96);
     double theta2 = inputs.position.getRadians();
 
-    double L5 =
-        Math.sqrt(Math.pow(L1, 2) + Math.pow(L4, 2) - (2 * L1 * L4 * Math.cos(theta1 + theta2)));
-
     double k1 = L4 / L1;
-    double k2 = L4 / L3;
-    double k3 =
-        (Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) + Math.pow(L4, 2)) / (2 * L1 * L3);
+    // double k2 = L4 / L3;
+    // double k3 =
+    //     (Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) + Math.pow(L4, 2)) / (2 * L1 * L3);
     double k4 = L4 / L2;
     double k5 =
         (-Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) - Math.pow(L4, 2)) / (2 * L1 * L2);
 
-    double A = Math.cos(theta2) - k1 - k2 * Math.cos(theta2) + k3;
-    double B = -2 * Math.sin(theta2);
-    double C = k1 - (k2 + 1) * Math.cos(theta2) + k3;
+    // double A = Math.cos(theta2) - k1 - k2 * Math.cos(theta2) + k3;
+    // double B = -2 * Math.sin(theta2);
+    // double C = k1 - (k2 + 1) * Math.cos(theta2) + k3;
     double D = Math.cos(theta2) - k1 + k4 * Math.cos(theta2) + k5;
     double E = -2 * Math.sin(theta2);
     double F = k1 + (k4 - 1) * Math.cos(theta2) + k5;
@@ -163,9 +160,9 @@ public class Linkage {
     double theta3_den = 2 * D;
     double theta3 = 2 * Math.atan2(theta3_num, theta3_den);
 
-    double theta4_num = -B - Math.sqrt(Math.pow(B, 2) - (4 * A * C));
-    double theta4_den = 2 * A;
-    double theta4 = 2 * Math.atan2(theta4_num, theta4_den);
+    // double theta4_num = -B - Math.sqrt(Math.pow(B, 2) - (4 * A * C));
+    // double theta4_den = 2 * A;
+    // double theta4 = 2 * Math.atan2(theta4_num, theta4_den);
 
     Translation3d point1 = new Translation3d();
 
@@ -218,7 +215,7 @@ public class Linkage {
       xOff = Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
     }
 
-    return new Pose3d(x0 + xOff, 0, yPos, new Rotation3d(0, 0, 0));
+    return new Pose3d(x0 + xOff, 0, 0, new Rotation3d(0, 0, 0));
   }
 
   /**
