@@ -9,7 +9,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstant
 public class FeederConstants {
   public static final GenericRollerConstants FEEDER_CONSTANTS =
       new GenericRollerConstants(
-          42,
+          20,
           40.0,
           DCMotor.getKrakenX60Foc(1),
           1.0,

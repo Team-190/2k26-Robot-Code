@@ -104,8 +104,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
           shooter =
-              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
-          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
+              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS), 1);
+          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS), 1);
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -130,11 +130,11 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     }
 
     if (shooter == null) {
-      shooter = new Shooter(new GenericFlywheelIO() {});
+      shooter = new Shooter(new GenericFlywheelIO() {}, 1);
     }
 
     if (feeder == null) {
-      feeder = new Feeder(new GenericRollerIO() {});
+      feeder = new Feeder(new GenericRollerIO() {}, 1);
     }
 
     if (vision == null) {
@@ -164,7 +164,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
 
     driver
-        .rightTrigger(0.05)
+        .rightTrigger(V0_FunkyConstants.TRIGGER_DEADBAND)
         .whileTrue(
             Commands.run(
                 () -> {
@@ -193,14 +193,14 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         .a5()
         .or(xkeys.a6())
         .or(xkeys.a7())
-        .whileTrue(Commands.run(() -> shooter.setVoltage(5)))
+        .whileTrue(Commands.run(() -> shooter.setVoltage(V0_FunkyConstants.SHOOTER_VOLTAGE)))
         .whileFalse(Commands.run(() -> shooter.setVoltage(0)));
 
     xkeys
         .c8()
         .or(xkeys.c9())
         .or(xkeys.c10())
-        .whileTrue(Commands.run(() -> feeder.setVoltage(-12.0)))
+        .whileTrue(Commands.run(() -> feeder.setVoltage(V0_FunkyConstants.FEEDER_VOLTAGE)))
         .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
   }
 

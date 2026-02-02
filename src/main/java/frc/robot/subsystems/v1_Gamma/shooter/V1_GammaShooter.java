@@ -16,12 +16,17 @@ public class V1_GammaShooter extends SubsystemBase {
 
   private GenericFlywheel flywheel;
 
-  public V1_GammaShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
+  public V1_GammaShooter(
+      GenericFlywheelIO flywheelIO, HoodIO hoodIO, int flywheelIndex, int hoodIndex) {
 
-    flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
+    flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel " + flywheelIndex);
     hood =
         new Hood(
-            hoodIO, this, 1, V1_GammaRobotState::getScoreAngle, V1_GammaRobotState::getFeedAngle);
+            hoodIO,
+            this,
+            hoodIndex,
+            V1_GammaRobotState::getScoreAngle,
+            V1_GammaRobotState::getFeedAngle);
   }
 
   @Override
@@ -43,7 +48,7 @@ public class V1_GammaShooter extends SubsystemBase {
   }
 
   public Command setFlywheelGoal(double velocityRadiansPerSecond) {
-    return flywheel.setGoal(velocityRadiansPerSecond);
+    return flywheel.setGoal(velocityRadiansPerSecond, false);
   }
 
   public Command setFlywheelVoltage(double volts) {

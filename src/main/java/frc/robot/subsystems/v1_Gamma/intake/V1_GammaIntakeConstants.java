@@ -6,7 +6,7 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 
 public class V1_GammaIntakeConstants {
-  public static final int CAN_IDS_TOP = 16;
+  public static final int CAN_IDS_TOP = 20;
   public static final boolean ON_CANIVORE_TOP = true;
   public static final double CURRENT_LIMIT_TOP = 30.0;
   public static final MomentOfInertia MOMENT_OF_INERTIA_TOP = Units.KilogramSquareMeters.of(67);
@@ -22,7 +22,7 @@ public class V1_GammaIntakeConstants {
           MOMENT_OF_INERTIA_TOP,
           ON_CANIVORE_TOP);
 
-  public static final int CAN_IDS_BOTTOM = 17;
+  public static final int CAN_IDS_BOTTOM = 21;
   public static final boolean ON_CANIVORE_BOTTOM = true;
   public static final double CURRENT_LIMIT_BOTTOM = 30.0;
   public static final MomentOfInertia MOMENT_OF_INERTIA_BOTTOM = Units.KilogramSquareMeters.of(67);
