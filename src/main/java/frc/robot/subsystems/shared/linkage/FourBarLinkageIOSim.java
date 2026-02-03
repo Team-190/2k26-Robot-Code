@@ -12,7 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
-public class LinkageIOSim implements LinkageIO {
+public class FourBarLinkageIOSim implements FourBarLinkageIO {
 
   private final SingleJointedArmSim motorSim;
 
@@ -22,39 +22,40 @@ public class LinkageIOSim implements LinkageIO {
 
   private double appliedVolts = 0.0;
 
-  public LinkageIOSim() {
+  private FourBarLinkageConstants LINKAGE_CONSTANTS;
+
+  public FourBarLinkageIOSim(FourBarLinkageConstants LINKAGE_CONSTANTS) {
+    this.LINKAGE_CONSTANTS = LINKAGE_CONSTANTS;
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                LinkageConstants.MOTOR_CONFIG,
-                LinkageConstants.MOMENT_OF_INERTIA,
-                LinkageConstants.GEAR_RATIO),
-            LinkageConstants.MOTOR_CONFIG,
-            LinkageConstants.GEAR_RATIO,
-            LinkageConstants.LENGTH_METERS,
-            LinkageConstants.MIN_ANGLE,
-            LinkageConstants.MAX_ANGLE,
+                LINKAGE_CONSTANTS.MOTOR_CONFIG,
+                LINKAGE_CONSTANTS.MOMENT_OF_INERTIA,
+                LINKAGE_CONSTANTS.GEAR_RATIO),
+            LINKAGE_CONSTANTS.MOTOR_CONFIG,
+            LINKAGE_CONSTANTS.GEAR_RATIO,
+            LINKAGE_CONSTANTS.LENGTH_METERS,
+            LINKAGE_CONSTANTS.MIN_ANGLE,
+            LINKAGE_CONSTANTS.MAX_ANGLE,
             false,
             0.0);
 
     feedback =
         new ProfiledPIDController(
-            LinkageConstants.GAINS.kp().get(),
+            LINKAGE_CONSTANTS.GAINS.kp().get(),
             0.0,
-            LinkageConstants.GAINS.kd().get(),
+            LINKAGE_CONSTANTS.GAINS.kd().get(),
             new TrapezoidProfile.Constraints(
-                LinkageConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                LinkageConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
+                LINKAGE_CONSTANTS.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
+                LINKAGE_CONSTANTS.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
 
-    // feedback.enableContinuousInput(-Math.PI, Math.PI);
-
-    feedback.setTolerance(LinkageConstants.CONSTRAINTS.goalToleranceRadians().get());
+    feedback.setTolerance(LINKAGE_CONSTANTS.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
         new SimpleMotorFeedforward(
-            LinkageConstants.GAINS.ks().get(), LinkageConstants.GAINS.kv().get());
+            LINKAGE_CONSTANTS.GAINS.ks().get(), LINKAGE_CONSTANTS.GAINS.kv().get());
   }
 
-  public void updateInputs(LinkageIOInputs inputs) {
+  public void updateInputs(FourBarLinkageIOInputs inputs) {
     appliedVolts = MathUtil.clamp(appliedVolts, -12.0, 12.0);
 
     motorSim.setInputVoltage(appliedVolts);
@@ -98,16 +99,13 @@ public class LinkageIOSim implements LinkageIO {
   }
 
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      double maxVelocityRadiansPerSecond, double maxAccelerationRadiansPerSecondSquared) {
     feedback.setConstraints(
         new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedback.setTolerance(goalToleranceRadians);
   }
 
   /** Check if the linkage is within tolerance */
-  public boolean atGoalRight() {
+  public boolean atGoal() {
     return feedback.atGoal();
   }
 }

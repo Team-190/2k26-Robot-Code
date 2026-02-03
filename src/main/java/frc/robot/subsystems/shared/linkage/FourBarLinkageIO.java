@@ -6,9 +6,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface LinkageIO {
+public interface FourBarLinkageIO {
   @AutoLog
-  public static class LinkageIOInputs {
+  public static class FourBarLinkageIOInputs {
 
     public Rotation2d position = new Rotation2d();
     public AngularVelocity velocity = RadiansPerSecond.zero();
@@ -22,7 +22,7 @@ public interface LinkageIO {
   }
 
   /** Updates AdvantageKit inputs. */
-  public default void updateInputs(LinkageIOInputs inputs) {}
+  public default void updateInputs(FourBarLinkageIOInputs inputs) {}
 
   /** Sets motor voltage. */
   public default void setVoltage(double volts) {}
@@ -41,9 +41,7 @@ public interface LinkageIO {
 
   /** Sets motor profile. */
   public default void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {}
+      double maxVelocityRadiansPerSecond, double maxAccelerationRadiansPerSecondSquared) {}
 
   public default boolean atGoal() {
     return false;

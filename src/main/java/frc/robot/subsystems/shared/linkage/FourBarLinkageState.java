@@ -2,7 +2,7 @@ package frc.robot.subsystems.shared.linkage;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-public enum LinkageState {
+public enum FourBarLinkageState {
   OPEN_LOOP_VOLTAGE_CONTROL,
   CLOSED_LOOP_POSITION_CONTROL,
   IDLE;

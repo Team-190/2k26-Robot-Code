@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 
-public class LinkageIOTalonFX implements LinkageIO {
+public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   private final TalonFX talonFX;
 
   private final CANcoder canCoder;
@@ -35,36 +35,40 @@ public class LinkageIOTalonFX implements LinkageIO {
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
 
-  public LinkageIOTalonFX() {
-    if (LinkageConstants.IS_CAN_FD) {
-      talonFX = new TalonFX(LinkageConstants.MOTOR_CAN_ID, LinkageConstants.DRIVE_CONFIG.canBus());
+  private final FourBarLinkageConstants constants;
+
+  public FourBarLinkageIOTalonFX(FourBarLinkageConstants constants) {
+    this.constants = constants;
+    if (constants.IS_CAN_FD) {
+      talonFX = new TalonFX(constants.MOTOR_CAN_ID, constants.DRIVE_CONFIG.canBus());
     } else {
-      talonFX = new TalonFX(LinkageConstants.MOTOR_CAN_ID);
+      talonFX = new TalonFX(constants.MOTOR_CAN_ID);
     }
 
     config = new TalonFXConfiguration();
 
-    config.CurrentLimits.SupplyCurrentLimit = LinkageConstants.CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.SensorToMechanismRatio = LinkageConstants.GEAR_RATIO;
-    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = LinkageConstants.MIN_ANGLE;
-    config.Slot0.kP = LinkageConstants.GAINS.kp().get();
-    config.Slot0.kD = LinkageConstants.GAINS.kd().get();
-    config.Slot0.kS = LinkageConstants.GAINS.ks().get();
-    config.Slot0.kV = LinkageConstants.GAINS.kv().get();
-    config.Slot0.kA = LinkageConstants.GAINS.ka().get();
+    config.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
+    config.Slot0.kP = constants.GAINS.kp().get();
+    config.Slot0.kD = constants.GAINS.kd().get();
+    config.Slot0.kS = constants.GAINS.ks().get();
+    config.Slot0.kV = constants.GAINS.kv().get();
+    config.Slot0.kA = constants.GAINS.ka().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        LinkageConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
+        constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
-        LinkageConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(LinkageConstants.MAX_ANGLE)
+        constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.MAX_ANGLE)
         .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(LinkageConstants.MIN_ANGLE)
+        .withReverseSoftLimitThreshold(constants.MIN_ANGLE)
         .withReverseSoftLimitEnable(true);
+
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
-    canCoder = new CANcoder(LinkageConstants.CAN_CODER_CAN_ID);
+    canCoder = new CANcoder(constants.CAN_CODER_CAN_ID);
 
     talonFX.setPosition(canCoder.getAbsolutePosition().getValueAsDouble());
 
@@ -95,7 +99,7 @@ public class LinkageIOTalonFX implements LinkageIO {
     talonFX.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        LinkageConstants.IS_CAN_FD,
+        constants.IS_CAN_FD,
         positionRotations,
         velocity,
         torqueCurrent,
@@ -106,12 +110,12 @@ public class LinkageIOTalonFX implements LinkageIO {
         positionErrorRotations,
         absolutePositionRotations);
 
-    voltageControlRequest = new VoltageOut(0.0);
-    positionControlRequest = new MotionMagicVoltage(0.0);
+    voltageControlRequest = new VoltageOut(0.0).withEnableFOC(constants.ENABLE_FOC);
+    positionControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(constants.ENABLE_FOC);
   }
 
   @Override
-  public void updateInputs(LinkageIOInputs inputs) {
+  public void updateInputs(FourBarLinkageIOInputs inputs) {
 
     inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
     inputs.velocity = velocity.getValue();
@@ -127,17 +131,12 @@ public class LinkageIOTalonFX implements LinkageIO {
 
   @Override
   public void setVoltage(double volts) {
-    talonFX.setControl(
-        voltageControlRequest.withOutput(volts).withEnableFOC(true).withUpdateFreqHz(100.0));
+    talonFX.setControl(voltageControlRequest.withOutput(volts));
   }
 
   @Override
   public void setPositionGoal(Rotation2d position) {
-    talonFX.setControl(
-        positionControlRequest
-            .withPosition(position.getRotations())
-            .withEnableFOC(true)
-            .withUpdateFreqHz(100.0));
+    talonFX.setControl(positionControlRequest.withPosition(position.getRotations()));
   }
 
   @Override
@@ -163,9 +162,7 @@ public class LinkageIOTalonFX implements LinkageIO {
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      double maxVelocityRadiansPerSecond, double maxAccelerationRadiansPerSecondSquared) {
     config.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRadiansPerSecond;
     config.MotionMagic.MotionMagicAcceleration = maxAccelerationRadiansPerSecondSquared;
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
@@ -174,6 +171,6 @@ public class LinkageIOTalonFX implements LinkageIO {
   @Override
   public boolean atGoal() {
     return Math.abs(Units.rotationsToRadians(positionErrorRotations.getValueAsDouble()))
-        <= LinkageConstants.CONSTRAINTS.goalToleranceRadians().get();
+        <= constants.CONSTRAINTS.goalToleranceRadians().get();
   }
 }

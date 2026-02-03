@@ -7,32 +7,62 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.team190.gompeilib.core.GompeiLib;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
-public class Linkage {
-  public final LinkageIO io;
+public class FourBarLinkage {
+  public final FourBarLinkageIO io;
   public final String aKitTopic;
-  private final LinkageIOInputsAutoLogged inputs;
+  private final FourBarLinkageIOInputsAutoLogged inputs;
 
-  private LinkageState currentState;
-  private LinkageState.Output currentOutput;
+  private FourBarLinkageState currentState;
+  private FourBarLinkageState.Output currentOutput;
+  private final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
+  private final LoggedMechanism2d mechanism2d;
+  private final LoggedMechanismRoot2d root2d;
+  private final LoggedMechanismLigament2d link1;
+  private final LoggedMechanismLigament2d link2;
+  private final LoggedMechanismLigament2d link3;
+  private final LoggedMechanismLigament2d link4;
 
-  public Linkage(LinkageIO io, Subsystem subsystem, int index) {
+  /**
+   * Creates a linkage object with four bars. Handles the calculations of position in 3D space.
+   *
+   * @param io
+   * @param constants
+   * @param subsystem
+   * @param index
+   */
+  public FourBarLinkage(
+      FourBarLinkageIO io, FourBarLinkageConstants constants, Subsystem subsystem, int index) {
 
-    inputs = new LinkageIOInputsAutoLogged();
+    inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
-
+    this.constants = constants;
+    this.mechanism2d =
+        new LoggedMechanism2d(constants.LINKAGE_OFFSET.getX(), constants.LINKAGE_OFFSET.getZ());
     aKitTopic = subsystem.getName() + "/Linkage" + index;
+
+    this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
+
+    this.link1 =
+        root2d.append(new LoggedMechanismLigament2d("Link1", constants.LINK_LENGTHS.AB(), 0));
+    this.link2 =
+        link1.append(new LoggedMechanismLigament2d("Link2", constants.LINK_LENGTHS.BC(), 0));
+    this.link3 =
+        link2.append(new LoggedMechanismLigament2d("Link3", constants.LINK_LENGTHS.CD(), 0));
+    this.link4 =
+        link3.append(new LoggedMechanismLigament2d("Link4", constants.LINK_LENGTHS.DA(), 0));
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -44,8 +74,8 @@ public class Linkage {
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
 
-    currentState = LinkageState.CLOSED_LOOP_POSITION_CONTROL;
-    currentOutput = currentState.set(Rotation2d.fromDegrees(0));
+    currentState = FourBarLinkageState.IDLE;
+    currentOutput = currentState.set(0);
   }
 
   public void periodic() {
@@ -63,6 +93,20 @@ public class Linkage {
       }
       default -> {}
     }
+
+    List<Pose3d> currentPoses = getLinkagePoses();
+
+    Rotation2d angleA = Rotation2d.fromRadians(currentPoses.get(0).getRotation().getY());
+    Rotation2d angleB = Rotation2d.fromRadians(currentPoses.get(1).getRotation().getY());
+    Rotation2d angleC = Rotation2d.fromRadians(currentPoses.get(2).getRotation().getY());
+    Rotation2d angleD = Rotation2d.fromRadians(currentPoses.get(3).getRotation().getY());
+
+    link1.setAngle(angleA);
+    link2.setAngle(angleB.minus(angleA));
+    link3.setAngle(new Rotation2d(2*Math.PI).plus(angleB).plus(angleC).times(-1));
+    link4.setAngle(new Rotation2d(2*Math.PI).minus(angleD.plus(angleC)));
+
+    Logger.recordOutput(aKitTopic + "LinkageMechanism", mechanism2d);
   }
 
   /**
@@ -74,15 +118,21 @@ public class Linkage {
   public Command setVoltage(double volts) {
     return Commands.runOnce(
         () -> {
-          currentState = LinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
+          currentState = FourBarLinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
           currentOutput = currentState.set(volts);
         });
   }
 
+  /**
+   * Set the goal for the linkage.
+   *
+   * @param position
+   * @return
+   */
   public Command setPositionGoal(Rotation2d position) {
     return Commands.runOnce(
         () -> {
-          currentState = LinkageState.CLOSED_LOOP_POSITION_CONTROL;
+          currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
           currentOutput = currentState.set(position);
         });
   }
@@ -102,8 +152,7 @@ public class Linkage {
    * @return A command that waits until the linkage is at the goal.
    */
   public Command waitUntilLinkageAtGoal() {
-    return Commands.waitSeconds(GompeiLib.getLoopPeriod())
-        .andThen(Commands.waitUntil(this::atGoal));
+    return Commands.waitUntil(this::atGoal);
   }
 
   /**
@@ -127,31 +176,24 @@ public class Linkage {
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    io.setProfile(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
+    io.setProfile(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared);
   }
 
   public List<Pose3d> getLinkagePoses() {
 
-    double L1 = LinkageConstants.LINK_LENGTHS.AB();
-    double L2 = LinkageConstants.LINK_LENGTHS.BC();
-    double L3 = LinkageConstants.LINK_LENGTHS.CD();
-    double L4 = LinkageConstants.LINK_LENGTHS.DA();
+    double L1 = constants.LINK_LENGTHS.AB();
+    double L2 = constants.LINK_LENGTHS.BC();
+    double L3 = constants.LINK_LENGTHS.CD();
+    double L4 = constants.LINK_LENGTHS.DA();
 
-    double theta1 = Units.degreesToRadians(-30.96);
+    double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
     double theta2 = inputs.position.getRadians();
 
     double k1 = L4 / L1;
-    // double k2 = L4 / L3;
-    // double k3 =
-    //     (Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) + Math.pow(L4, 2)) / (2 * L1 * L3);
     double k4 = L4 / L2;
     double k5 =
         (-Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) - Math.pow(L4, 2)) / (2 * L1 * L2);
 
-    // double A = Math.cos(theta2) - k1 - k2 * Math.cos(theta2) + k3;
-    // double B = -2 * Math.sin(theta2);
-    // double C = k1 - (k2 + 1) * Math.cos(theta2) + k3;
     double D = Math.cos(theta2) - k1 + k4 * Math.cos(theta2) + k5;
     double E = -2 * Math.sin(theta2);
     double F = k1 + (k4 - 1) * Math.cos(theta2) + k5;
@@ -159,10 +201,6 @@ public class Linkage {
     double theta3_num = -E - Math.sqrt(Math.pow(E, 2) - (4 * D * F));
     double theta3_den = 2 * D;
     double theta3 = 2 * Math.atan2(theta3_num, theta3_den);
-
-    // double theta4_num = -B - Math.sqrt(Math.pow(B, 2) - (4 * A * C));
-    // double theta4_den = 2 * A;
-    // double theta4 = 2 * Math.atan2(theta4_num, theta4_den);
 
     Translation3d point1 = new Translation3d();
 
@@ -193,19 +231,19 @@ public class Linkage {
 
   public Pose3d getHopperWallPose() {
 
-    final double yPos = Math.sin(inputs.position.getRadians()) * LinkageConstants.PIN_LENGTH;
-    final double x0 = Math.cos(inputs.position.getRadians()) * LinkageConstants.PIN_LENGTH;
+    final double yPos = inputs.position.getSin() * constants.PIN_LENGTH;
+    final double x0 = inputs.position.getCos() * constants.PIN_LENGTH;
 
     double xOff = 0;
 
-    final double Y_MIN = LinkageConstants.LINK_BOUNDS.MIN(); // 0.810921
-    final double Y_PHASE_1 = LinkageConstants.LINK_BOUNDS.PHASE_1(); // 2.86545
-    final double Y_PHASE_2 = LinkageConstants.LINK_BOUNDS.PHASE_2(); // 4.752162
-    final double Y_MAX = LinkageConstants.LINK_BOUNDS.MAX(); // 6.46545
+    final double Y_MIN = constants.LINK_BOUNDS.MIN(); // 0.810921
+    final double Y_PHASE_1 = constants.LINK_BOUNDS.PHASE_1(); // 2.86545
+    final double Y_PHASE_2 = constants.LINK_BOUNDS.PHASE_2(); // 4.752162
+    final double Y_MAX = constants.LINK_BOUNDS.MAX(); // 6.46545
 
-    final double RADIUS_1 = LinkageConstants.LINK_CONST.RADIUS_1();
-    final double RADIUS_2 = LinkageConstants.LINK_CONST.RADIUS_2();
-    final double CENTER_OFFSET = LinkageConstants.LINK_CONST.CENTER_OFFSET();
+    final double RADIUS_1 = constants.LINK_CONST.RADIUS_1();
+    final double RADIUS_2 = constants.LINK_CONST.RADIUS_2();
+    final double CENTER_OFFSET = constants.LINK_CONST.CENTER_OFFSET();
 
     if (yPos <= Y_PHASE_1 && yPos > Y_MIN) {
       xOff = Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
@@ -225,7 +263,7 @@ public class Linkage {
    */
   public Command runSysId() {
     return Commands.sequence(
-        Commands.runOnce(() -> currentState = LinkageState.IDLE),
+        Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
         characterizationRoutine.quasistatic(Direction.kForward),
         Commands.waitSeconds(3),
         characterizationRoutine.quasistatic(Direction.kReverse),
