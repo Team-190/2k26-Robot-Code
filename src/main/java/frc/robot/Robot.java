@@ -209,9 +209,8 @@ public class Robot extends LoggedRobot {
 
     PhoenixUtil.refreshAll();
     VirtualSubsystem.periodicAll();
-    CommandScheduler.getInstance().run();
-
     robotContainer.robotPeriodic();
+    CommandScheduler.getInstance().run();
 
     // Check logging fault
     logReceiverQueueAlert.set(Logger.getReceiverQueueFault());
