@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
+import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
@@ -207,11 +208,8 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
 
     PhoenixUtil.refreshAll();
-
-    robotContainer.robotPeriodic();
-
     VirtualSubsystem.periodicAll();
-
+    robotContainer.robotPeriodic();
     CommandScheduler.getInstance().run();
 
     // Check logging fault
