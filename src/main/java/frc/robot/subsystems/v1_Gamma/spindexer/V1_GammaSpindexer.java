@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaSpindexer extends SubsystemBase {
@@ -11,16 +13,25 @@ public class V1_GammaSpindexer extends SubsystemBase {
 
   private final V1_GammaSpindexerIOInputsAutoLogged inputs;
   private double voltageGoal;
+  private GenericRoller kicker;
+  private GenericRoller feeder;
 
   /**
    * Constructor for the Gamma Spindexer subsystem.
    *
    * @param io the IO implementation
    */
-  public V1_GammaSpindexer(V1_GammaSpindexerIO io) {
+  public V1_GammaSpindexer(
+      V1_GammaSpindexerIO io,
+      GenericRollerIO kickerIO,
+      GenericRollerIO feederIO,
+      String kickerName,
+      String feederName) {
     this.io = io;
 
     inputs = new V1_GammaSpindexerIOInputsAutoLogged();
+    kicker = new GenericRoller(kickerIO, this, kickerName);
+    feeder = new GenericRoller(feederIO, this, feederName);
   }
 
   /** Periodic method for the Spindexer subsystem. Updates inputs periodically. */
@@ -30,6 +41,11 @@ public class V1_GammaSpindexer extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Spindexer", inputs);
     io.setVoltage(voltageGoal);
+    kicker.setVoltage(voltageGoal);
+    feeder.setVoltage(voltageGoal);
+
+    kicker.periodic();
+    feeder.periodic();
   }
 
   /**
