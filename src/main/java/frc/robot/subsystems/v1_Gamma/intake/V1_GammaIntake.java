@@ -31,7 +31,7 @@ public class V1_GammaIntake extends SubsystemBase {
 
     List<Pose3d> intakeGlobalPose = linkage.getLinkagePoses();
     for (int i = 0; i < intakeGlobalPose.size(); i++) {
-      Logger.recordOutput("Intake/Linkage/Pose" + i, intakeGlobalPose.get(i));
+      Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i));
     }
 
     Pose3d hopperPosition = linkage.getHopperWallPose();
@@ -55,6 +55,6 @@ public class V1_GammaIntake extends SubsystemBase {
   }
 
   public Command testIntake() {
-    return Commands.sequence(stow(), Commands.waitSeconds(3), deploy(), Commands.waitSeconds(3));
+    return Commands.sequence(stow(), Commands.waitSeconds(5), deploy(), Commands.waitSeconds(5));
   }
 }

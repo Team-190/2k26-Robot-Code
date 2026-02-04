@@ -103,8 +103,8 @@ public class FourBarLinkage {
 
     link1.setAngle(angleA);
     link2.setAngle(angleB.minus(angleA));
-    link3.setAngle(new Rotation2d(2*Math.PI).plus(angleB).plus(angleC).times(-1));
-    link4.setAngle(new Rotation2d(2*Math.PI).minus(angleD.plus(angleC)));
+    link3.setAngle(new Rotation2d(2 * Math.PI).plus(angleB).plus(angleC).times(-1));
+    link4.setAngle(new Rotation2d(2 * Math.PI).minus(angleD.plus(angleC)));
 
     Logger.recordOutput(aKitTopic + "LinkageMechanism", mechanism2d);
   }
@@ -180,7 +180,6 @@ public class FourBarLinkage {
   }
 
   public List<Pose3d> getLinkagePoses() {
-
     double L1 = constants.LINK_LENGTHS.AB();
     double L2 = constants.LINK_LENGTHS.BC();
     double L3 = constants.LINK_LENGTHS.CD();
@@ -202,29 +201,26 @@ public class FourBarLinkage {
     double theta3_den = 2 * D;
     double theta3 = 2 * Math.atan2(theta3_num, theta3_den);
 
-    Translation3d point1 = new Translation3d();
+    Translation3d point1 = new Translation3d(0, 0, 0);
 
-    double x2 = L1 * Math.cos(theta2);
-    double y2 = L1 * Math.sin(theta2);
+    double x2 = L1 * Math.cos(theta2 + theta1);
+    double z2 = L1 * Math.sin(theta2 + theta1);
+    Translation3d point2 = new Translation3d(x2, 0, z2);
 
-    Translation3d point2 = new Translation3d(x2, 0, y2);
-
-    double x3 = L1 * Math.cos(theta2) + L2 * Math.cos(theta3);
-    double y3 = L1 * Math.sin(theta2) + L2 * Math.sin(theta3);
-
-    Translation3d point3 = new Translation3d(x3, 0, y3);
+    double x3 = x2 + L2 * Math.cos(theta3 + theta1);
+    double z3 = z2 + L2 * Math.sin(theta3 + theta1);
+    Translation3d point3 = new Translation3d(x3, 0, z3);
 
     double x4 = L4 * Math.cos(theta1);
-    double y4 = L4 * Math.sin(theta1);
+    double z4 = L4 * Math.sin(theta1);
+    Translation3d point4 = new Translation3d(x4, 0, z4);
 
-    double theta5 = Math.atan2(y4 - y3, x4 - x3);
+    double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Translation3d point4 = new Translation3d(x4, 0, y4);
-
-    Pose3d pose1 = new Pose3d(point1, new Rotation3d(0, -theta2, 0));
-    Pose3d pose2 = new Pose3d(point2, new Rotation3d(0, -theta3, 0));
+    Pose3d pose1 = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
+    Pose3d pose2 = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
     Pose3d pose3 = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
-    Pose3d pose4 = new Pose3d(point4, new Rotation3d(0, Math.PI - theta1, 0));
+    Pose3d pose4 = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
 
     return List.of(pose1, pose2, pose3, pose4);
   }
