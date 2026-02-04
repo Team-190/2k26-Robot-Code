@@ -65,6 +65,8 @@ public class V1_GammaIntakeConstants {
   public static final double LENGTH_METERS = 0.3;
   public static final Rotation2d INTAKE_ANGLE_OFFSET =
       Rotation2d.fromDegrees(-30.9603232217); // TODO: Figure out the actual angle offset between
+  public static final Rotation2d ZERO_OFFSET =
+      Rotation2d.kPi;
   public static final double MIN_ANGLE = Rotation2d.fromDegrees(9).getRadians();
   public static final double MAX_ANGLE = Rotation2d.fromDegrees(170).getRadians();
   // points A and D on the intake.
@@ -117,6 +119,7 @@ public class V1_GammaIntakeConstants {
           MOTOR_CAN_ID,
           CAN_CODER_CAN_ID,
           INTAKE_ANGLE_OFFSET,
+          ZERO_OFFSET,
           GEAR_RATIO,
           SUPPLY_CURRENT_LIMIT,
           STATOR_CURRENT_LIMIT,

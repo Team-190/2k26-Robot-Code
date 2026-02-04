@@ -186,7 +186,7 @@ public class FourBarLinkage {
     double L4 = constants.LINK_LENGTHS.DA();
 
     double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
-    double theta2 = inputs.position.getRadians();
+    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians()-theta1;
 
     double k1 = L4 / L1;
     double k4 = L4 / L2;
