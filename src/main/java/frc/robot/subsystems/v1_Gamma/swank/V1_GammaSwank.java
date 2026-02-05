@@ -2,6 +2,8 @@ package frc.robot.subsystems.v1_Gamma.swank;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.FieldConstants;
+import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaSwank extends SubsystemBase {
@@ -19,6 +21,10 @@ public class V1_GammaSwank extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Swank", inputs);
     io.setVoltage(voltageGoal);
+
+    if (checkBumpPosition() && checkBumpAngle()) {
+      io.setVoltage(getSwankVoltage());
+    }
   }
 
   public Command setVoltage(double voltage) {
@@ -27,5 +33,44 @@ public class V1_GammaSwank extends SubsystemBase {
 
   public Command stop() {
     return runOnce(() -> voltageGoal = 0);
+  }
+
+  public boolean checkBumpAngle() {
+    return V1_GammaRobotState.getHeading().getRadians() < Math.PI / 2 + Math.PI / 6
+            && V1_GammaRobotState.getHeading().getRadians() > Math.PI / 2 - Math.PI / 6
+        || V1_GammaRobotState.getHeading().getRadians() < -Math.PI / 2 + Math.PI / 6
+            && V1_GammaRobotState.getHeading().getRadians() > -Math.PI / 2 - Math.PI / 6;
+  }
+
+  public boolean checkBumpPosition() {
+    return (V1_GammaRobotState.getGlobalPose().getY() < FieldConstants.LinesHorizontal.leftBumpStart
+                && V1_GammaRobotState.getGlobalPose().getY()
+                    > FieldConstants.LinesHorizontal.leftBumpEnd
+            || V1_GammaRobotState.getGlobalPose().getY()
+                    < FieldConstants.LinesHorizontal.rightBumpStart
+                && V1_GammaRobotState.getGlobalPose().getY()
+                    > FieldConstants.LinesHorizontal.rightBumpEnd)
+        && (Math.abs(
+                    V1_GammaRobotState.getGlobalPose().getX()
+                        - FieldConstants.LinesVertical.hubCenter)
+                < 1
+            || Math.abs(
+                    V1_GammaRobotState.getGlobalPose().getY()
+                        - FieldConstants.LinesVertical.oppHubCenter)
+                < 1);
+  }
+
+  public boolean checkBumpTarget() { // TODO: implement
+    return false;
+  }
+
+  public double getSwankVoltage() {
+    if (V1_GammaRobotState.getGlobalPose().getX() < FieldConstants.LinesVertical.hubCenter
+        || V1_GammaRobotState.getGlobalPose().getX() < FieldConstants.LinesVertical.oppHubCenter
+            && V1_GammaRobotState.getGlobalPose().getX() > FieldConstants.LinesVertical.center) {
+      return -12;
+    } else {
+      return 12;
+    }
   }
 }
