@@ -34,11 +34,11 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Angle> e1;
   private final StatusSignal<Angle> e2;
 
-  private final TalonFX talonFX;
+  protected final TalonFX talonFX;
   private final TalonFXConfiguration config;
 
-  private final CANcoder rightCANCoder;
-  private final CANcoder leftCANCoder;
+  protected final CANcoder rightCANCoder;
+  protected final CANcoder leftCANCoder;
 
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;

@@ -26,7 +26,7 @@ public class V1_GammaSwankIOTalonFX implements V1_GammaSwankIO {
 
   private TalonFXConfiguration config;
 
-  private TalonFX motor;
+  protected TalonFX motor;
 
   private final VoltageOut voltageControlRequest;
 
