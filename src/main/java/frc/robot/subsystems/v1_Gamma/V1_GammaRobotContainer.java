@@ -164,6 +164,6 @@ public class V1_GammaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return V1_GammaIntakeTest.testIntake(intake);
+    return autoChooser.selectedCommand();
   }
 }

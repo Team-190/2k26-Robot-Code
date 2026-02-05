@@ -111,7 +111,7 @@ public class FourBarLinkage {
     follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
     ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
 
-    Logger.recordOutput(aKitTopic + "**/**LinkageMechanism", mechanism2d);
+    Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
   }
 
   /**
