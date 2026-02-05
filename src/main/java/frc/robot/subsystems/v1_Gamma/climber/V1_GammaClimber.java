@@ -10,16 +10,20 @@ import org.littletonrobotics.junction.AutoLogOutput;
 
 public class V1_GammaClimber extends SubsystemBase {
   private Arm arm;
+  private V1_GammaClimberConstants.ClimberGoal state;
 
   @AutoLogOutput(key = "Climber/isClimbed")
   private boolean isClimbed;
 
   public V1_GammaClimber(ArmIO io) {
+    state = V1_GammaClimberConstants.ClimberGoal.DEFAULT;
     arm = new Arm(io, this, 1);
+    arm.setPositionGoal(state.getPosition());
   }
 
   @Override
   public void periodic() {
+    arm.setPositionGoal(state.getPosition());
     arm.periodic();
   }
 
@@ -46,13 +50,19 @@ public class V1_GammaClimber extends SubsystemBase {
     return Commands.runOnce(() -> arm.setVoltage(0));
   }
 
-  public Command climbSequence() {
+  public Command climbSequenceL3() {
     return Commands.sequence(
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelOnePositionGoal)),
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L1_POSITION_GOAL),
         waitUntilPosition(),
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoPositionGoal)),
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L2_FLIP_GOAL),
         waitUntilPosition(),
-        setPosition(new Rotation2d(V1_GammaClimberConstants.levelTwoFlipGoal)),
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L2_POSITION_GOAL),
+        waitUntilPosition());
+  }
+
+  public Command climbAutoSequence() {
+    return Commands.sequence(
+        Commands.runOnce(() -> state = V1_GammaClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL),
         waitUntilPosition());
   }
 }

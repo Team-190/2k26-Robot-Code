@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.shared;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -43,13 +43,14 @@ public class AutoAlignCommand extends Command {
       Supplier<Pose2d> robotPose,
       AutoAlignNearConstants constants,
       double maxAccelerationMetersPerSecond) {
-    this.maxAccelerationMetersPerSecond = maxAccelerationMetersPerSecond;
     this.addRequirements(drive);
+
     this.drive = drive;
     this.targetPose = targetPose;
     this.valid = valid;
     this.robotPose = robotPose;
     this.constants = constants;
+    this.maxAccelerationMetersPerSecond = maxAccelerationMetersPerSecond;
 
     alignXController =
         new ProfiledPIDController(
@@ -64,7 +65,7 @@ public class AutoAlignCommand extends Command {
             0.0,
             constants.yPIDConstants().kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.yPIDConstants().maxVelocity().get(), Double.POSITIVE_INFINITY));
+                constants.yPIDConstants().maxVelocity().get(), maxAccelerationMetersPerSecond));
     alignHeadingController =
         new ProfiledPIDController(
             constants.omegaPIDConstants().kP().get(),

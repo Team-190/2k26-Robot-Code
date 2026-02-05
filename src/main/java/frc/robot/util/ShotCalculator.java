@@ -3,10 +3,12 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.function.Function;
 
 public interface ShotCalculator {
+  static final double phaseDelay = 0.3; // TODO: Change this value based on testing
   /**
    * Calculates a corrected pose for a moving target based on the shooter's current velocity.
    *
@@ -22,6 +24,15 @@ public interface ShotCalculator {
       ChassisSpeeds robotVelocityMetersPerSecond,
       Function<Double, Double> distanceToTimeFunction,
       Transform2d centerToShooterCenter) {
+
+    // Adds phase delay to the initial pose based on robot velocity to account for latency caused by
+    // target pose calculation
+    initialPose =
+        initialPose.exp(
+            new Twist2d(
+                robotVelocityMetersPerSecond.vxMetersPerSecond * phaseDelay,
+                robotVelocityMetersPerSecond.vyMetersPerSecond * phaseDelay,
+                robotVelocityMetersPerSecond.omegaRadiansPerSecond * phaseDelay));
 
     Pose2d shooterPose = initialPose.plus(centerToShooterCenter);
     Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
