@@ -27,6 +27,8 @@ public class TurretIOTalonFXSim extends TurretIOTalonFX {
                 TurretConstants.MOMENT_OF_INERTIA,
                 TurretConstants.GEAR_RATIO),
             TurretConstants.MOTOR_CONFIG);
+
+    turretController = super.talonFX.getSimState();
   }
 
   @Override

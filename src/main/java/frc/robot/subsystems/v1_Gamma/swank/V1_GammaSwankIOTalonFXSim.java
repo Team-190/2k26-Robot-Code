@@ -27,6 +27,8 @@ public class V1_GammaSwankIOTalonFXSim extends V1_GammaSwankIOTalonFX {
                 V1_GammaSwankConstants.MOMENT_OF_INERTIA,
                 V1_GammaSwankConstants.GEAR_RATIO),
             V1_GammaSwankConstants.MOTOR_CONFIG);
+
+    swankController = super.motor.getSimState();
   }
 
   @Override
