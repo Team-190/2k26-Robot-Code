@@ -38,9 +38,12 @@ public class FourBarLinkage {
 
   /**
    * Creates a linkage object with four bars. Handles the calculations of position in 3D space.
-   * 
-   * @param io the IO object for the linkage. Either {@link frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim} or {@link frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX}.
-   * @param constants The constants file for FourBarLinkage.{@link frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants}
+   *
+   * @param io the IO object for the linkage. Either {@link
+   *     frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim} or {@link
+   *     frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX}.
+   * @param constants The constants file for FourBarLinkage.{@link
+   *     frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants}
    * @param subsystem The subsystem this linkage belongs to.
    * @param index The index of multiple linkages in the same subsystem.
    */
@@ -137,8 +140,8 @@ public class FourBarLinkage {
   /**
    * Set the goal for the linkage.
    *
-   * @param position
-   * @return
+   * @param position the goal
+   * @return A command to set the goal to the specified value.
    */
   public Command setPositionGoal(Rotation2d position) {
     return Commands.runOnce(
