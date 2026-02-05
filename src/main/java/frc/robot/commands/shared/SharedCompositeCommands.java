@@ -30,8 +30,6 @@ public class SharedCompositeCommands {
                   new Pose2d(
                       currentRobotTranslation.get(), AllianceFlipUtil.apply(new Rotation2d())));
             })
-        .beforeStarting(Commands.print("Resetting drive..."))
-        .andThen(Commands.print("...Drive Reset"))
         .ignoringDisable(true);
   }
 }

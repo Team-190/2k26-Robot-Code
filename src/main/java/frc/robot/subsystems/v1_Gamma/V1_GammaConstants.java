@@ -80,9 +80,9 @@ public class V1_GammaConstants {
           GAINS,
           AUTO_GAINS,
           AUTO_ALIGN_NEAR_CONSTANTS,
-          OPERATOR_DEADBAND,
           ODOMETRY_FREQUENCY,
-          DRIVER_DEADBAND);
+          DRIVER_DEADBAND,
+          OPERATOR_DEADBAND);
 
   public static final LimelightConfig LIMELIGHT_CONFIG = // TODO: Put in actual values
       LimelightConfig.builder()
