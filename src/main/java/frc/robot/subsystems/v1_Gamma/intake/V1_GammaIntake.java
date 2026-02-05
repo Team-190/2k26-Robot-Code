@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.linkage.FourBarLinkage;
+import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkageState;
 import frc.robot.subsystems.shared.linkage.FourBarLinkageIO;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -29,7 +30,9 @@ public class V1_GammaIntake extends SubsystemBase {
     bottomRoller.periodic();
     linkage.periodic();
 
-    List<Pose3d> intakeGlobalPose = linkage.getLinkagePoses();
+    List<Pose3d> intakeGlobalPose =
+        linkage.getLinkagePoses().stream().map((LinkageState state) -> state.POSE()).toList();
+
     for (int i = 0; i < intakeGlobalPose.size(); i++) {
       Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i));
     }

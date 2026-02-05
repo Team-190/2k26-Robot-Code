@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared.linkage;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -111,4 +112,6 @@ public class FourBarLinkageConstants {
     FEED,
     STOW
   }
+
+  public record LinkageState(Pose3d POSE, Rotation2d ROTATION) {}
 }

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -94,17 +95,18 @@ public class FourBarLinkage {
       default -> {}
     }
 
-    List<Pose3d> currentPoses = getLinkagePoses();
+    List<Rotation2d> currentPoses =
+        getLinkagePoses().stream().map((LinkageState state) -> state.ROTATION()).toList();
 
-    Rotation2d angleA = Rotation2d.fromRadians(currentPoses.get(0).getRotation().getY());
-    Rotation2d angleB = Rotation2d.fromRadians(currentPoses.get(1).getRotation().getY());
-    Rotation2d angleC = Rotation2d.fromRadians(currentPoses.get(2).getRotation().getY());
-    Rotation2d angleD = Rotation2d.fromRadians(currentPoses.get(3).getRotation().getY());
+    Rotation2d angleA = currentPoses.get(0);
+    Rotation2d angleB = currentPoses.get(1);
+    Rotation2d angleC = currentPoses.get(2);
+    Rotation2d angleD = currentPoses.get(3);
 
-    link1.setAngle(angleA);
-    link2.setAngle(angleB.minus(angleA));
-    link3.setAngle(new Rotation2d(2 * Math.PI).plus(angleB).plus(angleC).times(-1));
-    link4.setAngle(new Rotation2d(2 * Math.PI).minus(angleD.plus(angleC)));
+    link1.setAngle(angleA.unaryMinus());
+    link2.setAngle(angleB.minus(angleA).unaryMinus());
+    link3.setAngle(angleC.minus(angleB).unaryMinus());
+    link4.setAngle(angleD.minus(angleC).unaryMinus());
 
     Logger.recordOutput(aKitTopic + "LinkageMechanism", mechanism2d);
   }
@@ -179,14 +181,14 @@ public class FourBarLinkage {
     io.setProfile(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared);
   }
 
-  public List<Pose3d> getLinkagePoses() {
+  public List<LinkageState> getLinkagePoses() {
     double L1 = constants.LINK_LENGTHS.AB();
     double L2 = constants.LINK_LENGTHS.BC();
     double L3 = constants.LINK_LENGTHS.CD();
     double L4 = constants.LINK_LENGTHS.DA();
 
     double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
-    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians()-theta1;
+    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians() - theta1;
 
     double k1 = L4 / L1;
     double k4 = L4 / L2;
@@ -222,7 +224,17 @@ public class FourBarLinkage {
     Pose3d pose3 = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
     Pose3d pose4 = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
 
-    return List.of(pose1, pose2, pose3, pose4);
+    Rotation2d angle1 = Rotation2d.fromRadians(-(theta2 + theta1));
+    Rotation2d angle2 = Rotation2d.fromRadians(-(theta3 + theta1));
+    Rotation2d angle3 = Rotation2d.fromRadians(-theta5);
+    Rotation2d angle4 = Rotation2d.fromRadians(-(Math.PI + theta1));
+
+    LinkageState link1 = new LinkageState(pose1, angle1);
+    LinkageState link2 = new LinkageState(pose2, angle2);
+    LinkageState link3 = new LinkageState(pose3, angle3);
+    LinkageState link4 = new LinkageState(pose4, angle4);
+
+    return List.of(link1, link2, link3, link4);
   }
 
   public Pose3d getHopperWallPose() {
@@ -249,7 +261,7 @@ public class FourBarLinkage {
       xOff = Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
     }
 
-    return new Pose3d(x0 + xOff, 0, 0, new Rotation3d(0, 0, 0));
+    return new Pose3d(-(x0 + xOff), 0, 0, new Rotation3d(0, 0, 0));
   }
 
   /**
