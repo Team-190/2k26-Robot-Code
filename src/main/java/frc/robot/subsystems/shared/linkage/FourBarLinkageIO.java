@@ -41,8 +41,11 @@ public interface FourBarLinkageIO {
 
   /** Sets motor profile. */
   public default void setProfile(
-      double maxVelocityRadiansPerSecond, double maxAccelerationRadiansPerSecondSquared) {}
+      double maxVelocityRadiansPerSecond,
+      double maxAccelerationRadiansPerSecondSquared,
+      double goalToleranceRadians) {}
 
+  /** Checks if the linkage is at the goal position. */
   public default boolean atGoal() {
     return false;
   }

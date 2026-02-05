@@ -24,8 +24,8 @@ public class FourBarLinkageConstants {
   public final double MOMENT_OF_INERTIA;
   public final DCMotor MOTOR_CONFIG;
   public final double LENGTH_METERS;
-  public final double MIN_ANGLE;
-  public final double MAX_ANGLE;
+  public final Rotation2d MIN_ANGLE;
+  public final Rotation2d MAX_ANGLE;
 
   public final Gains GAINS;
   public final Constraints CONSTRAINTS;
@@ -53,8 +53,8 @@ public class FourBarLinkageConstants {
       double MOMENT_OF_INERTIA,
       DCMotor MOTOR_CONFIG,
       double LENGTH_METERS,
-      double MIN_ANGLE,
-      double MAX_ANGLE,
+      Rotation2d MIN_ANGLE,
+      Rotation2d MAX_ANGLE,
       Gains GAINS,
       Constraints CONSTRAINTS,
       DriveConfig DRIVE_CONFIG,
@@ -113,5 +113,5 @@ public class FourBarLinkageConstants {
     STOW
   }
 
-  public record LinkageState(Pose3d POSE, Rotation2d ROTATION) {}
+  public record LinkageState(Pose3d pose, Rotation2d rotation) {}
 }

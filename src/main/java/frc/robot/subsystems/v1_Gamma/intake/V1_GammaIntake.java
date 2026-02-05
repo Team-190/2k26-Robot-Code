@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_Gamma.intake;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,13 +32,13 @@ public class V1_GammaIntake extends SubsystemBase {
     linkage.periodic();
 
     List<Pose3d> intakeGlobalPose =
-        linkage.getLinkagePoses().stream().map((LinkageState state) -> state.POSE()).toList();
+        linkage.getLinkagePoses().stream().map((LinkageState state) -> state.pose()).toList();
 
     for (int i = 0; i < intakeGlobalPose.size(); i++) {
       Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i));
     }
 
-    Pose3d hopperPosition = linkage.getHopperWallPose();
+    Pose3d hopperPosition = getHopperWallPose();
     Logger.recordOutput("Intake/Linkage/HopperWallPose", hopperPosition);
   }
 
@@ -57,7 +58,30 @@ public class V1_GammaIntake extends SubsystemBase {
     return linkage.setPositionGoal(V1_GammaIntakeConstants.STOW_ANGLE);
   }
 
-  public Command testIntake() {
-    return Commands.sequence(stow(), Commands.waitSeconds(5), deploy(), Commands.waitSeconds(5));
+  public Pose3d getHopperWallPose() {
+
+    final double yPos = linkage.getPosition().getSin() * V1_GammaIntakeConstants.PIN_LENGTH;
+    final double x0 = linkage.getPosition().getCos() * V1_GammaIntakeConstants.PIN_LENGTH;
+
+    double xOff = 0;
+
+    final double Y_MIN = V1_GammaIntakeConstants.LINK_BOUNDS.MIN(); // 0.810921
+    final double Y_PHASE_1 = V1_GammaIntakeConstants.LINK_BOUNDS.PHASE_1(); // 2.86545
+    final double Y_PHASE_2 = V1_GammaIntakeConstants.LINK_BOUNDS.PHASE_2(); // 4.752162
+    final double Y_MAX = V1_GammaIntakeConstants.LINK_BOUNDS.MAX(); // 6.46545
+
+    final double RADIUS_1 = V1_GammaIntakeConstants.LINK_CONST.RADIUS_1();
+    final double RADIUS_2 = V1_GammaIntakeConstants.LINK_CONST.RADIUS_2();
+    final double CENTER_OFFSET = V1_GammaIntakeConstants.LINK_CONST.CENTER_OFFSET();
+
+    if (yPos <= Y_PHASE_1 && yPos > Y_MIN) {
+      xOff = Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
+    } else if (yPos <= Y_PHASE_2 && yPos > Y_PHASE_1) {
+      xOff = 0;
+    } else if (yPos <= Y_MAX && yPos > Y_PHASE_2) {
+      xOff = Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
+    }
+
+    return new Pose3d(-(x0 + xOff), 0, 0, new Rotation3d(0, 0, 0));
   }
 }

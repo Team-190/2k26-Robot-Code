@@ -22,10 +22,7 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
 
   private double appliedVolts = 0.0;
 
-  private FourBarLinkageConstants LINKAGE_CONSTANTS;
-
   public FourBarLinkageIOSim(FourBarLinkageConstants LINKAGE_CONSTANTS) {
-    this.LINKAGE_CONSTANTS = LINKAGE_CONSTANTS;
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
@@ -35,8 +32,8 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
             LINKAGE_CONSTANTS.MOTOR_CONFIG,
             LINKAGE_CONSTANTS.GEAR_RATIO,
             LINKAGE_CONSTANTS.LENGTH_METERS,
-            LINKAGE_CONSTANTS.MIN_ANGLE,
-            LINKAGE_CONSTANTS.MAX_ANGLE,
+            LINKAGE_CONSTANTS.MIN_ANGLE.getRadians(),
+            LINKAGE_CONSTANTS.MAX_ANGLE.getRadians(),
             false,
             0.0);
 
@@ -99,9 +96,12 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
   }
 
   public void setProfile(
-      double maxVelocityRadiansPerSecond, double maxAccelerationRadiansPerSecondSquared) {
+      double maxVelocityRadiansPerSecond,
+      double maxAccelerationRadiansPerSecondSquared,
+      double goalToleranceRadians) {
     feedback.setConstraints(
         new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
+    feedback.setTolerance(goalToleranceRadians);
   }
 
   /** Check if the linkage is within tolerance */

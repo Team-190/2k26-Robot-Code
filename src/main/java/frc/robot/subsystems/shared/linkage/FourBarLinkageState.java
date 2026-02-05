@@ -7,7 +7,7 @@ public enum FourBarLinkageState {
   CLOSED_LOOP_POSITION_CONTROL,
   IDLE;
 
-  public Output set(double volts) {
+  public Output set(edu.wpi.first.units.measure.Voltage volts) {
     switch (this) {
       case OPEN_LOOP_VOLTAGE_CONTROL, IDLE -> {
         return new Output.Voltage(volts);
@@ -34,7 +34,7 @@ public enum FourBarLinkageState {
         java.util.function.Function<Voltage, T> voltage,
         java.util.function.Function<Position, T> position);
 
-    default double volts() {
+    default edu.wpi.first.units.measure.Voltage volts() {
       return match(
           Voltage::volts,
           p -> {
@@ -50,7 +50,7 @@ public enum FourBarLinkageState {
           Position::position);
     }
 
-    record Voltage(double volts) implements Output {
+    record Voltage(edu.wpi.first.units.measure.Voltage volts) implements Output {
 
       @Override
       public <T> T match(

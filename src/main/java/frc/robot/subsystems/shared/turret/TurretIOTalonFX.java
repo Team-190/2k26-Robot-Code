@@ -149,8 +149,8 @@ public class TurretIOTalonFX implements TurretIO {
         e1,
         e2);
 
-    positionControlRequest = new MotionMagicVoltage(0);
-    voltageControlRequest = new VoltageOut(0.0);
+    positionControlRequest = new MotionMagicVoltage(0).withUseTimesync(true).withEnableFOC(true);
+    voltageControlRequest = new VoltageOut(0.0).withUseTimesync(true).withEnableFOC(true);
   }
 
   @Override
@@ -165,12 +165,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public void setTurretGoal(Rotation2d goal) {
-    talonFX.setControl(
-        positionControlRequest
-            .withPosition(goal.getRotations())
-            .withUseTimesync(true)
-            .withUpdateFreqHz(200)
-            .withEnableFOC(true));
+    talonFX.setControl(positionControlRequest.withPosition(goal.getRotations()));
   }
 
   @Override

@@ -50,6 +50,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     config.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
     config.Slot0.kP = constants.GAINS.kp().get();
@@ -61,9 +62,9 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
         constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
         constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.MAX_ANGLE)
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.MAX_ANGLE.getRotations())
         .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(constants.MIN_ANGLE)
+        .withReverseSoftLimitThreshold(constants.MIN_ANGLE.getRotations())
         .withReverseSoftLimitEnable(true);
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
@@ -162,7 +163,9 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond, double maxAccelerationRadiansPerSecondSquared) {
+      double maxVelocityRadiansPerSecond,
+      double maxAccelerationRadiansPerSecondSquared,
+      double goalToleranceRadians) {
     config.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRadiansPerSecond;
     config.MotionMagic.MotionMagicAcceleration = maxAccelerationRadiansPerSecondSquared;
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));

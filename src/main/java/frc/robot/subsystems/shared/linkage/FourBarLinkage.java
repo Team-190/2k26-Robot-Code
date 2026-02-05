@@ -76,7 +76,7 @@ public class FourBarLinkage {
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
 
     currentState = FourBarLinkageState.IDLE;
-    currentOutput = currentState.set(0);
+    currentOutput = currentState.set(Volts.of(0));
   }
 
   public void periodic() {
@@ -87,7 +87,7 @@ public class FourBarLinkage {
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
-        io.setVoltage(currentOutput.volts());
+        io.setVoltage(currentOutput.volts().in(Volts));
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
         io.setPositionGoal(currentOutput.position());
@@ -96,7 +96,7 @@ public class FourBarLinkage {
     }
 
     List<Rotation2d> currentPoses =
-        getLinkagePoses().stream().map((LinkageState state) -> state.ROTATION()).toList();
+        getLinkagePoses().stream().map((LinkageState state) -> state.rotation()).toList();
 
     Rotation2d angleA = currentPoses.get(0);
     Rotation2d angleB = currentPoses.get(1);
@@ -112,6 +112,15 @@ public class FourBarLinkage {
   }
 
   /**
+   * Gets the current position of the linkage.
+   *
+   * @return The current position of the linkage as a Rotation2d.
+   */
+  public Rotation2d getPosition() {
+    return inputs.position;
+  }
+
+  /**
    * Sets the voltage being passed into the linkage subsystem.
    *
    * @param volts the voltage passed into the linkage.
@@ -121,7 +130,7 @@ public class FourBarLinkage {
     return Commands.runOnce(
         () -> {
           currentState = FourBarLinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
-          currentOutput = currentState.set(volts);
+          currentOutput = currentState.set(Volts.of(volts));
         });
   }
 
@@ -146,6 +155,17 @@ public class FourBarLinkage {
    */
   public boolean atGoal() {
     return io.atGoal();
+  }
+
+  /**
+   * Checks if the linkage is at the goal position.
+   *
+   * @param state The state to check goal against.
+   * @return If the linkage is within tolerance of the goal (true) or not (false).
+   */
+  public boolean atGoal(Rotation2d position) {
+    return Math.abs(inputs.position.minus(position).getRadians())
+        <= constants.CONSTRAINTS.goalToleranceRadians().get();
   }
 
   /**
@@ -178,22 +198,32 @@ public class FourBarLinkage {
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    io.setProfile(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared);
+    io.setProfile(
+        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
   }
 
+  /**
+   * Gets the poses of each linkage in 3D space.
+   *
+   * @return List of LinkageStates representing the 3d poses and 2d rotations of each link.
+   */
   public List<LinkageState> getLinkagePoses() {
-    double L1 = constants.LINK_LENGTHS.AB();
-    double L2 = constants.LINK_LENGTHS.BC();
-    double L3 = constants.LINK_LENGTHS.CD();
-    double L4 = constants.LINK_LENGTHS.DA();
+    double crankLength = constants.LINK_LENGTHS.AB();
+    double couplerLength = constants.LINK_LENGTHS.BC();
+    double followerLength = constants.LINK_LENGTHS.CD();
+    double groundLength = constants.LINK_LENGTHS.DA();
 
     double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
     double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians() - theta1;
 
-    double k1 = L4 / L1;
-    double k4 = L4 / L2;
+    double k1 = groundLength / crankLength;
+    double k4 = groundLength / couplerLength;
     double k5 =
-        (-Math.pow(L1, 2) - Math.pow(L2, 2) + Math.pow(L3, 2) - Math.pow(L4, 2)) / (2 * L1 * L2);
+        (-Math.pow(crankLength, 2)
+                - Math.pow(couplerLength, 2)
+                + Math.pow(followerLength, 2)
+                - Math.pow(groundLength, 2))
+            / (2 * crankLength * couplerLength);
 
     double D = Math.cos(theta2) - k1 + k4 * Math.cos(theta2) + k5;
     double E = -2 * Math.sin(theta2);
@@ -205,63 +235,36 @@ public class FourBarLinkage {
 
     Translation3d point1 = new Translation3d(0, 0, 0);
 
-    double x2 = L1 * Math.cos(theta2 + theta1);
-    double z2 = L1 * Math.sin(theta2 + theta1);
+    double x2 = crankLength * Math.cos(theta2 + theta1);
+    double z2 = crankLength * Math.sin(theta2 + theta1);
     Translation3d point2 = new Translation3d(x2, 0, z2);
 
-    double x3 = x2 + L2 * Math.cos(theta3 + theta1);
-    double z3 = z2 + L2 * Math.sin(theta3 + theta1);
+    double x3 = x2 + couplerLength * Math.cos(theta3 + theta1);
+    double z3 = z2 + couplerLength * Math.sin(theta3 + theta1);
     Translation3d point3 = new Translation3d(x3, 0, z3);
 
-    double x4 = L4 * Math.cos(theta1);
-    double z4 = L4 * Math.sin(theta1);
+    double x4 = groundLength * Math.cos(theta1);
+    double z4 = groundLength * Math.sin(theta1);
     Translation3d point4 = new Translation3d(x4, 0, z4);
 
     double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Pose3d pose1 = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
-    Pose3d pose2 = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
-    Pose3d pose3 = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
-    Pose3d pose4 = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
+    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
+    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
+    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
+    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
 
-    Rotation2d angle1 = Rotation2d.fromRadians(-(theta2 + theta1));
-    Rotation2d angle2 = Rotation2d.fromRadians(-(theta3 + theta1));
-    Rotation2d angle3 = Rotation2d.fromRadians(-theta5);
-    Rotation2d angle4 = Rotation2d.fromRadians(-(Math.PI + theta1));
+    Rotation2d crankAngle = Rotation2d.fromRadians(-(theta2 + theta1));
+    Rotation2d couplerAngle = Rotation2d.fromRadians(-(theta3 + theta1));
+    Rotation2d followerAngle = Rotation2d.fromRadians(-theta5);
+    Rotation2d groundAngle = Rotation2d.fromRadians(-(Math.PI + theta1));
 
-    LinkageState link1 = new LinkageState(pose1, angle1);
-    LinkageState link2 = new LinkageState(pose2, angle2);
-    LinkageState link3 = new LinkageState(pose3, angle3);
-    LinkageState link4 = new LinkageState(pose4, angle4);
+    LinkageState link1 = new LinkageState(crankPose, crankAngle);
+    LinkageState link2 = new LinkageState(couplerPose, couplerAngle);
+    LinkageState link3 = new LinkageState(followerPose, followerAngle);
+    LinkageState link4 = new LinkageState(groundPose, groundAngle);
 
     return List.of(link1, link2, link3, link4);
-  }
-
-  public Pose3d getHopperWallPose() {
-
-    final double yPos = inputs.position.getSin() * constants.PIN_LENGTH;
-    final double x0 = inputs.position.getCos() * constants.PIN_LENGTH;
-
-    double xOff = 0;
-
-    final double Y_MIN = constants.LINK_BOUNDS.MIN(); // 0.810921
-    final double Y_PHASE_1 = constants.LINK_BOUNDS.PHASE_1(); // 2.86545
-    final double Y_PHASE_2 = constants.LINK_BOUNDS.PHASE_2(); // 4.752162
-    final double Y_MAX = constants.LINK_BOUNDS.MAX(); // 6.46545
-
-    final double RADIUS_1 = constants.LINK_CONST.RADIUS_1();
-    final double RADIUS_2 = constants.LINK_CONST.RADIUS_2();
-    final double CENTER_OFFSET = constants.LINK_CONST.CENTER_OFFSET();
-
-    if (yPos <= Y_PHASE_1 && yPos > Y_MIN) {
-      xOff = Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
-    } else if (yPos <= Y_PHASE_2 && yPos > Y_PHASE_1) {
-      xOff = 0;
-    } else if (yPos <= Y_MAX && yPos > Y_PHASE_2) {
-      xOff = Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
-    }
-
-    return new Pose3d(-(x0 + xOff), 0, 0, new Rotation3d(0, 0, 0));
   }
 
   /**
@@ -272,12 +275,20 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
-        characterizationRoutine.quasistatic(Direction.kForward),
+        characterizationRoutine
+            .quasistatic(Direction.kForward)
+            .until(() -> atGoal(constants.MAX_ANGLE)),
         Commands.waitSeconds(3),
-        characterizationRoutine.quasistatic(Direction.kReverse),
+        characterizationRoutine
+            .quasistatic(Direction.kReverse)
+            .until(() -> atGoal(constants.MIN_ANGLE)),
         Commands.waitSeconds(3),
-        characterizationRoutine.dynamic(Direction.kForward),
+        characterizationRoutine
+            .dynamic(Direction.kForward)
+            .until(() -> atGoal(constants.MAX_ANGLE)),
         Commands.waitSeconds(3),
-        characterizationRoutine.dynamic(Direction.kReverse));
+        characterizationRoutine
+            .dynamic(Direction.kReverse)
+            .until(() -> atGoal(constants.MIN_ANGLE)));
   }
 }
