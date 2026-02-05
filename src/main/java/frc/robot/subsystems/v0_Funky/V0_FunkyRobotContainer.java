@@ -71,7 +71,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           // shooter =
           //     new Shooter(
           //         new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
-          // feeder = new Feeder(new GenericRollerIOTalonFX(FeederConstants.FEEDER_CONSTANTS));
+          // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),

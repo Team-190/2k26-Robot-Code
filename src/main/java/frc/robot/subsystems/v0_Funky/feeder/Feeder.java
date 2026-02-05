@@ -5,7 +5,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 
 public class Feeder extends SubsystemBase {
-  private GenericRoller roller;
+  private final GenericRoller roller;
 
   public Feeder(GenericRollerIO io, int index) {
     roller = new GenericRoller(io, this, "Roller " + index);

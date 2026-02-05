@@ -17,7 +17,7 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
-  private final TalonFX hoodMotor;
+  protected final TalonFX hoodMotor;
 
   private final StatusSignal<Angle> positionRotations;
   private final StatusSignal<AngularVelocity> velocity;
@@ -114,13 +114,14 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void setVoltage(double volts) {
-    hoodMotor.setControl(voltageControlRequest.withOutput(volts));
+    hoodMotor.setControl(voltageControlRequest.withOutput(volts).withEnableFOC(true));
   }
 
   @Override
   public void setPosition(Rotation2d position) {
     positionGoal = position;
-    hoodMotor.setControl(positionControlRequest.withPosition(positionGoal.getRotations()));
+    hoodMotor.setControl(
+        positionControlRequest.withPosition(positionGoal.getRotations()).withEnableFOC(true));
   }
 
   @Override
