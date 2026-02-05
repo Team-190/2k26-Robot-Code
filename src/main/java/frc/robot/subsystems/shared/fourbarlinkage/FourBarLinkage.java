@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shared.linkage;
+package frc.robot.subsystems.shared.fourbarlinkage;
 
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkageState;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -31,10 +31,10 @@ public class FourBarLinkage {
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
   private final LoggedMechanismRoot2d root2d;
-  private final LoggedMechanismLigament2d link1;
-  private final LoggedMechanismLigament2d link2;
-  private final LoggedMechanismLigament2d link3;
-  private final LoggedMechanismLigament2d link4;
+  private final LoggedMechanismLigament2d crank;
+  private final LoggedMechanismLigament2d coupler;
+  private final LoggedMechanismLigament2d follower;
+  private final LoggedMechanismLigament2d ground;
 
   /**
    * Creates a linkage object with four bars. Handles the calculations of position in 3D space.
@@ -56,14 +56,14 @@ public class FourBarLinkage {
 
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
 
-    this.link1 =
+    this.crank =
         root2d.append(new LoggedMechanismLigament2d("Link1", constants.LINK_LENGTHS.AB(), 0));
-    this.link2 =
-        link1.append(new LoggedMechanismLigament2d("Link2", constants.LINK_LENGTHS.BC(), 0));
-    this.link3 =
-        link2.append(new LoggedMechanismLigament2d("Link3", constants.LINK_LENGTHS.CD(), 0));
-    this.link4 =
-        link3.append(new LoggedMechanismLigament2d("Link4", constants.LINK_LENGTHS.DA(), 0));
+    this.coupler =
+        crank.append(new LoggedMechanismLigament2d("Link2", constants.LINK_LENGTHS.BC(), 0));
+    this.follower =
+        coupler.append(new LoggedMechanismLigament2d("Link3", constants.LINK_LENGTHS.CD(), 0));
+    this.ground =
+        follower.append(new LoggedMechanismLigament2d("Link4", constants.LINK_LENGTHS.DA(), 0));
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -98,15 +98,15 @@ public class FourBarLinkage {
     List<Rotation2d> currentPoses =
         getLinkagePoses().stream().map((LinkageState state) -> state.rotation()).toList();
 
-    Rotation2d angleA = currentPoses.get(0);
-    Rotation2d angleB = currentPoses.get(1);
-    Rotation2d angleC = currentPoses.get(2);
-    Rotation2d angleD = currentPoses.get(3);
+    Rotation2d crankAngle = currentPoses.get(0);
+    Rotation2d couplerAngle = currentPoses.get(1);
+    Rotation2d followerAngle = currentPoses.get(2);
+    Rotation2d groundAngle = currentPoses.get(3);
 
-    link1.setAngle(angleA.unaryMinus());
-    link2.setAngle(angleB.minus(angleA).unaryMinus());
-    link3.setAngle(angleC.minus(angleB).unaryMinus());
-    link4.setAngle(angleD.minus(angleC).unaryMinus());
+    crank.setAngle(crankAngle.unaryMinus());
+    coupler.setAngle(couplerAngle.minus(crankAngle).unaryMinus());
+    follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
+    ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
 
     Logger.recordOutput(aKitTopic + "LinkageMechanism", mechanism2d);
   }

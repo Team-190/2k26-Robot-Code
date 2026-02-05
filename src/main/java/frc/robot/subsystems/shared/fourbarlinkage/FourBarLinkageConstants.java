@@ -1,5 +1,6 @@
-package frc.robot.subsystems.shared.linkage;
+package frc.robot.subsystems.shared.fourbarlinkage;
 
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -14,6 +15,7 @@ public class FourBarLinkageConstants {
   public final int MOTOR_CAN_ID;
 
   public final int CAN_CODER_CAN_ID;
+  public final SensorDirectionValue CANCODER_SENSOR_DIRECTION;
 
   public final Rotation2d INTAKE_ANGLE_OFFSET;
   public final Rotation2d ZERO_OFFSET;
@@ -45,6 +47,7 @@ public class FourBarLinkageConstants {
       boolean IS_CAN_FD,
       int MOTOR_CAN_ID,
       int CAN_CODER_CAN_ID,
+      SensorDirectionValue CANCODER_SENSOR_DIRECTION,
       Rotation2d INTAKE_ANGLE_OFFSET,
       Rotation2d ZERO_OFFSET,
       double GEAR_RATIO,
@@ -68,6 +71,7 @@ public class FourBarLinkageConstants {
     this.IS_CAN_FD = IS_CAN_FD;
     this.MOTOR_CAN_ID = MOTOR_CAN_ID;
     this.CAN_CODER_CAN_ID = CAN_CODER_CAN_ID;
+    this.CANCODER_SENSOR_DIRECTION = CANCODER_SENSOR_DIRECTION;
     this.INTAKE_ANGLE_OFFSET = INTAKE_ANGLE_OFFSET;
     this.ZERO_OFFSET = ZERO_OFFSET;
     this.GEAR_RATIO = GEAR_RATIO;

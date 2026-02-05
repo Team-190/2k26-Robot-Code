@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_Gamma.intake;
 
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -8,12 +9,12 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.Constraints;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.Gains;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkBounds;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkConstants;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkLengths;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Constraints;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 
 public class V1_GammaIntakeConstants {
@@ -57,6 +58,8 @@ public class V1_GammaIntakeConstants {
   public static final boolean IS_CAN_FD = false;
   public static final int MOTOR_CAN_ID = 8; // TODO: set correct ID
   public static final int CAN_CODER_CAN_ID = 9; // TODO: set correct ID
+  public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
+      SensorDirectionValue.CounterClockwise_Positive; // TODO: set correct direction
   public static final int GEAR_RATIO = 1;
   public static final int SUPPLY_CURRENT_LIMIT = 40; // TODO: Set actual value.
   public static final int STATOR_CURRENT_LIMIT = 40; // TODO: Set actual value.
@@ -117,6 +120,7 @@ public class V1_GammaIntakeConstants {
           IS_CAN_FD,
           MOTOR_CAN_ID,
           CAN_CODER_CAN_ID,
+          CANCODER_SENSOR_DIRECTION,
           INTAKE_ANGLE_OFFSET,
           ZERO_OFFSET,
           GEAR_RATIO,

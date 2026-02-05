@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shared.linkage;
+package frc.robot.subsystems.shared.fourbarlinkage;
 
 import static edu.wpi.first.units.Units.*;
 

@@ -1,7 +1,8 @@
-package frc.robot.subsystems.shared.linkage;
+package frc.robot.subsystems.shared.fourbarlinkage;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -30,7 +31,8 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   private final StatusSignal<Double> positionErrorRotations;
   private final StatusSignal<Angle> absolutePositionRotations;
 
-  private final TalonFXConfiguration config;
+  private final TalonFXConfiguration talonFXConfig;
+  private final CANcoderConfiguration canCoderConfig;
 
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
@@ -45,31 +47,40 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
       talonFX = new TalonFX(constants.MOTOR_CAN_ID);
     }
 
-    config = new TalonFXConfiguration();
+    talonFXConfig = new TalonFXConfiguration();
 
-    config.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
-    config.Slot0.kP = constants.GAINS.kp().get();
-    config.Slot0.kD = constants.GAINS.kd().get();
-    config.Slot0.kS = constants.GAINS.ks().get();
-    config.Slot0.kV = constants.GAINS.kv().get();
-    config.Slot0.kA = constants.GAINS.ka().get();
-    config.MotionMagic.MotionMagicCruiseVelocity =
+    talonFXConfig.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT;
+    talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    talonFXConfig.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT;
+    talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    talonFXConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    talonFXConfig.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
+    talonFXConfig.Slot0.kP = constants.GAINS.kp().get();
+    talonFXConfig.Slot0.kD = constants.GAINS.kd().get();
+    talonFXConfig.Slot0.kS = constants.GAINS.ks().get();
+    talonFXConfig.Slot0.kV = constants.GAINS.kv().get();
+    talonFXConfig.Slot0.kA = constants.GAINS.ka().get();
+    talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
         constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
-    config.MotionMagic.MotionMagicAcceleration =
+    talonFXConfig.MotionMagic.MotionMagicAcceleration =
         constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.MAX_ANGLE.getRotations())
+    talonFXConfig
+        .SoftwareLimitSwitch
+        .withForwardSoftLimitThreshold(constants.MAX_ANGLE.getRotations())
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(constants.MIN_ANGLE.getRotations())
         .withReverseSoftLimitEnable(true);
 
-    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
 
     canCoder = new CANcoder(constants.CAN_CODER_CAN_ID);
+
+    canCoderConfig = new CANcoderConfiguration();
+
+    canCoderConfig.MagnetSensor.SensorDirection = constants.CANCODER_SENSOR_DIRECTION;
+    canCoderConfig.MagnetSensor.MagnetOffset = constants.ZERO_OFFSET.getRotations();
+
+    PhoenixUtil.tryUntilOk(5, () -> canCoder.getConfigurator().apply(canCoderConfig, 0.25));
 
     talonFX.setPosition(canCoder.getAbsolutePosition().getValueAsDouble());
 
@@ -147,18 +158,18 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
   @Override
   public void setPID(double kp, double ki, double kd) {
-    config.Slot0.kP = kp;
-    config.Slot0.kI = ki;
-    config.Slot0.kD = kd;
-    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
+    talonFXConfig.Slot0.kP = kp;
+    talonFXConfig.Slot0.kI = ki;
+    talonFXConfig.Slot0.kD = kd;
+    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
   }
 
   @Override
   public void setFeedforward(double ks, double kv, double ka) {
-    config.Slot0.kS = ks;
-    config.Slot0.kV = kv;
-    config.Slot0.kA = ka;
-    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
+    talonFXConfig.Slot0.kS = ks;
+    talonFXConfig.Slot0.kV = kv;
+    talonFXConfig.Slot0.kA = ka;
+    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
   }
 
   @Override
@@ -166,9 +177,9 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRadiansPerSecond;
-    config.MotionMagic.MotionMagicAcceleration = maxAccelerationRadiansPerSecondSquared;
-    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
+    talonFXConfig.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRadiansPerSecond;
+    talonFXConfig.MotionMagic.MotionMagicAcceleration = maxAccelerationRadiansPerSecondSquared;
+    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
   }
 
   @Override

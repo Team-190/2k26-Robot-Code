@@ -1,4 +1,4 @@
-package frc.robot.subsystems.shared.linkage;
+package frc.robot.subsystems.shared.fourbarlinkage;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 

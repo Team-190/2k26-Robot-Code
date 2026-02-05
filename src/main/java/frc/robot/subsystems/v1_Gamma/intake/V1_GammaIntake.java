@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
-import frc.robot.subsystems.shared.linkage.FourBarLinkage;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageConstants.LinkageState;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageIO;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 

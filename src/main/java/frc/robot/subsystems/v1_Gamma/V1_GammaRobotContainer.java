@@ -23,7 +23,7 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
-import frc.robot.subsystems.shared.linkage.FourBarLinkageIOSim;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
 import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntakeConstants;
 import java.util.List;
