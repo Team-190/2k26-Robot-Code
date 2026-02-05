@@ -61,7 +61,7 @@ public class V1_GammaDepotAuto {
                 Commands.print("Deploying intake"), // TODO: IMPL
 
                 // Start the intake
-                intake.setVoltage(INTAKE_VOLTAGE),
+                intake.setRollerVoltage(INTAKE_VOLTAGE),
 
                 // Follow the path and set the shooter goal in parallel
                 Commands.parallel(
@@ -69,7 +69,7 @@ public class V1_GammaDepotAuto {
                     shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
 
                 // Stop the intake
-                intake.setVoltage(0),
+                intake.setRollerVoltage(0),
 
                 // Start the spindexer
                 spindexer.setVoltage(SPINDEXER_VOLTAGE),
