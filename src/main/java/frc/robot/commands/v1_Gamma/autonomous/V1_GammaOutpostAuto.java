@@ -73,7 +73,7 @@ public class V1_GammaOutpostAuto {
                     shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
 
                 // Stop the intake
-                intake.setVoltage(0),
+                intake.setRollerVoltage(0),
 
                 // Start the spindexer
                 spindexer.setVoltage(SPINDEXER_VOLTAGE),

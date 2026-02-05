@@ -15,6 +15,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -22,11 +23,16 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
+import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntake;
+import frc.robot.subsystems.v1_Gamma.intake.V1_GammaIntakeConstants;
 import java.util.List;
 
 public class V1_GammaRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private Vision vision;
+
+  private V1_GammaIntake intake;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -35,7 +41,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
   public V1_GammaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
-        case V0_FUNKY:
+        case V1_GAMMA:
           drive =
               new SwerveDrive(
                   V1_GammaConstants.DRIVE_CONSTANTS,
@@ -66,7 +72,7 @@ public class V1_GammaRobotContainer implements RobotContainer {
                       List.of()));
           break;
 
-        case V0_FUNKY_SIM:
+        case V1_GAMMA_SIM:
           drive =
               new SwerveDrive(
                   V1_GammaConstants.DRIVE_CONSTANTS,
@@ -88,6 +94,13 @@ public class V1_GammaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+
+          intake =
+              new V1_GammaIntake(
+                  new GenericRollerIOSim(V1_GammaIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOSim(V1_GammaIntakeConstants.INTAKE_ROLLER_CONSTANTS_BOTTOM),
+                  new FourBarLinkageIOSim(V1_GammaIntakeConstants.LINKAGE_CONSTANTS));
+
           break;
 
         default:
