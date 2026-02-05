@@ -49,7 +49,7 @@ public class V1_GammaClimberConstants {
 
   public static final CurrentLimits CURRENT_LIMITS = new CurrentLimits(40, 60, 0);
 
-  public static final double MOMENT_OF_INERTIA_KG_M2 = 0.05;
+  public static final double MOMENT_OF_INERTIA_KG_M2 = 0.0817231996;
   public static boolean ENABLE_FOC = false;
 
   @AllArgsConstructor

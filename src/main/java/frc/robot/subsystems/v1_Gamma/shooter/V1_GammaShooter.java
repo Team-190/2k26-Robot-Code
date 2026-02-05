@@ -61,6 +61,6 @@ public class V1_GammaShooter extends SubsystemBase {
 
   public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
     return Commands.parallel(
-        setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, true));
+        setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond));
   }
 }

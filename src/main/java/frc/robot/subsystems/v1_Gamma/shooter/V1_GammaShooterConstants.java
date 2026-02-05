@@ -1,8 +1,6 @@
 package frc.robot.subsystems.v1_Gamma.shooter;
 
 import com.ctre.phoenix6.signals.InvertedValue;
-static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;

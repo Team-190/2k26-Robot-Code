@@ -56,18 +56,20 @@ public class V1_GammaIntakeConstants {
       new Translation3d(1, 1, 1); // TODO: Put in actual offset.
 
   public static final boolean IS_CAN_FD = false;
-  public static final int MOTOR_CAN_ID = 8; // TODO: set correct ID
-  public static final int CAN_CODER_CAN_ID = 9; // TODO: set correct ID
+  public static final int MOTOR_CAN_ID = 22; 
+  public static final int CAN_CODER_CAN_ID = 23; 
+
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
       SensorDirectionValue.CounterClockwise_Positive; // TODO: set correct direction
   public static final int GEAR_RATIO = 1;
-  public static final int SUPPLY_CURRENT_LIMIT = 40; // TODO: Set actual value.
-  public static final int STATOR_CURRENT_LIMIT = 40; // TODO: Set actual value.
+  public static final int SUPPLY_CURRENT_LIMIT = 40; 
+  public static final int STATOR_CURRENT_LIMIT = 40; 
+
   public static final double MOMENT_OF_INERTIA = 0.004;
   public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
-  public static final double LENGTH_METERS = 0.3;
   public static final Rotation2d INTAKE_ANGLE_OFFSET =
-      Rotation2d.fromDegrees(-30.9603232217); // TODO: Figure out the actual angle offset between
+      Rotation2d.fromDegrees(-30.9603232217); 
+      
   public static final Rotation2d ZERO_OFFSET = Rotation2d.kPi;
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(170);
@@ -128,7 +130,6 @@ public class V1_GammaIntakeConstants {
           STATOR_CURRENT_LIMIT,
           MOMENT_OF_INERTIA,
           MOTOR_CONFIG,
-          LENGTH_METERS,
           MIN_ANGLE,
           MAX_ANGLE,
           GAINS,
