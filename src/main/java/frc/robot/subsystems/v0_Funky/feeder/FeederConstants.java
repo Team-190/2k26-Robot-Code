@@ -12,7 +12,7 @@ public class FeederConstants {
           20,
           40.0,
           DCMotor.getKrakenX60Foc(1),
-          1.0,
+          1.0/2.0,
           MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters),
           false);
 }

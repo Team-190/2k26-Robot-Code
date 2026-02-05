@@ -43,7 +43,7 @@ public class V1_GammaClimber extends SubsystemBase {
     return Commands.waitUntil(
         () ->
             Math.abs(arm.inputs.position.getRadians() - arm.inputs.positionGoal.getRadians())
-                < V1_GammaClimberConstants.positionToleranceRadians);
+                < V1_GammaClimberConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
   }
 
   public Command stop() {

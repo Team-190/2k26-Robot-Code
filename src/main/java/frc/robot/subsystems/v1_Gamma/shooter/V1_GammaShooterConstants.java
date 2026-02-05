@@ -25,9 +25,9 @@ public class V1_GammaShooterConstants {
             new int[] {30},
             new int[] {31},
             new GenericFlywheelConstants.Constraints(
-                new LoggedTunableNumber("max accel", 0),
-                new LoggedTunableNumber("max vel", 0),
-                new LoggedTunableNumber("tolerance", 1)),
-            1,
+                    new LoggedTunableNumber("MaxAccelerationRotationsPerSecondSquared", 6),
+                    new LoggedTunableNumber("CruisingVelocityRotationsPerSecondSquared", 4),
+                    new LoggedTunableNumber("GoalToleranceRadians", 0.05)),
+            3/4,
             InvertedValue.CounterClockwise_Positive);
 }

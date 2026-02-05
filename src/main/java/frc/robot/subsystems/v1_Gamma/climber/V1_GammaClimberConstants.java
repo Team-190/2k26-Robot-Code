@@ -12,10 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public class V1_GammaClimberConstants {
-  public static final int MOTOR_CAN_ID = 15;
+  public static final int MOTOR_CAN_ID = 60;
   public static final ArmParameters ARM_PARAMETERS =
       new ArmParameters(
-          new DCMotor(0, 0, 0, 0, 0, 0), new Rotation2d(), new Rotation2d(), 1, 12, 3.0, 4.0, 5.0);
+          DCMotor.getKrakenX60(1), new Rotation2d(Double.NEGATIVE_INFINITY), new Rotation2d(Double.POSITIVE_INFINITY), 1, 165, 0.259, 0, 0);
   public static final Gains SLOT_1_GAINS =
       new Gains(
           new LoggedTunableNumber("Ks", 0),
@@ -47,12 +47,10 @@ public class V1_GammaClimberConstants {
           new LoggedTunableNumber("CruisingVelocityRotationsPerSecondSquared", 4),
           new LoggedTunableNumber("GoalToleranceRadians", 0.05));
 
-  public static final CurrentLimits CURRENT_LIMITS = new CurrentLimits(40, 60, 1000);
+  public static final CurrentLimits CURRENT_LIMITS = new CurrentLimits(40, 60, 0);
 
   public static final double MOMENT_OF_INERTIA_KG_M2 = 0.05;
   public static boolean ENABLE_FOC = false;
-
-  public static final double positionToleranceRadians = 0.01;
 
   @AllArgsConstructor
   public static enum ClimberGoal {
