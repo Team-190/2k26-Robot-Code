@@ -17,7 +17,7 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
-  private final TalonFX hoodMotor;
+  protected final TalonFX hoodMotor;
 
   private final StatusSignal<Angle> positionRotations;
   private final StatusSignal<AngularVelocity> velocity;
