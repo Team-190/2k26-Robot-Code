@@ -37,22 +37,34 @@ public class V1_GammaSwank extends SubsystemBase {
   }
 
   public boolean checkBumpAngle() {
-    
-    boolean frontCheck = Math.abs(V1_GammaRobotState.getHeading().relativeTo(new Rotation2d(Math.PI/2)).getRadians()) < Math.PI/6; 
-    boolean backCheck = Math.abs(V1_GammaRobotState.getHeading().relativeTo(new Rotation2d(-Math.PI/2)).getRadians()) < Math.PI / 6;
-    
+
+    boolean frontCheck =
+        Math.abs(
+                V1_GammaRobotState.getHeading()
+                    .relativeTo(new Rotation2d(Math.PI / 2))
+                    .getRadians())
+            < Math.PI / 6;
+    boolean backCheck =
+        Math.abs(
+                V1_GammaRobotState.getHeading()
+                    .relativeTo(new Rotation2d(-Math.PI / 2))
+                    .getRadians())
+            < Math.PI / 6;
+
     return (frontCheck && backCheck);
   }
 
   public boolean checkBumpPosition() {
-    boolean withinLeftBumpStart = V1_GammaRobotState.getGlobalPose().getY() < FieldConstants.LinesHorizontal.leftBumpStart;
-    boolean withinLeftBumpEnd = V1_GammaRobotState.getGlobalPose().getY()
-                    > FieldConstants.LinesHorizontal.leftBumpEnd;
-    boolean withinRightBumpStart = V1_GammaRobotState.getGlobalPose().getY()
-                    < FieldConstants.LinesHorizontal.rightBumpStart;
-    boolean withinRightBumpEnd = V1_GammaRobotState.getGlobalPose().getY()
-                    > FieldConstants.LinesHorizontal.rightBumpEnd;
-    boolean withinRange = (Math.abs(
+    boolean withinLeftBumpStart =
+        V1_GammaRobotState.getGlobalPose().getY() < FieldConstants.LinesHorizontal.leftBumpStart;
+    boolean withinLeftBumpEnd =
+        V1_GammaRobotState.getGlobalPose().getY() > FieldConstants.LinesHorizontal.leftBumpEnd;
+    boolean withinRightBumpStart =
+        V1_GammaRobotState.getGlobalPose().getY() < FieldConstants.LinesHorizontal.rightBumpStart;
+    boolean withinRightBumpEnd =
+        V1_GammaRobotState.getGlobalPose().getY() > FieldConstants.LinesHorizontal.rightBumpEnd;
+    boolean withinRange =
+        (Math.abs(
                     V1_GammaRobotState.getGlobalPose().getX()
                         - FieldConstants.LinesVertical.hubCenter)
                 < 1
@@ -60,19 +72,26 @@ public class V1_GammaSwank extends SubsystemBase {
                     V1_GammaRobotState.getGlobalPose().getY()
                         - FieldConstants.LinesVertical.oppHubCenter)
                 < 1);
-    
-    return ((withinLeftBumpStart && withinLeftBumpEnd) 
-            || (withinRightBumpStart && withinRightBumpEnd) && withinRange);
-  
+
+    return ((withinLeftBumpStart && withinLeftBumpEnd)
+        || (withinRightBumpStart && withinRightBumpEnd) && withinRange);
   }
-  
+
   public double getSwankVoltage() {
-    boolean isRobotSideLeft = V1_GammaRobotState.getGlobalPose().getX() < FieldConstants.LinesVertical.hubCenter;
     boolean isTurnedLeft = V1_GammaRobotState.getHeading().getRadians() > Math.PI / 2;
+    boolean onOpponentSide =
+        V1_GammaRobotState.getGlobalPose().getX() > FieldConstants.LinesVertical.center;
+    boolean isRobotSideLeft =
+        V1_GammaRobotState.getGlobalPose().getX() < FieldConstants.LinesVertical.hubCenter;
+    if (onOpponentSide) {
+      isTurnedLeft = !isTurnedLeft;
+      isRobotSideLeft =
+          V1_GammaRobotState.getGlobalPose().getX() < FieldConstants.LinesVertical.oppHubCenter;
+    }
     if (isRobotSideLeft ^ isTurnedLeft) {
-      return -12;
+      return -12.0;
     } else {
-      return 12;
+      return 12.0;
     }
   }
 }
