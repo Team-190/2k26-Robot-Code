@@ -10,25 +10,25 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 public class ShooterConstants {
   public static final GenericFlywheelConstants SHOOTER_FLYWHEEL_CONSTANTS =
       new GenericFlywheelConstants(
-          190,
+          30,
           1,
           false,
           false,
           40.0,
           0.004,
           new Gains(
-              new LoggedTunableNumber("Ks", 0),
-              new LoggedTunableNumber("Kv", 0),
-              new LoggedTunableNumber("Ka", 0),
-              new LoggedTunableNumber("Kp", 0),
-              new LoggedTunableNumber("Kd", 0)),
+              new LoggedTunableNumber("Shooter/Flywheel/Ks", 0),
+              new LoggedTunableNumber("Shooter/Flywheel/Kv", 0),
+              new LoggedTunableNumber("Shooter/Flywheel/Ka", 0),
+              new LoggedTunableNumber("Shooter/Flywheel/Kp", 0),
+              new LoggedTunableNumber("Shooter/Flywheel/Kd", 0)),
           DCMotor.getKrakenX60Foc(1),
           new int[] {},
-          new int[] {30, 31},
+          new int[] {31},
           new Constraints(
-              new LoggedTunableNumber("max accel", 0),
-              new LoggedTunableNumber("max vel", 0),
-              new LoggedTunableNumber("tolerance", 1)),
+              new LoggedTunableNumber("Shooter/Flywheel/max accel", 0),
+              new LoggedTunableNumber("Shooter/Flywheel/max vel", 0),
+              new LoggedTunableNumber("Shooter/Flywheel/tolerance", 1)),
           1,
           InvertedValue.CounterClockwise_Positive);
 }

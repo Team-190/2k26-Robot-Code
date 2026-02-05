@@ -87,12 +87,13 @@ public class V0_FunkyConstants {
           2,
           MomentOfInertia.ofBaseUnits(0.05, KilogramSquareMeters),
           false);
+public static final int LEAD_SHOOTER_ID = 30;
   public static final int[] SHOOTER_IDS_CLOCKWISE = {};
-  public static final int[] SHOOTER_IDS_COUNTER_CLOCKWISE = {30, 31};
+  public static final int[] SHOOTER_IDS_COUNTER_CLOCKWISE = {31};
   public static final DCMotor[] SHOOTER_MOTORS = {DCMotor.getKrakenX60(1)};
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       new GenericFlywheelConstants(
-          190,
+          LEAD_SHOOTER_ID,
           2,
           false,
           true,
