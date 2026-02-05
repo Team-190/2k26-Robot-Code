@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
-
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -14,15 +13,15 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 
 public class HoodIOTalonFXSim extends HoodIOTalonFX {
-    private final SingleJointedArmSim hoodSim;
+  private final SingleJointedArmSim hoodSim;
 
-    private TalonFXSimState hoodController;
+  private TalonFXSimState hoodController;
 
-    public HoodIOTalonFXSim() {
-        super();
+  public HoodIOTalonFXSim() {
+    super();
 
-        hoodSim =
-                new SingleJointedArmSim(
+    hoodSim =
+        new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
                 HoodConstants.MOTOR_CONFIG,
                 HoodConstants.MOMENT_OF_INERTIA,
@@ -34,23 +33,26 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
             HoodConstants.MAX_ANGLE,
             true,
             HoodConstants.MIN_ANGLE);
-    }
+  }
 
-    @Override
-    @Trace
-    public void updateInputs(HoodIOInputs inputs) {
-        hoodController.setSupplyVoltage(RobotController.getBatteryVoltage());
-        double hoodVoltage = hoodController.getMotorVoltage();
+  @Override
+  @Trace
+  public void updateInputs(HoodIOInputs inputs) {
+    hoodController.setSupplyVoltage(RobotController.getBatteryVoltage());
+    double hoodVoltage = hoodController.getMotorVoltage();
 
-        hoodSim.setInputVoltage(hoodVoltage);
+    hoodSim.setInputVoltage(hoodVoltage);
 
-        hoodSim.update(GompeiLib.getLoopPeriod());
+    hoodSim.update(GompeiLib.getLoopPeriod());
 
-        Angle rotorPosition = Angle.ofBaseUnits(hoodSim.getAngleRads() * HoodConstants.GEAR_RATIO, Radians);
-        AngularVelocity rotorVelocity = AngularVelocity.ofBaseUnits(hoodSim.getVelocityRadPerSec() * HoodConstants.GEAR_RATIO, RadiansPerSecond);
-        hoodController.setRawRotorPosition(rotorPosition);
-        hoodController.setRotorVelocity(rotorVelocity);
+    Angle rotorPosition =
+        Angle.ofBaseUnits(hoodSim.getAngleRads() * HoodConstants.GEAR_RATIO, Radians);
+    AngularVelocity rotorVelocity =
+        AngularVelocity.ofBaseUnits(
+            hoodSim.getVelocityRadPerSec() * HoodConstants.GEAR_RATIO, RadiansPerSecond);
+    hoodController.setRawRotorPosition(rotorPosition);
+    hoodController.setRotorVelocity(rotorVelocity);
 
-        super.updateInputs(inputs);
-    }
+    super.updateInputs(inputs);
+  }
 }

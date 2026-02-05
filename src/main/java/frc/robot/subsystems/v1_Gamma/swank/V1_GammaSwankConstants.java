@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v1_Gamma.swank;
 
 import com.ctre.phoenix6.signals.InvertedValue;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 
 public class V1_GammaSwankConstants {
