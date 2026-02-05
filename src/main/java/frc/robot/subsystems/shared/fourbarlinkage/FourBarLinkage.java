@@ -38,11 +38,11 @@ public class FourBarLinkage {
 
   /**
    * Creates a linkage object with four bars. Handles the calculations of position in 3D space.
-   *
-   * @param io
-   * @param constants
-   * @param subsystem
-   * @param index
+   * 
+   * @param io the IO object for the linkage. Either {@link frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim} or {@link frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX}.
+   * @param constants The constants file for FourBarLinkage.{@link frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants}
+   * @param subsystem The subsystem this linkage belongs to.
+   * @param index The index of multiple linkages in the same subsystem.
    */
   public FourBarLinkage(
       FourBarLinkageIO io, FourBarLinkageConstants constants, Subsystem subsystem, int index) {
@@ -57,13 +57,13 @@ public class FourBarLinkage {
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
 
     this.crank =
-        root2d.append(new LoggedMechanismLigament2d("Link1", constants.LINK_LENGTHS.AB(), 0));
+        root2d.append(new LoggedMechanismLigament2d("Crank", constants.LINK_LENGTHS.AB(), 0));
     this.coupler =
-        crank.append(new LoggedMechanismLigament2d("Link2", constants.LINK_LENGTHS.BC(), 0));
+        crank.append(new LoggedMechanismLigament2d("Coupler", constants.LINK_LENGTHS.BC(), 0));
     this.follower =
-        coupler.append(new LoggedMechanismLigament2d("Link3", constants.LINK_LENGTHS.CD(), 0));
+        coupler.append(new LoggedMechanismLigament2d("Follower", constants.LINK_LENGTHS.CD(), 0));
     this.ground =
-        follower.append(new LoggedMechanismLigament2d("Link4", constants.LINK_LENGTHS.DA(), 0));
+        follower.append(new LoggedMechanismLigament2d("Ground", constants.LINK_LENGTHS.DA(), 0));
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -108,7 +108,7 @@ public class FourBarLinkage {
     follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
     ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
 
-    Logger.recordOutput(aKitTopic + "LinkageMechanism", mechanism2d);
+    Logger.recordOutput(aKitTopic + "**/**LinkageMechanism", mechanism2d);
   }
 
   /**
