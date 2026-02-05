@@ -33,6 +33,8 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
             HoodConstants.MAX_ANGLE,
             true,
             HoodConstants.MIN_ANGLE);
+
+    hoodController = super.hoodMotor.getSimState();
   }
 
   @Override

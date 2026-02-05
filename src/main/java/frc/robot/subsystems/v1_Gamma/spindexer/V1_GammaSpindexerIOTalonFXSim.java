@@ -27,6 +27,8 @@ public class V1_GammaSpindexerIOTalonFXSim extends V1_GammaSpindexerIOTalonFX {
                 V1_GammaSpindexerConstants.MOMENT_OF_INERTIA,
                 V1_GammaSpindexerConstants.GEAR_RATIO),
             V1_GammaSpindexerConstants.MOTOR_CONFIG);
+
+    spindexerController = super.spindexerMotor.getSimState();
   }
 
   @Override
