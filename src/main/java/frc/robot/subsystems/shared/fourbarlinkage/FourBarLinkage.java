@@ -53,7 +53,7 @@ public class FourBarLinkage {
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
     this.constants = constants;
-    this.mechanism2d = new LoggedMechanism2d(5, 5);
+    this.mechanism2d = new LoggedMechanism2d(1, 1);
     aKitTopic = subsystem.getName() + "/Linkage" + index;
 
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
@@ -105,10 +105,10 @@ public class FourBarLinkage {
     Rotation2d followerAngle = currentPoses.get(2);
     Rotation2d groundAngle = currentPoses.get(3);
 
-    crank.setAngle(crankAngle.unaryMinus());
-    coupler.setAngle(couplerAngle.minus(crankAngle).unaryMinus());
-    follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
-    ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
+    crank.setAngle(crankAngle);
+    coupler.setAngle(couplerAngle.minus(crankAngle));
+    follower.setAngle(followerAngle.minus(couplerAngle));
+    ground.setAngle(groundAngle.minus(followerAngle));
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
   }
@@ -216,7 +216,7 @@ public class FourBarLinkage {
     double groundLength = constants.LINK_LENGTHS.DA();
 
     double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
-    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians() - theta1;
+    double theta2 = -inputs.position.minus(Rotation2d.kPi).getRadians() - theta1;
 
     double k1 = groundLength / crankLength;
     double k4 = groundLength / couplerLength;
@@ -251,15 +251,15 @@ public class FourBarLinkage {
 
     double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
-    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
-    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
-    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
+    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, (theta2 + theta1), 0));
+    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, (theta3 + theta1), 0));
+    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, theta5, 0));
+    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, (Math.PI + theta1), 0));
 
-    Rotation2d crankAngle = Rotation2d.fromRadians(-(theta2 + theta1));
-    Rotation2d couplerAngle = Rotation2d.fromRadians(-(theta3 + theta1));
-    Rotation2d followerAngle = Rotation2d.fromRadians(-theta5);
-    Rotation2d groundAngle = Rotation2d.fromRadians(-(Math.PI + theta1));
+    Rotation2d crankAngle = Rotation2d.fromRadians((theta2 + theta1));
+    Rotation2d couplerAngle = Rotation2d.fromRadians((theta3 + theta1));
+    Rotation2d followerAngle = Rotation2d.fromRadians(theta5);
+    Rotation2d groundAngle = Rotation2d.fromRadians((Math.PI + theta1));
 
     LinkageState link1 = new LinkageState(crankPose, crankAngle);
     LinkageState link2 = new LinkageState(couplerPose, couplerAngle);
