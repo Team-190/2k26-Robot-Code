@@ -3,7 +3,9 @@ package frc.robot.subsystems.shared.turret;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import frc.robot.RobotConfig;
+import lombok.Builder;
 
+@Builder
 public class TurretConstants {
 
   public static final int TURRET_CAN_ID;

@@ -7,7 +7,9 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import frc.robot.RobotConfig;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
+import lombok.Builder;
 
+@Builder
 public class HoodConstants {
   public static final int MOTOR_CAN_ID;
   public static final boolean IS_CAN_FD;

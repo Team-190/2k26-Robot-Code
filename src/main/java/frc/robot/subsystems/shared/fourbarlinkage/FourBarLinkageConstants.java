@@ -7,7 +7,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
+import lombok.Builder;
 
+@Builder
 public class FourBarLinkageConstants {
 
   public final boolean IS_CAN_FD;
