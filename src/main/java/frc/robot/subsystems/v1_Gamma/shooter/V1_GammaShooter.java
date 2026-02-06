@@ -16,16 +16,12 @@ public class V1_GammaShooter extends SubsystemBase {
 
   private final GenericFlywheel flywheel;
 
-  public V1_GammaShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO, int hoodIndex) {
+  public V1_GammaShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
 
     flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
     hood =
         new Hood(
-            hoodIO,
-            this,
-            hoodIndex,
-            V1_GammaRobotState::getScoreAngle,
-            V1_GammaRobotState::getFeedAngle);
+            hoodIO, this, 1, V1_GammaRobotState::getScoreAngle, V1_GammaRobotState::getFeedAngle);
   }
 
   @Override
