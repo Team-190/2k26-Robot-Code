@@ -41,16 +41,18 @@ public class HoodConstants {
         MIN_ANGLE = Units.degreesToRadians(0.0);
         MAX_ANGLE = Units.degreesToRadians(90.0);
 
-        GAINS = new Gains(
-            new LoggedTunableNumber("Hood/KP", 0.0),
-            new LoggedTunableNumber("Hood/KD", 0.0),
-            new LoggedTunableNumber("Hood/KS", 0.0),
-            new LoggedTunableNumber("Hood/KV", 0.0),
-            new LoggedTunableNumber("Hood/KA", 0.0));
-        CONSTRAINTS = new Constraints(
-            new LoggedTunableNumber("Hood/Max Velocity", 120.0),
-            new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
-            new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
+        GAINS =
+            new Gains(
+                new LoggedTunableNumber("Hood/KP", 0.0),
+                new LoggedTunableNumber("Hood/KD", 0.0),
+                new LoggedTunableNumber("Hood/KS", 0.0),
+                new LoggedTunableNumber("Hood/KV", 0.0),
+                new LoggedTunableNumber("Hood/KA", 0.0));
+        CONSTRAINTS =
+            new Constraints(
+                new LoggedTunableNumber("Hood/Max Velocity", 120.0),
+                new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
+                new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
 
         break;
       default:
@@ -67,16 +69,18 @@ public class HoodConstants {
         MIN_ANGLE = Units.degreesToRadians(0.0);
         MAX_ANGLE = Units.degreesToRadians(90.0);
 
-        GAINS = new Gains(
-            new LoggedTunableNumber("Hood/KP", 0.0),
-            new LoggedTunableNumber("Hood/KD", 0.0),
-            new LoggedTunableNumber("Hood/KS", 0.0),
-            new LoggedTunableNumber("Hood/KV", 0.0),
-            new LoggedTunableNumber("Hood/KA", 0.0));
-        CONSTRAINTS = new Constraints(
-            new LoggedTunableNumber("Hood/Max Velocity", 120.0),
-            new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
-            new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
+        GAINS =
+            new Gains(
+                new LoggedTunableNumber("Hood/KP", 0.0),
+                new LoggedTunableNumber("Hood/KD", 0.0),
+                new LoggedTunableNumber("Hood/KS", 0.0),
+                new LoggedTunableNumber("Hood/KV", 0.0),
+                new LoggedTunableNumber("Hood/KA", 0.0));
+        CONSTRAINTS =
+            new Constraints(
+                new LoggedTunableNumber("Hood/Max Velocity", 120.0),
+                new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
+                new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
         break;
     }
   }
@@ -92,12 +96,10 @@ public class HoodConstants {
       LoggedTunableNumber kd,
       LoggedTunableNumber ks,
       LoggedTunableNumber kv,
-      LoggedTunableNumber ka) {
-  }
+      LoggedTunableNumber ka) {}
 
   public record Constraints(
       LoggedTunableNumber maxVelocityRadiansPerSecond,
       LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
-      LoggedTunableNumber goalToleranceRadians) {
-  }
+      LoggedTunableNumber goalToleranceRadians) {}
 }
