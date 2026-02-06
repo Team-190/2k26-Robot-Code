@@ -1,15 +1,12 @@
 package frc.robot.subsystems.v0_Funky;
 
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
@@ -17,8 +14,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.Gains;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.PIDControllerConstants;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
@@ -78,41 +73,6 @@ public class V0_FunkyConstants {
 
   public static final double SHOOTER_VOLTAGE = 12.0;
   public static final double FEEDER_VOLTAGE = 6.0;
-
-  public static final GenericRollerConstants FEED_CONSTANTS =
-      new GenericRollerConstants(
-          42,
-          40.0,
-          DCMotor.getKrakenX60Foc(1),
-          1.0,
-          MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters),
-          false);
-
-  public static final int SHOOTER_ID = 30;
-  public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
-  public static final GenericFlywheelConstants SHOOT_CONSTANTS =
-      new GenericFlywheelConstants(
-          SHOOTER_ID,
-          2,
-          false,
-          true,
-          60.0,
-          0.05,
-          new GenericFlywheelConstants.Gains(
-              new LoggedTunableNumber("Shooter/Kp"),
-              new LoggedTunableNumber("Shooter/Kd"),
-              new LoggedTunableNumber("Shooter/Ks"),
-              new LoggedTunableNumber("Shooter/Kv"),
-              new LoggedTunableNumber("Shooter/Ka")),
-          SHOOTER_MOTORS,
-          new int[] {}, // CW CAN_IDs
-          new int[] {31}, // CCW Can Ids
-          new GenericFlywheelConstants.Constraints(
-              new LoggedTunableNumber("Shooter/MaxAccel"),
-              new LoggedTunableNumber("Shooter/CruiseVel"),
-              new LoggedTunableNumber("Shooter/GoalTolerance")),
-          1.0,
-          InvertedValue.CounterClockwise_Positive);
 
   public static final SwerveDriveConstants DRIVE_CONSTANTS =
       new SwerveDriveConstants(

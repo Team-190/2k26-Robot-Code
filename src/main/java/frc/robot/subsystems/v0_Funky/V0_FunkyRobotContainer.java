@@ -103,8 +103,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
-          shooter =
-              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          shooter = new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOT_CONSTANTS));
           feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
