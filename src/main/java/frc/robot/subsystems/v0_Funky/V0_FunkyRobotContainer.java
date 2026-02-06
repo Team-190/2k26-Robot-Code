@@ -28,7 +28,9 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
+import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
+import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
 import frc.robot.util.XKeysInput;
 import java.util.List;
 
@@ -101,8 +103,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
-          shooter = new Shooter(new GenericFlywheelIOSim(V0_FunkyConstants.SHOOT_CONSTANTS));
-          feeder = new Feeder(new GenericRollerIOSim(V0_FunkyConstants.FEED_CONSTANTS));
+          shooter =
+              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -161,7 +164,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
 
     driver
-        .rightTrigger(0.05)
+        .rightTrigger(V0_FunkyConstants.TRIGGER_DEADBAND)
         .whileTrue(
             Commands.run(
                 () -> {
@@ -190,14 +193,14 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         .a5()
         .or(xkeys.a6())
         .or(xkeys.a7())
-        .whileTrue(Commands.run(() -> shooter.setVoltage(5)))
+        .whileTrue(Commands.run(() -> shooter.setVoltage(V0_FunkyConstants.SHOOTER_VOLTAGE)))
         .whileFalse(Commands.run(() -> shooter.setVoltage(0)));
 
     xkeys
         .c8()
         .or(xkeys.c9())
         .or(xkeys.c10())
-        .whileTrue(Commands.run(() -> feeder.setVoltage(-12.0)))
+        .whileTrue(Commands.run(() -> feeder.setVoltage(V0_FunkyConstants.FEEDER_VOLTAGE)))
         .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
   }
 

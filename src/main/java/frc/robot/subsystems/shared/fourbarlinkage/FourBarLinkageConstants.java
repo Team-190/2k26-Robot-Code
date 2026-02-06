@@ -25,7 +25,7 @@ public class FourBarLinkageConstants {
   public final double STATOR_CURRENT_LIMIT;
   public final double MOMENT_OF_INERTIA;
   public final DCMotor MOTOR_CONFIG;
-  public final double LENGTH_METERS;
+
   public final Rotation2d MIN_ANGLE;
   public final Rotation2d MAX_ANGLE;
 
@@ -55,7 +55,6 @@ public class FourBarLinkageConstants {
       double STATOR_CURRENT_LIMIT,
       double MOMENT_OF_INERTIA,
       DCMotor MOTOR_CONFIG,
-      double LENGTH_METERS,
       Rotation2d MIN_ANGLE,
       Rotation2d MAX_ANGLE,
       Gains GAINS,
@@ -79,7 +78,6 @@ public class FourBarLinkageConstants {
     this.STATOR_CURRENT_LIMIT = STATOR_CURRENT_LIMIT;
     this.MOMENT_OF_INERTIA = MOMENT_OF_INERTIA;
     this.MOTOR_CONFIG = MOTOR_CONFIG;
-    this.LENGTH_METERS = LENGTH_METERS;
     this.MIN_ANGLE = MIN_ANGLE;
     this.MAX_ANGLE = MAX_ANGLE;
     this.GAINS = GAINS;

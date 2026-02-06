@@ -74,6 +74,10 @@ public class V0_FunkyConstants {
   public static final double ODOMETRY_FREQUENCY = 250.0;
   public static final double DRIVER_DEADBAND = 0.1;
   public static final double OPERATOR_DEADBAND = 0.1;
+  public static final double TRIGGER_DEADBAND = 0.05;
+
+  public static final double SHOOTER_VOLTAGE = 12.0;
+  public static final double FEEDER_VOLTAGE = 6.0;
 
   public static final GenericRollerConstants FEED_CONSTANTS =
       new GenericRollerConstants(
@@ -84,7 +88,7 @@ public class V0_FunkyConstants {
           MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters),
           false);
 
-  public static final int SHOOTER_ID = 11;
+  public static final int SHOOTER_ID = 30;
   public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       new GenericFlywheelConstants(
@@ -102,7 +106,7 @@ public class V0_FunkyConstants {
               new LoggedTunableNumber("Shooter/Ka")),
           SHOOTER_MOTORS,
           new int[] {}, // CW CAN_IDs
-          new int[] {2}, // CCW Can Ids
+          new int[] {31}, // CCW Can Ids
           new GenericFlywheelConstants.Constraints(
               new LoggedTunableNumber("Shooter/MaxAccel"),
               new LoggedTunableNumber("Shooter/CruiseVel"),

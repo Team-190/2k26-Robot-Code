@@ -31,7 +31,7 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
                 LINKAGE_CONSTANTS.GEAR_RATIO),
             LINKAGE_CONSTANTS.MOTOR_CONFIG,
             LINKAGE_CONSTANTS.GEAR_RATIO,
-            LINKAGE_CONSTANTS.LENGTH_METERS,
+            LINKAGE_CONSTANTS.PIN_LENGTH,
             LINKAGE_CONSTANTS.MIN_ANGLE.getRadians(),
             LINKAGE_CONSTANTS.MAX_ANGLE.getRadians(),
             false,

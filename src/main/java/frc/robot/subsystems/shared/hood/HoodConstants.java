@@ -26,38 +26,9 @@ public class HoodConstants {
 
   static {
     switch (RobotConfig.ROBOT) {
-      case V0_FUNKY:
-      case V0_FUNKY_SIM:
-        MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
-        IS_CAN_FD = true;
-
-        DRIVE_CONFIG = V0_FunkyConstants.DRIVE_CONFIG;
-
-        GEAR_RATIO = 85.0;
-        CURRENT_LIMIT = 40.0;
-        MOMENT_OF_INERTIA = 0.004;
-        MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
-        LENGTH_METERS = 0.381;
-        MIN_ANGLE = Units.degreesToRadians(0.0);
-        MAX_ANGLE = Units.degreesToRadians(90.0);
-
-        GAINS =
-            new Gains(
-                new LoggedTunableNumber("Hood/KP", 0.0),
-                new LoggedTunableNumber("Hood/KD", 0.0),
-                new LoggedTunableNumber("Hood/KS", 0.0),
-                new LoggedTunableNumber("Hood/KV", 0.0),
-                new LoggedTunableNumber("Hood/KA", 0.0));
-        CONSTRAINTS =
-            new Constraints(
-                new LoggedTunableNumber("Hood/Max Velocity", 120.0),
-                new LoggedTunableNumber("Hood/Max Acceleration", 120.0),
-                new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
-        break;
-
       case V1_GAMMA:
       case V1_GAMMA_SIM:
-        MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
+        MOTOR_CAN_ID = 32; // TODO: IDEK what the correct ids are
         IS_CAN_FD = true;
 
         DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
@@ -85,10 +56,10 @@ public class HoodConstants {
 
         break;
       default:
-        MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
+        MOTOR_CAN_ID = 32; // TODO: IDEK what the correct ids are
         IS_CAN_FD = true;
 
-        DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
+        DRIVE_CONFIG = V0_FunkyConstants.DRIVE_CONFIG;
 
         GEAR_RATIO = 85.0;
         CURRENT_LIMIT = 40.0;
