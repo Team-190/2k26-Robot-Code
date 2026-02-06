@@ -32,35 +32,34 @@ public class V1_GammaSpindexerConstants {
 
   public static final int KICKER_CAN_ID = 41;
   public static final double KICKER_CURRENT_LIMIT = 30.0;
-  public static final DCMotor KICKER_GEARBOX = DCMotor.getKrakenX44(KICKER_CAN_ID);
+  public static final DCMotor KICKER_GEARBOX =
+      DCMotor.getKrakenX44Foc(1); // I hope we dont need 41 motors
   public static final double KICKER_GEAR_RATIO = 1.0;
   public static final MomentOfInertia KICKER_MOMENT_OF_INERTIA =
       Units.KilogramSquareMeters.of(0.0000559571);
-  public static final boolean KICKER_ON_CANIVORE = false;
 
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
-      new GenericRollerConstants(
-          KICKER_CAN_ID,
-          KICKER_CURRENT_LIMIT,
-          KICKER_GEARBOX,
-          KICKER_GEAR_RATIO,
-          KICKER_MOMENT_OF_INERTIA,
-          KICKER_ON_CANIVORE);
+      GenericRollerConstants.builder()
+          .ROLLER_CAN_ID(KICKER_CAN_ID)
+          .SUPPLY_CURRENT_LIMIT(KICKER_CURRENT_LIMIT)
+          .ROLLER_GEARBOX(KICKER_GEARBOX)
+          .ROLLER_MOTOR_GEAR_RATIO(KICKER_GEAR_RATIO)
+          .MOMENT_OF_INERTIA(KICKER_MOMENT_OF_INERTIA)
+          .build();
 
-  public final int FEEDER_CAN_ID = 42;
-  public final double FEEDER_SUPPLY_CURRENT_LIMIT = 30.0;
-  public final DCMotor FEEDER_GEARBOX = DCMotor.getKrakenX60Foc(1);
-  public final double FEEDER_MOTOR_GEAR_RATIO = 1;
-  public final MomentOfInertia FEEDER_MOMENT_OF_INERTIA =
+  public static final int FEEDER_CAN_ID = 42;
+  public static final double FEEDER_SUPPLY_CURRENT_LIMIT = 30.0;
+  public static final DCMotor FEEDER_GEARBOX = DCMotor.getKrakenX60Foc(1);
+  public static final double FEEDER_MOTOR_GEAR_RATIO = 1;
+  public static final MomentOfInertia FEEDER_MOMENT_OF_INERTIA =
       Units.KilogramSquareMeters.of(0.0001710116);
-  public final boolean FEEDER_ON_CANIVORE = false;
 
-  GenericRollerConstants feederConstants =
-      new GenericRollerConstants(
-          FEEDER_CAN_ID,
-          FEEDER_SUPPLY_CURRENT_LIMIT,
-          FEEDER_GEARBOX,
-          FEEDER_MOTOR_GEAR_RATIO,
-          FEEDER_MOMENT_OF_INERTIA,
-          FEEDER_ON_CANIVORE);
+  public static final GenericRollerConstants FEEDER_CONSTANTS =
+      GenericRollerConstants.builder()
+          .ROLLER_CAN_ID(FEEDER_CAN_ID)
+          .SUPPLY_CURRENT_LIMIT(FEEDER_SUPPLY_CURRENT_LIMIT)
+          .ROLLER_GEARBOX(FEEDER_GEARBOX)
+          .ROLLER_MOTOR_GEAR_RATIO(FEEDER_MOTOR_GEAR_RATIO)
+          .MOMENT_OF_INERTIA(FEEDER_MOMENT_OF_INERTIA)
+          .build();
 }

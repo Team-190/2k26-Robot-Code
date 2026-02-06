@@ -18,8 +18,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLe
 import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 
 public class V1_GammaIntakeConstants {
-  public static final int CAN_IDS_TOP = 20;
-  public static final boolean ON_CANIVORE_TOP = false;
+  public static final int CAN_ID_TOP = 20;
   public static final double CURRENT_LIMIT_TOP = 40.0;
   public static final MomentOfInertia MOMENT_OF_INERTIA_TOP = Units.KilogramSquareMeters.of(0.0004);
   public static final double GEAR_RATIO_TOP = 2.67; // might be 8/3
@@ -28,16 +27,15 @@ public class V1_GammaIntakeConstants {
   public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
-      new GenericRollerConstants(
-          CAN_IDS_TOP,
-          CURRENT_LIMIT_TOP,
-          GEARBOX_TOP,
-          GEAR_RATIO_TOP,
-          MOMENT_OF_INERTIA_TOP,
-          ON_CANIVORE_TOP);
+      GenericRollerConstants.builder()
+          .ROLLER_CAN_ID(CAN_ID_TOP)
+          .SUPPLY_CURRENT_LIMIT(CURRENT_LIMIT_TOP)
+          .ROLLER_GEARBOX(GEARBOX_TOP)
+          .ROLLER_MOTOR_GEAR_RATIO(GEAR_RATIO_TOP)
+          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA_TOP)
+          .build();
 
-  public static final int CAN_IDS_BOTTOM = 21;
-  public static final boolean ON_CANIVORE_BOTTOM = false;
+  public static final int CAN_ID_BOTTOM = 21;
   public static final double CURRENT_LIMIT_BOTTOM = 40.0;
   public static final MomentOfInertia MOMENT_OF_INERTIA_BOTTOM =
       Units.KilogramSquareMeters.of(0.0004);
@@ -45,13 +43,13 @@ public class V1_GammaIntakeConstants {
   public static final DCMotor GEARBOX_BOTTOM = DCMotor.getKrakenX60(1);
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
-      new GenericRollerConstants(
-          CAN_IDS_BOTTOM,
-          CURRENT_LIMIT_BOTTOM,
-          GEARBOX_BOTTOM,
-          GEAR_RATIO_BOTTOM,
-          MOMENT_OF_INERTIA_BOTTOM,
-          ON_CANIVORE_BOTTOM);
+      GenericRollerConstants.builder()
+          .ROLLER_CAN_ID(CAN_ID_BOTTOM)
+          .SUPPLY_CURRENT_LIMIT(CURRENT_LIMIT_BOTTOM)
+          .ROLLER_GEARBOX(GEARBOX_BOTTOM)
+          .ROLLER_MOTOR_GEAR_RATIO(GEAR_RATIO_BOTTOM)
+          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA_BOTTOM)
+          .build();
 
   public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
 
