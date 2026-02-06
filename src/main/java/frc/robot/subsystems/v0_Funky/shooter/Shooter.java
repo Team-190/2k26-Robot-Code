@@ -7,8 +7,8 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 public class Shooter extends SubsystemBase {
   private GenericFlywheel flywheel;
 
-  public Shooter(GenericFlywheelIO io, int index) {
-    flywheel = new GenericFlywheel(io, this, "Flywheel " + index);
+  public Shooter(GenericFlywheelIO io) {
+    flywheel = new GenericFlywheel(io, this, "Flywheel 1");
   }
 
   @Override

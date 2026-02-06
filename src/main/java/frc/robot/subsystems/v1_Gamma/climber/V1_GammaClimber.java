@@ -15,9 +15,9 @@ public class V1_GammaClimber extends SubsystemBase {
   @AutoLogOutput(key = "Climber/isClimbed")
   private boolean isClimbed;
 
-  public V1_GammaClimber(ArmIO io, int index) {
+  public V1_GammaClimber(ArmIO io) {
     state = V1_GammaClimberConstants.ClimberGoal.DEFAULT;
-    arm = new Arm(io, this, index);
+    arm = new Arm(io, this, 1);
     arm.setPositionGoal(state.getPosition());
   }
 

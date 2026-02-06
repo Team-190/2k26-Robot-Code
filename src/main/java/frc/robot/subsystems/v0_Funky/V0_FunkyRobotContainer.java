@@ -104,8 +104,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
           shooter =
-              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS), 1);
-          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS), 1);
+              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -130,11 +130,11 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     }
 
     if (shooter == null) {
-      shooter = new Shooter(new GenericFlywheelIO() {}, 1);
+      shooter = new Shooter(new GenericFlywheelIO() {});
     }
 
     if (feeder == null) {
-      feeder = new Feeder(new GenericRollerIO() {}, 1);
+      feeder = new Feeder(new GenericRollerIO() {});
     }
 
     if (vision == null) {
