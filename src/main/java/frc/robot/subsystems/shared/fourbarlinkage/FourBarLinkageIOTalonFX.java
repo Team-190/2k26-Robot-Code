@@ -41,11 +41,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
   public FourBarLinkageIOTalonFX(FourBarLinkageConstants constants) {
     this.constants = constants;
-    if (constants.IS_CAN_FD) {
-      talonFX = new TalonFX(constants.MOTOR_CAN_ID, constants.DRIVE_CONFIG.canBus());
-    } else {
-      talonFX = new TalonFX(constants.MOTOR_CAN_ID);
-    }
+    talonFX = new TalonFX(constants.MOTOR_CAN_ID, constants.CAN_LOOP);
 
     talonFXConfig = new TalonFXConfiguration();
 
@@ -111,7 +107,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     talonFX.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        constants.IS_CAN_FD,
+        constants.CAN_LOOP.isNetworkFD(),
         positionRotations,
         velocity,
         torqueCurrent,
@@ -139,6 +135,9 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     inputs.positionSetpoint =
         Rotation2d.fromRotations(positionSetpointRotations.getValueAsDouble());
     inputs.positionError = Rotation2d.fromRotations(positionErrorRotations.getValueAsDouble());
+
+    inputs.canCoderAbsolutePosition =
+        Rotation2d.fromRotations(absolutePositionRotations.getValueAsDouble());
   }
 
   @Override
