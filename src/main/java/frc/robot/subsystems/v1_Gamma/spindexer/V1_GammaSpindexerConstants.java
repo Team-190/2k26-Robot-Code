@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_Gamma.spindexer;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -16,7 +17,7 @@ public class V1_GammaSpindexerConstants {
   public static final DCMotor MOTOR_CONFIG;
   public static final InvertedValue SPINDEXER_INVERTED_VALUE;
   public static final ChassisReference SPINDEXER_ORIENTATION;
-  public static final boolean IS_CAN_FD;
+  public static final CANBus CAN_LOOP;
 
   static {
     MOTOR_CAN_ID = 40;
@@ -27,7 +28,7 @@ public class V1_GammaSpindexerConstants {
     MOMENT_OF_INERTIA = 0.0271553222;
     SPINDEXER_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
     SPINDEXER_ORIENTATION = ChassisReference.CounterClockwise_Positive;
-    IS_CAN_FD = false;
+    CAN_LOOP = new CANBus();
   }
 
   public static final int KICKER_CAN_ID = 41;

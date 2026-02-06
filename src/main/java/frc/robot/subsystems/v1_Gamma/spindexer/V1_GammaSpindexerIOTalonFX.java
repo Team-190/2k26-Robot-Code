@@ -19,18 +19,19 @@ public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
 
   protected final TalonFX spindexerMotor;
 
-  private StatusSignal<Angle> positionRotations;
-  private StatusSignal<AngularVelocity> velocity;
-  private StatusSignal<Current> supplyCurrent;
-  private StatusSignal<Current> torqueCurrent;
-  private StatusSignal<Voltage> appliedVolts;
-  private StatusSignal<Temperature> temperature;
+  private final StatusSignal<Angle> positionRotations;
+  private final StatusSignal<AngularVelocity> velocity;
+  private final StatusSignal<Current> supplyCurrent;
+  private final StatusSignal<Current> torqueCurrent;
+  private final StatusSignal<Voltage> appliedVolts;
+  private final StatusSignal<Temperature> temperature;
 
-  private TalonFXConfiguration config;
-  private VoltageOut voltageControlRequest;
+  private final TalonFXConfiguration config;
+  private final VoltageOut voltageControlRequest;
 
   public V1_GammaSpindexerIOTalonFX() {
-    spindexerMotor = new TalonFX(V1_GammaSpindexerConstants.MOTOR_CAN_ID);
+    spindexerMotor =
+        new TalonFX(V1_GammaSpindexerConstants.MOTOR_CAN_ID, V1_GammaSpindexerConstants.CAN_LOOP);
 
     config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = V1_GammaSpindexerConstants.SUPPLY_CURRENT_LIMIT;
@@ -61,7 +62,7 @@ public class V1_GammaSpindexerIOTalonFX implements V1_GammaSpindexerIO {
     spindexerMotor.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        V1_GammaSpindexerConstants.IS_CAN_FD,
+        V1_GammaSpindexerConstants.CAN_LOOP.isNetworkFD(),
         positionRotations,
         velocity,
         torqueCurrent,
