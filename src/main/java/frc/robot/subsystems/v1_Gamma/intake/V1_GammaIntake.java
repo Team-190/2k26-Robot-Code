@@ -31,11 +31,14 @@ public class V1_GammaIntake extends SubsystemBase {
     bottomRoller.periodic();
     linkage.periodic();
 
-    List<Pose3d> intakeGlobalPose =
-        linkage.getLinkagePoses().stream().map((LinkageState state) -> state.pose()).toList();
+    List<LinkageState> intakeGlobalPose = linkage.getLinkagePoses();
 
     for (int i = 0; i < intakeGlobalPose.size(); i++) {
-      Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i));
+      Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i).pose());
+    }
+
+    for (int i = 0; i < intakeGlobalPose.size(); i++) {
+      Logger.recordOutput("Intake/Linkage/Rotation " + i, intakeGlobalPose.get(i).rotation());
     }
 
     Pose3d hopperPosition = getHopperWallPose();

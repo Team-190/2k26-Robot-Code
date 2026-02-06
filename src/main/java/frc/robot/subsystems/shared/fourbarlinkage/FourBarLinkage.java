@@ -26,7 +26,7 @@ public class FourBarLinkage {
 
   private FourBarLinkageState currentState;
   private FourBarLinkageState.Output currentOutput;
-  private final FourBarLinkageConstants constants;
+  public final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
