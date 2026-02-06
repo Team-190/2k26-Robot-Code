@@ -32,7 +32,7 @@ public class V1_GammaIntake extends SubsystemBase {
     linkage.periodic();
 
     List<Pose3d> intakeGlobalPose =
-        linkage.getLinkagePoses().stream().map((LinkageState state) -> state.pose()).toList();
+        linkage.getLinkagePoses().stream().map(LinkageState::pose).toList();
 
     for (int i = 0; i < intakeGlobalPose.size(); i++) {
       Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i));
