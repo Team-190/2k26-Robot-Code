@@ -15,24 +15,22 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 public class HoodIOTalonFXSim extends HoodIOTalonFX {
   private final SingleJointedArmSim hoodSim;
 
-  private TalonFXSimState hoodController;
+  private final TalonFXSimState hoodController;
 
-  public HoodIOTalonFXSim() {
-    super();
+  public HoodIOTalonFXSim(HoodConstants constants) {
+    super(constants);
 
     hoodSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                HoodConstants.MOTOR_CONFIG,
-                HoodConstants.MOMENT_OF_INERTIA,
-                HoodConstants.GEAR_RATIO),
-            HoodConstants.MOTOR_CONFIG,
-            HoodConstants.GEAR_RATIO,
-            HoodConstants.LENGTH_METERS,
-            HoodConstants.MIN_ANGLE,
-            HoodConstants.MAX_ANGLE,
+                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
+            constants.MOTOR_CONFIG,
+            constants.GEAR_RATIO,
+            constants.LENGTH_METERS,
+            constants.MIN_ANGLE,
+            constants.MAX_ANGLE,
             true,
-            HoodConstants.MIN_ANGLE);
+            constants.MIN_ANGLE);
 
     hoodController = super.hoodMotor.getSimState();
   }
@@ -47,11 +45,10 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
 
     hoodSim.update(GompeiLib.getLoopPeriod());
 
-    Angle rotorPosition =
-        Angle.ofBaseUnits(hoodSim.getAngleRads() * HoodConstants.GEAR_RATIO, Radians);
+    Angle rotorPosition = Angle.ofBaseUnits(hoodSim.getAngleRads() * constants.GEAR_RATIO, Radians);
     AngularVelocity rotorVelocity =
         AngularVelocity.ofBaseUnits(
-            hoodSim.getVelocityRadPerSec() * HoodConstants.GEAR_RATIO, RadiansPerSecond);
+            hoodSim.getVelocityRadPerSec() * constants.GEAR_RATIO, RadiansPerSecond);
     hoodController.setRawRotorPosition(rotorPosition);
     hoodController.setRotorVelocity(rotorVelocity);
 

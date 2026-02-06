@@ -21,32 +21,30 @@ public class HoodIOSim implements HoodIO {
   private Rotation2d positionGoal = new Rotation2d();
   private double appliedVolts = 0.0;
 
-  public HoodIOSim() {
+  public HoodIOSim(HoodConstants constants) {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                HoodConstants.MOTOR_CONFIG,
-                HoodConstants.MOMENT_OF_INERTIA,
-                HoodConstants.GEAR_RATIO),
-            HoodConstants.MOTOR_CONFIG,
-            HoodConstants.GEAR_RATIO,
-            HoodConstants.LENGTH_METERS,
-            HoodConstants.MIN_ANGLE,
-            HoodConstants.MAX_ANGLE,
+                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
+            constants.MOTOR_CONFIG,
+            constants.GEAR_RATIO,
+            constants.LENGTH_METERS,
+            constants.MIN_ANGLE,
+            constants.MAX_ANGLE,
             true,
-            HoodConstants.MIN_ANGLE);
+            constants.MIN_ANGLE);
 
     feedback =
         new ProfiledPIDController(
-            HoodConstants.GAINS.kp().get(),
+            constants.GAINS.kp().get(),
             0.0,
-            HoodConstants.GAINS.kd().get(),
+            constants.GAINS.kd().get(),
             new TrapezoidProfile.Constraints(
-                HoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                HoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedback.setTolerance(HoodConstants.CONSTRAINTS.goalToleranceRadians().get());
+                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
+                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
+    feedback.setTolerance(constants.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
-        new SimpleMotorFeedforward(HoodConstants.GAINS.ks().get(), HoodConstants.GAINS.kv().get());
+        new SimpleMotorFeedforward(constants.GAINS.ks().get(), constants.GAINS.kv().get());
   }
 
   @Override
