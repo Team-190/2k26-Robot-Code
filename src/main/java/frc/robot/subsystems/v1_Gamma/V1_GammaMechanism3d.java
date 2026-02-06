@@ -19,16 +19,15 @@ public class V1_GammaMechanism3d {
   public static Pose3d[] getPoses(
       Rotation2d spindexerPosition, Rotation2d climberPosition, V1_GammaIntake intake) {
 
-    // Get all four-bar linkage poses with the crank mounted at intakeCrankTranslation
     List<LinkageState> linkageStates = intake.linkage.getLinkagePoses();
 
     Pose3d spindexerPose = new Pose3d(spindexerTranslation, new Rotation3d(spindexerPosition));
     Pose3d climberPose =
         new Pose3d(climberTranslation, new Rotation3d(climberPosition.getRadians(), 0.0, 0.0));
     Pose3d staticIntakePose = new Pose3d(staticIntakeTranslation, new Rotation3d());
-    Pose3d crankPose = linkageStates.get(0).pose();
-    Pose3d couplerPose = linkageStates.get(1).pose();
-    Pose3d followerPose = linkageStates.get(2).pose();
+    Pose3d crankPose = new Pose3d();
+    Pose3d couplerPose = new Pose3d();
+    Pose3d followerPose = new Pose3d();
 
     return new Pose3d[] {
       spindexerPose, climberPose, staticIntakePose, crankPose, couplerPose, followerPose
