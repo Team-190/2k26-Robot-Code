@@ -17,6 +17,8 @@ import java.util.Random;
 
 public class TurretIOSim implements TurretIO {
 
+  private final TurretConstants constants;
+
   private final ProfiledPIDController feedback;
   private final SimpleMotorFeedforward feedforward;
 
@@ -31,30 +33,28 @@ public class TurretIOSim implements TurretIO {
   private Angle encoderValue2;
   private Angle realAngle;
 
-  public TurretIOSim() {
+  public TurretIOSim(TurretConstants constants) {
+    this.constants = constants;
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                TurretConstants.MOTOR_CONFIG,
-                TurretConstants.MOMENT_OF_INERTIA,
-                TurretConstants.GEAR_RATIO),
-            TurretConstants.MOTOR_CONFIG);
+                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
+            constants.MOTOR_CONFIG);
 
     feedback =
         new ProfiledPIDController(
-            TurretConstants.GAINS.kP().get(),
+            constants.GAINS.kP().get(),
             0.0,
-            TurretConstants.GAINS.kD().get(),
+            constants.GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
-                TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get()));
-    feedback.setTolerance(TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
+                constants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
+                constants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get()));
+    feedback.setTolerance(constants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
 
     feedback.disableContinuousInput();
 
     feedforward =
-        new SimpleMotorFeedforward(
-            TurretConstants.GAINS.kS().get(), TurretConstants.GAINS.kV().get());
+        new SimpleMotorFeedforward(constants.GAINS.kS().get(), constants.GAINS.kV().get());
     realAngle = Radian.of(MathUtil.angleModulus((Timer.getFPGATimestamp() * 0.1)));
 
     encoderValue1 = Angle.ofBaseUnits(0, Radian);
@@ -72,16 +72,16 @@ public class TurretIOSim implements TurretIO {
     encoderValue1 =
         realAngle
             .times(
-                TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                    / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT())
+                constants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+                    / constants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT())
             .plus(
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));
     encoderValue2 =
         realAngle
             .times(
-                TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                    / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT())
+                constants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
+                    / constants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT())
             .plus(
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));
