@@ -97,7 +97,7 @@ public class V1_GammaIntakeConstants {
 
   public static final LinkLengths LINK_LENGTHS =
       new LinkLengths(
-          Units.Inches.of(6.950079).in(Units.Meters),
+          Units.Inches.of(6.943050).in(Units.Meters),
           Units.Inches.of(8.809879).in(Units.Meters),
           Units.Inches.of(8.284456).in(Units.Meters),
           Units.Inches.of(6.4213032).in(Units.Meters));
@@ -138,6 +138,5 @@ public class V1_GammaIntakeConstants {
           LINK_BOUNDS,
           LINK_CONST,
           PIN_LENGTH,
-          LINKAGE_OFFSET,
           LINKAGE_ENABLE_FOC);
 }

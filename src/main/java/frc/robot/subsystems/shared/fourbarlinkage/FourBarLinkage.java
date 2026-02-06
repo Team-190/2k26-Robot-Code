@@ -53,8 +53,7 @@ public class FourBarLinkage {
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
     this.constants = constants;
-    this.mechanism2d =
-        new LoggedMechanism2d(constants.LINKAGE_OFFSET.getX(), constants.LINKAGE_OFFSET.getZ());
+    this.mechanism2d = new LoggedMechanism2d(5, 5);
     aKitTopic = subsystem.getName() + "/Linkage" + index;
 
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
