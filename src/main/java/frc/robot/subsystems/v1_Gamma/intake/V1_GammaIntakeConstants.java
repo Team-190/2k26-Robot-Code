@@ -78,8 +78,8 @@ public class V1_GammaIntakeConstants {
   public static final boolean LINKAGE_ENABLE_FOC = false;
 
   public static final double PIN_LENGTH =
-      Units.Inches.of(6.092560)
-          .in(Units.Meters); // TODO: set to distance of pin from point of rotation.
+      Units.Inches.of(6.125)
+          .in(Units.Meters); 
 
   public static final Gains GAINS =
       new Gains(
