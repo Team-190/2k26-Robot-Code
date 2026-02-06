@@ -53,7 +53,7 @@ public class V1_GammaIntakeConstants {
           ON_CANIVORE_BOTTOM);
 
   public static final Translation3d LINKAGE_OFFSET =
-      new Translation3d(1, 1, 1); // TODO: Put in actual offset.
+      new Translation3d(0.381, 0.141, 0.276); 
 
   public static final boolean IS_CAN_FD = false;
   public static final int MOTOR_CAN_ID = 22; 
@@ -62,7 +62,7 @@ public class V1_GammaIntakeConstants {
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
       SensorDirectionValue.CounterClockwise_Positive; // TODO: set correct direction
   public static final int GEAR_RATIO = 1;
-  public static final int SUPPLY_CURRENT_LIMIT = 40; 
+  public static final int SUPPLY_CURRENT_LIMIT = 40;  
   public static final int STATOR_CURRENT_LIMIT = 40; 
 
   public static final double MOMENT_OF_INERTIA = 0.004;
