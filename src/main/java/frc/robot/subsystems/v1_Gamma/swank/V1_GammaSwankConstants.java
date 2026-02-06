@@ -1,7 +1,9 @@
 package frc.robot.subsystems.v1_Gamma.swank;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.system.plant.DCMotor;
+import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
 
 public class V1_GammaSwankConstants {
 
@@ -10,7 +12,7 @@ public class V1_GammaSwankConstants {
   public static final int MOTOR_CAN_ID = 9;
   public static final double SUPPLY_CURRENT_LIMIT = 40;
   public static final double STATOR_CURRENT_LIMIT = 40;
-  public static final boolean IS_CAN_FD = false;
+  public static final CANBus CAN_LOOP = V1_GammaConstants.DRIVE_CONFIG.canBus();
 
   public static final InvertedValue INVERSION = InvertedValue.CounterClockwise_Positive;
 
