@@ -35,15 +35,6 @@ public class V1_GammaClimberConstants {
   public static boolean ENABLE_FOC = false;
 
   public static final ArmParameters ARM_PARAMETERS =
-      //      new ArmParameters(
-      //          DCMotor.getKrakenX60(1),
-      //          new Rotation2d(Double.NEGATIVE_INFINITY),
-      //          new Rotation2d(Double.POSITIVE_INFINITY),
-      //          1,
-      //          165,
-      //          0.259,
-      //          0,
-      //          0);
       ArmParameters.builder()
           .MOTOR_CONFIG(DCMotor.getKrakenX60Foc(1))
           .MIN_ANGLE(new Rotation2d())

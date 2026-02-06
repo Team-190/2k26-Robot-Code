@@ -3,7 +3,6 @@ package frc.robot.subsystems.shared.turret;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
-import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 import lombok.Builder;
 
 @Builder
@@ -29,40 +28,8 @@ public class TurretConstants {
 
   @Builder.Default public final CANBus CAN_LOOP = new CANBus();
 
-  public static final TurretConstants V0_FUNKY_TURRET_CONSTANTS;
 
-  static {
-    V0_FUNKY_TURRET_CONSTANTS =
-        new TurretConstantsBuilder()
-            .MOTOR_CONFIG(DCMotor.getKrakenX60Foc(1))
-            .MOMENT_OF_INERTIA(0.004)
-            .TURRET_CAN_ID(1)
-            .CAN_LOOP(V0_FunkyConstants.DRIVE_CONFIG.canBus())
-            .LEFT_ENCODER_ID(2)
-            .RIGHT_ENCODER_ID(3)
-            .MAX_ANGLE(2 * Math.PI)
-            .MIN_ANGLE(-2 * Math.PI)
-            .GEAR_RATIO(5)
-            .SUPPLY_CURRENT_LIMIT(30)
-            .STATOR_CURRENT_LIMIT(30)
-            .E1_OFFSET_RADIANS(0)
-            .E2_OFFSET_RADIANS(0)
-            .GAINS(
-                new Gains(
-                    new edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber("Turret/kP", 0),
-                    new LoggedTunableNumber("Turret/kD", 0),
-                    new LoggedTunableNumber("Turret/kV", 0),
-                    new LoggedTunableNumber("Turret/kA", 0),
-                    new LoggedTunableNumber("Turret/kS", 0)))
-            .CONSTRAINTS(
-                new Constraints(
-                    new LoggedTunableNumber("Turret/Max Acceleration", 0),
-                    new LoggedTunableNumber("Turret/Cruising Velocity", 0),
-                    new LoggedTunableNumber("Turret/Goal Tolerance", 0)))
-            .TURRET_ANGLE_CALCULATION(new TurretAngleCalculation(70, 38, 36))
-            .build();
-  }
-
+  @Builder
   public record Gains(
       LoggedTunableNumber kP,
       LoggedTunableNumber kD,
@@ -70,6 +37,7 @@ public class TurretConstants {
       LoggedTunableNumber kA,
       LoggedTunableNumber kS) {}
 
+  @Builder
   public record Constraints(
       LoggedTunableNumber MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED,
       LoggedTunableNumber CRUISING_VELOCITY_RADIANS_PER_SECOND,
