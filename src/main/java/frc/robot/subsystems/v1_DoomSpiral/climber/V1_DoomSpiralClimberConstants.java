@@ -42,6 +42,7 @@ public class V1_DoomSpiralClimberConstants {
           .NUM_MOTORS(1)
           .GEAR_RATIO(165)
           .LENGTH_METERS(0.259)
+          .CONTINUOUS_INPUT(false)
           .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA_KG_M2)
           .build();
 

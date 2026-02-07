@@ -7,7 +7,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Constraints;
@@ -88,8 +87,6 @@ public class V1_DoomSpiralIntakeConstants {
           new LoggedTunableNumber("Linkage/Max Acceleration", 1.0),
           new LoggedTunableNumber(
               "Linkage/Goal Tolerance", Rotation2d.fromDegrees(1.0).getRadians()));
-
-  public static final DriveConfig DRIVE_CONFIG = V1_DoomSpiralConstants.DRIVE_CONFIG;
 
   public static final LinkLengths LINK_LENGTHS =
       new LinkLengths(

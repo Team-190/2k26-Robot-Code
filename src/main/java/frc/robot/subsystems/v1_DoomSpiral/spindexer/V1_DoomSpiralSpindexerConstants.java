@@ -55,7 +55,7 @@ public class V1_DoomSpiralSpindexerConstants {
   public static final MomentOfInertia FEEDER_MOMENT_OF_INERTIA =
       Units.KilogramSquareMeters.of(0.0001710116);
 
-  public static final GenericRollerConstants FEEDER_CONSTANTS =
+  public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
           .ROLLER_CAN_ID(FEEDER_CAN_ID)
           .SUPPLY_CURRENT_LIMIT(FEEDER_SUPPLY_CURRENT_LIMIT)

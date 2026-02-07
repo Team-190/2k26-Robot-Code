@@ -14,7 +14,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   private ClimberGoal state;
 
   @AutoLogOutput(key = "Climber/isClimbed")
-  private boolean isClimbed;
+  private boolean isClimbed; // TODO: Update this
 
   public V1_DoomSpiralClimber(ArmIO io) {
     state = ClimberGoal.DEFAULT;
@@ -44,10 +44,12 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command waitUntilPosition() {
-    return Commands.waitUntil(
-        () ->
-            Math.abs(arm.inputs.position.getRadians() - arm.inputs.positionGoal.getRadians())
-                < V1_DoomSpiralClimberConstants.CONSTRAINTS.positionToleranceRadians);
+    return Commands.waitUntil(this::atGoal);
+  }
+
+  public boolean atGoal() {
+    return Math.abs(arm.inputs.position.getRadians() - arm.inputs.positionGoal.getRadians())
+        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalToleranceRadians().get();
   }
 
   public Command stop() {
