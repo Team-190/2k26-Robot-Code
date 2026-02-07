@@ -41,40 +41,40 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
   public FourBarLinkageIOTalonFX(FourBarLinkageConstants constants) {
     this.constants = constants;
-    talonFX = new TalonFX(constants.MOTOR_CAN_ID, constants.CAN_LOOP);
+    talonFX = new TalonFX(constants.MOTOR_CAN_ID(), constants.CAN_LOOP);
 
     talonFXConfig = new TalonFXConfiguration();
 
-    talonFXConfig.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT;
+    talonFXConfig.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT();
     talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talonFXConfig.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT;
+    talonFXConfig.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT();
     talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonFXConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    talonFXConfig.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
-    talonFXConfig.Slot0.kP = constants.GAINS.kp().get();
-    talonFXConfig.Slot0.kD = constants.GAINS.kd().get();
-    talonFXConfig.Slot0.kS = constants.GAINS.ks().get();
-    talonFXConfig.Slot0.kV = constants.GAINS.kv().get();
-    talonFXConfig.Slot0.kA = constants.GAINS.ka().get();
+    talonFXConfig.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO();
+    talonFXConfig.Slot0.kP = constants.GAINS().kp().get();
+    talonFXConfig.Slot0.kD = constants.GAINS().kd().get();
+    talonFXConfig.Slot0.kS = constants.GAINS().ks().get();
+    talonFXConfig.Slot0.kV = constants.GAINS().kv().get();
+    talonFXConfig.Slot0.kA = constants.GAINS().ka().get();
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
-        constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
+        constants.CONSTRAINTS().maxVelocityRadiansPerSecond().get();
     talonFXConfig.MotionMagic.MotionMagicAcceleration =
-        constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
+        constants.CONSTRAINTS().maxAccelerationRadiansPerSecondSqaured().get();
     talonFXConfig
         .SoftwareLimitSwitch
-        .withForwardSoftLimitThreshold(constants.MAX_ANGLE.getRotations())
+        .withForwardSoftLimitThreshold(constants.MAX_ANGLE().getRotations())
         .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(constants.MIN_ANGLE.getRotations())
+        .withReverseSoftLimitThreshold(constants.MIN_ANGLE().getRotations())
         .withReverseSoftLimitEnable(true);
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
 
-    canCoder = new CANcoder(constants.CAN_CODER_CAN_ID);
+    canCoder = new CANcoder(constants.CAN_CODER_CAN_ID());
 
     canCoderConfig = new CANcoderConfiguration();
 
-    canCoderConfig.MagnetSensor.SensorDirection = constants.CANCODER_SENSOR_DIRECTION;
-    canCoderConfig.MagnetSensor.MagnetOffset = constants.ZERO_OFFSET.getRotations();
+    canCoderConfig.MagnetSensor.SensorDirection = constants.CANCODER_SENSOR_DIRECTION();
+    canCoderConfig.MagnetSensor.MagnetOffset = constants.ZERO_OFFSET().getRotations();
 
     PhoenixUtil.tryUntilOk(5, () -> canCoder.getConfigurator().apply(canCoderConfig, 0.25));
 
@@ -118,8 +118,8 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
         positionErrorRotations,
         absolutePositionRotations);
 
-    voltageControlRequest = new VoltageOut(0.0).withEnableFOC(constants.ENABLE_FOC);
-    positionControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(constants.ENABLE_FOC);
+    voltageControlRequest = new VoltageOut(0.0).withEnableFOC(constants.ENABLE_FOC());
+    positionControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(constants.ENABLE_FOC());
   }
 
   @Override
@@ -184,6 +184,6 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   @Override
   public boolean atGoal() {
     return Math.abs(Units.rotationsToRadians(positionErrorRotations.getValueAsDouble()))
-        <= constants.CONSTRAINTS.goalToleranceRadians().get();
+        <= constants.CONSTRAINTS().goalToleranceRadians().get();
   }
 }

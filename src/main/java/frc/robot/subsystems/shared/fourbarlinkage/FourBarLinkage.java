@@ -54,19 +54,19 @@ public class FourBarLinkage {
     this.io = io;
     this.constants = constants;
     this.mechanism2d =
-        new LoggedMechanism2d(constants.LINKAGE_OFFSET.getX(), constants.LINKAGE_OFFSET.getZ());
+        new LoggedMechanism2d(constants.LINKAGE_OFFSET().getX(), constants.LINKAGE_OFFSET().getZ());
     aKitTopic = subsystem.getName() + "/Linkage" + index;
 
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
 
     this.crank =
-        root2d.append(new LoggedMechanismLigament2d("Crank", constants.LINK_LENGTHS.AB(), 0));
+        root2d.append(new LoggedMechanismLigament2d("Crank", constants.LINK_LENGTHS().AB(), 0));
     this.coupler =
-        crank.append(new LoggedMechanismLigament2d("Coupler", constants.LINK_LENGTHS.BC(), 0));
+        crank.append(new LoggedMechanismLigament2d("Coupler", constants.LINK_LENGTHS().BC(), 0));
     this.follower =
-        coupler.append(new LoggedMechanismLigament2d("Follower", constants.LINK_LENGTHS.CD(), 0));
+        coupler.append(new LoggedMechanismLigament2d("Follower", constants.LINK_LENGTHS().CD(), 0));
     this.ground =
-        follower.append(new LoggedMechanismLigament2d("Ground", constants.LINK_LENGTHS.DA(), 0));
+        follower.append(new LoggedMechanismLigament2d("Ground", constants.LINK_LENGTHS().DA(), 0));
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -168,7 +168,7 @@ public class FourBarLinkage {
    */
   public boolean atGoal(Rotation2d position) {
     return Math.abs(inputs.position.minus(position).getRadians())
-        <= constants.CONSTRAINTS.goalToleranceRadians().get();
+        <= constants.CONSTRAINTS().goalToleranceRadians().get();
   }
 
   /**
@@ -211,13 +211,13 @@ public class FourBarLinkage {
    * @return List of LinkageStates representing the 3d poses and 2d rotations of each link.
    */
   public List<LinkageState> getLinkagePoses() {
-    double crankLength = constants.LINK_LENGTHS.AB();
-    double couplerLength = constants.LINK_LENGTHS.BC();
-    double followerLength = constants.LINK_LENGTHS.CD();
-    double groundLength = constants.LINK_LENGTHS.DA();
+    double crankLength = constants.LINK_LENGTHS().AB();
+    double couplerLength = constants.LINK_LENGTHS().BC();
+    double followerLength = constants.LINK_LENGTHS().CD();
+    double groundLength = constants.LINK_LENGTHS().DA();
 
-    double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
-    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians() - theta1;
+    double theta1 = constants.INTAKE_ANGLE_OFFSET().getRadians();
+    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET()).getRadians() - theta1;
 
     double k1 = groundLength / crankLength;
     double k4 = groundLength / couplerLength;
@@ -280,18 +280,18 @@ public class FourBarLinkage {
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
         characterizationRoutine
             .quasistatic(Direction.kForward)
-            .until(() -> atGoal(constants.MAX_ANGLE)),
+            .until(() -> atGoal(constants.MAX_ANGLE())),
         Commands.waitSeconds(3),
         characterizationRoutine
             .quasistatic(Direction.kReverse)
-            .until(() -> atGoal(constants.MIN_ANGLE)),
+            .until(() -> atGoal(constants.MIN_ANGLE())),
         Commands.waitSeconds(3),
         characterizationRoutine
             .dynamic(Direction.kForward)
-            .until(() -> atGoal(constants.MAX_ANGLE)),
+            .until(() -> atGoal(constants.MAX_ANGLE())),
         Commands.waitSeconds(3),
         characterizationRoutine
             .dynamic(Direction.kReverse)
-            .until(() -> atGoal(constants.MIN_ANGLE)));
+            .until(() -> atGoal(constants.MIN_ANGLE())));
   }
 }
