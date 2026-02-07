@@ -3,7 +3,6 @@ package frc.robot.subsystems.shared.fourbarlinkage;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
@@ -39,7 +38,6 @@ public class FourBarLinkageConstants {
   public final LinkConstants LINK_CONST;
 
   public final double PIN_LENGTH;
-  public final Translation3d LINKAGE_OFFSET;
 
   public final boolean ENABLE_FOC;
 
@@ -65,7 +63,6 @@ public class FourBarLinkageConstants {
       LinkBounds LINK_BOUNDS,
       LinkConstants LINK_CONST,
       double PIN_LENGTH,
-      Translation3d LINKAGE_OFFSET,
       boolean ENABLE_FOC) {
 
     this.IS_CAN_FD = IS_CAN_FD;
@@ -89,7 +86,6 @@ public class FourBarLinkageConstants {
     this.LINK_BOUNDS = LINK_BOUNDS;
     this.LINK_CONST = LINK_CONST;
     this.PIN_LENGTH = PIN_LENGTH;
-    this.LINKAGE_OFFSET = LINKAGE_OFFSET;
     this.ENABLE_FOC = ENABLE_FOC;
   }
 
