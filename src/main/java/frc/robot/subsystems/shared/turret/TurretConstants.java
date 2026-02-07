@@ -32,9 +32,9 @@ public class TurretConstants {
     switch (RobotConfig.ROBOT) {
       case V0_FUNKY:
         IS_CAN_FD = true;
-        TURRET_CAN_ID = 1;
-        LEFT_ENCODER_ID = 2;
-        RIGHT_ENCODER_ID = 3;
+        TURRET_CAN_ID = 2;
+        LEFT_ENCODER_ID = 15;
+        RIGHT_ENCODER_ID = 161;
         MAX_ANGLE = 2 * Math.PI; // Output angle in rads
         MIN_ANGLE = -2 * Math.PI;
         GEAR_RATIO = 5;

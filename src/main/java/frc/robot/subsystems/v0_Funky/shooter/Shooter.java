@@ -5,18 +5,19 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 
 public class Shooter extends SubsystemBase {
-  private GenericFlywheel flywheel;
+  // private GenericFlywheel flywheel;
+    private Turret turret;
 
   public Shooter(GenericFlywheelIO io) {
-    flywheel = new GenericFlywheel(io, this, "Flywheel 1");
+    //flywheel = new GenericFlywheel(io, this, "Flywheel 1");
   }
 
   @Override
   public void periodic() {
-    flywheel.periodic();
+    //flywheel.periodic();
   }
 
   public void setVoltage(double volts) {
-    flywheel.setVoltage(volts);
+    //flywheel.setVoltage(volts);
   }
 }
