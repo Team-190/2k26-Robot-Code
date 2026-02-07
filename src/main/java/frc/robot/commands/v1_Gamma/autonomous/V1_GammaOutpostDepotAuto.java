@@ -72,11 +72,11 @@ public class V1_GammaOutpostDepotAuto {
                 Commands.parallel(
                     OUTPOST_DEPOT.cmd(),
                     Commands.print("Deploying intake"), // TODO: IMPL
-                    intake.setVoltage(INTAKE_VOLTAGE),
+                    intake.setRollerVoltage(INTAKE_VOLTAGE),
                     shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
 
                 // Stop the intake
-                intake.setVoltage(0),
+                intake.setRollerVoltage(0),
 
                 // Start the spindexer
                 spindexer.setVoltage(SPINDEXER_VOLTAGE),

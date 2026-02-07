@@ -59,7 +59,7 @@ public class V1_GammaTrenchAutoLeft {
 
                 // Start the intake
 
-                intake.setVoltage(INTAKE_VOLTAGE),
+                intake.setRollerVoltage(INTAKE_VOLTAGE),
 
                 // Folow the path
 
@@ -68,7 +68,7 @@ public class V1_GammaTrenchAutoLeft {
                 // Stop the intake and align the shooter in parallel
 
                 Commands.parallel(
-                    intake.stop(),
+                    intake.stopRoller(),
                     shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
 
                 // Wait to reach the goal

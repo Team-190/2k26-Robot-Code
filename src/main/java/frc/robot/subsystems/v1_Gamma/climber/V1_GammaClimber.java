@@ -23,8 +23,11 @@ public class V1_GammaClimber extends SubsystemBase {
 
   @Override
   public void periodic() {
-    arm.setPositionGoal(state.getPosition());
     arm.periodic();
+  }
+
+  public Rotation2d getArmPosition() {
+    return arm.inputs.position;
   }
 
   public Command setVoltage(double voltage) {

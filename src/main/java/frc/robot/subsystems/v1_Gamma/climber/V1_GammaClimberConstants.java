@@ -15,7 +15,14 @@ public class V1_GammaClimberConstants {
   public static final int MOTOR_CAN_ID = 15;
   public static final ArmParameters ARM_PARAMETERS =
       new ArmParameters(
-          new DCMotor(0, 0, 0, 0, 0, 0), new Rotation2d(), new Rotation2d(), 1, 12, 3.0, 4.0, 5.0);
+          DCMotor.getKrakenX60Foc(1),
+          new Rotation2d(-Math.PI * 4),
+          new Rotation2d(Math.PI * 4),
+          1,
+          12,
+          3.0,
+          4.0,
+          5.0);
   public static final Gains SLOT_1_GAINS =
       new Gains(
           new LoggedTunableNumber("Ks", 0),
