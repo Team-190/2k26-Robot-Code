@@ -6,7 +6,7 @@ import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import frc.robot.RobotConfig;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
-import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 
 public class HoodConstants {
   public static final int MOTOR_CAN_ID;
@@ -55,12 +55,12 @@ public class HoodConstants {
                 new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
         break;
 
-      case V1_GAMMA:
-      case V1_GAMMA_SIM:
+      case V1_DoomSpiral:
+      case V1_DoomSpiral_SIM:
         MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
         IS_CAN_FD = true;
 
-        DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
+        DRIVE_CONFIG = V1_DoomSpiralConstants.DRIVE_CONFIG;
 
         GEAR_RATIO = 85.0;
         CURRENT_LIMIT = 40.0;
@@ -88,7 +88,7 @@ public class HoodConstants {
         MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
         IS_CAN_FD = true;
 
-        DRIVE_CONFIG = V1_GammaConstants.DRIVE_CONFIG;
+        DRIVE_CONFIG = V1_DoomSpiralConstants.DRIVE_CONFIG;
 
         GEAR_RATIO = 85.0;
         CURRENT_LIMIT = 40.0;
