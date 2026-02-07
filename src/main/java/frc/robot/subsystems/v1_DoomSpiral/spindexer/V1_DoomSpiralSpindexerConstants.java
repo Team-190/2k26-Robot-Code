@@ -1,5 +1,6 @@
-package frc.robot.subsystems.v1_Gamma.spindexer;
+package frc.robot.subsystems.v1_DoomSpiral.spindexer;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -7,7 +8,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 
-public class V1_GammaSpindexerConstants {
+public class V1_DoomSpiralSpindexerConstants {
   public static final int MOTOR_CAN_ID;
   public static final double GEAR_RATIO;
   public static final double STATOR_CURRENT_LIMIT;

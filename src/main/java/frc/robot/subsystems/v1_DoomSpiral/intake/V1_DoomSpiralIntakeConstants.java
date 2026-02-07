@@ -16,7 +16,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBo
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
 
-public class V1_GammaIntakeConstants {
+public class V1_DoomSpiralIntakeConstants {
   public static final int CAN_ID_TOP = 20;
   public static final double CURRENT_LIMIT_TOP = 40.0;
   public static final MomentOfInertia MOMENT_OF_INERTIA_TOP = Units.KilogramSquareMeters.of(0.0004);

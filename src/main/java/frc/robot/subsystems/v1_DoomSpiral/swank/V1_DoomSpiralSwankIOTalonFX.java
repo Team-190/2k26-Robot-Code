@@ -14,7 +14,6 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
-import frc.robot.subsystems.v1_DoomSpiral.swank.V1_DoomSpiralSwankConstants;
 
 public class V1_DoomSpiralSwankIOTalonFX implements V1_DoomSpiralSwankIO {
 
@@ -32,7 +31,8 @@ public class V1_DoomSpiralSwankIOTalonFX implements V1_DoomSpiralSwankIO {
   private final VoltageOut voltageControlRequest;
 
   public V1_DoomSpiralSwankIOTalonFX() {
-    motor = new TalonFX(V1_DoomSpiralSwankConstants.MOTOR_CAN_ID, V1_DoomSpiralSwankConstants.CAN_LOOP);
+    motor =
+        new TalonFX(V1_DoomSpiralSwankConstants.MOTOR_CAN_ID, V1_DoomSpiralSwankConstants.CAN_LOOP);
 
     config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = V1_DoomSpiralSwankConstants.SUPPLY_CURRENT_LIMIT;
@@ -62,7 +62,7 @@ public class V1_DoomSpiralSwankIOTalonFX implements V1_DoomSpiralSwankIO {
         temperatureCelsius);
 
     PhoenixUtil.registerSignals(
-            V1_DoomSpiralSwankConstants.CAN_LOOP.isNetworkFD(),
+        V1_DoomSpiralSwankConstants.CAN_LOOP.isNetworkFD(),
         positionRotations,
         velocityRotationsPerSecond,
         torqueCurrentAmps,

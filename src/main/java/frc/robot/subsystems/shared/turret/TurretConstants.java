@@ -28,7 +28,6 @@ public class TurretConstants {
 
   @Builder.Default public final CANBus CAN_LOOP = new CANBus();
 
-
   @Builder
   public record Gains(
       LoggedTunableNumber kP,

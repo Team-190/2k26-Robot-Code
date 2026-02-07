@@ -26,27 +26,27 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                constants.MOTOR_CONFIG(), constants.MOMENT_OF_INERTIA(), constants.GEAR_RATIO()),
-            constants.MOTOR_CONFIG(),
-            constants.GEAR_RATIO(),
-            constants.PIN_LENGTH(),
-            constants.MIN_ANGLE().getRadians(),
-            constants.MAX_ANGLE().getRadians(),
+                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
+            constants.MOTOR_CONFIG,
+            constants.GEAR_RATIO,
+            constants.PIN_LENGTH,
+            constants.MIN_ANGLE.getRadians(),
+            constants.MAX_ANGLE.getRadians(),
             false,
             0.0);
 
     feedback =
         new ProfiledPIDController(
-            constants.GAINS().kp().get(),
+            constants.GAINS.kp().get(),
             0.0,
-            constants.GAINS().kd().get(),
+            constants.GAINS.kd().get(),
             new TrapezoidProfile.Constraints(
-                constants.CONSTRAINTS().maxVelocityRadiansPerSecond().get(),
-                constants.CONSTRAINTS().maxAccelerationRadiansPerSecondSqaured().get()));
+                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
+                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
 
-    feedback.setTolerance(constants.CONSTRAINTS().goalToleranceRadians().get());
+    feedback.setTolerance(constants.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
-        new SimpleMotorFeedforward(constants.GAINS().ks().get(), constants.GAINS().kv().get());
+        new SimpleMotorFeedforward(constants.GAINS.ks().get(), constants.GAINS.kv().get());
   }
 
   public void updateInputs(FourBarLinkageIOInputs inputs) {

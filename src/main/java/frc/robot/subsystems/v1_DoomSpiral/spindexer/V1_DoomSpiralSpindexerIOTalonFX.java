@@ -61,7 +61,7 @@ public class V1_DoomSpiralSpindexerIOTalonFX implements V1_DoomSpiralSpindexerIO
     spindexerMotor.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-            V1_DoomSpiralSpindexerConstants.CAN_LOOP.isNetworkFD(),
+        V1_DoomSpiralSpindexerConstants.CAN_LOOP.isNetworkFD(),
         positionRotations,
         velocity,
         torqueCurrent,

@@ -8,11 +8,11 @@ import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.ArmParameters;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Constraints;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Gains;
-import frc.robot.subsystems.v1_Gamma.V1_GammaConstants;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-public class V1_GammaClimberConstants {
+public class V1_DoomSpiralClimberConstants {
   public static final int MOTOR_CAN_ID = 60;
   public static final Gains SLOT_0_GAINS =
       new Gains(
@@ -59,7 +59,7 @@ public class V1_GammaClimberConstants {
   public static final ArmConstants CLIMBER_CONSTANTS =
       ArmConstants.builder()
           .ARM_CAN_ID(MOTOR_CAN_ID)
-          .CAN_LOOP(V1_GammaConstants.DRIVE_CONFIG.canBus())
+          .CAN_LOOP(V1_DoomSpiralConstants.DRIVE_CONFIG.canBus())
           .ARM_PARAMETERS(ARM_PARAMETERS)
           .SLOT0_GAINS(SLOT_0_GAINS)
           .CONSTRAINTS(CONSTRAINTS)
