@@ -34,10 +34,10 @@ public class TurretConstants {
         IS_CAN_FD = true;
         TURRET_CAN_ID = 2;
         LEFT_ENCODER_ID = 15;
-        RIGHT_ENCODER_ID = 161;
+        RIGHT_ENCODER_ID = 16;
         MAX_ANGLE = 2 * Math.PI; // Output angle in rads
         MIN_ANGLE = -2 * Math.PI;
-        GEAR_RATIO = 5;
+        GEAR_RATIO = 20.0 / 120.0;
         SUPPLY_CURRENT_LIMIT = 30;
         STATOR_CURRENT_LIMIT = 30;
         E1_OFFSET_RADIANS = 0;
@@ -45,7 +45,7 @@ public class TurretConstants {
 
         GAINS =
             new Gains(
-                new edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber("Turret/kP", 0),
+                new LoggedTunableNumber("Turret/kP", 0),
                 new LoggedTunableNumber("Turret/kD", 0),
                 new LoggedTunableNumber("Turret/kV", 0),
                 new LoggedTunableNumber("Turret/kA", 0),
@@ -57,7 +57,7 @@ public class TurretConstants {
                 new LoggedTunableNumber("Turret/Cruising Velocity", 0),
                 new LoggedTunableNumber("Turret/Goal Tolerance", 0));
 
-        TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(70, 38, 36);
+        TURRET_ANGLE_CALCULATION = new TurretAngleCalculation(120, 17, 16);
         break;
       case V0_FUNKY_SIM:
         IS_CAN_FD = true;

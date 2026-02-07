@@ -5,7 +5,6 @@ import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 
 public class V1_DoomSpiralSpindexerConstants {
   public static final int MOTOR_CAN_ID;
@@ -37,14 +36,14 @@ public class V1_DoomSpiralSpindexerConstants {
   public static final MomentOfInertia KICKER_MOMENT_OF_INERTIA = Units.KilogramSquareMeters.of(10);
   public static final boolean KICKER_ON_CANIVORE = false;
 
-  public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
-      new GenericRollerConstants(
-          KICKER_CAN_ID,
-          KICKER_CURRENT_LIMIT,
-          KICKER_GEARBOX,
-          KICKER_GEAR_RATIO,
-          KICKER_MOMENT_OF_INERTIA,
-          KICKER_ON_CANIVORE);
+  //   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
+  //       new GenericRollerConstants(
+  //           KICKER_CAN_ID,
+  //           KICKER_CURRENT_LIMIT,
+  //           KICKER_GEARBOX,
+  //           KICKER_GEAR_RATIO,
+  //           KICKER_MOMENT_OF_INERTIA,
+  //           KICKER_ON_CANIVORE);
 
   public static final int FEEDER_CAN_ID = 41;
   public static final double FEEDER_SUPPLY_CURRENT_LIMIT = 30.0;
@@ -54,12 +53,12 @@ public class V1_DoomSpiralSpindexerConstants {
       Units.KilogramSquareMeters.of(0.004);
   public static final boolean FEEDER_ON_CANIVORE = false;
 
-  public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
-      new GenericRollerConstants(
-          FEEDER_CAN_ID,
-          FEEDER_SUPPLY_CURRENT_LIMIT,
-          FEEDER_GEARBOX,
-          FEEDER_MOTOR_GEAR_RATIO,
-          FEEDER_MOMENT_OF_INERTIA,
-          FEEDER_ON_CANIVORE);
+  //   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
+  //       new GenericRollerConstants(
+  //           FEEDER_CAN_ID,
+  //           FEEDER_SUPPLY_CURRENT_LIMIT,
+  //           FEEDER_GEARBOX,
+  //           FEEDER_MOTOR_GEAR_RATIO,
+  //           FEEDER_MOMENT_OF_INERTIA,
+  //           FEEDER_ON_CANIVORE);
 }

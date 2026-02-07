@@ -8,7 +8,6 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Constraints;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
@@ -26,14 +25,14 @@ public class V1_DoomSpiralIntakeConstants {
   public static final DCMotor GEARBOX_TOP = DCMotor.getKrakenX44Foc(1);
   public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
-  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
-      new GenericRollerConstants(
-          CAN_IDS_TOP,
-          CURRENT_LIMIT_TOP,
-          GEARBOX_TOP,
-          GEAR_RATIO_TOP,
-          MOMENT_OF_INERTIA_TOP,
-          ON_CANIVORE_TOP);
+  //   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
+  //       new GenericRollerConstants(
+  //           CAN_IDS_TOP,
+  //           CURRENT_LIMIT_TOP,
+  //           GEARBOX_TOP,
+  //           GEAR_RATIO_TOP,
+  //           MOMENT_OF_INERTIA_TOP,
+  //           ON_CANIVORE_TOP);
 
   public static final int CAN_IDS_BOTTOM = 17;
   public static final boolean ON_CANIVORE_BOTTOM = true;
@@ -43,14 +42,14 @@ public class V1_DoomSpiralIntakeConstants {
   public static final double GEAR_RATIO_BOTTOM = 1.0;
   public static final DCMotor GEARBOX_BOTTOM = DCMotor.getKrakenX44Foc(1);
 
-  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
-      new GenericRollerConstants(
-          CAN_IDS_BOTTOM,
-          CURRENT_LIMIT_BOTTOM,
-          GEARBOX_BOTTOM,
-          GEAR_RATIO_BOTTOM,
-          MOMENT_OF_INERTIA_BOTTOM,
-          ON_CANIVORE_BOTTOM);
+  //   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
+  //       new GenericRollerConstants(
+  //           CAN_IDS_BOTTOM,
+  //           CURRENT_LIMIT_BOTTOM,
+  //           GEARBOX_BOTTOM,
+  //           GEAR_RATIO_BOTTOM,
+  //           MOMENT_OF_INERTIA_BOTTOM,
+  //           ON_CANIVORE_BOTTOM);
 
   public static final Translation3d LINKAGE_OFFSET =
       new Translation3d(1, 1, 1); // TODO: Put in actual offset.

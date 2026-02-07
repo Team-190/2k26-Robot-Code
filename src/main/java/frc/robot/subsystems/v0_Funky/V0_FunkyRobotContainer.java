@@ -16,10 +16,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -27,6 +24,7 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
 import frc.robot.util.XKeysInput;
@@ -66,9 +64,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   V0_FunkyRobotState::getGlobalPose,
                   V0_FunkyRobotState::resetPose);
-          // shooter =
-          //     new Shooter(
-          //         new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          //   shooter =
+          //       new Shooter(
+          //           new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
           // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
@@ -101,8 +99,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
-          shooter = new Shooter(new GenericFlywheelIOSim(V0_FunkyConstants.SHOOT_CONSTANTS));
-          feeder = new Feeder(new GenericRollerIOSim(V0_FunkyConstants.FEED_CONSTANTS));
+          //   shooter = new Shooter(new GenericFlywheelIOSim(V0_FunkyConstants.SHOOT_CONSTANTS));
+          //   feeder = new Feeder(new GenericRollerIOSim(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
@@ -127,7 +125,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     }
 
     if (shooter == null) {
-      shooter = new Shooter(new GenericFlywheelIO() {});
+      shooter = new Shooter(new TurretIOTalonFX() {});
     }
 
     if (feeder == null) {
@@ -212,6 +210,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return shooter.setTurretVoltage(0.5);
   }
 }
