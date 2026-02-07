@@ -1,10 +1,13 @@
 package frc.robot.subsystems.v1_Gamma.swank;
 
+import static frc.robot.subsystems.v1_Gamma.swank.V1_GammaSwankState.*;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_Gamma.V1_GammaRobotState;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_GammaSwank extends SubsystemBase {
@@ -13,29 +16,54 @@ public class V1_GammaSwank extends SubsystemBase {
 
   private double voltageGoal;
 
+  @AutoLogOutput(key = "Swank/Current State")
+  private V1_GammaSwankState currentState;
+
   public V1_GammaSwank(V1_GammaSwankIO io) {
     this.io = io;
     this.inputs = new V1_GammaSwankIOInputsAutoLogged();
+
+    voltageGoal = 0;
+    currentState = IDLE;
+
+    setDefaultCommand(run(() -> currentState = OPEN_LOOP_AUTO_ENABLE));
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Swank", inputs);
-    io.setVoltage(voltageGoal);
 
-    if (checkBumpPosition() && checkBumpAngle()) {
-      io.setVoltage(getSwankVoltage());
+    switch (currentState) {
+      case OPEN_LOOP_VOLTAGE_CONTROL:
+        io.setVoltage(voltageGoal);
+        break;
+      case OPEN_LOOP_AUTO_ENABLE:
+        if (checkBumpPosition() && checkBumpAngle()) {
+          io.setVoltage(getSwankVoltage());
+        }
+        break;
+      case IDLE:
+        break;
     }
   }
 
   public Command setVoltage(double voltage) {
-    return runOnce(() -> voltageGoal = voltage);
+    return run(
+        () -> {
+          currentState = OPEN_LOOP_VOLTAGE_CONTROL;
+          voltageGoal = voltage;
+        });
   }
 
   public Command stop() {
-    return runOnce(() -> voltageGoal = 0);
+    return run(
+        () -> {
+          currentState = IDLE;
+          voltageGoal = 0;
+        });
   }
 
+  @AutoLogOutput(key = "Swank/BumpAngle")
   public boolean checkBumpAngle() {
 
     boolean frontCheck =
@@ -54,6 +82,7 @@ public class V1_GammaSwank extends SubsystemBase {
     return (frontCheck && backCheck);
   }
 
+  @AutoLogOutput(key = "Swank/BumpPosition")
   public boolean checkBumpPosition() {
     boolean withinLeftBumpStart =
         V1_GammaRobotState.getGlobalPose().getY() < FieldConstants.LinesHorizontal.leftBumpStart;
