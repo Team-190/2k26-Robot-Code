@@ -2,6 +2,7 @@ package frc.robot.subsystems.v1_Gamma.intake;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,9 +41,6 @@ public class V1_GammaIntake extends SubsystemBase {
     for (int i = 0; i < intakeGlobalPose.size(); i++) {
       Logger.recordOutput("Intake/Linkage/Rotation " + i, intakeGlobalPose.get(i).rotation());
     }
-
-    Pose3d hopperPosition = getHopperWallPose();
-    Logger.recordOutput("Intake/Linkage/HopperWallPose", hopperPosition);
   }
 
   public Command setRollerVoltage(double voltage) {
@@ -61,30 +59,42 @@ public class V1_GammaIntake extends SubsystemBase {
     return linkage.setPositionGoal(V1_GammaIntakeConstants.STOW_ANGLE);
   }
 
-  public Pose3d getHopperWallPose() {
+  public Transform3d getHopperWallTransform() {
+    // 1. Calculate Current Pose
+    final double currentY = linkage.getPosition().getSin() * V1_GammaIntakeConstants.PIN_LENGTH;
+    final double currentX0 = linkage.getPosition().getCos() * V1_GammaIntakeConstants.PIN_LENGTH;
+    final double currentXOff = calculateXOffset(currentY);
+    Pose3d currentPose = new Pose3d(-(currentX0 + currentXOff), 0, 0, new Rotation3d(0, 0, 0));
 
-    final double yPos = linkage.getPosition().getSin() * V1_GammaIntakeConstants.PIN_LENGTH;
-    final double x0 = linkage.getPosition().getCos() * V1_GammaIntakeConstants.PIN_LENGTH;
+    // 2. Calculate "Zero" Pose (at Y_MIN)
+    final double zeroY = V1_GammaIntakeConstants.LINK_BOUNDS.MIN();
+    final double zeroAngle = Math.asin(zeroY / V1_GammaIntakeConstants.PIN_LENGTH);
+    final double zeroX0 = Math.cos(zeroAngle) * V1_GammaIntakeConstants.PIN_LENGTH;
+    final double zeroXOff = calculateXOffset(zeroY);
+    Pose3d zeroPose = new Pose3d(-(zeroX0 + zeroXOff), 0, 0, new Rotation3d(0, 0, 0));
 
-    double xOff = 0;
+    // 3. Return the Transform (Zero -> Current)
+    return currentPose.minus(zeroPose);
+  }
 
-    final double Y_MIN = V1_GammaIntakeConstants.LINK_BOUNDS.MIN(); // 0.810921
-    final double Y_PHASE_1 = V1_GammaIntakeConstants.LINK_BOUNDS.PHASE_1(); // 2.86545
-    final double Y_PHASE_2 = V1_GammaIntakeConstants.LINK_BOUNDS.PHASE_2(); // 4.752162
-    final double Y_MAX = V1_GammaIntakeConstants.LINK_BOUNDS.MAX(); // 6.46545
+  /** Piecewise logic for the linkage offset */
+  private double calculateXOffset(double yPos) {
+    final double Y_MIN = V1_GammaIntakeConstants.LINK_BOUNDS.MIN();
+    final double Y_PHASE_1 = V1_GammaIntakeConstants.LINK_BOUNDS.PHASE_1();
+    final double Y_PHASE_2 = V1_GammaIntakeConstants.LINK_BOUNDS.PHASE_2();
+    final double Y_MAX = V1_GammaIntakeConstants.LINK_BOUNDS.MAX();
 
     final double RADIUS_1 = V1_GammaIntakeConstants.LINK_CONST.RADIUS_1();
     final double RADIUS_2 = V1_GammaIntakeConstants.LINK_CONST.RADIUS_2();
     final double CENTER_OFFSET = V1_GammaIntakeConstants.LINK_CONST.CENTER_OFFSET();
 
-    if (yPos <= Y_PHASE_1 && yPos > Y_MIN) {
-      xOff = Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
+    if (yPos <= Y_PHASE_1 && yPos >= Y_MIN) {
+      return Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
     } else if (yPos <= Y_PHASE_2 && yPos > Y_PHASE_1) {
-      xOff = 0;
+      return 0;
     } else if (yPos <= Y_MAX && yPos > Y_PHASE_2) {
-      xOff = Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
+      return Math.sqrt(Math.pow(RADIUS_2, 2) - Math.pow(yPos - Y_PHASE_2, 2)) - RADIUS_2;
     }
-
-    return new Pose3d(-(x0 + xOff), 0, 0, new Rotation3d(0, 0, 0));
+    return 0;
   }
 }
