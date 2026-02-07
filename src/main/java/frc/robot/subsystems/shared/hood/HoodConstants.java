@@ -55,8 +55,8 @@ public class HoodConstants {
                 new LoggedTunableNumber("Hood/Goal Tolerance", Units.degreesToRadians(1.0)));
         break;
 
-      case V1_DoomSpiral:
-      case V1_DoomSpiral_SIM:
+      case V1_DOOMSPIRAL:
+      case V1_DOOMSPIRAL_SIM:
         MOTOR_CAN_ID = 7; // TODO: IDEK what the correct ids are
         IS_CAN_FD = true;
 

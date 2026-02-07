@@ -127,7 +127,7 @@ public class Robot extends LoggedRobot {
     robotContainer =
         switch (RobotConfig.ROBOT) {
           case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
-          case V1_DoomSpiral, V1_DoomSpiral_SIM -> new V1_DoomSpiralRobotContainer();
+          case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
           default -> new RobotContainer() {};
         };
 

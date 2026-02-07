@@ -58,7 +58,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
-        case V1_DoomSpiral:
+        case V1_DOOMSPIRAL:
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
@@ -108,7 +108,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       List.of()));
           break;
 
-        case V1_DoomSpiral_SIM:
+        case V1_DOOMSPIRAL_SIM:
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
