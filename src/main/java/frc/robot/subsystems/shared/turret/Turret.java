@@ -59,7 +59,7 @@ public class Turret {
 
     this.constants = constants;
 
-    io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
+    // io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
   public void periodic() {
@@ -115,8 +115,9 @@ public class Turret {
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return (!(previousPosition.getDegrees() + angle.getDegrees() <= constants.maxAngle)
-        || !(previousPosition.getDegrees() + angle.getDegrees() >= constants.minAngle));
+    return (!(previousPosition.getDegrees() + angle.getDegrees() <= constants.maxAngle.getDegrees())
+        || !(previousPosition.getDegrees() + angle.getDegrees()
+            >= constants.minAngle.getDegrees()));
   }
 
   public Command setTurretVoltage(double volts) {
@@ -185,8 +186,8 @@ public class Turret {
   private Rotation2d clampShortest(Rotation2d target, Rotation2d current) {
     double targetRad = target.getRadians();
     double currentRad = current.getRadians();
-    double minRad = constants.minAngle;
-    double maxRad = constants.maxAngle;
+    double minRad = constants.minAngle.getRadians();
+    double maxRad = constants.maxAngle.getRadians();
 
     // Try both the direct target and the wrapped alternatives
     double[] candidates = {targetRad, targetRad + 2 * Math.PI, targetRad - 2 * Math.PI};
@@ -225,8 +226,8 @@ public class Turret {
    * Theorem.
    */
   public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    final int g1ToothCount = 16;
-    final int g2ToothCount = 17;
+    final int g1ToothCount = 17;
+    final int g2ToothCount = 16;
     final int g0ToothCount = 120;
 
     double e1Rotations = e1.in(Rotations) % 1;

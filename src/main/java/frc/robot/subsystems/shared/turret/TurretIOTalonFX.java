@@ -39,8 +39,8 @@ public class TurretIOTalonFX implements TurretIO {
   protected final TalonFX talonFX;
   private final TalonFXConfiguration config;
 
-  protected final CANcoder rightCANCoder;
-  protected final CANcoder leftCANCoder;
+  protected final CANcoder encoder2;
+  protected final CANcoder encoder1;
 
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
@@ -56,8 +56,8 @@ public class TurretIOTalonFX implements TurretIO {
 
     talonFX = new TalonFX(constants.turretCANID, constants.canBus);
 
-    leftCANCoder = new CANcoder(constants.leftEncoderID, talonFX.getNetwork());
-    rightCANCoder = new CANcoder(constants.rightEncoderID, talonFX.getNetwork());
+    encoder1 = new CANcoder(constants.encoder1ID, talonFX.getNetwork());
+    encoder2 = new CANcoder(constants.encoder2ID, talonFX.getNetwork());
 
     config = new TalonFXConfiguration();
     config.Feedback.SensorToMechanismRatio = constants.gearRatio;
@@ -76,8 +76,8 @@ public class TurretIOTalonFX implements TurretIO {
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle / (2 * Math.PI);
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle / (2 * Math.PI);
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle.getRotations();
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle.getRotations();
     config.MotionMagic.MotionMagicAcceleration =
         constants.constraints.maxAccelerationRadiansPerSecondSquared().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
@@ -88,9 +88,9 @@ public class TurretIOTalonFX implements TurretIO {
     leftCANcoderConfig
         .MagnetSensor
         .withAbsoluteSensorDiscontinuityPoint(1)
-        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+        .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
         .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
-    PhoenixUtil.tryUntilOk(5, () -> leftCANCoder.getConfigurator().apply(leftCANcoderConfig, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(leftCANcoderConfig, 0.25));
 
     var rightCANcoderConfig =
         leftCANcoderConfig
@@ -100,8 +100,7 @@ public class TurretIOTalonFX implements TurretIO {
                     .MagnetSensor
                     .clone()
                     .withMagnetOffset(Radians.of(constants.e2Offset.getRadians())));
-    PhoenixUtil.tryUntilOk(
-        5, () -> rightCANCoder.getConfigurator().apply(rightCANcoderConfig, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> encoder2.getConfigurator().apply(rightCANcoderConfig, 0.25));
 
     position = talonFX.getPosition();
     velocity = talonFX.getVelocity();
@@ -113,8 +112,8 @@ public class TurretIOTalonFX implements TurretIO {
     torqueCurrent = talonFX.getTorqueCurrent();
     appliedVolts = talonFX.getMotorVoltage();
 
-    e1 = leftCANCoder.getAbsolutePosition();
-    e2 = rightCANCoder.getAbsolutePosition();
+    e1 = encoder1.getAbsolutePosition();
+    e2 = encoder2.getAbsolutePosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
@@ -130,8 +129,8 @@ public class TurretIOTalonFX implements TurretIO {
         e1,
         e2);
     talonFX.optimizeBusUtilization();
-    leftCANCoder.optimizeBusUtilization();
-    rightCANCoder.optimizeBusUtilization();
+    encoder1.optimizeBusUtilization();
+    encoder2.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
         constants.canBus.isNetworkFD(),
@@ -163,7 +162,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public void setTurretGoal(Rotation2d goal) {
-    talonFX.setControl(positionControlRequest.withPosition(goal.getRadians()));
+    talonFX.setControl(positionControlRequest.withPosition(goal.getRotations()));
   }
 
   @Override

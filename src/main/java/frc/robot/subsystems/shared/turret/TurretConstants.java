@@ -11,10 +11,10 @@ import lombok.NonNull;
 public class TurretConstants {
 
   @NonNull public final Integer turretCANID;
-  @NonNull public final Integer leftEncoderID;
-  @NonNull public final Integer rightEncoderID;
-  @NonNull public final Double maxAngle;
-  @NonNull public final Double minAngle;
+  @NonNull public final Integer encoder1ID;
+  @NonNull public final Integer encoder2ID;
+  @NonNull public final Rotation2d maxAngle;
+  @NonNull public final Rotation2d minAngle;
   @NonNull public final Double gearRatio;
   @NonNull public final TurretGains gains;
   @NonNull public final TurretConstraints constraints;

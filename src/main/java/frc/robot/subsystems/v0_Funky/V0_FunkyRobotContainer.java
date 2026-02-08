@@ -223,11 +223,13 @@ public class V0_FunkyRobotContainer implements RobotContainer {
   @Override
   public Command getAutonomousCommand() {
     return Commands.sequence(
-            shooter.setTurretGoal(Rotation2d.fromRadians(Math.PI)),
+            shooter.setTurretGoal(Rotation2d.fromRadians((Math.PI))),
             Commands.waitSeconds(10),
             shooter.setTurretGoal(Rotation2d.fromRadians(0)),
             Commands.waitSeconds(10),
-            shooter.setTurretGoal(Rotation2d.fromRadians(Math.PI)))
+            shooter.setTurretGoal(Rotation2d.fromRadians((Math.PI))),
+            Commands.waitSeconds(10),
+            shooter.setTurretGoal(Rotation2d.fromRadians(0)))
         .repeatedly();
   }
 }
