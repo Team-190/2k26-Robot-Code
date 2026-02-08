@@ -3,7 +3,7 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "io.freefair.lombok" version "8.4"
-    id "com.diffplug.spotless" version "6.12.0"
+    id "com.diffplug.spotless" version "6.25.0"
     id "io.freefair.aspectj.post-compile-weaving" version "8.4"
 }
 
@@ -48,7 +48,6 @@ gradle.projectsEvaluated {
         }
 
         println "deploySrcDir set to: ${project.ext.deploySrcDir}"
-
     } catch (Throwable e) {
         println "Could not read RobotType: ${e.message}"
         project.ext.deploySrcDir = "src/main/deploy"
@@ -180,7 +179,6 @@ task checkRoboRIOtoRobotType {
 
             def constants = robotType.enumConstants
             println "Enum constants: ${constants.collect { it.name() }}"
-
         } catch (ClassNotFoundException e) {
             println "Error: Class ${robotTypeClassName} not found. ${e.message}"
         }
@@ -204,7 +202,6 @@ task checkRoboRIOtoRobotType {
             // Load the class from the extended classloader
             constantsClass = loader.loadClass(constantsClassName)
             println "Loaded class: ${constantsClass.name}"
-
         } catch (ClassNotFoundException e) {
             println "Error: Class ${constantsClassName} not found. ${e.message}"
         }
@@ -223,7 +220,6 @@ task checkRoboRIOtoRobotType {
         } else {
             throw new GradleException("Mismatch! The RoboRIO comment '${ROBORIO_COMMENT}' does not match the ROBOT value '${robotEnumValue.name()}'\nTo Fix: Match RoboRIO comment to ROBOT in file '${constantsClassName}'")
         }
-
     }
 }
 
@@ -343,7 +339,11 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE

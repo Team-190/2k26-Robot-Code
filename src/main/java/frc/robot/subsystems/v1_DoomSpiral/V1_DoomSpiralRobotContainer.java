@@ -65,16 +65,16 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS),
                   new SwerveModuleIOTalonFX(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
                   new SwerveModuleIOTalonFX(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
                   new SwerveModuleIOTalonFX(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.BACK_LEFT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
                   new SwerveModuleIOTalonFX(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
           climber =
@@ -115,16 +115,16 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new GyroIO() {},
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.BACK_LEFT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+                      V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   () -> Pose2d.kZero,
                   V1_DoomSpiralRobotState::resetPose);
           climber =

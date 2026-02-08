@@ -21,15 +21,15 @@ public class Hood {
   private final String aKitTopic;
   private final HoodIOInputsAutoLogged inputs;
 
-  private SysIdRoutine characterizationRoutine;
+  private final SysIdRoutine characterizationRoutine;
 
   private HoodState currentState;
 
   private HoodGoal positionGoal;
   private double voltageGoal;
 
-  private Supplier<Rotation2d> scoreRotationSupplier;
-  private Supplier<Rotation2d> feedRotationSupplier;
+  private final Supplier<Rotation2d> scoreRotationSupplier;
+  private final Supplier<Rotation2d> feedRotationSupplier;
 
   /**
    * Constructor for the Funky hood subsystem. Makes a routine that sets the voltage passed into the
@@ -65,6 +65,7 @@ public class Hood {
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
   }
+
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
   @Trace
   public void periodic() {
@@ -94,6 +95,7 @@ public class Hood {
         break;
     }
   }
+
   /**
    * Tells the hood what position it should be in.
    *
@@ -107,6 +109,7 @@ public class Hood {
           this.positionGoal = goal;
         });
   }
+
   /**
    * Sets the voltage being passed into the hood subsystem.
    *
@@ -130,6 +133,7 @@ public class Hood {
   public boolean atGoal() {
     return io.atGoal();
   }
+
   /**
    * Waits until hood at goal/in tolerance.
    *

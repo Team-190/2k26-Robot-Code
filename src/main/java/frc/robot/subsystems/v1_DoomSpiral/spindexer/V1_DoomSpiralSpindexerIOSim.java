@@ -18,10 +18,10 @@ public class V1_DoomSpiralSpindexerIOSim implements V1_DoomSpiralSpindexerIO {
     motorSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                V1_DoomSpiralSpindexerConstants.MOTOR_CONFIG,
-                V1_DoomSpiralSpindexerConstants.MOMENT_OF_INERTIA,
-                V1_DoomSpiralSpindexerConstants.GEAR_RATIO),
-            V1_DoomSpiralSpindexerConstants.MOTOR_CONFIG);
+                V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CONFIG,
+                V1_DoomSpiralSpindexerConstants.SPINDEXER_MOMENT_OF_INERTIA,
+                V1_DoomSpiralSpindexerConstants.SPINDEXER_GEAR_RATIO),
+            V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CONFIG);
 
     appliedVolts = 0.0;
   }

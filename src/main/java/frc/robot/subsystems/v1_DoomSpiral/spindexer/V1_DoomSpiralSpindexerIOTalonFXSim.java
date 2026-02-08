@@ -23,10 +23,10 @@ public class V1_DoomSpiralSpindexerIOTalonFXSim extends V1_DoomSpiralSpindexerIO
     spindexerSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                V1_DoomSpiralSpindexerConstants.MOTOR_CONFIG,
-                V1_DoomSpiralSpindexerConstants.MOMENT_OF_INERTIA,
-                V1_DoomSpiralSpindexerConstants.GEAR_RATIO),
-            V1_DoomSpiralSpindexerConstants.MOTOR_CONFIG);
+                V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CONFIG,
+                V1_DoomSpiralSpindexerConstants.SPINDEXER_MOMENT_OF_INERTIA,
+                V1_DoomSpiralSpindexerConstants.SPINDEXER_GEAR_RATIO),
+            V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CONFIG);
 
     spindexerController = super.spindexerMotor.getSimState();
   }

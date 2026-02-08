@@ -6,17 +6,18 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
+import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class V1_DoomSpiralClimber extends SubsystemBase {
-  private Arm arm;
-  private V1_DoomSpiralClimberConstants.ClimberGoal state;
+  private final Arm arm;
+  private ClimberGoal state;
 
   @AutoLogOutput(key = "Climber/isClimbed")
-  private boolean isClimbed;
+  private boolean isClimbed; // TODO: Update this
 
   public V1_DoomSpiralClimber(ArmIO io) {
-    state = V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT;
+    state = ClimberGoal.DEFAULT;
     arm = new Arm(io, this, 1);
     arm.setPositionGoal(state.getPosition());
   }
@@ -43,10 +44,12 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command waitUntilPosition() {
-    return Commands.waitUntil(
-        () ->
-            Math.abs(arm.inputs.position.getRadians() - arm.inputs.positionGoal.getRadians())
-                < V1_DoomSpiralClimberConstants.positionToleranceRadians);
+    return Commands.waitUntil(this::atGoal);
+  }
+
+  public boolean atGoal() {
+    return Math.abs(arm.inputs.position.getRadians() - arm.inputs.positionGoal.getRadians())
+        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalToleranceRadians().get();
   }
 
   public Command stop() {
@@ -55,18 +58,16 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
   public Command climbSequenceL3() {
     return Commands.sequence(
-        Commands.runOnce(() -> state = V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL),
+        Commands.runOnce(() -> state = ClimberGoal.L1_POSITION_GOAL),
         waitUntilPosition(),
-        Commands.runOnce(() -> state = V1_DoomSpiralClimberConstants.ClimberGoal.L2_FLIP_GOAL),
+        Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
         waitUntilPosition(),
-        Commands.runOnce(() -> state = V1_DoomSpiralClimberConstants.ClimberGoal.L2_POSITION_GOAL),
+        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
         waitUntilPosition());
   }
 
   public Command climbAutoSequence() {
     return Commands.sequence(
-        Commands.runOnce(
-            () -> state = V1_DoomSpiralClimberConstants.ClimberGoal.L1_AUTO_POSITION_GOAL),
-        waitUntilPosition());
+        Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());
   }
 }

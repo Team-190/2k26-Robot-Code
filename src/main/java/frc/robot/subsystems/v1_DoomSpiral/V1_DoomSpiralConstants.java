@@ -81,14 +81,15 @@ public class V1_DoomSpiralConstants {
   public static final double OPERATOR_DEADBAND = 0.1;
 
   public static final SwerveDriveConstants DRIVE_CONSTANTS =
-      new SwerveDriveConstants(
-          DRIVE_CONFIG,
-          GAINS,
-          AUTO_GAINS,
-          AUTO_ALIGN_NEAR_CONSTANTS,
-          ODOMETRY_FREQUENCY,
-          DRIVER_DEADBAND,
-          OPERATOR_DEADBAND);
+      SwerveDriveConstants.builder()
+          .withDriveConfig(DRIVE_CONFIG)
+          .withGains(GAINS)
+          .withAutoGains(AUTO_GAINS)
+          .withAutoAlignConstants(AUTO_ALIGN_NEAR_CONSTANTS)
+          .withOdometryFrequency(ODOMETRY_FREQUENCY)
+          .withDriverDeadband(DRIVER_DEADBAND)
+          .withOperatorDeadband(OPERATOR_DEADBAND)
+          .build();
 
   public static final LimelightConfig LIMELIGHT_CONFIG = // TODO: Put in actual values
       LimelightConfig.builder()

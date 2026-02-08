@@ -17,21 +17,22 @@ import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 
 public class V1_DoomSpiralSwankIOTalonFX implements V1_DoomSpiralSwankIO {
 
-  private StatusSignal<Angle> positionRotations;
-  private StatusSignal<AngularVelocity> velocityRotationsPerSecond;
-  private StatusSignal<Voltage> appliedVolts;
-  private StatusSignal<Current> supplyCurrentAmps;
-  private StatusSignal<Current> torqueCurrentAmps;
-  private StatusSignal<Temperature> temperatureCelsius;
+  private final StatusSignal<Angle> positionRotations;
+  private final StatusSignal<AngularVelocity> velocityRotationsPerSecond;
+  private final StatusSignal<Voltage> appliedVolts;
+  private final StatusSignal<Current> supplyCurrentAmps;
+  private final StatusSignal<Current> torqueCurrentAmps;
+  private final StatusSignal<Temperature> temperatureCelsius;
 
-  private TalonFXConfiguration config;
+  private final TalonFXConfiguration config;
 
   protected TalonFX motor;
 
   private final VoltageOut voltageControlRequest;
 
   public V1_DoomSpiralSwankIOTalonFX() {
-    motor = new TalonFX(V1_DoomSpiralSwankConstants.MOTOR_CAN_ID);
+    motor =
+        new TalonFX(V1_DoomSpiralSwankConstants.MOTOR_CAN_ID, V1_DoomSpiralSwankConstants.CAN_LOOP);
 
     config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit = V1_DoomSpiralSwankConstants.SUPPLY_CURRENT_LIMIT;
@@ -61,7 +62,7 @@ public class V1_DoomSpiralSwankIOTalonFX implements V1_DoomSpiralSwankIO {
         temperatureCelsius);
 
     PhoenixUtil.registerSignals(
-        V1_DoomSpiralSwankConstants.IS_CAN_FD,
+        V1_DoomSpiralSwankConstants.CAN_LOOP.isNetworkFD(),
         positionRotations,
         velocityRotationsPerSecond,
         torqueCurrentAmps,
