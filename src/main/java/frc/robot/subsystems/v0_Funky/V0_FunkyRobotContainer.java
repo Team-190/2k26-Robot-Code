@@ -4,6 +4,7 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -221,6 +222,12 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return Commands.sequence(
+            shooter.setTurretGoal(Rotation2d.fromRadians(Math.PI)),
+            Commands.waitSeconds(10),
+            shooter.setTurretGoal(Rotation2d.fromRadians(0)),
+            Commands.waitSeconds(10),
+            shooter.setTurretGoal(Rotation2d.fromRadians(Math.PI)))
+        .repeatedly();
   }
 }

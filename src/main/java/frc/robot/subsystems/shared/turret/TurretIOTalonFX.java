@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -74,6 +75,7 @@ public class TurretIOTalonFX implements TurretIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle / (2 * Math.PI);
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle / (2 * Math.PI);
     config.MotionMagic.MotionMagicAcceleration =
@@ -161,7 +163,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public void setTurretGoal(Rotation2d goal) {
-    talonFX.setControl(positionControlRequest.withPosition(goal.getRotations()));
+    talonFX.setControl(positionControlRequest.withPosition(goal.getRadians()));
   }
 
   @Override

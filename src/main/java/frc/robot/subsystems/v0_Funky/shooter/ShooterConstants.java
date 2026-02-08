@@ -48,27 +48,29 @@ public class ShooterConstants {
           .withCanBus(new CANBus())
           .withLeftEncoderID(15)
           .withRightEncoderID(16)
-          .withMaxAngle(2 * Math.PI)
-          .withMinAngle(-2 * Math.PI)
+          .withMaxAngle(4 * Math.PI)
+          .withMinAngle(0 * Math.PI)
           .withGearRatio(120.0 / 20)
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(Rotation2d.fromRotations(-0.14917))
-          .withE2Offset(Rotation2d.fromRotations(-0.393555))
+          .withE1Offset(Rotation2d.fromRotations(-0.922 - 0.183))
+          .withE2Offset(Rotation2d.fromRotations(-0.119 - 0.790))
           .withGains(
               TurretGains.builder()
-                  .withKP(new LoggedTunableNumber("Turret/Kp", 0))
-                  .withKD(new LoggedTunableNumber("Turret/Kd", 0))
-                  .withKS(new LoggedTunableNumber("Turret/Ks", 0))
-                  .withKV(new LoggedTunableNumber("Turret/Kv", 0))
-                  .withKA(new LoggedTunableNumber("Turret/Ka", 0))
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 0.52492))
+                  .withKD(new LoggedTunableNumber("Turret/Kd", 0.0))
+                  .withKS(new LoggedTunableNumber("Turret/Ks", 0.13804))
+                  .withKV(new LoggedTunableNumber("Turret/Kv", 0.11377))
+                  .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
                   .build())
           .withConstraints(
               TurretConstraints.builder()
                   .withCruisingVelocityRadiansPerSecond(
-                      new LoggedTunableNumber("Turret/CruisingVelocityRadiansPerSecond", 0))
+                      new LoggedTunableNumber(
+                          "Turret/CruisingVelocityRadiansPerSecond", 4 * Math.PI))
                   .withMaxAccelerationRadiansPerSecondSquared(
-                      new LoggedTunableNumber("Turret/MaxAccelerationRadiansPerSecondSquared", 0))
+                      new LoggedTunableNumber(
+                          "Turret/MaxAccelerationRadiansPerSecondSquared", 4 * Math.PI))
                   .withGoalToleranceRadians(
                       new LoggedTunableNumber("Turret/GoalToleranceRadians", 0))
                   .build())

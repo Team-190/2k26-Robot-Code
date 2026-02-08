@@ -46,9 +46,9 @@ public class Turret {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(0.25).per(Seconds),
+                Volts.of(2),
+                Seconds.of(5),
                 (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
             new SysIdRoutine.Mechanism(
                 (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
@@ -99,8 +99,7 @@ public class Turret {
     Logger.recordOutput(aKitTopic + "/State", state.name());
 
     switch (state) {
-      case CLOSED_LOOP_POSITION_CONTROL ->
-          io.setTurretGoal(clampShortest(state.getRotation(), inputs.turretAngle));
+      case CLOSED_LOOP_POSITION_CONTROL -> io.setTurretGoal((state.getRotation()));
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
       case CLOSED_LOOP_AUTO_AIM_CONTROL ->
           io.setTurretGoal(

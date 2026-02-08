@@ -41,4 +41,8 @@ public class Shooter extends SubsystemBase {
   public Command setTurretGoal(Rotation2d goal) {
     return turret.setTurretGoal(goal);
   }
+
+  public Command runTurretSysID() {
+    return turret.runSysId();
+  }
 }
