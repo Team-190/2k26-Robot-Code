@@ -30,14 +30,16 @@ public class V1_DoomSpiralSpindexerIOTalonFX implements V1_DoomSpiralSpindexerIO
   private final VoltageOut voltageControlRequest;
 
   public V1_DoomSpiralSpindexerIOTalonFX() {
-    spindexerMotor = new TalonFX(V1_DoomSpiralSpindexerConstants.MOTOR_CAN_ID);
+    spindexerMotor = new TalonFX(V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CAN_ID);
 
     config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = V1_DoomSpiralSpindexerConstants.SUPPLY_CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimit =
+        V1_DoomSpiralSpindexerConstants.SPINDEXER_SUPPLY_CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = V1_DoomSpiralSpindexerConstants.STATOR_CURRENT_LIMIT;
+    config.CurrentLimits.StatorCurrentLimit =
+        V1_DoomSpiralSpindexerConstants.SPINDEXER_STATOR_CURRENT_LIMIT;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.Feedback.SensorToMechanismRatio = V1_DoomSpiralSpindexerConstants.GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = V1_DoomSpiralSpindexerConstants.SPINDEXER_GEAR_RATIO;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = V1_DoomSpiralSpindexerConstants.SPINDEXER_INVERTED_VALUE;
 
@@ -61,7 +63,7 @@ public class V1_DoomSpiralSpindexerIOTalonFX implements V1_DoomSpiralSpindexerIO
     spindexerMotor.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        V1_DoomSpiralSpindexerConstants.CAN_LOOP.isNetworkFD(),
+        V1_DoomSpiralSpindexerConstants.SPINDEXER_CAN_BUS.isNetworkFD(),
         positionRotations,
         velocity,
         torqueCurrent,

@@ -12,21 +12,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public class V1_DoomSpiralClimberConstants {
-  public static final int MOTOR_CAN_ID = 60;
   public static final Gains SLOT_0_GAINS =
-      new Gains(
-          new LoggedTunableNumber("Climber/Slot0/kP", 0),
-          new LoggedTunableNumber("Climber/Slot0/kD", 0),
-          new LoggedTunableNumber("Climber/Slot0/kS", 0),
-          new LoggedTunableNumber("Climber/Slot0/kG", 0),
-          new LoggedTunableNumber("Climber/Slot0/kV", 0),
-          new LoggedTunableNumber("Climber/Slot0/kA", 0));
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 0))
+          .withKD(new LoggedTunableNumber("Climber/Slot0/kD", 0))
+          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0))
+          .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0))
+          .withKV(new LoggedTunableNumber("Climber/Slot0/kV", 0))
+          .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0))
+          .build();
 
   public static final Constraints CONSTRAINTS =
-      new Constraints(
-          new LoggedTunableNumber("Climber/MaxAccelerationRotationsPerSecondSquared", 6),
-          new LoggedTunableNumber("Climber/CruisingVelocityRotationsPerSecondSquared", 4),
-          new LoggedTunableNumber("Climber/GoalToleranceRadians", 0.05));
+      Constraints.builder()
+          .withMaxAccelerationRadiansPerSecondSquared(
+              new LoggedTunableNumber("Climber/MaxAccelerationRotationsPerSecondSquared", 6))
+          .withCruisingVelocityRadiansPerSecond(
+              new LoggedTunableNumber("Climber/CruisingVelocityRotationsPerSecondSquared", 4))
+          .withGoalToleranceRadians(new LoggedTunableNumber("Climber/GoalToleranceRadians", 0.05))
+          .build();
 
   public static final CurrentLimits CURRENT_LIMITS =
       CurrentLimits.builder()
@@ -35,19 +38,18 @@ public class V1_DoomSpiralClimberConstants {
           .withArmTorqueCurrentLimit(40.0)
           .build();
 
-  public static final double MOMENT_OF_INERTIA_KG_M2 = 0.0817231996;
   public static boolean ENABLE_FOC = false;
 
   public static final ArmParameters ARM_PARAMETERS =
       ArmParameters.builder()
           .withMotorConfig(DCMotor.getKrakenX60Foc(1))
-          .withMinAngle(new Rotation2d())
-          .withMaxAngle(new Rotation2d())
+          .withMinAngle(Rotation2d.fromRadians(-100 * Math.PI))
+          .withMaxAngle(Rotation2d.fromRadians(100 * Math.PI))
           .withNumMotors(1)
           .withGearRatio(165.0)
           .withLengthMeters(0.259)
           .withContinuousOutput(false)
-          .withMomentOfInertia(MOMENT_OF_INERTIA_KG_M2)
+          .withMomentOfInertia(0.0817231996)
           .build();
 
   @AllArgsConstructor
@@ -63,8 +65,7 @@ public class V1_DoomSpiralClimberConstants {
 
   public static final ArmConstants CLIMBER_CONSTANTS =
       ArmConstants.builder()
-          .withArmCANID(MOTOR_CAN_ID)
-          //   .with(V1_DoomSpiralConstants.DRIVE_CONFIG.canBus())
+          .withArmCANID(60)
           .withArmParameters(ARM_PARAMETERS)
           .withSlot0Gains(SLOT_0_GAINS)
           .withConstraints(CONSTRAINTS)

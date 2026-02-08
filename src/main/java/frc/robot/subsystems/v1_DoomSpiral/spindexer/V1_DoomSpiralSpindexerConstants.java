@@ -5,62 +5,48 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 
 public class V1_DoomSpiralSpindexerConstants {
-  public static final int MOTOR_CAN_ID;
-  public static final double GEAR_RATIO;
-  public static final double STATOR_CURRENT_LIMIT;
-  public static final double SUPPLY_CURRENT_LIMIT;
-  public static final double MOMENT_OF_INERTIA;
-  public static final DCMotor MOTOR_CONFIG;
+  public static final int SPINDEXER_MOTOR_CAN_ID;
+  public static final double SPINDEXER_GEAR_RATIO;
+  public static final double SPINDEXER_STATOR_CURRENT_LIMIT;
+  public static final double SPINDEXER_SUPPLY_CURRENT_LIMIT;
+  public static final double SPINDEXER_MOMENT_OF_INERTIA;
+  public static final DCMotor SPINDEXER_MOTOR_CONFIG;
   public static final InvertedValue SPINDEXER_INVERTED_VALUE;
   public static final ChassisReference SPINDEXER_ORIENTATION;
-  public static final CANBus CAN_LOOP;
+  public static final CANBus SPINDEXER_CAN_BUS;
 
   static {
-    MOTOR_CAN_ID = 40;
-    GEAR_RATIO = 0;
-    STATOR_CURRENT_LIMIT = 0;
-    SUPPLY_CURRENT_LIMIT = 0;
-    MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
-    MOMENT_OF_INERTIA = 0.0271553222;
+    SPINDEXER_MOTOR_CAN_ID = 40;
+    SPINDEXER_GEAR_RATIO = 1.0;
+    SPINDEXER_STATOR_CURRENT_LIMIT = 40.0;
+    SPINDEXER_SUPPLY_CURRENT_LIMIT = 40.0;
+    SPINDEXER_MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+    SPINDEXER_MOMENT_OF_INERTIA = 0.0271553222;
     SPINDEXER_INVERTED_VALUE = InvertedValue.Clockwise_Positive;
     SPINDEXER_ORIENTATION = ChassisReference.CounterClockwise_Positive;
-    CAN_LOOP = new CANBus();
+    SPINDEXER_CAN_BUS = CANBus.roboRIO();
   }
-
-  public static final int KICKER_CAN_ID = 41;
-  public static final double KICKER_CURRENT_LIMIT = 30.0;
-  public static final DCMotor KICKER_GEARBOX =
-      DCMotor.getKrakenX44Foc(1); // I hope we dont need 41 motors
-  public static final double KICKER_GEAR_RATIO = 1.0;
-  public static final MomentOfInertia KICKER_MOMENT_OF_INERTIA =
-      Units.KilogramSquareMeters.of(0.0000559571);
 
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(KICKER_CAN_ID)
-          .withSupplyCurrentLimit(KICKER_CURRENT_LIMIT)
-          .withRollerGearbox(KICKER_GEARBOX)
-          .withRollerMotorGearRatio(KICKER_GEAR_RATIO)
-          .withMomentOfInertia(KICKER_MOMENT_OF_INERTIA)
+          .withRollerCANID(41)
+          .withSupplyCurrentLimit(30.0)
+          .withRollerGearbox(DCMotor.getKrakenX44(1))
+          .withRollerMotorGearRatio(1.0)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0000559571))
+          .withCanBus(CANBus.roboRIO())
           .build();
-
-  public static final int FEEDER_CAN_ID = 42;
-  public static final double FEEDER_SUPPLY_CURRENT_LIMIT = 30.0;
-  public static final DCMotor FEEDER_GEARBOX = DCMotor.getKrakenX60Foc(1);
-  public static final double FEEDER_MOTOR_GEAR_RATIO = 1;
-  public static final MomentOfInertia FEEDER_MOMENT_OF_INERTIA =
-      Units.KilogramSquareMeters.of(0.0001710116);
 
   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(FEEDER_CAN_ID)
-          .withSupplyCurrentLimit(FEEDER_SUPPLY_CURRENT_LIMIT)
-          .withRollerGearbox(FEEDER_GEARBOX)
-          .withRollerMotorGearRatio(FEEDER_MOTOR_GEAR_RATIO)
-          .withMomentOfInertia(FEEDER_MOMENT_OF_INERTIA)
+          .withRollerCANID(42)
+          .withSupplyCurrentLimit(30.0)
+          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withRollerMotorGearRatio(1.0)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001710116))
+          .withCanBus(CANBus.roboRIO())
           .build();
 }

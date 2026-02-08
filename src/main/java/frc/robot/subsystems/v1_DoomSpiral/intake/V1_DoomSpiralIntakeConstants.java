@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -31,6 +32,7 @@ public class V1_DoomSpiralIntakeConstants {
           .withRollerGearbox(GEARBOX_TOP)
           .withRollerMotorGearRatio(GEAR_RATIO_TOP)
           .withMomentOfInertia(MOMENT_OF_INERTIA_TOP)
+          .withCanBus(CANBus.roboRIO())
           .build();
 
   public static final int CAN_ID_BOTTOM = 21;
@@ -47,6 +49,7 @@ public class V1_DoomSpiralIntakeConstants {
           .withRollerGearbox(GEARBOX_BOTTOM)
           .withRollerMotorGearRatio(GEAR_RATIO_BOTTOM)
           .withMomentOfInertia(MOMENT_OF_INERTIA_BOTTOM)
+          .withCanBus(CANBus.roboRIO())
           .build();
 
   public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
