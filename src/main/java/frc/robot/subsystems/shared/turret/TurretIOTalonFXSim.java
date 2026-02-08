@@ -23,8 +23,8 @@ public class TurretIOTalonFXSim extends TurretIOTalonFX {
     turretSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
-            constants.MOTOR_CONFIG);
+                constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
+            constants.motorConfig);
 
     turretController = super.talonFX.getSimState();
   }

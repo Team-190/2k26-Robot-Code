@@ -53,33 +53,33 @@ public class TurretIOTalonFX implements TurretIO {
   public TurretIOTalonFX(TurretConstants constants) {
     this.constants = constants;
 
-    talonFX = new TalonFX(constants.TURRET_CAN_ID, constants.CAN_LOOP);
+    talonFX = new TalonFX(constants.turretCANID, constants.canBus);
 
-    leftCANCoder = new CANcoder(constants.LEFT_ENCODER_ID, talonFX.getNetwork());
-    rightCANCoder = new CANcoder(constants.RIGHT_ENCODER_ID, talonFX.getNetwork());
+    leftCANCoder = new CANcoder(constants.leftEncoderID, talonFX.getNetwork());
+    rightCANCoder = new CANcoder(constants.rightEncoderID, talonFX.getNetwork());
 
     config = new TalonFXConfiguration();
-    config.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
+    config.Feedback.SensorToMechanismRatio = constants.gearRatio;
 
-    config.Slot0.kP = constants.GAINS.kP().get();
-    config.Slot0.kD = constants.GAINS.kD().get();
-    config.Slot0.kV = constants.GAINS.kV().get();
-    config.Slot0.kA = constants.GAINS.kA().get();
-    config.Slot0.kS = constants.GAINS.kS().get();
+    config.Slot0.kP = constants.gains.kP().get();
+    config.Slot0.kD = constants.gains.kD().get();
+    config.Slot0.kV = constants.gains.kV().get();
+    config.Slot0.kA = constants.gains.kA().get();
+    config.Slot0.kS = constants.gains.kS().get();
 
-    config.CurrentLimits.SupplyCurrentLimit = constants.SUPPLY_CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimit = constants.supplyCurrentLimit;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = constants.STATOR_CURRENT_LIMIT;
+    config.CurrentLimits.StatorCurrentLimit = constants.statorCurrentLimit;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.MAX_ANGLE / (2 * Math.PI);
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.MIN_ANGLE / (2 * Math.PI);
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle / (2 * Math.PI);
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle / (2 * Math.PI);
     config.MotionMagic.MotionMagicAcceleration =
-        constants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get();
+        constants.constraints.maxAccelerationRadiansPerSecondSquared().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        constants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get();
+        constants.constraints.cruisingVelocityRadiansPerSecond().get();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
     var leftCANcoderConfig = new CANcoderConfiguration();
@@ -87,7 +87,7 @@ public class TurretIOTalonFX implements TurretIO {
         .MagnetSensor
         .withAbsoluteSensorDiscontinuityPoint(1)
         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-        .withMagnetOffset(Radians.of(constants.E1_OFFSET_RADIANS));
+        .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
     PhoenixUtil.tryUntilOk(5, () -> leftCANCoder.getConfigurator().apply(leftCANcoderConfig, 0.25));
 
     var rightCANcoderConfig =
@@ -97,7 +97,7 @@ public class TurretIOTalonFX implements TurretIO {
                 leftCANcoderConfig
                     .MagnetSensor
                     .clone()
-                    .withMagnetOffset(Radians.of(constants.E2_OFFSET_RADIANS)));
+                    .withMagnetOffset(Radians.of(constants.e1Offset.getRadians())));
     PhoenixUtil.tryUntilOk(
         5, () -> rightCANCoder.getConfigurator().apply(rightCANcoderConfig, 0.25));
 
@@ -132,7 +132,7 @@ public class TurretIOTalonFX implements TurretIO {
     rightCANCoder.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        constants.CAN_LOOP.isNetworkFD(),
+        constants.canBus.isNetworkFD(),
         position,
         velocity,
         temperature,
@@ -185,7 +185,7 @@ public class TurretIOTalonFX implements TurretIO {
   public boolean atTurretPositionGoal() {
     double positionRotations = position.getValueAsDouble();
     return Math.abs(positionGoal.getValue() - positionRotations) * 2 * Math.PI
-        <= constants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get();
+        <= constants.constraints.goalToleranceRadians().get();
   }
 
   @Override

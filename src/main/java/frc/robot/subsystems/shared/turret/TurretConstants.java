@@ -1,56 +1,59 @@
 package frc.robot.subsystems.shared.turret;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import lombok.Builder;
+import lombok.NonNull;
 
-@Builder
+@Builder(setterPrefix = "with")
 public class TurretConstants {
 
-  public final int TURRET_CAN_ID;
-  public final int LEFT_ENCODER_ID;
-  public final int RIGHT_ENCODER_ID;
-  public final double MAX_ANGLE;
-  public final double MIN_ANGLE;
-  public final double GEAR_RATIO;
-  public final Gains GAINS;
-  public final Constraints CONSTRAINTS;
+  @NonNull public final Integer turretCANID;
+  @NonNull public final Integer leftEncoderID;
+  @NonNull public final Integer rightEncoderID;
+  @NonNull public final Double maxAngle;
+  @NonNull public final Double minAngle;
+  @NonNull public final Double gearRatio;
+  @NonNull public final TurretGains gains;
+  @NonNull public final TurretConstraints constraints;
 
-  public final double E1_OFFSET_RADIANS;
-  public final double E2_OFFSET_RADIANS;
+  @NonNull public final Rotation2d e1Offset;
+  @NonNull public final Rotation2d e2Offset;
 
-  public final double SUPPLY_CURRENT_LIMIT;
-  public final double STATOR_CURRENT_LIMIT;
-  public final DCMotor MOTOR_CONFIG;
-  public final double MOMENT_OF_INERTIA;
-  public final TurretAngleCalculation TURRET_ANGLE_CALCULATION;
+  @NonNull public final Double supplyCurrentLimit;
+  @NonNull public final Double statorCurrentLimit;
+  @NonNull public final DCMotor motorConfig;
+  @NonNull public final Double momentOfInertia;
+  @NonNull public final TurretAngleCalculation turretAngleCalculation;
 
-  @Builder.Default public final CANBus CAN_LOOP = new CANBus();
+  @NonNull public final CANBus canBus;
 
-  @Builder
-  public record Gains(
-      LoggedTunableNumber kP,
-      LoggedTunableNumber kD,
-      LoggedTunableNumber kV,
-      LoggedTunableNumber kA,
-      LoggedTunableNumber kS) {}
+  @Builder(setterPrefix = "with")
+  public record TurretGains(
+      @NonNull LoggedTunableNumber kP,
+      @NonNull LoggedTunableNumber kD,
+      @NonNull LoggedTunableNumber kV,
+      @NonNull LoggedTunableNumber kA,
+      @NonNull LoggedTunableNumber kS) {}
 
-  @Builder
-  public record Constraints(
-      LoggedTunableNumber MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED,
-      LoggedTunableNumber CRUISING_VELOCITY_RADIANS_PER_SECOND,
-      LoggedTunableNumber GOAL_TOLERANCE_RADIANS) {}
+  @Builder(setterPrefix = "with")
+  public record TurretConstraints(
+      @NonNull LoggedTunableNumber maxAccelerationRadiansPerSecondSquared,
+      @NonNull LoggedTunableNumber cruisingVelocityRadiansPerSecond,
+      @NonNull LoggedTunableNumber goalToleranceRadians) {}
 
+  @Builder(setterPrefix = "with")
   public record TurretAngleCalculation(
-      double GEAR_0_TOOTH_COUNT, double GEAR_1_TOOTH_COUNT, double GEAR_2_TOOTH_COUNT) {
+      Double gear0ToothCount, Double gear1ToothCount, Double gear2ToothCount) {
 
     public double GEAR_1_RATIO() {
-      return GEAR_0_TOOTH_COUNT / GEAR_1_TOOTH_COUNT;
+      return gear0ToothCount / gear1ToothCount;
     }
 
     public double GEAR_2_RATIO() {
-      return GEAR_0_TOOTH_COUNT / GEAR_2_TOOTH_COUNT;
+      return gear0ToothCount / gear2ToothCount;
     }
 
     /**

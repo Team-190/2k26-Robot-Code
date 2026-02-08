@@ -26,11 +26,11 @@ public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
-          .ROLLER_CAN_ID(CAN_ID_TOP)
-          .SUPPLY_CURRENT_LIMIT(CURRENT_LIMIT_TOP)
-          .ROLLER_GEARBOX(GEARBOX_TOP)
-          .ROLLER_MOTOR_GEAR_RATIO(GEAR_RATIO_TOP)
-          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA_TOP)
+          .withRollerCANID(CAN_ID_TOP)
+          .withSupplyCurrentLimit(CURRENT_LIMIT_TOP)
+          .withRollerGearbox(GEARBOX_TOP)
+          .withRollerMotorGearRatio(GEAR_RATIO_TOP)
+          .withMomentOfInertia(MOMENT_OF_INERTIA_TOP)
           .build();
 
   public static final int CAN_ID_BOTTOM = 21;
@@ -42,11 +42,11 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
       GenericRollerConstants.builder()
-          .ROLLER_CAN_ID(CAN_ID_BOTTOM)
-          .SUPPLY_CURRENT_LIMIT(CURRENT_LIMIT_BOTTOM)
-          .ROLLER_GEARBOX(GEARBOX_BOTTOM)
-          .ROLLER_MOTOR_GEAR_RATIO(GEAR_RATIO_BOTTOM)
-          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA_BOTTOM)
+          .withRollerCANID(CAN_ID_BOTTOM)
+          .withSupplyCurrentLimit(CURRENT_LIMIT_BOTTOM)
+          .withRollerGearbox(GEARBOX_BOTTOM)
+          .withRollerMotorGearRatio(GEAR_RATIO_BOTTOM)
+          .withMomentOfInertia(MOMENT_OF_INERTIA_BOTTOM)
           .build();
 
   public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);

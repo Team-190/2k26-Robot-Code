@@ -12,8 +12,8 @@ public enum FourBarLinkageState {
       case OPEN_LOOP_VOLTAGE_CONTROL, IDLE -> {
         return new Output.Voltage(volts);
       }
-      case CLOSED_LOOP_POSITION_CONTROL -> throw new IllegalStateException(
-          "Not voltage controlled");
+      case CLOSED_LOOP_POSITION_CONTROL ->
+          throw new IllegalStateException("Not voltage controlled");
     }
     throw new AssertionError();
   }

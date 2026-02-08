@@ -41,11 +41,11 @@ public class V1_DoomSpiralSpindexerConstants {
 
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .ROLLER_CAN_ID(KICKER_CAN_ID)
-          .SUPPLY_CURRENT_LIMIT(KICKER_CURRENT_LIMIT)
-          .ROLLER_GEARBOX(KICKER_GEARBOX)
-          .ROLLER_MOTOR_GEAR_RATIO(KICKER_GEAR_RATIO)
-          .MOMENT_OF_INERTIA(KICKER_MOMENT_OF_INERTIA)
+          .withRollerCANID(KICKER_CAN_ID)
+          .withSupplyCurrentLimit(KICKER_CURRENT_LIMIT)
+          .withRollerGearbox(KICKER_GEARBOX)
+          .withRollerMotorGearRatio(KICKER_GEAR_RATIO)
+          .withMomentOfInertia(KICKER_MOMENT_OF_INERTIA)
           .build();
 
   public static final int FEEDER_CAN_ID = 42;
@@ -57,10 +57,10 @@ public class V1_DoomSpiralSpindexerConstants {
 
   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .ROLLER_CAN_ID(FEEDER_CAN_ID)
-          .SUPPLY_CURRENT_LIMIT(FEEDER_SUPPLY_CURRENT_LIMIT)
-          .ROLLER_GEARBOX(FEEDER_GEARBOX)
-          .ROLLER_MOTOR_GEAR_RATIO(FEEDER_MOTOR_GEAR_RATIO)
-          .MOMENT_OF_INERTIA(FEEDER_MOMENT_OF_INERTIA)
+          .withRollerCANID(FEEDER_CAN_ID)
+          .withSupplyCurrentLimit(FEEDER_SUPPLY_CURRENT_LIMIT)
+          .withRollerGearbox(FEEDER_GEARBOX)
+          .withRollerMotorGearRatio(FEEDER_MOTOR_GEAR_RATIO)
+          .withMomentOfInertia(FEEDER_MOMENT_OF_INERTIA)
           .build();
 }

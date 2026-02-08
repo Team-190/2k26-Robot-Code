@@ -38,23 +38,23 @@ public class TurretIOSim implements TurretIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
-            constants.MOTOR_CONFIG);
+                constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
+            constants.motorConfig);
 
     feedback =
         new ProfiledPIDController(
-            constants.GAINS.kP().get(),
+            constants.gains.kP().get(),
             0.0,
-            constants.GAINS.kD().get(),
+            constants.gains.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
-                constants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get()));
-    feedback.setTolerance(constants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get());
+                constants.constraints.cruisingVelocityRadiansPerSecond().get(),
+                constants.constraints.maxAccelerationRadiansPerSecondSquared().get()));
+    feedback.setTolerance(constants.constraints.goalToleranceRadians().get());
 
     feedback.disableContinuousInput();
 
     feedforward =
-        new SimpleMotorFeedforward(constants.GAINS.kS().get(), constants.GAINS.kV().get());
+        new SimpleMotorFeedforward(constants.gains.kS().get(), constants.gains.kV().get());
     realAngle = Radian.of(MathUtil.angleModulus((Timer.getFPGATimestamp() * 0.1)));
 
     encoderValue1 = Angle.ofBaseUnits(0, Radian);
@@ -72,16 +72,16 @@ public class TurretIOSim implements TurretIO {
     encoderValue1 =
         realAngle
             .times(
-                constants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                    / constants.TURRET_ANGLE_CALCULATION.GEAR_1_TOOTH_COUNT())
+                constants.turretAngleCalculation.gear0ToothCount()
+                    / constants.turretAngleCalculation.gear1ToothCount())
             .plus(
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));
     encoderValue2 =
         realAngle
             .times(
-                constants.TURRET_ANGLE_CALCULATION.GEAR_0_TOOTH_COUNT()
-                    / constants.TURRET_ANGLE_CALCULATION.GEAR_2_TOOTH_COUNT())
+                constants.turretAngleCalculation.gear0ToothCount()
+                    / constants.turretAngleCalculation.gear2ToothCount())
             .plus(
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));

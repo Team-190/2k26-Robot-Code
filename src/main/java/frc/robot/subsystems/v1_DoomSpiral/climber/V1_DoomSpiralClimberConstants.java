@@ -8,7 +8,6 @@ import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.ArmParameters;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Constraints;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Gains;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -29,21 +28,26 @@ public class V1_DoomSpiralClimberConstants {
           new LoggedTunableNumber("Climber/CruisingVelocityRotationsPerSecondSquared", 4),
           new LoggedTunableNumber("Climber/GoalToleranceRadians", 0.05));
 
-  public static final CurrentLimits CURRENT_LIMITS = new CurrentLimits(40, 60, 0);
+  public static final CurrentLimits CURRENT_LIMITS =
+      CurrentLimits.builder()
+          .withArmSupplyCurrentLimit(40.0)
+          .withArmStatorCurrentLimit(60.0)
+          .withArmTorqueCurrentLimit(40.0)
+          .build();
 
   public static final double MOMENT_OF_INERTIA_KG_M2 = 0.0817231996;
   public static boolean ENABLE_FOC = false;
 
   public static final ArmParameters ARM_PARAMETERS =
       ArmParameters.builder()
-          .MOTOR_CONFIG(DCMotor.getKrakenX60Foc(1))
-          .MIN_ANGLE(new Rotation2d())
-          .MAX_ANGLE(new Rotation2d())
-          .NUM_MOTORS(1)
-          .GEAR_RATIO(165)
-          .LENGTH_METERS(0.259)
-          .CONTINUOUS_INPUT(false)
-          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA_KG_M2)
+          .withMotorConfig(DCMotor.getKrakenX60Foc(1))
+          .withMinAngle(new Rotation2d())
+          .withMaxAngle(new Rotation2d())
+          .withNumMotors(1)
+          .withGearRatio(165.0)
+          .withLengthMeters(0.259)
+          .withContinuousOutput(false)
+          .withMomentOfInertia(MOMENT_OF_INERTIA_KG_M2)
           .build();
 
   @AllArgsConstructor
@@ -59,12 +63,12 @@ public class V1_DoomSpiralClimberConstants {
 
   public static final ArmConstants CLIMBER_CONSTANTS =
       ArmConstants.builder()
-          .ARM_CAN_ID(MOTOR_CAN_ID)
-          .CAN_LOOP(V1_DoomSpiralConstants.DRIVE_CONFIG.canBus())
-          .ARM_PARAMETERS(ARM_PARAMETERS)
-          .SLOT0_GAINS(SLOT_0_GAINS)
-          .CONSTRAINTS(CONSTRAINTS)
-          .CURRENT_LIMITS(CURRENT_LIMITS)
-          .ENABLE_FOC(ENABLE_FOC)
+          .withArmCANID(MOTOR_CAN_ID)
+          //   .with(V1_DoomSpiralConstants.DRIVE_CONFIG.canBus())
+          .withArmParameters(ARM_PARAMETERS)
+          .withSlot0Gains(SLOT_0_GAINS)
+          .withConstraints(CONSTRAINTS)
+          .withCurrentLimits(CURRENT_LIMITS)
+          .withEnableFOC(ENABLE_FOC)
           .build();
 }

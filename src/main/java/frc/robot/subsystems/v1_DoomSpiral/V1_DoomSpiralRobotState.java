@@ -43,7 +43,7 @@ public class V1_DoomSpiralRobotState {
     localization =
         new Localization(
             List.of(globalZone),
-            V1_DoomSpiralConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(),
+            V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
             2);
 
     scoreAngle = new Rotation2d();

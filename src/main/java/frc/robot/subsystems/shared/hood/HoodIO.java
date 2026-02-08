@@ -46,6 +46,7 @@ public interface HoodIO {
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {}
+
   /** Checks if the hood is within tolerance */
   public default boolean atGoal() {
     return false;
