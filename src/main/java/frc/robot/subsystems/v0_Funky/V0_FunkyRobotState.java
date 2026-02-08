@@ -36,7 +36,7 @@ public class V0_FunkyRobotState {
 
     localization =
         new Localization(
-            List.of(globalZone), V0_FunkyConstants.DRIVE_CONSTANTS.DRIVE_CONFIG.kinematics(), 2);
+            List.of(globalZone), V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.kinematics(), 2);
     scoreAngle = Rotation2d.kZero;
     feedAngle = Rotation2d.kZero;
   }

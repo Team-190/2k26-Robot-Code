@@ -15,18 +15,16 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 public class TurretIOTalonFXSim extends TurretIOTalonFX {
   private final DCMotorSim turretSim;
 
-  private TalonFXSimState turretController;
+  private final TalonFXSimState turretController;
 
-  public TurretIOTalonFXSim() {
-    super();
+  public TurretIOTalonFXSim(TurretConstants constants) {
+    super(constants);
 
     turretSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                TurretConstants.MOTOR_CONFIG,
-                TurretConstants.MOMENT_OF_INERTIA,
-                TurretConstants.GEAR_RATIO),
-            TurretConstants.MOTOR_CONFIG);
+                constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
+            constants.motorConfig);
 
     turretController = super.talonFX.getSimState();
   }

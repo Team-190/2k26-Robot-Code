@@ -32,7 +32,14 @@ public class Turret {
 
   private final Supplier<Pose2d> robotPoseSupplier;
 
-  public Turret(TurretIO io, Subsystem subsystem, int index, Supplier<Pose2d> robotPoseSupplier) {
+  private final TurretConstants constants;
+
+  public Turret(
+      TurretIO io,
+      Subsystem subsystem,
+      int index,
+      Supplier<Pose2d> robotPoseSupplier,
+      TurretConstants constants) {
     this.io = io;
     inputs = new TurretIOInputsAutoLogged();
     previousPosition = inputs.turretAngle;
@@ -51,6 +58,8 @@ public class Turret {
 
     state = TurretState.IDLE;
 
+    this.constants = constants;
+
     io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
@@ -59,27 +68,27 @@ public class Turret {
         hashCode(),
         () ->
             io.updateGains(
-                TurretConstants.GAINS.kP().get(),
-                TurretConstants.GAINS.kD().get(),
-                TurretConstants.GAINS.kS().get(),
-                TurretConstants.GAINS.kV().get(),
-                TurretConstants.GAINS.kA().get()),
-        TurretConstants.GAINS.kP(),
-        TurretConstants.GAINS.kD(),
-        TurretConstants.GAINS.kS(),
-        TurretConstants.GAINS.kV(),
-        TurretConstants.GAINS.kA());
+                constants.gains.kP().get(),
+                constants.gains.kD().get(),
+                constants.gains.kS().get(),
+                constants.gains.kV().get(),
+                constants.gains.kA().get()),
+        constants.gains.kP(),
+        constants.gains.kD(),
+        constants.gains.kS(),
+        constants.gains.kV(),
+        constants.gains.kA());
 
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
             io.updateConstraints(
-                TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED().get(),
-                TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND().get(),
-                TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS().get()),
-        TurretConstants.CONSTRAINTS.MAX_ACCELERATION_RADIANS_PER_SECOND_SQUARED(),
-        TurretConstants.CONSTRAINTS.CRUISING_VELOCITY_RADIANS_PER_SECOND(),
-        TurretConstants.CONSTRAINTS.GOAL_TOLERANCE_RADIANS());
+                constants.constraints.maxAccelerationRadiansPerSecondSquared().get(),
+                constants.constraints.cruisingVelocityRadiansPerSecond().get(),
+                constants.constraints.goalToleranceRadians().get()),
+        constants.constraints.maxAccelerationRadiansPerSecondSquared(),
+        constants.constraints.cruisingVelocityRadiansPerSecond(),
+        constants.constraints.goalToleranceRadians());
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
@@ -88,24 +97,25 @@ public class Turret {
     Logger.recordOutput(aKitTopic + "/State", state.name());
 
     switch (state) {
-      case CLOSED_LOOP_POSITION_CONTROL -> io.setTurretGoal(
-          clampShortest(state.getRotation(), inputs.turretAngle));
+      case CLOSED_LOOP_POSITION_CONTROL ->
+          io.setTurretGoal(clampShortest(state.getRotation(), inputs.turretAngle));
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
-      case CLOSED_LOOP_AUTO_AIM_CONTROL -> io.setTurretGoal(
-          clampShortest(
-              state
-                  .getTranslation()
-                  .minus(robotPoseSupplier.get().getTranslation())
-                  .getAngle()
-                  .minus(robotPoseSupplier.get().getRotation()),
-              inputs.turretAngle));
+      case CLOSED_LOOP_AUTO_AIM_CONTROL ->
+          io.setTurretGoal(
+              clampShortest(
+                  state
+                      .getTranslation()
+                      .minus(robotPoseSupplier.get().getTranslation())
+                      .getAngle()
+                      .minus(robotPoseSupplier.get().getRotation()),
+                  inputs.turretAngle));
       default -> {}
     }
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return (!(previousPosition.getDegrees() + angle.getDegrees() <= TurretConstants.MAX_ANGLE)
-        || !(previousPosition.getDegrees() + angle.getDegrees() >= TurretConstants.MIN_ANGLE));
+    return (!(previousPosition.getDegrees() + angle.getDegrees() <= constants.maxAngle)
+        || !(previousPosition.getDegrees() + angle.getDegrees() >= constants.minAngle));
   }
 
   public Command setTurretVoltage(double volts) {
@@ -174,8 +184,8 @@ public class Turret {
   private Rotation2d clampShortest(Rotation2d target, Rotation2d current) {
     double targetRad = target.getRadians();
     double currentRad = current.getRadians();
-    double minRad = TurretConstants.MIN_ANGLE;
-    double maxRad = TurretConstants.MAX_ANGLE;
+    double minRad = constants.minAngle;
+    double maxRad = constants.maxAngle;
 
     // Try both the direct target and the wrapped alternatives
     double[] candidates = {targetRad, targetRad + 2 * Math.PI, targetRad - 2 * Math.PI};
@@ -221,15 +231,12 @@ public class Turret {
     double d_x12 = MathUtil.angleModulus(a1 - a2);
 
     // 5. Calculate Coarse Angle (The "Vernier" Estimate)
-    // dividing by 'TurretConstants.TURRET_ANGLE_CALCULATION.BEAT()' is mathematically
-    // identical to multiplying by SLOPE
-    double coarseAngle = d_x12 / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_RATIO_DIFFERENCE();
+    double coarseAngle = d_x12 / constants.turretAngleCalculation.GEAR_RATIO_DIFFERENCE();
 
     // 6. Refine using Encoder 1 (High Precision)
     // We use the coarse angle to find which rotation "k" Encoder 1 is on.
     // Expected = Coarse * n1
-    double expectedEnc1Total =
-        coarseAngle * TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
+    double expectedEnc1Total = coarseAngle * constants.turretAngleCalculation.GEAR_1_RATIO();
 
     // Find integer k to unwrap a1
     // k = round( (Expected - Actual) / 2pi )
@@ -237,7 +244,7 @@ public class Turret {
 
     // 7. Calculate Final Angle
     double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
-    double turretAngle = finalEnc1Total / TurretConstants.TURRET_ANGLE_CALCULATION.GEAR_1_RATIO();
+    double turretAngle = finalEnc1Total / constants.turretAngleCalculation.GEAR_1_RATIO();
 
     return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
   }

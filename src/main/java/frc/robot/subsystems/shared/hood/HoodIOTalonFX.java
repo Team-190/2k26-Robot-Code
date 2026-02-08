@@ -19,6 +19,8 @@ import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
 
+  protected final HoodConstants constants;
+
   private final StatusSignal<Angle> positionRotations;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Temperature> temperature;
@@ -33,31 +35,30 @@ public class HoodIOTalonFX implements HoodIO {
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
 
-  public HoodIOTalonFX() {
-    if (HoodConstants.IS_CAN_FD) {
-      hoodMotor = new TalonFX(HoodConstants.MOTOR_CAN_ID, HoodConstants.DRIVE_CONFIG.canBus());
-    } else {
-      hoodMotor = new TalonFX(HoodConstants.MOTOR_CAN_ID);
-    }
+  public HoodIOTalonFX(HoodConstants constants) {
+
+    this.constants = constants;
+
+    hoodMotor = new TalonFX(constants.MOTOR_CAN_ID, constants.CAN_LOOP);
 
     config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = HoodConstants.CURRENT_LIMIT;
+    config.CurrentLimits.SupplyCurrentLimit = constants.CURRENT_LIMIT;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.SensorToMechanismRatio = HoodConstants.GEAR_RATIO;
-    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = HoodConstants.MIN_ANGLE;
-    config.Slot0.kP = HoodConstants.GAINS.kp().get();
-    config.Slot0.kD = HoodConstants.GAINS.kd().get();
-    config.Slot0.kS = HoodConstants.GAINS.ks().get();
-    config.Slot0.kV = HoodConstants.GAINS.kv().get();
-    config.Slot0.kA = HoodConstants.GAINS.ka().get();
+    config.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
+    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = constants.MIN_ANGLE;
+    config.Slot0.kP = constants.GAINS.kp().get();
+    config.Slot0.kD = constants.GAINS.kd().get();
+    config.Slot0.kS = constants.GAINS.ks().get();
+    config.Slot0.kV = constants.GAINS.kv().get();
+    config.Slot0.kA = constants.GAINS.ka().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        HoodConstants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
+        constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
-        HoodConstants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(HoodConstants.MIN_ANGLE)
+        constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get();
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.MIN_ANGLE)
         .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(HoodConstants.MIN_ANGLE)
+        .withReverseSoftLimitThreshold(constants.MIN_ANGLE)
         .withReverseSoftLimitEnable(true);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
 
@@ -83,7 +84,7 @@ public class HoodIOTalonFX implements HoodIO {
     hoodMotor.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        HoodConstants.IS_CAN_FD,
+        constants.CAN_LOOP.isNetworkFD(),
         positionRotations,
         velocity,
         torqueCurrent,
@@ -153,6 +154,6 @@ public class HoodIOTalonFX implements HoodIO {
   @Override
   public boolean atGoal() {
     return Math.abs(positionGoal.getRotations() - positionRotations.getValueAsDouble())
-        <= HoodConstants.CONSTRAINTS.goalToleranceRadians().get();
+        <= constants.CONSTRAINTS.goalToleranceRadians().get();
   }
 }

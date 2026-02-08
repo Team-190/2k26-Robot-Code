@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 public interface ShotCalculator {
   static final double phaseDelay = 0.3; // TODO: Change this value based on testing
+
   /**
    * Calculates a corrected pose for a moving target based on the shooter's current velocity.
    *

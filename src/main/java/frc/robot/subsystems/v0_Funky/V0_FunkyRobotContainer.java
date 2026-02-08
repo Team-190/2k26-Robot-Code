@@ -56,16 +56,16 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
                   new SwerveModuleIOTalonFX(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
                   new SwerveModuleIOTalonFX(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
                   new SwerveModuleIOTalonFX(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_LEFT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
                   new SwerveModuleIOTalonFX(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V0_FunkyRobotState::getGlobalPose,
                   V0_FunkyRobotState::resetPose);
           // shooter =
@@ -91,20 +91,19 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   new GyroIO() {},
                   new SwerveModuleIOSim(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
                   new SwerveModuleIOSim(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
                   new SwerveModuleIOSim(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_LEFT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
                   new SwerveModuleIOSim(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
-          shooter =
-              new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+          shooter = new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOT_CONSTANTS));
           feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(

@@ -22,34 +22,31 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
 
   private double appliedVolts = 0.0;
 
-  public FourBarLinkageIOSim(FourBarLinkageConstants LINKAGE_CONSTANTS) {
+  public FourBarLinkageIOSim(FourBarLinkageConstants constants) {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                LINKAGE_CONSTANTS.MOTOR_CONFIG,
-                LINKAGE_CONSTANTS.MOMENT_OF_INERTIA,
-                LINKAGE_CONSTANTS.GEAR_RATIO),
-            LINKAGE_CONSTANTS.MOTOR_CONFIG,
-            LINKAGE_CONSTANTS.GEAR_RATIO,
-            LINKAGE_CONSTANTS.PIN_LENGTH,
-            LINKAGE_CONSTANTS.MIN_ANGLE.getRadians(),
-            LINKAGE_CONSTANTS.MAX_ANGLE.getRadians(),
+                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
+            constants.MOTOR_CONFIG,
+            constants.GEAR_RATIO,
+            constants.PIN_LENGTH,
+            constants.MIN_ANGLE.getRadians(),
+            constants.MAX_ANGLE.getRadians(),
             false,
             0.0);
 
     feedback =
         new ProfiledPIDController(
-            LINKAGE_CONSTANTS.GAINS.kp().get(),
+            constants.GAINS.kp().get(),
             0.0,
-            LINKAGE_CONSTANTS.GAINS.kd().get(),
+            constants.GAINS.kd().get(),
             new TrapezoidProfile.Constraints(
-                LINKAGE_CONSTANTS.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                LINKAGE_CONSTANTS.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
+                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
+                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
 
-    feedback.setTolerance(LINKAGE_CONSTANTS.CONSTRAINTS.goalToleranceRadians().get());
+    feedback.setTolerance(constants.CONSTRAINTS.goalToleranceRadians().get());
     feedforward =
-        new SimpleMotorFeedforward(
-            LINKAGE_CONSTANTS.GAINS.ks().get(), LINKAGE_CONSTANTS.GAINS.kv().get());
+        new SimpleMotorFeedforward(constants.GAINS.ks().get(), constants.GAINS.kv().get());
   }
 
   public void updateInputs(FourBarLinkageIOInputs inputs) {

@@ -163,7 +163,7 @@ public class FourBarLinkage {
   /**
    * Checks if the linkage is at the goal position.
    *
-   * @param state The state to check goal against.
+   * @param position The state to check goal against.
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
   public boolean atGoal(Rotation2d position) {
