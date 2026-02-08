@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v0_Funky.shooter;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -10,12 +11,11 @@ import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretConstraints;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretGains;
-import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 
 public class ShooterConstants {
   public static final int SHOOTER_ID = 30;
   public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
-  public static final GenericFlywheelConstants SHOOT_CONSTANTS =
+  public static final GenericFlywheelConstants SHOOTER_FLYWHEEL_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(SHOOTER_ID)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
@@ -44,17 +44,17 @@ public class ShooterConstants {
       TurretConstants.builder()
           .withMotorConfig(DCMotor.getKrakenX60Foc(1))
           .withMomentOfInertia(0.004)
-          .withTurretCANID(1)
-          .withCanBus(V0_FunkyConstants.DRIVE_CONFIG.canBus())
-          .withLeftEncoderID(2)
-          .withRightEncoderID(3)
+          .withTurretCANID(2)
+          .withCanBus(new CANBus())
+          .withLeftEncoderID(15)
+          .withRightEncoderID(16)
           .withMaxAngle(2 * Math.PI)
           .withMinAngle(-2 * Math.PI)
-          .withGearRatio(5.0)
+          .withGearRatio(120.0 / 20)
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(Rotation2d.kZero)
-          .withE2Offset(Rotation2d.kZero)
+          .withE1Offset(Rotation2d.fromRotations(-0.14917))
+          .withE2Offset(Rotation2d.fromRotations(-0.393555))
           .withGains(
               TurretGains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 0))
@@ -74,9 +74,9 @@ public class ShooterConstants {
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
-                  .withGear0ToothCount(70.0)
-                  .withGear1ToothCount(38.0)
-                  .withGear2ToothCount(36.0)
+                  .withGear0ToothCount(120)
+                  .withGear1ToothCount(16)
+                  .withGear2ToothCount(17)
                   .build())
           .build();
 }

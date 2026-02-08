@@ -1,13 +1,12 @@
 package frc.robot.subsystems.shared.turret;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -92,6 +91,9 @@ public class Turret {
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+    Logger.recordOutput(
+        aKitTopic + "CRT Angle",
+        calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
@@ -219,33 +221,35 @@ public class Turret {
                     : maxRad));
   }
 
-  /** Method that calculates turret angle based on encoder values. Can be non coprime or coprime! */
-  private Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    // 1. Get raw radians in [0, 2pi)
-    // We use 0 to 2pi to clarify the subtraction logic
-    double a1 = MathUtil.inputModulus(e1.in(Units.Radians), 0, 2 * Math.PI);
-    double a2 = MathUtil.inputModulus(e2.in(Units.Radians), 0, 2 * Math.PI);
+  /**
+   * Method that calculates turret angle based on encoder values. Uses the Chinese Remainder
+   * Theorem.
+   */
+  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+    final int g1ToothCount = 16;
+    final int g2ToothCount = 17;
+    final int g0ToothCount = 120;
 
-    // 4. Calculate the Phase Difference
-    // We wrap this difference to [-pi, pi) to handle the 0/360 crossover point gracefully.
-    double d_x12 = MathUtil.angleModulus(a1 - a2);
+    double e1Rotations = e1.in(Rotations) % 1;
+    if (e1Rotations < 0) {
+      e1Rotations += g1ToothCount;
+    }
+    double e2Rotations = e2.in(Rotations) % 1;
+    if (e2Rotations < 0) {
+      e2Rotations += g2ToothCount;
+    }
 
-    // 5. Calculate Coarse Angle (The "Vernier" Estimate)
-    double coarseAngle = d_x12 / constants.turretAngleCalculation.GEAR_RATIO_DIFFERENCE();
+    int e1ToothRotations = (int) Math.floor(e1Rotations * g1ToothCount + 1e-9);
+    int e2ToothRotations = (int) Math.floor(e2Rotations * g2ToothCount + 1e-9);
 
-    // 6. Refine using Encoder 1 (High Precision)
-    // We use the coarse angle to find which rotation "k" Encoder 1 is on.
-    // Expected = Coarse * n1
-    double expectedEnc1Total = coarseAngle * constants.turretAngleCalculation.GEAR_1_RATIO();
+    int k = ((e2ToothRotations - e1ToothRotations) * g1ToothCount) % g2ToothCount;
+    if (k < 0) {
+      k += g2ToothCount;
+    }
 
-    // Find integer k to unwrap a1
-    // k = round( (Expected - Actual) / 2pi )
-    double k = Math.round((expectedEnc1Total - a1) / (2.0 * Math.PI));
+    int turretToothRotations =
+        e1ToothRotations + (k * g1ToothCount) % (g1ToothCount * g2ToothCount);
 
-    // 7. Calculate Final Angle
-    double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
-    double turretAngle = finalEnc1Total / constants.turretAngleCalculation.GEAR_1_RATIO();
-
-    return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
+    return Rotation2d.fromRotations((double) turretToothRotations / g0ToothCount);
   }
 }

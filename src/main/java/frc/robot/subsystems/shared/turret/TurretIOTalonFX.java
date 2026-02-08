@@ -97,7 +97,7 @@ public class TurretIOTalonFX implements TurretIO {
                 leftCANcoderConfig
                     .MagnetSensor
                     .clone()
-                    .withMagnetOffset(Radians.of(constants.e1Offset.getRadians())));
+                    .withMagnetOffset(Radians.of(constants.e2Offset.getRadians())));
     PhoenixUtil.tryUntilOk(
         5, () -> rightCANCoder.getConfigurator().apply(rightCANcoderConfig, 0.25));
 
@@ -111,8 +111,8 @@ public class TurretIOTalonFX implements TurretIO {
     torqueCurrent = talonFX.getTorqueCurrent();
     appliedVolts = talonFX.getMotorVoltage();
 
-    e1 = leftCANCoder.getPosition();
-    e2 = rightCANCoder.getPosition();
+    e1 = leftCANCoder.getAbsolutePosition();
+    e2 = rightCANCoder.getAbsolutePosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
@@ -167,7 +167,7 @@ public class TurretIOTalonFX implements TurretIO {
   @Override
   public void updateInputs(TurretIOInputs inputs) {
 
-    inputs.turretAngle = new Rotation2d(position.getValueAsDouble());
+    inputs.turretAngle = new Rotation2d(position.getValue());
     inputs.turretVelocityRadiansPerSecond = velocity.getValue().in(Units.RadiansPerSecond);
     inputs.turretAppliedVolts = appliedVolts.getValueAsDouble();
     inputs.turretSupplyCurrentAmps = supplyCurrent.getValueAsDouble();
@@ -207,11 +207,11 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public Angle getEncoder1Position() {
-    return leftCANCoder.getAbsolutePosition().getValue();
+    return e1.getValue();
   }
 
   @Override
   public Angle getEncoder2Position() {
-    return rightCANCoder.getAbsolutePosition().getValue();
+    return e2.getValue();
   }
 }

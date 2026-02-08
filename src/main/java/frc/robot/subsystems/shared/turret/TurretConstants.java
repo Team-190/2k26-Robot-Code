@@ -46,7 +46,7 @@ public class TurretConstants {
 
   @Builder(setterPrefix = "with")
   public record TurretAngleCalculation(
-      Double gear0ToothCount, Double gear1ToothCount, Double gear2ToothCount) {
+      int gear0ToothCount, int gear1ToothCount, int gear2ToothCount) {
 
     public double GEAR_1_RATIO() {
       return gear0ToothCount / gear1ToothCount;
