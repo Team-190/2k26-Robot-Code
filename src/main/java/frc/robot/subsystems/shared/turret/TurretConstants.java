@@ -37,7 +37,7 @@ public class TurretConstants {
         RIGHT_ENCODER_ID = 16;
         MAX_ANGLE = 2 * Math.PI; // Output angle in rads
         MIN_ANGLE = -2 * Math.PI;
-        GEAR_RATIO = 20.0 / 120.0;
+        GEAR_RATIO = 120.0 / 20.0;
         SUPPLY_CURRENT_LIMIT = 30;
         STATOR_CURRENT_LIMIT = 30;
         E1_OFFSET_RADIANS = 0;

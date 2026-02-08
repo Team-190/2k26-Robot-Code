@@ -4,7 +4,6 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -15,11 +14,8 @@ import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
-import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
-import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
@@ -28,7 +24,6 @@ import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
 import frc.robot.util.XKeysInput;
-import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
@@ -46,38 +41,36 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V0_FUNKY:
-          drive =
-              new SwerveDrive(
+          /* drive =
+          new SwerveDrive(
+              V0_FunkyConstants.DRIVE_CONSTANTS,
+              new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
+              new SwerveModuleIOTalonFX(
                   V0_FunkyConstants.DRIVE_CONSTANTS,
-                  new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
-                  new SwerveModuleIOTalonFX(
-                      V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_LEFT),
-                  new SwerveModuleIOTalonFX(
-                      V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
-                  new SwerveModuleIOTalonFX(
-                      V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_LEFT),
-                  new SwerveModuleIOTalonFX(
-                      V0_FunkyConstants.DRIVE_CONSTANTS,
-                      V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
-                  V0_FunkyRobotState::getGlobalPose,
-                  V0_FunkyRobotState::resetPose);
-          //   shooter =
-          //       new Shooter(
-          //           new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
+                  V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_LEFT),
+              new SwerveModuleIOTalonFX(
+                  V0_FunkyConstants.DRIVE_CONSTANTS,
+                  V0_FunkyConstants.DRIVE_CONSTANTS.FRONT_RIGHT),
+              new SwerveModuleIOTalonFX(
+                  V0_FunkyConstants.DRIVE_CONSTANTS,
+                  V0_FunkyConstants.DRIVE_CONSTANTS.BACK_LEFT),
+              new SwerveModuleIOTalonFX(
+                  V0_FunkyConstants.DRIVE_CONSTANTS,
+                  V0_FunkyConstants.DRIVE_CONSTANTS.BACK_RIGHT),
+              V0_FunkyRobotState::getGlobalPose,
+              V0_FunkyRobotState::resetPose);*/
+          shooter = new Shooter(new TurretIOTalonFX());
           // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
-          vision =
-              new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
-                  new CameraLimelight(
-                      new CameraIOLimelight(V0_FunkyConstants.LIMELIGHT_CONFIG),
-                      V0_FunkyConstants.LIMELIGHT_CONFIG,
-                      V0_FunkyRobotState::getHeading,
-                      NetworkTablesJNI::now,
-                      List.of(),
-                      List.of()));
+          /* vision =
+          new Vision(
+              () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+              new CameraLimelight(
+                  new CameraIOLimelight(V0_FunkyConstants.LIMELIGHT_CONFIG),
+                  V0_FunkyConstants.LIMELIGHT_CONFIG,
+                  V0_FunkyRobotState::getHeading,
+                  NetworkTablesJNI::now,
+                  List.of(),
+                  List.of()));*/
           break;
 
         case V0_FUNKY_SIM:

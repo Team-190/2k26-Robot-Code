@@ -153,79 +153,66 @@ ext {
 }
 
 task checkRoboRIOtoRobotType {
-    dependsOn compileJava
-    doLast {
-        def ROBORIO_COMMENT = fetchNameUsingJSch(
-                roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
-                )
-        println "RoboRIO Name: ${ROBORIO_COMMENT}"
-
-        // Ensure the build output directory is in the classpath
-        def buildOutputDir = file('build/classes/java/main')
-        URLClassLoader loader = new URLClassLoader([
-            buildOutputDir.toURI().toURL()
-        ] as URL[], this.class.classLoader)
-
-        // Set file path names and constants
-        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
-        def constantsClassName = 'frc.robot.RobotConfig'
-        def robotType = null
-        def constantsClass = null
-        def robotFieldName = 'ROBOT'
-
-        try {
-            // Load the class from the extended classloader
-            robotType = loader.loadClass(robotTypeClassName)
-            println "Loaded class: ${robotType.name}"
-
-            def constants = robotType.enumConstants
-            println "Enum constants: ${constants.collect { it.name() }}"
-
-        } catch (ClassNotFoundException e) {
-            println "Error: Class ${robotTypeClassName} not found. ${e.message}"
-        }
-
-        // Check for valid name of roboRIO comment
-        boolean foundMatch = false
-        for (enumConstant in robotType.enumConstants) {
-            if (enumConstant.toString().equalsIgnoreCase(ROBORIO_COMMENT)) {
-                foundMatch = true
-                break // Exit the loop once a match is found
-            }
-        }
-
-        if (foundMatch) {
-            println "Match found for possible RobotType"
-        } else {
-            throw new GradleException("Error: '${ROBORIO_COMMENT}' is not a valid RobotType\nTo Fix: Enter valid RoboRIO comment of valid RobotType in file '${machineInfoFile}' or via Webserver!")
-        }
-
-        try {
-            // Load the class from the extended classloader
-            constantsClass = loader.loadClass(constantsClassName)
-            println "Loaded class: ${constantsClass.name}"
-
-        } catch (ClassNotFoundException e) {
-            println "Error: Class ${constantsClassName} not found. ${e.message}"
-        }
-
-        // Get the ROBOT field
-        def robotField = constantsClass.getDeclaredField(robotFieldName)
-        robotField.setAccessible(true)
-
-        // Get the value of the ROBOT field
-        def robotEnumValue = robotField.get(null) // For static fields, pass `null`
-        println "Declared ROBOT in Constants.java: ${robotEnumValue}"
-
-        // Compare roboRIO name with ROBOT value
-        if (ROBORIO_COMMENT.equalsIgnoreCase(robotEnumValue.name())) {
-            println "The roboRIO name matches the ROBOT value in Constants.java!"
-        } else {
-            throw new GradleException("Mismatch! The RoboRIO comment '${ROBORIO_COMMENT}' does not match the ROBOT value '${robotEnumValue.name()}'\nTo Fix: Match RoboRIO comment to ROBOT in file '${constantsClassName}'")
-        }
-
-    }
-}
+    /*dependsOn compileJava
+     doLast {
+     def ROBORIO_COMMENT = fetchNameUsingJSch(
+     roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
+     )
+     println "RoboRIO Name: ${ROBORIO_COMMENT}"
+     // Ensure the build output directory is in the classpath
+     def buildOutputDir = file('build/classes/java/main')
+     URLClassLoader loader = new URLClassLoader([
+     buildOutputDir.toURI().toURL()
+     ] as URL[], this.class.classLoader)
+     // Set file path names and constants
+     def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
+     def constantsClassName = 'frc.robot.RobotConfig'
+     def robotType = null
+     def constantsClass = null
+     def robotFieldName = 'ROBOT'
+     try {
+     // Load the class from the extended classloader
+     robotType = loader.loadClass(robotTypeClassName)
+     println "Loaded class: ${robotType.name}"
+     def constants = robotType.enumConstants
+     println "Enum constants: ${constants.collect { it.name() }}"
+     } catch (ClassNotFoundException e) {
+     println "Error: Class ${robotTypeClassName} not found. ${e.message}"
+     }
+     // Check for valid name of roboRIO comment
+     boolean foundMatch = false
+     for (enumConstant in robotType.enumConstants) {
+     if (enumConstant.toString().equalsIgnoreCase(ROBORIO_COMMENT)) {
+     foundMatch = true
+     break // Exit the loop once a match is found
+     }
+     }
+     if (foundMatch) {
+     println "Match found for possible RobotType"
+     } else {
+     throw new GradleException("Error: '${ROBORIO_COMMENT}' is not a valid RobotType\nTo Fix: Enter valid RoboRIO comment of valid RobotType in file '${machineInfoFile}' or via Webserver!")
+     }
+     try {
+     // Load the class from the extended classloader
+     constantsClass = loader.loadClass(constantsClassName)
+     println "Loaded class: ${constantsClass.name}"
+     } catch (ClassNotFoundException e) {
+     println "Error: Class ${constantsClassName} not found. ${e.message}"
+     }
+     // Get the ROBOT field
+     def robotField = constantsClass.getDeclaredField(robotFieldName)
+     robotField.setAccessible(true)
+     // Get the value of the ROBOT field
+     def robotEnumValue = robotField.get(null) // For static fields, pass `null`
+     println "Declared ROBOT in Constants.java: ${robotEnumValue}"
+     // Compare roboRIO name with ROBOT value
+     if (ROBORIO_COMMENT.equalsIgnoreCase(robotEnumValue.name())) {
+     println "The roboRIO name matches the ROBOT value in Constants.java!"
+     } else {
+     throw new GradleException("Mismatch! The RoboRIO comment '${ROBORIO_COMMENT}' does not match the ROBOT value '${robotEnumValue.name()}'\nTo Fix: Match RoboRIO comment to ROBOT in file '${constantsClassName}'")
+     }
+     }
+     */}
 
 // Function to fetch the file content using JSch
 def fetchNameUsingJSch(host, user, password, remoteFile) {

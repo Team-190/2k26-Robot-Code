@@ -171,7 +171,7 @@ public class TurretIOTalonFX implements TurretIO {
   @Override
   public void updateInputs(TurretIOInputs inputs) {
 
-    inputs.turretAngle = new Rotation2d(position.getValueAsDouble());
+    inputs.turretAngle = Rotation2d.fromRotations(position.getValueAsDouble());
     inputs.turretVelocityRadiansPerSecond = velocity.getValue().in(Units.RadiansPerSecond);
     inputs.turretAppliedVolts = appliedVolts.getValueAsDouble();
     inputs.turretSupplyCurrentAmps = supplyCurrent.getValueAsDouble();

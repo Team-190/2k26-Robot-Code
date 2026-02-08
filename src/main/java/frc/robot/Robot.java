@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
-import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
 import frc.robot.util.*;
@@ -95,7 +94,7 @@ public class Robot extends LoggedRobot {
     switch (Constants.getMode()) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new WPILOGWriter());
+        // Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -210,7 +209,7 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
 
     PhoenixUtil.refreshAll();
-    VirtualSubsystem.periodicAll();
+    // VirtualSubsystem.periodicAll();
     robotContainer.robotPeriodic();
     CommandScheduler.getInstance().run();
 
