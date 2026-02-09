@@ -46,15 +46,17 @@ public class ShooterConstants {
           .withMomentOfInertia(0.004)
           .withTurretCANID(2)
           .withCanBus(new CANBus())
-          .withEncoder1ID(15)
-          .withEncoder2ID(16)
+          .withEncoder1ID(16)
+          .withEncoder2ID(15)
           .withMaxAngle(Rotation2d.fromRadians(2 * Math.PI))
           .withMinAngle(Rotation2d.fromRadians(-2 * Math.PI))
           .withGearRatio(120.0 / 20)
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(Rotation2d.fromRotations(-0.448242))
-          .withE2Offset(Rotation2d.fromRotations(-0.867676))
+          .withE1Offset(
+              Rotation2d.fromRotations(-0.521973).minus(Rotation2d.fromDegrees(309.726563)))
+          .withE2Offset(
+              Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
           .withGains(
               TurretGains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 0.42492))

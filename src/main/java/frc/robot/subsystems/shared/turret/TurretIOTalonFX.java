@@ -84,23 +84,23 @@ public class TurretIOTalonFX implements TurretIO {
         constants.constraints.cruisingVelocityRadiansPerSecond().get();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
-    var leftCANcoderConfig = new CANcoderConfiguration();
-    leftCANcoderConfig
+    var e1CANcoderConfig = new CANcoderConfiguration();
+    e1CANcoderConfig
         .MagnetSensor
         .withAbsoluteSensorDiscontinuityPoint(1)
         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
         .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
-    PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(leftCANcoderConfig, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(e1CANcoderConfig, 0.25));
 
-    var rightCANcoderConfig =
-        leftCANcoderConfig
+    var e2CANcoderConfig =
+        e1CANcoderConfig
             .clone()
             .withMagnetSensor(
-                leftCANcoderConfig
+                e1CANcoderConfig
                     .MagnetSensor
                     .clone()
                     .withMagnetOffset(Radians.of(constants.e2Offset.getRadians())));
-    PhoenixUtil.tryUntilOk(5, () -> encoder2.getConfigurator().apply(rightCANcoderConfig, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> encoder2.getConfigurator().apply(e2CANcoderConfig, 0.25));
 
     position = talonFX.getPosition();
     velocity = talonFX.getVelocity();
@@ -145,6 +145,8 @@ public class TurretIOTalonFX implements TurretIO {
         appliedVolts,
         e1,
         e2);
+
+    talonFX.setPosition(0);
 
     positionControlRequest = new MotionMagicVoltage(0).withUseTimesync(true).withEnableFOC(true);
     voltageControlRequest = new VoltageOut(0.0).withUseTimesync(true).withEnableFOC(true);

@@ -59,7 +59,7 @@ public class Turret {
 
     this.constants = constants;
 
-    // io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
+    io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
   public void periodic() {
@@ -226,8 +226,8 @@ public class Turret {
    * Theorem.
    */
   public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    final int g1ToothCount = 17;
-    final int g2ToothCount = 16;
+    final int g1ToothCount = 16;
+    final int g2ToothCount = 17;
     final int g0ToothCount = 120;
 
     double e1Rotations = e1.in(Rotations) % 1;
@@ -248,8 +248,12 @@ public class Turret {
     }
 
     int turretToothRotations =
-        e1ToothRotations + (k * g1ToothCount) % (g1ToothCount * g2ToothCount);
+        e1ToothRotations + (k * g1ToothCount) % g0ToothCount; // (g1ToothCount * g2ToothCount);
+    Logger.recordOutput(
+        "Turret Tooth NoMod", (double) (e1ToothRotations + (k * g1ToothCount)) / g0ToothCount);
+    Logger.recordOutput("Turret Tooth Mod", (double) turretToothRotations / g0ToothCount);
 
-    return Rotation2d.fromRotations((double) turretToothRotations / g0ToothCount);
+    return Rotation2d.fromDegrees(
+        (double) (e1ToothRotations + (k * g1ToothCount)) * (360.0 / g0ToothCount));
   }
 }
