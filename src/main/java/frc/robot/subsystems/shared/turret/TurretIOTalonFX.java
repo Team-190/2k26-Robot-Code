@@ -82,6 +82,7 @@ public class TurretIOTalonFX implements TurretIO {
         constants.constraints.maxAccelerationRadiansPerSecondSquared().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
         constants.constraints.cruisingVelocityRadiansPerSecond().get();
+
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
     var e1CANcoderConfig = new CANcoderConfiguration();
@@ -153,8 +154,8 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setPosition(Rotation2d radians) {
-    talonFX.setPosition(radians.getRotations());
+  public void setPosition(Rotation2d position) {
+    talonFX.setPosition(position.getRotations());
   }
 
   @Override
@@ -177,8 +178,8 @@ public class TurretIOTalonFX implements TurretIO {
     inputs.turretTorqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.turretTemperatureCelsius = temperature.getValueAsDouble();
     inputs.turretPositionSetpoint = Rotation2d.fromRotations(positionSetpoint.getValueAsDouble());
-    inputs.turretPositionError = new Rotation2d(positionError.getValueAsDouble());
-    inputs.turretGoal = new Rotation2d(positionGoal.getValueAsDouble());
+    inputs.turretPositionError = Rotation2d.fromRotations(positionError.getValueAsDouble());
+    inputs.turretGoal = Rotation2d.fromRotations(positionGoal.getValueAsDouble());
 
     inputs.encoder1Position = new Rotation2d(e1.getValue());
     inputs.encoder2Position = new Rotation2d(e2.getValue());

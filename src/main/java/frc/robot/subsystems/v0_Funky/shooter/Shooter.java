@@ -10,8 +10,8 @@ import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotState;
 
 public class Shooter extends SubsystemBase {
-  private GenericFlywheel flywheel;
-  private Turret turret;
+  private final GenericFlywheel flywheel;
+  private final Turret turret;
 
   public Shooter(GenericFlywheelIO io, TurretIO turretIO) {
     flywheel = new GenericFlywheel(io, this, "Flywheel 1");
@@ -40,6 +40,10 @@ public class Shooter extends SubsystemBase {
 
   public Command setTurretGoal(Rotation2d goal) {
     return turret.setTurretGoal(goal);
+  }
+
+  public Command waitUntilAtGoal() {
+    return turret.waitUntilTurretAtGoal().alongWith(flywheel.waitUntilAtGoal());
   }
 
   public Command runTurretSysID() {

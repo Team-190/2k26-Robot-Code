@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.CurrentLimits;
@@ -59,22 +60,22 @@ public class ShooterConstants {
               Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
           .withGains(
               TurretGains.builder()
-                  .withKP(new LoggedTunableNumber("Turret/Kp", 0.42492))
-                  .withKD(new LoggedTunableNumber("Turret/Kd", 0.0))
-                  .withKS(new LoggedTunableNumber("Turret/Ks", 0.13804))
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 28.624920))
+                  .withKD(new LoggedTunableNumber("Turret/Kd", 0.5))
+                  .withKS(new LoggedTunableNumber("Turret/Ks", 0.158040))
                   .withKV(new LoggedTunableNumber("Turret/Kv", 0.11377))
                   .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
                   .build())
           .withConstraints(
               TurretConstraints.builder()
                   .withCruisingVelocityRadiansPerSecond(
-                      new LoggedTunableNumber(
-                          "Turret/CruisingVelocityRadiansPerSecond", 4 * Math.PI))
+                      new LoggedTunableNumber("Turret/CruisingVelocityRadiansPerSecond", 35.566371))
                   .withMaxAccelerationRadiansPerSecondSquared(
                       new LoggedTunableNumber(
-                          "Turret/MaxAccelerationRadiansPerSecondSquared", 4 * Math.PI))
+                          "Turret/MaxAccelerationRadiansPerSecondSquared", 89.566371))
                   .withGoalToleranceRadians(
-                      new LoggedTunableNumber("Turret/GoalToleranceRadians", 0))
+                      new LoggedTunableNumber(
+                          "Turret/GoalToleranceRadians", Units.degreesToRadians(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
