@@ -58,7 +58,8 @@ public class ShooterConstants {
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
           .withE1Offset(
-              Rotation2d.fromRotations(-0.521973).minus(Rotation2d.fromDegrees(309.726563)))
+              Rotation2d.fromRotations(-0.521973)
+                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
           .withE2Offset(
               Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
           .withGains(

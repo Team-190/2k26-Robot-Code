@@ -92,14 +92,18 @@ public class Turret {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
     Logger.recordOutput(
-        aKitTopic + "CRT Angle",
+        aKitTopic + "/CRT Angle",
         calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
+    Logger.recordOutput(
+        aKitTopic + "/CRT Angle New",
+        calculateTurretAngleNew(io.getEncoder1Position(), io.getEncoder2Position()));
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
 
     switch (state) {
-      case CLOSED_LOOP_POSITION_CONTROL -> io.setTurretGoal((state.getRotation()));
+      case CLOSED_LOOP_POSITION_CONTROL ->
+          io.setTurretGoal(clampShortest(state.getRotation(), inputs.turretAngle));
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
       case CLOSED_LOOP_AUTO_AIM_CONTROL ->
           io.setTurretGoal(
@@ -255,5 +259,36 @@ public class Turret {
 
     return Rotation2d.fromDegrees(
         (double) (e1ToothRotations + (k * g1ToothCount)) * (360.0 / g0ToothCount));
+  }
+
+  public static Rotation2d calculateTurretAngleNew(Angle e1, Angle e2) {
+    final int g1ToothCount = 16;
+    final int g2ToothCount = 17;
+    final int g0ToothCount = 120;
+
+    // Get encoder positions in rotations (0 to 1), using full floating point precision
+    double e1Rotations = e1.in(Rotations) % 1.0;
+    if (e1Rotations < 0) {
+      e1Rotations += 1.0;
+    }
+
+    double e2Rotations = e2.in(Rotations) % 1.0;
+    if (e2Rotations < 0) {
+      e2Rotations += 1.0;
+    }
+
+    // Calculate difference (preserving full precision)
+    double diff = (e1Rotations - e2Rotations);
+
+    // Normalize difference to [0, 1)
+    diff = diff % 1.0;
+    if (diff < 0) {
+      diff += 1.0;
+    }
+
+    // Direct calculation: θ = Δ * (g1*g2/g0)
+    double turretRotations = diff * g1ToothCount * g2ToothCount / (double) g0ToothCount;
+
+    return Rotation2d.fromRotations(turretRotations);
   }
 }
