@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shared.turret;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
@@ -13,6 +15,8 @@ public class TurretConstants {
   @NonNull public final Integer turretCANID;
   @NonNull public final Integer encoder1ID;
   @NonNull public final Integer encoder2ID;
+  @NonNull public final InvertedValue motorInversion;
+  @NonNull public final SensorDirectionValue encoderInversion;
   @NonNull public final Rotation2d maxAngle;
   @NonNull public final Rotation2d minAngle;
   @NonNull public final Double gearRatio;
@@ -49,11 +53,11 @@ public class TurretConstants {
       int gear0ToothCount, int gear1ToothCount, int gear2ToothCount) {
 
     public double GEAR_1_RATIO() {
-      return gear0ToothCount / gear1ToothCount;
+      return (double) gear0ToothCount / gear1ToothCount;
     }
 
     public double GEAR_2_RATIO() {
-      return gear0ToothCount / gear2ToothCount;
+      return (double) gear0ToothCount / gear2ToothCount;
     }
 
     /**

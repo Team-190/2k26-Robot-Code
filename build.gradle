@@ -78,10 +78,10 @@ deploy {
 
                     // The options below may improve performance, but should only be enabled on the RIO 2
 
-                    //final MAX_JAVA_HEAP_SIZE_MB = 100
-                    //jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    //jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    //jvmArgs.add("-XX:+AlwaysPreTouch")
+                    final MAX_JAVA_HEAP_SIZE_MB = 100
+                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
 
                     // Enable VisualVM connection
                     // jvmArgs.add("-Dcom.sun.management.jmxremote=true")
@@ -129,7 +129,7 @@ repositories {
                 includeGroup "edu.wpi.team190"
             }
         }
-    }  else {
+    } else {
         println "Using local GompeiLib build."
 
         mavenLocal()
@@ -271,7 +271,7 @@ def fetchNameUsingJSch(host, user, password, remoteFile) {
     }
 }
 
-//deployroborio.dependsOn(checkRoboRIOtoRobotType)
+deployroborio.dependsOn(checkRoboRIOtoRobotType)
 
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava

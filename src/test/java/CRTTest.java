@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class CRTTest {
   // CRT is precise to every 3 degrees, so there is always up to 1.5 degrees of error.
   // delta represents that necessary tolerance
-  private static final double delta = Rotation2d.fromDegrees(1.51).getRadians();
+  private static final double delta = Rotation2d.fromDegrees(0.1).getRadians();
 
   @Test
   public void crtTestZero() {
@@ -79,7 +79,7 @@ public class CRTTest {
 
   @Test
   public void crtTestMany() {
-    for (double i = 0; i < 16 * 17; i += .5) {
+    for (double i = 0; i < 16 * 17; i += .1) {
       Angle e1 = Angle.ofRelativeUnits((i % 16) / 16.0, Rotations);
       Angle e2 = Angle.ofRelativeUnits((i % 17) / 17.0, Rotations);
 

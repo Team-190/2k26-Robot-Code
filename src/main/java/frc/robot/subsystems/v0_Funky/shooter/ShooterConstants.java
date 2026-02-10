@@ -2,6 +2,7 @@ package frc.robot.subsystems.v0_Funky.shooter;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -46,6 +47,8 @@ public class ShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(1))
           .withMomentOfInertia(0.004)
           .withTurretCANID(2)
+          .withMotorInversion(InvertedValue.CounterClockwise_Positive)
+          .withEncoderInversion(SensorDirectionValue.Clockwise_Positive)
           .withCanBus(new CANBus())
           .withEncoder1ID(16)
           .withEncoder2ID(15)

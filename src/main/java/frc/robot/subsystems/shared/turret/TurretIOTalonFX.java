@@ -12,7 +12,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
@@ -89,7 +88,7 @@ public class TurretIOTalonFX implements TurretIO {
     e1CANcoderConfig
         .MagnetSensor
         .withAbsoluteSensorDiscontinuityPoint(1)
-        .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+        .withSensorDirection(constants.encoderInversion)
         .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
     PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(e1CANcoderConfig, 0.25));
 
@@ -146,8 +145,6 @@ public class TurretIOTalonFX implements TurretIO {
         appliedVolts,
         e1,
         e2);
-
-    talonFX.setPosition(0);
 
     positionControlRequest = new MotionMagicVoltage(0).withUseTimesync(true).withEnableFOC(true);
     voltageControlRequest = new VoltageOut(0.0).withUseTimesync(true).withEnableFOC(true);
