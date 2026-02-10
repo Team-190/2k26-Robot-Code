@@ -94,9 +94,6 @@ public class Turret {
     Logger.recordOutput(
         aKitTopic + "/CRT Angle",
         calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
-    Logger.recordOutput(
-        aKitTopic + "/CRT Angle New",
-        calculateTurretAngleNew(io.getEncoder1Position(), io.getEncoder2Position()));
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
@@ -229,42 +226,7 @@ public class Turret {
    * Method that calculates turret angle based on encoder values. Uses the Chinese Remainder
    * Theorem.
    */
-  public static Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    final int g1ToothCount = 16;
-    final int g2ToothCount = 17;
-    final int g0ToothCount = 120;
-
-    double e1Rotations = e1.in(Rotations) % 1;
-    if (e1Rotations < 0) {
-      e1Rotations += g1ToothCount;
-    }
-    double e2Rotations = e2.in(Rotations) % 1;
-    if (e2Rotations < 0) {
-      e2Rotations += g2ToothCount;
-    }
-
-    int e1ToothRotations = (int) Math.floor(e1Rotations * g1ToothCount + 1e-9);
-    int e2ToothRotations = (int) Math.floor(e2Rotations * g2ToothCount + 1e-9);
-
-    int k = ((e2ToothRotations - e1ToothRotations) * g1ToothCount) % g2ToothCount;
-    if (k < 0) {
-      k += g2ToothCount;
-    }
-
-    int turretToothRotations =
-        e1ToothRotations + (k * g1ToothCount) % g0ToothCount; // (g1ToothCount * g2ToothCount);
-    Logger.recordOutput(
-        "Turret Tooth NoMod", (double) (e1ToothRotations + (k * g1ToothCount)) / g0ToothCount);
-    Logger.recordOutput("Turret Tooth Mod", (double) turretToothRotations / g0ToothCount);
-
-    return Rotation2d.fromDegrees(
-        (double) (e1ToothRotations + (k * g1ToothCount)) * (360.0 / g0ToothCount));
-  }
-
-  public static Rotation2d calculateTurretAngleNew(Angle e1, Angle e2) {
-    final int g1ToothCount = 16;
-    final int g2ToothCount = 17;
-    final int g0ToothCount = 120;
+  public Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
 
     // Get encoder positions in rotations (0 to 1), using full floating point precision
     double e1Rotations = e1.in(Rotations) % 1.0;
@@ -287,7 +249,11 @@ public class Turret {
     }
 
     // Direct calculation: θ = Δ * (g1*g2/g0)
-    double turretRotations = diff * g1ToothCount * g2ToothCount / (double) g0ToothCount;
+    double turretRotations =
+        diff
+            * constants.turretAngleCalculation.gear1ToothCount()
+            * constants.turretAngleCalculation.gear2ToothCount()
+            / (double) constants.turretAngleCalculation.gear0ToothCount();
 
     return Rotation2d.fromRotations(turretRotations);
   }

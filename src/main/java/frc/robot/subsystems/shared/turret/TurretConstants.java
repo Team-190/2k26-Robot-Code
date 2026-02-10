@@ -52,11 +52,11 @@ public class TurretConstants {
   public record TurretAngleCalculation(
       int gear0ToothCount, int gear1ToothCount, int gear2ToothCount) {
 
-    public double GEAR_1_RATIO() {
+    public double gear1Ratio() {
       return (double) gear0ToothCount / gear1ToothCount;
     }
 
-    public double GEAR_2_RATIO() {
+    public double gear2Ratio() {
       return (double) gear0ToothCount / gear2ToothCount;
     }
 
@@ -65,8 +65,8 @@ public class TurretConstants {
      *
      * @return the difference between the gear 1 ratio and gear 2 ratio.
      */
-    public double GEAR_RATIO_DIFFERENCE() {
-      return GEAR_1_RATIO() - GEAR_2_RATIO();
+    public double gearRatioDifference() {
+      return gear1Ratio() - gear2Ratio();
     }
   }
 }
