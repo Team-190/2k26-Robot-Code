@@ -1,8 +1,10 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,6 +12,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -18,6 +21,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   public GenericRoller topRoller;
   public GenericRoller bottomRoller;
   public FourBarLinkage linkage;
+
+  public V1_DoomSpiralRobotState robotState;
 
   public V1_DoomSpiralIntake(
       GenericRollerIO topIO, GenericRollerIO bottomIO, FourBarLinkageIO linkageIO) {
@@ -81,7 +86,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   /** Piecewise logic for the linkage offset */
-  private double calculateXOffset(double yPos) {
+  public double calculateXOffset(double yPos) {
     final double Y_MIN = V1_DoomSpiralIntakeConstants.LINK_BOUNDS.MIN();
     final double Y_PHASE_1 = V1_DoomSpiralIntakeConstants.LINK_BOUNDS.PHASE_1();
     final double Y_PHASE_2 = V1_DoomSpiralIntakeConstants.LINK_BOUNDS.PHASE_2();
@@ -100,4 +105,23 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     }
     return 0;
   }
+
+  public Command subtractStowOffset() {
+        return Commands.runOnce(
+          () -> robotState.stowOffset -= 0.5);
+    }
+
+    public Command addStowOffset() {
+      return Commands.runOnce(
+          () -> robotState.stowOffset += 0.5);
+    }
+
+    public Command subtractDepotOffset(){
+        return Commands.runOnce(() -> robotState.depotOffset -= 0.5);
+    }
+    
+    public Command addDepotOffset(){
+        return Commands.runOnce(() -> robotState.depotOffset += 0.5);
+    }
+    
 }
