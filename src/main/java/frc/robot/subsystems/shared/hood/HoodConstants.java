@@ -5,21 +5,21 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import lombok.Builder;
 
-@Builder
+@Builder(setterPrefix = "with")
 public class HoodConstants {
-  public final int MOTOR_CAN_ID;
-  @Builder.Default public final CANBus CAN_LOOP = new CANBus();
+  public final int canID;
+  @Builder.Default public final CANBus canBus = new CANBus();
 
-  public final double GEAR_RATIO;
-  public final double CURRENT_LIMIT;
-  public final double MOMENT_OF_INERTIA;
-  public final DCMotor MOTOR_CONFIG;
-  public final double LENGTH_METERS;
-  public final double MIN_ANGLE;
-  public final double MAX_ANGLE;
+  public final double gearRatio;
+  public final double supplyCurrentLimit;
+  public final double momentOfInertia;
+  public final DCMotor motorConfig;
+  public final double lengthMeters;
+  public final double minAngle;
+  public final double maxAngle;
 
-  public final Gains GAINS;
-  public final Constraints CONSTRAINTS;
+  public final Gains gains;
+  public final Constraints constraints;
 
   public enum HoodGoal {
     SCORE,

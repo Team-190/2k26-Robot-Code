@@ -17,38 +17,26 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkCo
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
 
 public class V1_DoomSpiralIntakeConstants {
-  public static final int CAN_ID_TOP = 20;
-  public static final double CURRENT_LIMIT_TOP = 40.0;
-  public static final MomentOfInertia MOMENT_OF_INERTIA_TOP = Units.KilogramSquareMeters.of(0.0004);
-  public static final double GEAR_RATIO_TOP = 2.67; // might be 8/3
-  public static final DCMotor GEARBOX_TOP = DCMotor.getKrakenX60(1);
-
   public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
+
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
-          .withRollerCANID(CAN_ID_TOP)
-          .withSupplyCurrentLimit(CURRENT_LIMIT_TOP)
-          .withRollerGearbox(GEARBOX_TOP)
-          .withRollerMotorGearRatio(GEAR_RATIO_TOP)
-          .withMomentOfInertia(MOMENT_OF_INERTIA_TOP)
+          .withRollerCANID(20)
+          .withSupplyCurrentLimit(40.0)
+          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withRollerMotorGearRatio(8.0 / 3.0)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0021903639850000003))
           .withCanBus(CANBus.roboRIO())
           .build();
 
-  public static final int CAN_ID_BOTTOM = 21;
-  public static final double CURRENT_LIMIT_BOTTOM = 40.0;
-  public static final MomentOfInertia MOMENT_OF_INERTIA_BOTTOM =
-      Units.KilogramSquareMeters.of(0.0004);
-  public static final double GEAR_RATIO_BOTTOM = 2.67;
-  public static final DCMotor GEARBOX_BOTTOM = DCMotor.getKrakenX60(1);
-
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
       GenericRollerConstants.builder()
-          .withRollerCANID(CAN_ID_BOTTOM)
-          .withSupplyCurrentLimit(CURRENT_LIMIT_BOTTOM)
-          .withRollerGearbox(GEARBOX_BOTTOM)
-          .withRollerMotorGearRatio(GEAR_RATIO_BOTTOM)
-          .withMomentOfInertia(MOMENT_OF_INERTIA_BOTTOM)
+          .withRollerCANID(21)
+          .withSupplyCurrentLimit(40.0)
+          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withRollerMotorGearRatio(8.0 / 3.0)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.000007881407))
           .withCanBus(CANBus.roboRIO())
           .build();
 
@@ -60,11 +48,12 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
       SensorDirectionValue.CounterClockwise_Positive; // TODO: set correct direction
-  public static final int GEAR_RATIO = 1;
+  public static final double GEAR_RATIO = 50.79365079;
   public static final int SUPPLY_CURRENT_LIMIT = 40;
   public static final int STATOR_CURRENT_LIMIT = 40;
 
-  public static final double MOMENT_OF_INERTIA = 0.004;
+  public static final MomentOfInertia MOMENT_OF_INERTIA =
+      Units.KilogramSquareMeters.of(0.5801211867630001);
   public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
   public static final Rotation2d INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
 
@@ -72,8 +61,6 @@ public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(170);
   // points A and D on the intake.
-
-  public static final boolean LINKAGE_ENABLE_FOC = false;
 
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
@@ -115,7 +102,6 @@ public class V1_DoomSpiralIntakeConstants {
       FourBarLinkageConstants.builder()
           .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
           .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-          .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
           .CONSTRAINTS(CONSTRAINTS)
           .GAINS(GAINS)
           .GEAR_RATIO(GEAR_RATIO)
@@ -126,7 +112,7 @@ public class V1_DoomSpiralIntakeConstants {
           .LINK_LENGTHS(LINK_LENGTHS)
           .MAX_ANGLE(MAX_ANGLE)
           .MIN_ANGLE(MIN_ANGLE)
-          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA)
+          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA.in(Units.KilogramSquareMeters))
           .MOTOR_CAN_ID(MOTOR_CAN_ID)
           .MOTOR_CONFIG(MOTOR_CONFIG)
           .PIN_LENGTH(PIN_LENGTH)

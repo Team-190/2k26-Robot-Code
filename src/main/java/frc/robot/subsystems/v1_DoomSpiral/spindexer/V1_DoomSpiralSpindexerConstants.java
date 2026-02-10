@@ -20,7 +20,7 @@ public class V1_DoomSpiralSpindexerConstants {
 
   static {
     SPINDEXER_MOTOR_CAN_ID = 40;
-    SPINDEXER_GEAR_RATIO = 1.0;
+    SPINDEXER_GEAR_RATIO = 117.0 / 10.0;
     SPINDEXER_STATOR_CURRENT_LIMIT = 40.0;
     SPINDEXER_SUPPLY_CURRENT_LIMIT = 40.0;
     SPINDEXER_MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
@@ -35,7 +35,7 @@ public class V1_DoomSpiralSpindexerConstants {
           .withRollerCANID(41)
           .withSupplyCurrentLimit(30.0)
           .withRollerGearbox(DCMotor.getKrakenX44(1))
-          .withRollerMotorGearRatio(1.0)
+          .withRollerMotorGearRatio(24.0 / 16.0)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0000559571))
           .withCanBus(CANBus.roboRIO())
           .build();
