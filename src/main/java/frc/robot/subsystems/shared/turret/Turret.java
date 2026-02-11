@@ -190,22 +190,30 @@ public class Turret {
     double maxRad = constants.maxAngle.getRadians();
 
     double diff = target.getRadians() - currentTotalRad;
-    double offset = Math.IEEEremainder(diff, 2 * Math.PI);
+    double unwound = currentTotalRad + Math.IEEEremainder(diff, 2 * Math.PI);
 
-    double newTarget = currentTotalRad + offset;
-
-    if (newTarget > maxRad) {
-      newTarget -= 2 * Math.PI;
-    } else if (newTarget < minRad) {
-      newTarget += 2 * Math.PI;
+    if (unwound >= minRad && unwound <= maxRad) {
+      return Rotation2d.fromRadians(unwound);
     }
 
-    if (newTarget >= minRad && newTarget <= maxRad) {
-      return Rotation2d.fromRadians(newTarget);
+    if (unwound < minRad) {
+      double n = Math.ceil((minRad - unwound) / (2 * Math.PI));
+      double candidate = unwound + n * 2 * Math.PI;
+
+      if (candidate <= maxRad) {
+        return Rotation2d.fromRadians(candidate);
+      }
+    } else if (unwound > maxRad) {
+      double n = Math.ceil((unwound - maxRad) / (2 * Math.PI));
+      double candidate = unwound - n * 2 * Math.PI;
+
+      if (candidate >= minRad) {
+        return Rotation2d.fromRadians(candidate);
+      }
     }
 
-    // Not possible... stay at current angle
-    return current;
+    // Not possible... return target angle (io handles this by going to the closest bound)
+    return target;
   }
 
   /**
