@@ -100,11 +100,11 @@ public class Turret {
 
     switch (state) {
       case CLOSED_LOOP_POSITION_CONTROL ->
-          io.setTurretGoal(clampShortest(state.getRotation(), inputs.turretAngle));
+          io.setTurretGoal(wrapRotationWithinBounds(state.getRotation(), inputs.turretAngle));
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
       case CLOSED_LOOP_AUTO_AIM_CONTROL ->
           io.setTurretGoal(
-              clampShortest(
+              wrapRotationWithinBounds(
                   state
                       .getTranslation()
                       .minus(robotPoseSupplier.get().getTranslation())
@@ -184,42 +184,28 @@ public class Turret {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
-  private Rotation2d clampShortest(Rotation2d target, Rotation2d current) {
-    double targetRad = target.getRadians();
-    double currentRad = current.getRadians();
+  private Rotation2d wrapRotationWithinBounds(Rotation2d target, Rotation2d current) {
+    double currentTotalRad = current.getRadians();
     double minRad = constants.minAngle.getRadians();
     double maxRad = constants.maxAngle.getRadians();
 
-    // Try both the direct target and the wrapped alternatives
-    double[] candidates = {targetRad, targetRad + 2 * Math.PI, targetRad - 2 * Math.PI};
+    double diff = target.getRadians() - currentTotalRad;
+    double offset = Math.IEEEremainder(diff, 2 * Math.PI);
 
-    double bestValid = Double.NaN;
-    double bestDistance = Double.POSITIVE_INFINITY;
+    double newTarget = currentTotalRad + offset;
 
-    for (double candidate : candidates) {
-      // Check if this candidate is within limits
-      if (candidate >= minRad && candidate <= maxRad) {
-        double distance = Math.abs(candidate - currentRad);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          bestValid = candidate;
-        }
-      }
+    if (newTarget > maxRad) {
+      newTarget -= 2 * Math.PI;
+    } else if (newTarget < minRad) {
+      newTarget += 2 * Math.PI;
     }
 
-    // If we found a valid angle, use it
-    if (!Double.isNaN(bestValid)) {
-      return Rotation2d.fromRadians(bestValid);
+    if (newTarget >= minRad && newTarget <= maxRad) {
+      return Rotation2d.fromRadians(newTarget);
     }
 
-    return Rotation2d.fromRadians(
-        currentRad < minRad
-            ? minRad
-            : currentRad > maxRad
-                ? maxRad
-                : (Math.abs(currentRad - minRad) < Math.abs(currentRad - maxRad)
-                    ? minRad
-                    : maxRad));
+    // Not possible... stay at current angle
+    return current;
   }
 
   /**
