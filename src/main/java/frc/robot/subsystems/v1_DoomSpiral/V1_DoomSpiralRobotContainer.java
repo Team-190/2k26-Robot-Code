@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -29,6 +30,7 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralIntakeTest;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -41,6 +43,8 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
+import frc.robot.util.XKeysInput;
+
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -49,7 +53,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralClimber climber;
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
+  private FourBarLinkage linkage;
   private Vision vision;
+
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -146,7 +153,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
-          break;
+          linkage = 
+                    new FourBarLinkage(new FourBarLinkageIO() {}, null, climber, 0);
 
         default:
           break;
@@ -210,7 +218,81 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
+
+    xkeys
+        .b1()
+        .onTrue(Commands.sequence(
+          intake.setRollerVoltage(0),
+          intake.stow()
+        ));
+    xkeys
+        .b2()
+        .onTrue(Commands.runOnce(() -> intake.subtractStowOffset()));
+    xkeys
+        .b3()
+        .onTrue(Commands.runOnce(() -> intake.addStowOffset()));
+    xkeys
+        .c1()
+        .onTrue(Commands.sequence(
+          Commands.runOnce(() -> intake.setRollerVoltage(5)),
+          Commands.runOnce(() -> intake.setIntakeBumpSetpoint(5)), // Change number
+          Commands.runOnce(() -> intake.setIntakeDepotSetpoint(6)))); // Change number
+    xkeys
+        .c2()
+        .onTrue(Commands.runOnce(() -> intake.subtractDepotOffset()));
+    xkeys
+        .c3()
+        .onTrue(Commands.runOnce(() -> intake.addDepotOffset()));
+    xkeys
+        .d1()
+        .onTrue(Commands.sequence(
+            intake.setRollerVoltage(5),
+            intake.setCollectIntakeSetpoint(45) // Change number
+        ));
+    xkeys
+        .d2()
+        .onTrue(Commands.runOnce(() -> intake.subtractCollectOffset()));
+    xkeys
+        .d3()
+        .onTrue(Commands.runOnce(() -> intake.addCollectOffset()));
+    xkeys
+        .e1()
+        .whileTrue(Commands.run(() -> intake.setRollerVoltage(6)));
+    xkeys
+        .e2()
+        .whileTrue(
+            Commands.run(() -> intake.setRollerVoltage(-6))
+        );
+    xkeys
+        .f1()
+        .onTrue(Commands.runOnce(() -> intake.increaseSpeed()));
+    xkeys
+        .f2()
+        .onTrue(Commands.runOnce(() -> intake.decreaseSpeed()));
+    xkeys
+        .g1()
+        .whileTrue(Commands.sequence(
+            Commands.runOnce(() -> intake.setLinkageVoltage(2)),
+            intake.stow()));
+    xkeys
+        .g2()
+        .whileTrue(Commands.sequence(
+            Commands.runOnce(() -> intake.setLinkageVoltage(2)),
+            intake.stow()));
+    xkeys
+        .h1()
+        .or(xkeys.h2())
+        .or(xkeys.h3())
+        .whileTrue(
+            Commands.sequence(
+                intake.deploy(),
+                Commands.waitSeconds(0.6),
+                intake.stow()
+            )
+        );
   }
+
+  
 
   private void configureAutos() {
     // Autos here

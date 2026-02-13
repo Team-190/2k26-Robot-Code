@@ -36,8 +36,12 @@ public class V1_DoomSpiralRobotState {
   private static final FieldZone globalZone;
 
   public double stowOffset = 0;
-
   public double depotOffset = 0;
+  public double intakeBumpSetpoint = 0;
+  public double intakeDepotSetpoint = 0;
+  public double collectIntakeSetpoint = 0;
+  public double collectOffset = 0;
+  public double intakeVolts = 0;
 
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);

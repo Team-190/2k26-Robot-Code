@@ -211,23 +211,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         .whileTrue(Commands.run(() -> feeder.setVoltage(V0_FunkyConstants.FEEDER_VOLTAGE)))
         .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
 
-    xkeys
-        .b1()
-        .onTrue(Commands.sequence(
-          intake.setRollerVoltage(0),
-          intake.stow()
-        ));
-    xkeys
-        .b2()
-        .onTrue(Commands.runOnce(() -> intake.subtractStowOffset()));
-    xkeys
-        .b3()
-        .onTrue(Commands.runOnce(() -> intake.addStowOffset()));
-    xkeys
-        .c1()
-        .onTrue(Commands.sequence(
-          Commands.runOnce(() -> intake.setRollerVoltage(5))));
-
   }
 
   private void configureAutos() {

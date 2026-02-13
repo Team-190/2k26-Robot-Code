@@ -61,8 +61,20 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     return linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.DEPLOY_ANGLE);
   }
 
+  public Command setLinkageVoltage(double volts) {
+    return linkage.setVoltage(volts);
+  }
+
   public Command stow() {
     return linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.STOW_ANGLE);
+  }
+
+  public Command setIntakeBumpSetpoint(double intakeBumpSetpoint) {
+    return Commands.runOnce(() -> robotState.intakeBumpSetpoint = intakeBumpSetpoint);
+  }
+
+  public Command setIntakeDepotSetpoint(double intakeDepotSetpoint) {
+    return Commands.runOnce(() -> robotState.intakeDepotSetpoint = intakeDepotSetpoint);
   }
 
   public Transform3d getHopperWallTransform() {
@@ -122,6 +134,26 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     
     public Command addDepotOffset(){
         return Commands.runOnce(() -> robotState.depotOffset += 0.5);
+    }
+
+    public Command addCollectOffset() {
+      return Commands.runOnce(() -> robotState.collectOffset += 0.5);
+    }
+
+    public Command subtractCollectOffset() {
+      return Commands.runOnce(() -> robotState.collectOffset -= 0.5);
+    }
+
+    public Command setCollectIntakeSetpoint(double collectIntakeSetpoint) {
+      return Commands.runOnce(() -> robotState.collectIntakeSetpoint = collectIntakeSetpoint);
+    }
+
+    public Command increaseSpeed() {
+      return Commands.runOnce(() -> robotState.intakeVolts += 0.25);
+    }
+
+    public Command decreaseSpeed() {
+      return Commands.runOnce(() -> robotState.intakeVolts -= 0.25);
     }
     
 }
