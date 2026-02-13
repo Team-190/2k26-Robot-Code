@@ -50,7 +50,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.util.XKeysInput;
-
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -244,7 +243,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
 
-
     xkeys.d8().onTrue(climber.setPositionDefault());
 
     xkeys.d9().onTrue(climber.setPositionL1());
@@ -257,25 +255,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.e10().onTrue(climber.runZeroSequence());
 
-
-    xkeys
-        .b5()
-        .whileTrue(Commands.run(() -> spindexer.setVoltage(2)));
-    xkeys
-        .b6()
-        .whileTrue(Commands.run(() -> spindexer.setVoltage(-2)));
-    xkeys
-        .c5()
-        .onTrue(Commands.run(() -> spindexer.increaseSpindexerSpeed()));
-    xkeys
-        .c6()
-        .onTrue(Commands.runOnce(() -> spindexer.decreaseSpindexerSpeed()));
-    xkeys
-        .d5()
-        .onTrue(Commands.runOnce(() -> spindexer.increaseFeederSpeed()));
-    xkeys
-        .d5()
-        .onTrue(Commands.runOnce(() -> spindexer.decreaseFeederSpeed()));
+    xkeys.b5().whileTrue(spindexer.setVoltage(2));
+    xkeys.b6().whileTrue(spindexer.setVoltage(-2)); // TODO: Fix this
+    xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage());
+    xkeys.c6().onTrue(Commands.runOnce(() -> spindexer.decreaseSpindexerVoltage()));
+    xkeys.d5().onTrue(Commands.runOnce(() -> spindexer.increaseFeederVoltage()));
+    xkeys.d5().onTrue(Commands.runOnce(() -> spindexer.decreaseFeederVoltage()));
   }
 
   private void configureAutos() {
