@@ -34,6 +34,7 @@ import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralIntakeTest;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
+import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
@@ -202,6 +203,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new GenericRollerIO() {},
               "Kicker",
               "Feeder");
+    }
+
+    if (shooter == null) {
+      shooter = new V1_DoomSpiralShooter(new GenericFlywheelIO() {}, new HoodIO() {});
     }
 
     if (vision == null) {
