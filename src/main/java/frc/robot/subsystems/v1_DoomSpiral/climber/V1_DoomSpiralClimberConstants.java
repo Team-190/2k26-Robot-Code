@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public class V1_DoomSpiralClimberConstants {
+
+  public static final double SLOW_VOLTAGE = 1.0;
   public static final Gains SLOT_0_GAINS =
       Gains.builder()
           .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 0))

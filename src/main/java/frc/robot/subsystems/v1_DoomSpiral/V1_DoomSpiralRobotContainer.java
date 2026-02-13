@@ -43,7 +43,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.util.XKeysInput;
-
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -216,18 +215,30 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    xkeys.d8().onTrue(climber.setPosition(V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition()));
+    xkeys
+        .d8()
+        .onTrue(
+            climber.setPositionGoal(
+                V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition()));
 
-    xkeys.d9().onTrue(climber.setPosition(V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition()));
+    xkeys
+        .d9()
+        .onTrue(
+            climber.setPositionGoal(
+                V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition()));
 
     xkeys.d10().onTrue(climber.climbSequenceL3());
 
-    xkeys.e8().whileTrue(climber.setVoltage(1));
+    xkeys.e8().whileTrue(climber.setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
 
-    xkeys.e9().whileTrue(climber.setVoltage(-1));
+    xkeys.e9().whileTrue(climber.setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
 
-    xkeys.e10().onTrue(climber.setPosition(new Rotation2d(0)).alongWith(climber.setPositionGoal(new Rotation2d(0))));
-
+    xkeys
+        .e10()
+        .onTrue(
+            climber
+                .setPosition(new Rotation2d(0))
+                .alongWith(climber.setPositionGoal(new Rotation2d(0))));
   }
 
   private void configureAutos() {
