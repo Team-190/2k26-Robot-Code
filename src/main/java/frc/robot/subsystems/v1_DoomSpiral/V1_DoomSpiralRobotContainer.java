@@ -41,6 +41,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
+import frc.robot.util.XKeysInput;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -54,6 +55,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private final CommandXboxController driver = new CommandXboxController(0);
 
   private final AutoChooser autoChooser = new AutoChooser();
+
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -210,6 +213,18 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
+
+    xkeys.d8().onTrue(climber.setPositionDefault());
+
+    xkeys.d9().onTrue(climber.setPositionL1());
+
+    xkeys.d10().onTrue(climber.climbSequenceL3());
+
+    xkeys.e8().whileTrue(climber.clockwiseSlow());
+
+    xkeys.e9().whileTrue(climber.counterClockwiseSlow());
+
+    xkeys.e10().onTrue(climber.runZeroSequence());
   }
 
   private void configureAutos() {
