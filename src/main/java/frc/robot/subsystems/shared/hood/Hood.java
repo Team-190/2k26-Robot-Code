@@ -15,6 +15,8 @@ import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.eclipse.core.internal.runtime.Log;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -75,6 +77,7 @@ public class Hood {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
         Rotation2d position;
