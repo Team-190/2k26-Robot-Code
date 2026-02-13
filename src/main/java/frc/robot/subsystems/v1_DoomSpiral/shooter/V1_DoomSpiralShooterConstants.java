@@ -1,5 +1,9 @@
 package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Milliamps;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,6 +13,10 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 import frc.robot.subsystems.shared.hood.HoodConstants;
 
 public class V1_DoomSpiralShooterConstants {
+
+  public static final double FLYWHEEL_VELOCITY_INCREMENT_RPS = 1;
+  public static final Rotation2d HOOD_ANGLE_INCREMENT_ROTATIONS = Rotation2d.fromDegrees(1);
+
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(30)
@@ -45,6 +53,9 @@ public class V1_DoomSpiralShooterConstants {
           .withLengthMeters(.1)
           .withMinAngle(new Rotation2d())
           .withMaxAngle(new Rotation2d(Math.PI / 2))
+          .withZeroVoltage(Volts.of(1.0))
+          .withZeroCurrentThreshold(Amps.of(40.0))
+          .withZeroCurrentEpsilon(Milliamps.of(500))
           .withConstraints(HoodConstants.Constraints.builder().build())
           .withGains(HoodConstants.Gains.builder().build())
           .build();

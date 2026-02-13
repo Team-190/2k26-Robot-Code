@@ -17,4 +17,6 @@ public class V1_DoomSpiralSwankConstants {
   public static final InvertedValue INVERSION = InvertedValue.CounterClockwise_Positive;
 
   public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX44Foc(1);
+
+  public static final double SWANK_VOLTAGE = 12.0;
 }
