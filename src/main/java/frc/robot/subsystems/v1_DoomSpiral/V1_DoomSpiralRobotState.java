@@ -13,6 +13,7 @@ import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
+import lombok.Data;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -29,9 +30,19 @@ public class V1_DoomSpiralRobotState {
   @Getter
   private static final Rotation2d scoreAngle;
 
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity")
+  @Getter
+  private static final double scoreVelocity;
+
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
   @Getter
   private static final Rotation2d feedAngle;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity")
+  @Getter
+  private static final double feedVelocity;
+
+  @Getter private static final SpindexerOffsets spindexerOffsets;
 
   private static final FieldZone globalZone;
 
@@ -55,7 +66,12 @@ public class V1_DoomSpiralRobotState {
             2);
 
     scoreAngle = new Rotation2d();
+    scoreVelocity = 0;
+
     feedAngle = new Rotation2d();
+    feedVelocity = 0;
+
+    spindexerOffsets = new SpindexerOffsets(0, 0, 0);
   }
 
   public static void periodic(
@@ -87,5 +103,18 @@ public class V1_DoomSpiralRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
+  }
+
+  @Data
+  public static class SpindexerOffsets {
+    private double spindexer;
+    private double feeder;
+    private double kicker;
+
+    public SpindexerOffsets(double spindexer, double feeder, double kicker) {
+      this.spindexer = spindexer;
+      this.feeder = feeder;
+      this.kicker = kicker;
+    }
   }
 }

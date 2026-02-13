@@ -70,4 +70,29 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return Commands.sequence(
         Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());
   }
+
+  public Command runZeroSequence() {
+    return Commands.runOnce(() -> setPosition(new Rotation2d(0)))
+        .andThen(Commands.runOnce(() -> setPositionGoal(new Rotation2d(0))));
+  }
+
+  public Command clockwiseSlow() {
+    return Commands.runOnce(() -> setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
+  }
+
+  public Command counterClockwiseSlow() {
+    return Commands.runOnce(() -> setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
+  }
+
+  public Command setPositionDefault() {
+    return Commands.runOnce(
+        () -> setPositionGoal(V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition()));
+  }
+
+  public Command setPositionL1() {
+    return Commands.runOnce(
+        () ->
+            setPositionGoal(
+                V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition()));
+  }
 }
