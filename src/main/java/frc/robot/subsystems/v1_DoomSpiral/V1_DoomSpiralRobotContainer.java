@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -34,6 +35,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
+import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
@@ -210,6 +212,21 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
+    driver
+        .x()
+        .onTrue(
+            new ConditionalCommand(
+                climber.setPositionGoal(ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition()),
+                climber.setPositionGoal(ClimberGoal.DEFAULT.getPosition()),
+                () -> climber.getArmPosition().equals(ClimberGoal.DEFAULT.getPosition())))
+        .whileTrue(
+            climber
+                .waitUntilPosition()
+                .andThen(
+                    DriveCommands.autoAlignTowerCommand(
+                        drive,
+                        V1_DoomSpiralRobotState::getGlobalPose,
+                        V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
   }
 
   private void configureAutos() {
