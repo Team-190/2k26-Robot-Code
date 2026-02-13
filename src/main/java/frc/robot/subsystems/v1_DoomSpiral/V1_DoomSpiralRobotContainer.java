@@ -18,10 +18,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
@@ -32,13 +29,13 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralIntakeTest;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
-import frc.robot.subsystems.shared.hood.Hood;
-import frc.robot.subsystems.shared.hood.HoodIO;
-import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
+import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
+import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
@@ -50,8 +47,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
-import frc.robot.util.XKeysInput;
-
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -62,8 +57,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
 
-  private Hood hood;
-  private GenericFlywheel flywheel;
   private V1_DoomSpiralShooter shooter;
 
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -111,6 +104,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralSpindexerConstants.FEEDER_ROLLER_CONSTANTS),
                   "Kicker",
                   "Feeder");
+
+          shooter =
+              new V1_DoomSpiralShooter(
+                  new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
+                  new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
+
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -161,13 +160,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
-          
-          
-          shooter=
+
+          shooter =
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFXSim(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
-                  new HoodIO() {
-                  });
+                  new HoodIOTalonFXSim(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
           break;
 
         default:
@@ -232,12 +229,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
-    driver.b().whileTrue(spindexer.setVoltage(FeederConstants.FEED_SETPOINT));
-    driver.b().whileTrue(shooter.setHoodVoltage(FeederConstants.FEED_SETPOINT));
-    driver.b().whileTrue(shooter.setFlywheelVoltage(FeederConstants.FEED_SETPOINT));
-    driver.b().whileTrue(intake.setRollerVoltage(FeederConstants.FEED_SETPOINT));
 
-    
+    driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
   }
 
   private void configureAutos() {

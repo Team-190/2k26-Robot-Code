@@ -29,9 +29,17 @@ public class V1_DoomSpiralRobotState {
   @Getter
   private static final Rotation2d scoreAngle;
 
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity")
+  @Getter
+  private static final double scoreVelocity;
+
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
   @Getter
   private static final Rotation2d feedAngle;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity")
+  @Getter
+  private static final double feedVelocity;
 
   private static final FieldZone globalZone;
 
@@ -47,7 +55,10 @@ public class V1_DoomSpiralRobotState {
             2);
 
     scoreAngle = new Rotation2d();
+    scoreVelocity = 0;
+
     feedAngle = new Rotation2d();
+    feedVelocity = 0;
   }
 
   public static void periodic(
