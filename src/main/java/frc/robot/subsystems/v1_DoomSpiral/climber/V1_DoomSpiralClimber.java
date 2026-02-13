@@ -85,12 +85,14 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command setPositionDefault() {
-    return Commands.runOnce(()->setPositionGoal(
-                V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition()));
+    return Commands.runOnce(
+        () -> setPositionGoal(V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition()));
   }
 
   public Command setPositionL1() {
-    return Commands.runOnce(()->setPositionGoal(
+    return Commands.runOnce(
+        () ->
+            setPositionGoal(
                 V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition()));
   }
 }
