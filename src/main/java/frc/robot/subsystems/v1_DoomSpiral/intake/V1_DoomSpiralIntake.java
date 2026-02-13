@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -63,6 +64,11 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
         Commands.parallel(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
         Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
         () -> intakeState.equals(IntakeState.STOW));
+  }
+
+  public Command resetIntakeZero() {
+    return Commands.sequence(
+        linkage.setPosition(Rotation2d.kZero), linkage.setPositionGoal(Rotation2d.kZero));
   }
 
   public Transform3d getHopperWallTransform() {

@@ -264,6 +264,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage());
     xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
     xkeys.d5().onTrue(spindexer.decreaseFeederVoltage());
+
+    xkeys.h8().onTrue(climber.resetClimberZero());
+    xkeys.h9().onTrue(intake.resetIntakeZero());
+    xkeys.h10().whileTrue(shooter.zeroHood());
   }
 
   private void configureAutos() {

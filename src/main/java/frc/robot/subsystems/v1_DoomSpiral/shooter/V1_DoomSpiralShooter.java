@@ -23,6 +23,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     hood =
         new Hood(
             hoodIO,
+            V1_DoomSpiralShooterConstants.HOOD_CONSTANTS,
             this,
             1,
             V1_DoomSpiralRobotState::getScoreAngle,
@@ -45,6 +46,10 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public Command stopHood() {
     return hood.setVoltage(0);
+  }
+
+  public Command zeroHood() {
+    return hood.resetHoodZero();
   }
 
   public Command setFlywheelGoal(double velocityRadiansPerSecond, boolean useTorqueControl) {
