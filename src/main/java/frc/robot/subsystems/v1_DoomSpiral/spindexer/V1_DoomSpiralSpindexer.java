@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralSpindexer extends SubsystemBase {
@@ -15,6 +17,7 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
   private double voltageGoal;
   private GenericRoller kicker;
   private GenericRoller feeder;
+  private V1_DoomSpiralRobotState robotState;
 
   /**
    * Constructor for the DoomSpiral Spindexer subsystem.
@@ -75,5 +78,25 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () -> {
           voltageGoal = 0;
         });
+  }
+
+  public Command increaseSpindexerSpeed() {
+    voltageGoal += 0.25;
+    return Commands.runOnce(() -> this.setVoltage(voltageGoal));
+  }
+
+  public Command decreaseSpindexerSpeed() {
+    voltageGoal -= 0.25;
+    return Commands.runOnce(() -> this.setVoltage(voltageGoal));
+  }
+
+  public Command decreaseFeederSpeed() {
+    voltageGoal -= 0.25;
+    return Commands.runOnce(() -> feeder.setVoltage(voltageGoal));
+  }
+
+  public Command increaseFeederSpeed() {
+    voltageGoal += 0.25;
+    return Commands.runOnce(() -> feeder.setVoltage(voltageGoal));
   }
 }

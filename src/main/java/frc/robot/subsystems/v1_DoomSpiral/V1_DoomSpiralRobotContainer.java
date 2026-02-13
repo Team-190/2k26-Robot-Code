@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -41,6 +42,8 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
+import frc.robot.util.XKeysInput;
+
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -50,6 +53,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
+  private XKeysInput xkeys = new XKeysInput(1);
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -210,6 +214,24 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
+    xkeys
+        .b5()
+        .whileTrue(Commands.run(() -> spindexer.setVoltage(2)));
+    xkeys
+        .b6()
+        .whileTrue(Commands.run(() -> spindexer.setVoltage(-2)));
+    xkeys
+        .c5()
+        .onTrue(Commands.run(() -> spindexer.increaseSpindexerSpeed()));
+    xkeys
+        .c6()
+        .onTrue(Commands.runOnce(() -> spindexer.decreaseSpindexerSpeed()));
+    xkeys
+        .d5()
+        .onTrue(Commands.runOnce(() -> spindexer.increaseFeederSpeed()));
+    xkeys
+        .d5()
+        .onTrue(Commands.runOnce(() -> spindexer.decreaseFeederSpeed()));
   }
 
   private void configureAutos() {
