@@ -13,6 +13,7 @@ import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
+import lombok.Data;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -43,6 +44,8 @@ public class V1_DoomSpiralRobotState {
   @Getter
   private static final double feedVelocity;
 
+  @Getter private static final SpindexerOffsets spindexerOffsets;
+
   private static final FieldZone globalZone;
 
   static {
@@ -63,6 +66,7 @@ public class V1_DoomSpiralRobotState {
     feedVelocity = 0;
 
     SHOOTER_OFFSETS = new V1_DoomSpiralShooterOffsets(0, new Rotation2d(0));
+    spindexerOffsets = new SpindexerOffsets(0, 0, 0);
   }
 
   public static void periodic(
@@ -94,5 +98,18 @@ public class V1_DoomSpiralRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
+  }
+
+  @Data
+  public static class SpindexerOffsets {
+    private double spindexer;
+    private double feeder;
+    private double kicker;
+
+    public SpindexerOffsets(double spindexer, double feeder, double kicker) {
+      this.spindexer = spindexer;
+      this.feeder = feeder;
+      this.kicker = kicker;
+    }
   }
 }
