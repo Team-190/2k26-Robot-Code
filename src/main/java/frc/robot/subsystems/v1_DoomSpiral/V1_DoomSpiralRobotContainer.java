@@ -6,7 +6,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -256,11 +255,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.e10().onTrue(climber.runZeroSequence());
 
     xkeys.b5().whileTrue(spindexer.setVoltage(2));
-    xkeys.b6().whileTrue(spindexer.setVoltage(-2)); // TODO: Fix this
+    xkeys.b6().whileTrue(spindexer.setVoltage(-2));
     xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage());
-    xkeys.c6().onTrue(Commands.runOnce(() -> spindexer.decreaseSpindexerVoltage()));
-    xkeys.d5().onTrue(Commands.runOnce(() -> spindexer.increaseFeederVoltage()));
-    xkeys.d5().onTrue(Commands.runOnce(() -> spindexer.decreaseFeederVoltage()));
+    xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage());
+    xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
+    xkeys.d5().onTrue(spindexer.decreaseFeederVoltage());
   }
 
   private void configureAutos() {
