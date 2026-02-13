@@ -32,7 +32,8 @@ public class HoodConstants {
   public enum HoodGoal {
     SCORE,
     FEED,
-    STOW
+    STOW,
+    OVERRIDE
   }
 
   @Builder(setterPrefix = "with")
