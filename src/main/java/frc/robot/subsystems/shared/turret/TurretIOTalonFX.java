@@ -10,8 +10,8 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
@@ -38,8 +38,8 @@ public class TurretIOTalonFX implements TurretIO {
   protected final TalonFX talonFX;
   private final TalonFXConfiguration config;
 
-  protected final CANcoder rightCANCoder;
-  protected final CANcoder leftCANCoder;
+  protected final CANcoder encoder2;
+  protected final CANcoder encoder1;
 
   private final VoltageOut voltageControlRequest;
   private final MotionMagicVoltage positionControlRequest;
@@ -55,8 +55,8 @@ public class TurretIOTalonFX implements TurretIO {
 
     talonFX = new TalonFX(constants.turretCANID, constants.canBus);
 
-    leftCANCoder = new CANcoder(constants.leftEncoderID, talonFX.getNetwork());
-    rightCANCoder = new CANcoder(constants.rightEncoderID, talonFX.getNetwork());
+    encoder1 = new CANcoder(constants.encoder1ID, talonFX.getNetwork());
+    encoder2 = new CANcoder(constants.encoder2ID, talonFX.getNetwork());
 
     config = new TalonFXConfiguration();
     config.Feedback.SensorToMechanismRatio = constants.gearRatio;
@@ -74,32 +74,33 @@ public class TurretIOTalonFX implements TurretIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle / (2 * Math.PI);
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle / (2 * Math.PI);
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle.getRotations();
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle.getRotations();
     config.MotionMagic.MotionMagicAcceleration =
         constants.constraints.maxAccelerationRadiansPerSecondSquared().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
         constants.constraints.cruisingVelocityRadiansPerSecond().get();
+
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
-    var leftCANcoderConfig = new CANcoderConfiguration();
-    leftCANcoderConfig
+    var e1CANcoderConfig = new CANcoderConfiguration();
+    e1CANcoderConfig
         .MagnetSensor
         .withAbsoluteSensorDiscontinuityPoint(1)
-        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+        .withSensorDirection(constants.encoderInversion)
         .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
-    PhoenixUtil.tryUntilOk(5, () -> leftCANCoder.getConfigurator().apply(leftCANcoderConfig, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(e1CANcoderConfig, 0.25));
 
-    var rightCANcoderConfig =
-        leftCANcoderConfig
+    var e2CANcoderConfig =
+        e1CANcoderConfig
             .clone()
             .withMagnetSensor(
-                leftCANcoderConfig
+                e1CANcoderConfig
                     .MagnetSensor
                     .clone()
-                    .withMagnetOffset(Radians.of(constants.e1Offset.getRadians())));
-    PhoenixUtil.tryUntilOk(
-        5, () -> rightCANCoder.getConfigurator().apply(rightCANcoderConfig, 0.25));
+                    .withMagnetOffset(Radians.of(constants.e2Offset.getRadians())));
+    PhoenixUtil.tryUntilOk(5, () -> encoder2.getConfigurator().apply(e2CANcoderConfig, 0.25));
 
     position = talonFX.getPosition();
     velocity = talonFX.getVelocity();
@@ -111,8 +112,8 @@ public class TurretIOTalonFX implements TurretIO {
     torqueCurrent = talonFX.getTorqueCurrent();
     appliedVolts = talonFX.getMotorVoltage();
 
-    e1 = leftCANCoder.getPosition();
-    e2 = rightCANCoder.getPosition();
+    e1 = encoder1.getAbsolutePosition();
+    e2 = encoder2.getAbsolutePosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
@@ -128,8 +129,8 @@ public class TurretIOTalonFX implements TurretIO {
         e1,
         e2);
     talonFX.optimizeBusUtilization();
-    leftCANCoder.optimizeBusUtilization();
-    rightCANCoder.optimizeBusUtilization();
+    encoder1.optimizeBusUtilization();
+    encoder2.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
         constants.canBus.isNetworkFD(),
@@ -150,8 +151,8 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setPosition(Rotation2d radians) {
-    talonFX.setPosition(radians.getRotations());
+  public void setPosition(Rotation2d position) {
+    talonFX.setPosition(position.getRotations());
   }
 
   @Override
@@ -167,15 +168,15 @@ public class TurretIOTalonFX implements TurretIO {
   @Override
   public void updateInputs(TurretIOInputs inputs) {
 
-    inputs.turretAngle = new Rotation2d(position.getValueAsDouble());
+    inputs.turretAngle = new Rotation2d(position.getValue());
     inputs.turretVelocityRadiansPerSecond = velocity.getValue().in(Units.RadiansPerSecond);
     inputs.turretAppliedVolts = appliedVolts.getValueAsDouble();
     inputs.turretSupplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.turretTorqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.turretTemperatureCelsius = temperature.getValueAsDouble();
     inputs.turretPositionSetpoint = Rotation2d.fromRotations(positionSetpoint.getValueAsDouble());
-    inputs.turretPositionError = new Rotation2d(positionError.getValueAsDouble());
-    inputs.turretGoal = new Rotation2d(positionGoal.getValueAsDouble());
+    inputs.turretPositionError = Rotation2d.fromRotations(positionError.getValueAsDouble());
+    inputs.turretGoal = Rotation2d.fromRotations(positionGoal.getValueAsDouble());
 
     inputs.encoder1Position = new Rotation2d(e1.getValue());
     inputs.encoder2Position = new Rotation2d(e2.getValue());
@@ -207,11 +208,11 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public Angle getEncoder1Position() {
-    return leftCANCoder.getAbsolutePosition().getValue();
+    return e1.getValue();
   }
 
   @Override
   public Angle getEncoder2Position() {
-    return rightCANCoder.getAbsolutePosition().getValue();
+    return e2.getValue();
   }
 }

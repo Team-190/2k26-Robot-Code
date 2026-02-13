@@ -1,8 +1,11 @@
 package frc.robot.subsystems.v0_Funky.shooter;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.CurrentLimits;
@@ -10,12 +13,11 @@ import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretConstraints;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretGains;
-import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 
 public class ShooterConstants {
   public static final int SHOOTER_ID = 30;
   public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
-  public static final GenericFlywheelConstants SHOOT_CONSTANTS =
+  public static final GenericFlywheelConstants SHOOTER_FLYWHEEL_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(SHOOTER_ID)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
@@ -44,39 +46,46 @@ public class ShooterConstants {
       TurretConstants.builder()
           .withMotorConfig(DCMotor.getKrakenX60Foc(1))
           .withMomentOfInertia(0.004)
-          .withTurretCANID(1)
-          .withCanBus(V0_FunkyConstants.DRIVE_CONFIG.canBus())
-          .withLeftEncoderID(2)
-          .withRightEncoderID(3)
-          .withMaxAngle(2 * Math.PI)
-          .withMinAngle(-2 * Math.PI)
-          .withGearRatio(5.0)
+          .withTurretCANID(2)
+          .withMotorInversion(InvertedValue.CounterClockwise_Positive)
+          .withEncoderInversion(SensorDirectionValue.Clockwise_Positive)
+          .withCanBus(new CANBus())
+          .withEncoder1ID(16)
+          .withEncoder2ID(15)
+          .withMaxAngle(Rotation2d.fromRadians(2 * Math.PI))
+          .withMinAngle(Rotation2d.fromRadians(-2 * Math.PI))
+          .withGearRatio(120.0 / 20)
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(Rotation2d.kZero)
-          .withE2Offset(Rotation2d.kZero)
+          .withE1Offset(
+              Rotation2d.fromRotations(-0.521973)
+                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
+          .withE2Offset(
+              Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
           .withGains(
               TurretGains.builder()
-                  .withKP(new LoggedTunableNumber("Turret/Kp", 0))
-                  .withKD(new LoggedTunableNumber("Turret/Kd", 0))
-                  .withKS(new LoggedTunableNumber("Turret/Ks", 0))
-                  .withKV(new LoggedTunableNumber("Turret/Kv", 0))
-                  .withKA(new LoggedTunableNumber("Turret/Ka", 0))
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 28.624920))
+                  .withKD(new LoggedTunableNumber("Turret/Kd", 0.5))
+                  .withKS(new LoggedTunableNumber("Turret/Ks", 0.158040))
+                  .withKV(new LoggedTunableNumber("Turret/Kv", 0.11377))
+                  .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
                   .build())
           .withConstraints(
               TurretConstraints.builder()
                   .withCruisingVelocityRadiansPerSecond(
-                      new LoggedTunableNumber("Turret/CruisingVelocityRadiansPerSecond", 0))
+                      new LoggedTunableNumber("Turret/CruisingVelocityRadiansPerSecond", 35.566371))
                   .withMaxAccelerationRadiansPerSecondSquared(
-                      new LoggedTunableNumber("Turret/MaxAccelerationRadiansPerSecondSquared", 0))
+                      new LoggedTunableNumber(
+                          "Turret/MaxAccelerationRadiansPerSecondSquared", 89.566371))
                   .withGoalToleranceRadians(
-                      new LoggedTunableNumber("Turret/GoalToleranceRadians", 0))
+                      new LoggedTunableNumber(
+                          "Turret/GoalToleranceRadians", Units.degreesToRadians(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
-                  .withGear0ToothCount(70.0)
-                  .withGear1ToothCount(38.0)
-                  .withGear2ToothCount(36.0)
+                  .withGear0ToothCount(120)
+                  .withGear1ToothCount(16)
+                  .withGear2ToothCount(17)
                   .build())
           .build();
 }

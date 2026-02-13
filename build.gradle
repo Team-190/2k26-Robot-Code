@@ -129,7 +129,7 @@ repositories {
                 includeGroup "edu.wpi.team190"
             }
         }
-    }  else {
+    } else {
         println "Using local GompeiLib build."
 
         mavenLocal()

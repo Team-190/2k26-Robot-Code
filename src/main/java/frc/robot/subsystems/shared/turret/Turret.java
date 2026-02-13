@@ -1,13 +1,12 @@
 package frc.robot.subsystems.shared.turret;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -47,9 +46,9 @@ public class Turret {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(0.25).per(Seconds),
+                Volts.of(2),
+                Seconds.of(5),
                 (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
             new SysIdRoutine.Mechanism(
                 (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
@@ -92,17 +91,20 @@ public class Turret {
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+    Logger.recordOutput(
+        aKitTopic + "/CRT Angle",
+        calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
 
     Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
 
     switch (state) {
       case CLOSED_LOOP_POSITION_CONTROL ->
-          io.setTurretGoal(clampShortest(state.getRotation(), inputs.turretAngle));
+          io.setTurretGoal(wrapRotationWithinBounds(state.getRotation(), inputs.turretAngle));
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
       case CLOSED_LOOP_AUTO_AIM_CONTROL ->
           io.setTurretGoal(
-              clampShortest(
+              wrapRotationWithinBounds(
                   state
                       .getTranslation()
                       .minus(robotPoseSupplier.get().getTranslation())
@@ -114,8 +116,9 @@ public class Turret {
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return (!(previousPosition.getDegrees() + angle.getDegrees() <= constants.maxAngle)
-        || !(previousPosition.getDegrees() + angle.getDegrees() >= constants.minAngle));
+    return (!(previousPosition.getDegrees() + angle.getDegrees() <= constants.maxAngle.getDegrees())
+        || !(previousPosition.getDegrees() + angle.getDegrees()
+            >= constants.minAngle.getDegrees()));
   }
 
   public Command setTurretVoltage(double volts) {
@@ -181,71 +184,71 @@ public class Turret {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
-  private Rotation2d clampShortest(Rotation2d target, Rotation2d current) {
-    double targetRad = target.getRadians();
-    double currentRad = current.getRadians();
-    double minRad = constants.minAngle;
-    double maxRad = constants.maxAngle;
+  private Rotation2d wrapRotationWithinBounds(Rotation2d target, Rotation2d current) {
+    double currentTotalRad = current.getRadians();
+    double minRad = constants.minAngle.getRadians();
+    double maxRad = constants.maxAngle.getRadians();
 
-    // Try both the direct target and the wrapped alternatives
-    double[] candidates = {targetRad, targetRad + 2 * Math.PI, targetRad - 2 * Math.PI};
+    double diff = target.getRadians() - currentTotalRad;
+    double unwound = currentTotalRad + Math.IEEEremainder(diff, 2 * Math.PI);
 
-    double bestValid = Double.NaN;
-    double bestDistance = Double.POSITIVE_INFINITY;
+    if (unwound >= minRad && unwound <= maxRad) {
+      return Rotation2d.fromRadians(unwound);
+    }
 
-    for (double candidate : candidates) {
-      // Check if this candidate is within limits
-      if (candidate >= minRad && candidate <= maxRad) {
-        double distance = Math.abs(candidate - currentRad);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          bestValid = candidate;
-        }
+    if (unwound < minRad) {
+      double n = Math.ceil((minRad - unwound) / (2 * Math.PI));
+      double candidate = unwound + n * 2 * Math.PI;
+
+      if (candidate <= maxRad) {
+        return Rotation2d.fromRadians(candidate);
+      }
+    } else if (unwound > maxRad) {
+      double n = Math.ceil((unwound - maxRad) / (2 * Math.PI));
+      double candidate = unwound - n * 2 * Math.PI;
+
+      if (candidate >= minRad) {
+        return Rotation2d.fromRadians(candidate);
       }
     }
 
-    // If we found a valid angle, use it
-    if (!Double.isNaN(bestValid)) {
-      return Rotation2d.fromRadians(bestValid);
-    }
-
-    return Rotation2d.fromRadians(
-        currentRad < minRad
-            ? minRad
-            : currentRad > maxRad
-                ? maxRad
-                : (Math.abs(currentRad - minRad) < Math.abs(currentRad - maxRad)
-                    ? minRad
-                    : maxRad));
+    // Not possible... return target angle (io handles this by going to the closest bound)
+    return target;
   }
 
-  /** Method that calculates turret angle based on encoder values. Can be non coprime or coprime! */
-  private Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
-    // 1. Get raw radians in [0, 2pi)
-    // We use 0 to 2pi to clarify the subtraction logic
-    double a1 = MathUtil.inputModulus(e1.in(Units.Radians), 0, 2 * Math.PI);
-    double a2 = MathUtil.inputModulus(e2.in(Units.Radians), 0, 2 * Math.PI);
+  /**
+   * Method that calculates turret angle based on encoder values. Uses the Chinese Remainder
+   * Theorem.
+   */
+  public Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
 
-    // 4. Calculate the Phase Difference
-    // We wrap this difference to [-pi, pi) to handle the 0/360 crossover point gracefully.
-    double d_x12 = MathUtil.angleModulus(a1 - a2);
+    // Get encoder positions in rotations (0 to 1), using full floating point precision
+    double e1Rotations = e1.in(Rotations) % 1.0;
+    if (e1Rotations < 0) {
+      e1Rotations += 1.0;
+    }
 
-    // 5. Calculate Coarse Angle (The "Vernier" Estimate)
-    double coarseAngle = d_x12 / constants.turretAngleCalculation.GEAR_RATIO_DIFFERENCE();
+    double e2Rotations = e2.in(Rotations) % 1.0;
+    if (e2Rotations < 0) {
+      e2Rotations += 1.0;
+    }
 
-    // 6. Refine using Encoder 1 (High Precision)
-    // We use the coarse angle to find which rotation "k" Encoder 1 is on.
-    // Expected = Coarse * n1
-    double expectedEnc1Total = coarseAngle * constants.turretAngleCalculation.GEAR_1_RATIO();
+    // Calculate difference (preserving full precision)
+    double diff = (e1Rotations - e2Rotations);
 
-    // Find integer k to unwrap a1
-    // k = round( (Expected - Actual) / 2pi )
-    double k = Math.round((expectedEnc1Total - a1) / (2.0 * Math.PI));
+    // Normalize difference to [0, 1)
+    diff = diff % 1.0;
+    if (diff < 0) {
+      diff += 1.0;
+    }
 
-    // 7. Calculate Final Angle
-    double finalEnc1Total = a1 + (k * 2.0 * Math.PI);
-    double turretAngle = finalEnc1Total / constants.turretAngleCalculation.GEAR_1_RATIO();
+    // Direct calculation: θ = Δ * (g1*g2/g0)
+    double turretRotations =
+        diff
+            * constants.turretAngleCalculation.gear1ToothCount()
+            * constants.turretAngleCalculation.gear2ToothCount()
+            / (double) constants.turretAngleCalculation.gear0ToothCount();
 
-    return Rotation2d.fromRadians(MathUtil.angleModulus(turretAngle));
+    return Rotation2d.fromRotations(turretRotations);
   }
 }

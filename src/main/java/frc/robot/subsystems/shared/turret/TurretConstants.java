@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shared.turret;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
@@ -11,10 +13,12 @@ import lombok.NonNull;
 public class TurretConstants {
 
   @NonNull public final Integer turretCANID;
-  @NonNull public final Integer leftEncoderID;
-  @NonNull public final Integer rightEncoderID;
-  @NonNull public final Double maxAngle;
-  @NonNull public final Double minAngle;
+  @NonNull public final Integer encoder1ID;
+  @NonNull public final Integer encoder2ID;
+  @NonNull public final InvertedValue motorInversion;
+  @NonNull public final SensorDirectionValue encoderInversion;
+  @NonNull public final Rotation2d maxAngle;
+  @NonNull public final Rotation2d minAngle;
   @NonNull public final Double gearRatio;
   @NonNull public final TurretGains gains;
   @NonNull public final TurretConstraints constraints;
@@ -46,14 +50,14 @@ public class TurretConstants {
 
   @Builder(setterPrefix = "with")
   public record TurretAngleCalculation(
-      Double gear0ToothCount, Double gear1ToothCount, Double gear2ToothCount) {
+      int gear0ToothCount, int gear1ToothCount, int gear2ToothCount) {
 
-    public double GEAR_1_RATIO() {
-      return gear0ToothCount / gear1ToothCount;
+    public double gear1Ratio() {
+      return (double) gear0ToothCount / gear1ToothCount;
     }
 
-    public double GEAR_2_RATIO() {
-      return gear0ToothCount / gear2ToothCount;
+    public double gear2Ratio() {
+      return (double) gear0ToothCount / gear2ToothCount;
     }
 
     /**
@@ -61,8 +65,8 @@ public class TurretConstants {
      *
      * @return the difference between the gear 1 ratio and gear 2 ratio.
      */
-    public double GEAR_RATIO_DIFFERENCE() {
-      return GEAR_1_RATIO() - GEAR_2_RATIO();
+    public double gearRatioDifference() {
+      return gear1Ratio() - gear2Ratio();
     }
   }
 }
