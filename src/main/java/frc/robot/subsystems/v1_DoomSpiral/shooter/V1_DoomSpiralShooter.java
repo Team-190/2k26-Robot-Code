@@ -9,6 +9,7 @@ import frc.robot.subsystems.shared.hood.Hood;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import java.util.function.DoubleSupplier;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
@@ -18,7 +19,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public V1_DoomSpiralShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
 
-    flywheel = new GenericFlywheel(flywheelIO, this, "Flywheel 1");
+    flywheel = new GenericFlywheel(flywheelIO, this, "1");
     hood =
         new Hood(
             hoodIO,
@@ -61,5 +62,18 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
     return Commands.parallel(
         setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, true));
+  }
+
+  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond) {
+    return Commands.parallel(
+        setHoodGoal(hoodGoal), flywheel.setGoal(velocityRadiansPerSecond.getAsDouble(), true));
+  }
+
+  public boolean atGoal() {
+    return hood.atGoal() && flywheel.atGoal();
+  }
+
+  public Command waitUntilAtGoal() {
+    return hood.waitUntilHoodAtGoal().alongWith(flywheel.waitUntilAtGoal());
   }
 }
