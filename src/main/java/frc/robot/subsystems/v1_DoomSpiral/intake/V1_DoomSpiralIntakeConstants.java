@@ -14,8 +14,6 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);

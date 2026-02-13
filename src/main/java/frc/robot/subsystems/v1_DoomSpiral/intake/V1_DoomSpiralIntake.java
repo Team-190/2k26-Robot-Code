@@ -9,12 +9,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
 import lombok.Getter;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
-import java.util.List;
-import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralIntake extends SubsystemBase {
   private GenericRoller topRoller;
@@ -47,14 +44,18 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command deploy() {
-    return Commands.sequence(Commands.runOnce(() -> intakeState = IntakeState.INTAKE), linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.DEPLOY_ANGLE));
+    return Commands.sequence(
+        Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
+        linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.DEPLOY_ANGLE));
   }
 
   public Command stow() {
-    return Commands.sequence(Commands.runOnce(() -> intakeState = IntakeState.STOW), linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.STOW_ANGLE));
+    return Commands.sequence(
+        Commands.runOnce(() -> intakeState = IntakeState.STOW),
+        linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.STOW_ANGLE));
   }
 
-    public Command toggleIntake() {
+  public Command toggleIntake() {
     return Commands.either(
         Commands.parallel(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
         Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
