@@ -233,12 +233,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.e9().whileTrue(climber.setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
 
-    xkeys
-        .e10()
-        .onTrue(
-            climber
-                .setPosition(new Rotation2d(0))
-                .alongWith(climber.setPositionGoal(new Rotation2d(0))));
+    xkeys.e10().onTrue(climber.runZeroSequence());
   }
 
   private void configureAutos() {
