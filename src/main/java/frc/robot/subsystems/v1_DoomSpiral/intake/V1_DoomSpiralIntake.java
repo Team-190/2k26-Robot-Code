@@ -1,9 +1,5 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
-import java.util.List;
-
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -16,6 +12,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
 import lombok.Getter;
+import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralIntake extends SubsystemBase {
   private GenericRoller topRoller;
