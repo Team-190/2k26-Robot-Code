@@ -1,5 +1,9 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
+import java.util.List;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -33,6 +37,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     topRoller.periodic();
     bottomRoller.periodic();
     linkage.periodic();
+
+    Logger.recordOutput("Intake/Intake State", intakeState);
   }
 
   public Command setRollerVoltage(double voltage) {
