@@ -51,15 +51,15 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         hood.getOverridePosition()
             .plus(
                 Rotation2d.fromDegrees(
-                    V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_DEGREES)));
+                    V1_DoomSpiralShooterConstants.SHOOTER_OFFSETS.hoodAngleOffsetRPS())));
   }
 
   public Command decrementHoodAngle() {
     return setOverrideHoodGoal(
         hood.getOverridePosition()
-            .plus(
+            .minus(
                 Rotation2d.fromDegrees(
-                    V1_DoomSpiralShooterConstants.HOOD_ANGLE_DECREMENT_DEGREES)));
+                    V1_DoomSpiralShooterConstants.SHOOTER_OFFSETS.hoodAngleOffsetRPS())));
   }
 
   public Command setHoodVoltage(double volts) {
@@ -77,14 +77,14 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   public Command incrementFlywheelVelocity() {
     return setFlywheelGoal(
         flywheel.getVelocityGoalRadiansPerSecond()
-            + V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS,
+            + V1_DoomSpiralShooterConstants.SHOOTER_OFFSETS.flywheelVelocityOffsetRPS(),
         false);
   }
 
   public Command decrementFlywheelVelocity() {
     return setFlywheelGoal(
         flywheel.getVelocityGoalRadiansPerSecond()
-            + V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_DECREMENT_RPS,
+            - V1_DoomSpiralShooterConstants.SHOOTER_OFFSETS.flywheelVelocityOffsetRPS(),
         false);
   }
 

@@ -7,14 +7,11 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import frc.robot.subsystems.shared.hood.HoodConstants;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState.shooterOffsets;
 
 public class V1_DoomSpiralShooterConstants {
 
-  public static final double FLYWHEEL_VELOCITY_INCREMENT_RPS = 1;
-  public static final double FLYWHEEL_VELOCITY_DECREMENT_RPS = -1;
-
-  public static final double HOOD_ANGLE_INCREMENT_DEGREES = 1;
-  public static final double HOOD_ANGLE_DECREMENT_DEGREES = -1;
+  public static final shooterOffsets SHOOTER_OFFSETS = new shooterOffsets(1, 1);
 
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
