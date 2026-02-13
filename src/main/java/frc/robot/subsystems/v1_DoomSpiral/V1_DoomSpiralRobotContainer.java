@@ -64,10 +64,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralShooter shooter;
 
   private final CommandXboxController driver = new CommandXboxController(0);
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
-
-  private final XKeysInput xkeys = new XKeysInput(1);
 
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -251,6 +250,15 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     driver.leftBumper().onTrue(intake.toggleIntake());
 
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
+
+    // Shooter button board commands
+    xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
+
+    xkeys.f6().onTrue(shooter.decrementFlywheelVelocity());
+
+    xkeys.g5().onTrue(shooter.incrementHoodAngle());
+
+    xkeys.g6().onTrue(shooter.decrementHoodAngle());
 
     // Climber button board commands
     xkeys.d8().onTrue(climber.setPositionDefault());

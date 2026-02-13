@@ -13,6 +13,8 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -27,6 +29,8 @@ public class Hood {
 
   private HoodGoal positionGoal;
   private double voltageGoal;
+
+  @Getter @Setter private Rotation2d overridePosition;
 
   private final Supplier<Rotation2d> scoreRotationSupplier;
   private final Supplier<Rotation2d> feedRotationSupplier;
@@ -71,6 +75,7 @@ public class Hood {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
         Rotation2d position;
@@ -80,6 +85,9 @@ public class Hood {
             break;
           case FEED:
             position = feedRotationSupplier.get();
+            break;
+          case OVERRIDE:
+            position = overridePosition;
             break;
           case STOW:
           default:
