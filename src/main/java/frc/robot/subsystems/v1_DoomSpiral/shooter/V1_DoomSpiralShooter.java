@@ -41,21 +41,28 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setOverrideHoodGoal(Rotation2d position) {
-    return Commands.runOnce(() -> hood.setOverridePosition(position
-    .plus(V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getHoodAngleOffsetRotations())))
+    return Commands.runOnce(
+            () ->
+                hood.setOverridePosition(
+                    position.plus(
+                        V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getHoodAngleOffsetRotations())))
         .andThen(hood.setGoal(HoodGoal.OVERRIDE));
   }
 
   public Command incrementHoodAngle() {
-    return Commands.runOnce(() -> V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setHoodAngleOffsetRotations(
-      (V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getHoodAngleOffsetRotations())
-      .plus(V1_DoomSpiralShooterConstants.hoodAngleIncrementRotations)));
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setHoodAngleOffsetRotations(
+                (V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getHoodAngleOffsetRotations())
+                    .plus(V1_DoomSpiralShooterConstants.hoodAngleIncrementRotations)));
   }
 
   public Command decrementHoodAngle() {
-    return Commands.runOnce(() -> V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setHoodAngleOffsetRotations(
-      (V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getHoodAngleOffsetRotations())
-      .minus(V1_DoomSpiralShooterConstants.hoodAngleIncrementRotations)));
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setHoodAngleOffsetRotations(
+                (V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getHoodAngleOffsetRotations())
+                    .minus(V1_DoomSpiralShooterConstants.hoodAngleIncrementRotations)));
   }
 
   public Command setHoodVoltage(double volts) {
@@ -67,19 +74,26 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setFlywheelGoal(double velocityRadiansPerSecond, boolean useTorqueControl) {
-    return flywheel.setGoal(velocityRadiansPerSecond + V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getFlywheelVelocityOffsetRPS(), useTorqueControl);
+    return flywheel.setGoal(
+        velocityRadiansPerSecond
+            + V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getFlywheelVelocityOffsetRPS(),
+        useTorqueControl);
   }
 
   public Command incrementFlywheelVelocity() {
-    return Commands.runOnce(() -> V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setFlywheelVelocityOffsetRPS(
-      V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getFlywheelVelocityOffsetRPS()
-      + V1_DoomSpiralShooterConstants.flywheelVelocityIncrementRPS));
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setFlywheelVelocityOffsetRPS(
+                V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getFlywheelVelocityOffsetRPS()
+                    + V1_DoomSpiralShooterConstants.flywheelVelocityIncrementRPS));
   }
 
   public Command decrementFlywheelVelocity() {
-    return Commands.runOnce(() -> V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setFlywheelVelocityOffsetRPS(
-      V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getFlywheelVelocityOffsetRPS()
-      - V1_DoomSpiralShooterConstants.flywheelVelocityIncrementRPS));
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.SHOOTER_OFFSETS.setFlywheelVelocityOffsetRPS(
+                V1_DoomSpiralRobotState.SHOOTER_OFFSETS.getFlywheelVelocityOffsetRPS()
+                    - V1_DoomSpiralShooterConstants.flywheelVelocityIncrementRPS));
   }
 
   public Command setFlywheelVoltage(double volts) {
