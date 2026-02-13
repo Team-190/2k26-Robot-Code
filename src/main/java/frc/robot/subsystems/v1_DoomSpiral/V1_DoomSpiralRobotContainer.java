@@ -66,8 +66,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private final AutoChooser autoChooser = new AutoChooser();
 
-  private final XKeysInput xkeys = new XKeysInput(1);
-
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {

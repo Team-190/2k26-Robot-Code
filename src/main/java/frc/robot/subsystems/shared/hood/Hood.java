@@ -15,8 +15,6 @@ import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
-
-import org.eclipse.core.internal.runtime.Log;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
