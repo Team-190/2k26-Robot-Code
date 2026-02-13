@@ -230,6 +230,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
+    driver.leftBumper().onTrue(intake.toggleIntake());
+
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
   }
 
