@@ -229,9 +229,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.d10().onTrue(climber.climbSequenceL3());
 
-    xkeys.e8().whileTrue(climber.setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
+    xkeys.e8().whileTrue(climber.setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
 
-    xkeys.e9().whileTrue(climber.setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
+    xkeys.e9().whileTrue(climber.setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
 
     xkeys.e10().onTrue(climber.runZeroSequence());
   }
