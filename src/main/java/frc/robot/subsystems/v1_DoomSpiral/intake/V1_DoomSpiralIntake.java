@@ -9,15 +9,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
-import java.util.List;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.LinkageState;
+import lombok.Getter;
 
 public class V1_DoomSpiralIntake extends SubsystemBase {
-  public GenericRoller topRoller;
-  public GenericRoller bottomRoller;
-  public FourBarLinkage linkage;
+  private GenericRoller topRoller;
+  private GenericRoller bottomRoller;
+  @Getter private FourBarLinkage linkage;
+
+  private LinkageState linkageState;
+  private double topRollerVoltage;
+  private double bottomRollerVoltage;
+
+  private boolean previouslyStowed;
 
   public V1_DoomSpiralIntake(
       GenericRollerIO topIO, GenericRollerIO bottomIO, FourBarLinkageIO linkageIO) {
@@ -25,39 +30,62 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     bottomRoller = new GenericRoller(bottomIO, this, "IntakeBottomFlywheel");
     linkage =
         new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, 0);
+
+    linkageState = LinkageState.STOW;
+    topRollerVoltage = 0.0;
+    bottomRollerVoltage = 0.0;
+
+    previouslyStowed = false;
   }
 
   @Override
   public void periodic() {
+    linkage.setPositionGoal(linkageState.getRotation());
+
+    if (!previouslyStowed && linkage.atGoal()) {
+      topRollerVoltage = 0.0;
+      bottomRollerVoltage = 0.0;
+    }
+
+    topRoller.setVoltage(topRollerVoltage);
+    bottomRoller.setVoltage(bottomRollerVoltage);
+
     topRoller.periodic();
     bottomRoller.periodic();
     linkage.periodic();
 
-    List<LinkageState> intakeGlobalPose = linkage.getLinkagePoses();
-
-    for (int i = 0; i < intakeGlobalPose.size(); i++) {
-      Logger.recordOutput("Intake/Linkage/Pose " + i, intakeGlobalPose.get(i).pose());
-    }
-
-    for (int i = 0; i < intakeGlobalPose.size(); i++) {
-      Logger.recordOutput("Intake/Linkage/Rotation " + i, intakeGlobalPose.get(i).rotation());
-    }
+    previouslyStowed = linkage.atGoal();
   }
 
   public Command setRollerVoltage(double voltage) {
-    return Commands.parallel(topRoller.setVoltage(voltage), bottomRoller.setVoltage(voltage));
+    return Commands.runOnce(
+        () -> {
+          topRollerVoltage = voltage;
+          bottomRollerVoltage = -voltage;
+        });
   }
 
   public Command stopRoller() {
-    return Commands.parallel(topRoller.setVoltage(0), bottomRoller.setVoltage(0));
+    return Commands.runOnce(
+        () -> {
+          topRollerVoltage = 0.0;
+          bottomRollerVoltage = 0.0;
+        });
   }
 
   public Command deploy() {
-    return linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.DEPLOY_ANGLE);
+    return Commands.runOnce(() -> linkageState = LinkageState.INTAKE);
   }
 
   public Command stow() {
-    return linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.STOW_ANGLE);
+    return Commands.runOnce(() -> linkageState = LinkageState.STOW);
+  }
+
+  public Command toggleIntake() {
+    return Commands.either(
+        Commands.parallel(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+        Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
+        () -> linkageState.equals(LinkageState.STOW));
   }
 
   public Transform3d getHopperWallTransform() {
