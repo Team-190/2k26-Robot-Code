@@ -25,7 +25,7 @@ public class V1_DoomSpiralRobotState {
   private static Rotation2d headingOffset;
   private static SwerveModulePosition[] modulePositions;
 
-  public record shooterOffsets(double flywheelVelocityOffsetRPS, double hoodAngleOffsetRPS) {}
+  public static final V1_DoomSpiralShooterOffsets SHOOTER_OFFSETS;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
@@ -61,6 +61,8 @@ public class V1_DoomSpiralRobotState {
 
     feedAngle = new Rotation2d();
     feedVelocity = 0;
+
+    SHOOTER_OFFSETS = new V1_DoomSpiralShooterOffsets(0, new Rotation2d(0));
   }
 
   public static void periodic(

@@ -241,13 +241,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
 
-    xkeys.f5().whileTrue(shooter.incrementFlywheelVelocity());
+    xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
 
-    xkeys.f6().whileTrue(shooter.decrementFlywheelVelocity());
+    xkeys.f6().onTrue(shooter.decrementFlywheelVelocity());
 
-    xkeys.g5().whileTrue(shooter.incrementHoodAngle());
+    xkeys.g5().onTrue(shooter.incrementHoodAngle());
 
-    xkeys.g6().whileTrue(shooter.decrementHoodAngle());
+    xkeys.g6().onTrue(shooter.decrementHoodAngle());
 
     xkeys.d8().onTrue(climber.setPositionDefault());
 
