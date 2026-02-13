@@ -53,11 +53,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
-  private XKeysInput xkeys = new XKeysInput(1);
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
   private final AutoChooser autoChooser = new AutoChooser();
+
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -214,6 +215,20 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
+
+    xkeys.d8().onTrue(climber.setPositionDefault());
+
+    xkeys.d9().onTrue(climber.setPositionL1());
+
+    xkeys.d10().onTrue(climber.climbSequenceL3());
+
+    xkeys.e8().whileTrue(climber.clockwiseSlow());
+
+    xkeys.e9().whileTrue(climber.counterClockwiseSlow());
+
+    xkeys.e10().onTrue(climber.runZeroSequence());
+
+
     xkeys
         .b5()
         .whileTrue(Commands.run(() -> spindexer.setVoltage(2)));
