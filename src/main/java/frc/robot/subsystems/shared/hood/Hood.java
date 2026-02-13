@@ -35,6 +35,8 @@ public class Hood {
   private final Supplier<Rotation2d> scoreRotationSupplier;
   private final Supplier<Rotation2d> feedRotationSupplier;
 
+  private final HoodConstants constants;
+
   /**
    * Constructor for the Funky hood subsystem. Makes a routine that sets the voltage passed into the
    * hood and adds a default hood goal.
@@ -45,6 +47,7 @@ public class Hood {
    */
   public Hood(
       HoodIO io,
+      HoodConstants constants,
       Subsystem subsystem,
       int index,
       Supplier<Rotation2d> scoreRotationSupplier,
@@ -68,6 +71,8 @@ public class Hood {
 
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
+
+    this.constants = constants;
   }
 
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
@@ -171,6 +176,18 @@ public class Hood {
    */
   public void setFeedforward(double ks, double kv, double ka) {
     io.setFeedforward(ks, kv, ka);
+  }
+
+  public Command resetHoodZero() {
+    return Commands.sequence(
+        Commands.runOnce(() -> io.setPosition(constants.maxAngle)),
+        Commands.runOnce(() -> currentState = HoodState.IDLE),
+        Commands.run(() -> io.setVoltage(-constants.zeroVoltage.in(Volts)))
+            .until(
+                () ->
+                    inputs.torqueCurrent.isNear(
+                        constants.zeroCurrentThreshold, constants.zeroCurrentEpsilon)),
+        Commands.runOnce(() -> io.setPosition(Rotation2d.kZero)));
   }
 
   /**

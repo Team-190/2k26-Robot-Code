@@ -3,6 +3,8 @@ package frc.robot.subsystems.shared.hood;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import lombok.Builder;
 import lombok.NonNull;
@@ -19,6 +21,10 @@ public class HoodConstants {
   @NonNull public final Double lengthMeters;
   @NonNull public final Rotation2d minAngle;
   @NonNull public final Rotation2d maxAngle;
+
+  @NonNull public final Voltage zeroVoltage;
+  @NonNull public final Current zeroCurrentThreshold;
+  @NonNull public final Current zeroCurrentEpsilon;
 
   @NonNull public final Gains gains;
   @NonNull public final Constraints constraints;
