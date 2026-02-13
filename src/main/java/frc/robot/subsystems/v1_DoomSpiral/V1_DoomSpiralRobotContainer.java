@@ -211,9 +211,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    driver.leftBumper().onTrue(
-        intake.toggleIntake()
-    );
+    driver.leftBumper().onTrue(intake.toggleIntake());
   }
 
   private void configureAutos() {
