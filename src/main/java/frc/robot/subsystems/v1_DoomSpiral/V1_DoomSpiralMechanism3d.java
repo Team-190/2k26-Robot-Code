@@ -28,7 +28,7 @@ public class V1_DoomSpiralMechanism3d {
   public static Pose3d[] getPoses(
       Rotation2d spindexerPosition, Rotation2d climberPosition, V1_DoomSpiralIntake intake) {
 
-    List<LinkageState> linkageStates = intake.linkage.getLinkagePoses();
+    List<LinkageState> linkageStates = intake.getLinkage().getLinkagePoses();
 
     Pose3d spindexerPose = new Pose3d(spindexerTranslation, new Rotation3d(spindexerPosition));
     Pose3d climberPose =

@@ -5,7 +5,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -30,7 +29,10 @@ public class V1_DoomSpiralSpindexerIOTalonFX implements V1_DoomSpiralSpindexerIO
   private final VoltageOut voltageControlRequest;
 
   public V1_DoomSpiralSpindexerIOTalonFX() {
-    spindexerMotor = new TalonFX(V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CAN_ID);
+    spindexerMotor =
+        new TalonFX(
+            V1_DoomSpiralSpindexerConstants.SPINDEXER_MOTOR_CAN_ID,
+            V1_DoomSpiralSpindexerConstants.SPINDEXER_CAN_BUS);
 
     config = new TalonFXConfiguration();
     config.CurrentLimits.SupplyCurrentLimit =
@@ -40,7 +42,7 @@ public class V1_DoomSpiralSpindexerIOTalonFX implements V1_DoomSpiralSpindexerIO
         V1_DoomSpiralSpindexerConstants.SPINDEXER_STATOR_CURRENT_LIMIT;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.Feedback.SensorToMechanismRatio = V1_DoomSpiralSpindexerConstants.SPINDEXER_GEAR_RATIO;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.NeutralMode = V1_DoomSpiralSpindexerConstants.SPINDEXER_NEUTRAL_MODE;
     config.MotorOutput.Inverted = V1_DoomSpiralSpindexerConstants.SPINDEXER_INVERTED_VALUE;
 
     positionRotations = spindexerMotor.getPosition();

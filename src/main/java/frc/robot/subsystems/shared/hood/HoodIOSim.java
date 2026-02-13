@@ -25,26 +25,26 @@ public class HoodIOSim implements HoodIO {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
-            constants.MOTOR_CONFIG,
-            constants.GEAR_RATIO,
-            constants.LENGTH_METERS,
-            constants.MIN_ANGLE,
-            constants.MAX_ANGLE,
+                constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
+            constants.motorConfig,
+            constants.gearRatio,
+            constants.lengthMeters,
+            constants.minAngle.getRadians(),
+            constants.maxAngle.getRadians(),
             true,
-            constants.MIN_ANGLE);
+            constants.minAngle.getRadians());
 
     feedback =
         new ProfiledPIDController(
-            constants.GAINS.kp().get(),
+            constants.gains.kp().get(),
             0.0,
-            constants.GAINS.kd().get(),
+            constants.gains.kd().get(),
             new TrapezoidProfile.Constraints(
-                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedback.setTolerance(constants.CONSTRAINTS.goalToleranceRadians().get());
+                constants.constraints.maxVelocityRadiansPerSecond().get(),
+                constants.constraints.maxAccelerationRadiansPerSecondSqaured().get()));
+    feedback.setTolerance(constants.constraints.goalToleranceRadians().get());
     feedforward =
-        new SimpleMotorFeedforward(constants.GAINS.ks().get(), constants.GAINS.kv().get());
+        new SimpleMotorFeedforward(constants.gains.ks().get(), constants.gains.kv().get());
   }
 
   @Override
