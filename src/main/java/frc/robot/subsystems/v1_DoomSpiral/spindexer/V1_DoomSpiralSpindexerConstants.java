@@ -21,6 +21,7 @@ public class V1_DoomSpiralSpindexerConstants {
   public static final NeutralModeValue SPINDEXER_NEUTRAL_MODE;
 
   public static final double SPINDEXER_VOLTAGE;
+  public static final double SPINDEXER_SLOW_VOLTAGE;
   public static final double SPINDEXER_INCREMENT_VOLTAGE;
 
   static {
@@ -36,6 +37,7 @@ public class V1_DoomSpiralSpindexerConstants {
     SPINDEXER_NEUTRAL_MODE = NeutralModeValue.Coast;
 
     SPINDEXER_VOLTAGE = 12.0;
+    SPINDEXER_SLOW_VOLTAGE = 2.0;
     SPINDEXER_INCREMENT_VOLTAGE = 0.25;
   }
 
