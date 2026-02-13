@@ -8,7 +8,7 @@ public class Feeder extends SubsystemBase {
   private final GenericRoller roller;
 
   public Feeder(GenericRollerIO io) {
-    roller = new GenericRoller(io, this, "Roller 1");
+    roller = new GenericRoller(io, this, "1");
   }
 
   @Override
