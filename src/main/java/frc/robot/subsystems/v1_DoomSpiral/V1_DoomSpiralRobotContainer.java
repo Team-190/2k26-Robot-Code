@@ -44,7 +44,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.util.XKeysInput;
-
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -153,8 +152,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
-          linkage = 
-                    new FourBarLinkage(new FourBarLinkageIO() {}, null, climber, 0);
+          linkage = new FourBarLinkage(new FourBarLinkageIO() {}, null, climber, 0);
 
         default:
           break;
@@ -219,80 +217,44 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    xkeys
-        .b1()
-        .onTrue(Commands.sequence(
-          intake.setRollerVoltage(0),
-          intake.stow()
-        ));
-    xkeys
-        .b2()
-        .onTrue(Commands.runOnce(() -> intake.subtractStowOffset()));
-    xkeys
-        .b3()
-        .onTrue(Commands.runOnce(() -> intake.addStowOffset()));
+    xkeys.b1().onTrue(Commands.sequence(intake.setRollerVoltage(0), intake.stow()));
+    xkeys.b2().onTrue(Commands.runOnce(() -> intake.subtractStowOffset()));
+    xkeys.b3().onTrue(Commands.runOnce(() -> intake.addStowOffset()));
     xkeys
         .c1()
-        .onTrue(Commands.sequence(
-          Commands.runOnce(() -> intake.setRollerVoltage(5)),
-          Commands.runOnce(() -> intake.setIntakeBumpSetpoint(5)), // Change number
-          Commands.runOnce(() -> intake.setIntakeDepotSetpoint(6)))); // Change number
-    xkeys
-        .c2()
-        .onTrue(Commands.runOnce(() -> intake.subtractDepotOffset()));
-    xkeys
-        .c3()
-        .onTrue(Commands.runOnce(() -> intake.addDepotOffset()));
+        .onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> intake.setRollerVoltage(5)),
+                Commands.runOnce(() -> intake.setIntakeBumpSetpoint(5)), // Change number
+                Commands.runOnce(() -> intake.setIntakeDepotSetpoint(6)))); // Change number
+    xkeys.c2().onTrue(Commands.runOnce(() -> intake.subtractDepotOffset()));
+    xkeys.c3().onTrue(Commands.runOnce(() -> intake.addDepotOffset()));
     xkeys
         .d1()
-        .onTrue(Commands.sequence(
-            intake.setRollerVoltage(5),
-            intake.setCollectIntakeSetpoint(45) // Change number
-        ));
-    xkeys
-        .d2()
-        .onTrue(Commands.runOnce(() -> intake.subtractCollectOffset()));
-    xkeys
-        .d3()
-        .onTrue(Commands.runOnce(() -> intake.addCollectOffset()));
-    xkeys
-        .e1()
-        .whileTrue(Commands.run(() -> intake.setRollerVoltage(6)));
-    xkeys
-        .e2()
-        .whileTrue(
-            Commands.run(() -> intake.setRollerVoltage(-6))
-        );
-    xkeys
-        .f1()
-        .onTrue(Commands.runOnce(() -> intake.increaseSpeed()));
-    xkeys
-        .f2()
-        .onTrue(Commands.runOnce(() -> intake.decreaseSpeed()));
+        .onTrue(
+            Commands.sequence(
+                intake.setRollerVoltage(5), intake.setCollectIntakeSetpoint(45) // Change number
+                ));
+    xkeys.d2().onTrue(Commands.runOnce(() -> intake.subtractCollectOffset()));
+    xkeys.d3().onTrue(Commands.runOnce(() -> intake.addCollectOffset()));
+    xkeys.e1().whileTrue(Commands.run(() -> intake.setRollerVoltage(6)));
+    xkeys.e2().whileTrue(Commands.run(() -> intake.setRollerVoltage(-6)));
+    xkeys.f1().onTrue(Commands.runOnce(() -> intake.increaseSpeed()));
+    xkeys.f2().onTrue(Commands.runOnce(() -> intake.decreaseSpeed()));
     xkeys
         .g1()
-        .whileTrue(Commands.sequence(
-            Commands.runOnce(() -> intake.setLinkageVoltage(2)),
-            intake.stow()));
+        .whileTrue(
+            Commands.sequence(Commands.runOnce(() -> intake.setLinkageVoltage(2)), intake.stow()));
     xkeys
         .g2()
-        .whileTrue(Commands.sequence(
-            Commands.runOnce(() -> intake.setLinkageVoltage(2)),
-            intake.stow()));
+        .whileTrue(
+            Commands.sequence(Commands.runOnce(() -> intake.setLinkageVoltage(2)), intake.stow()));
     xkeys
         .h1()
         .or(xkeys.h2())
         .or(xkeys.h3())
-        .whileTrue(
-            Commands.sequence(
-                intake.deploy(),
-                Commands.waitSeconds(0.6),
-                intake.stow()
-            )
-        );
+        .whileTrue(Commands.sequence(intake.deploy(), Commands.waitSeconds(0.6), intake.stow()));
   }
-
-  
 
   private void configureAutos() {
     // Autos here

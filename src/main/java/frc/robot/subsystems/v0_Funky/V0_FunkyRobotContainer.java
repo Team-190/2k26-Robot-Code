@@ -88,8 +88,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       NetworkTablesJNI::now,
                       List.of(),
                       List.of()));
-           intake = 
-                new V1_DoomSpiralIntake(topIO, bottomIO, linkageIO);
+          intake = new V1_DoomSpiralIntake(topIO, bottomIO, linkageIO);
 
           break;
 
@@ -210,7 +209,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         .or(xkeys.c10())
         .whileTrue(Commands.run(() -> feeder.setVoltage(V0_FunkyConstants.FEEDER_VOLTAGE)))
         .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
-
   }
 
   private void configureAutos() {
