@@ -216,8 +216,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .x()
         .onTrue(
             new ConditionalCommand(
-                climber.setPositionGoal(ClimberGoal.L1_AUTO_POSITION_GOAL.getPosition()),
-                climber.setPositionGoal(ClimberGoal.DEFAULT.getPosition()),
+                climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
+                climber.setPositionGoal(ClimberGoal.DEFAULT),
                 () -> climber.getArmPosition().equals(ClimberGoal.DEFAULT.getPosition())))
         .whileTrue(
             climber

@@ -39,8 +39,9 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return Commands.runOnce(() -> arm.setPosition(position));
   }
 
-  public Command setPositionGoal(Rotation2d positionGoal) {
-    return Commands.runOnce(() -> arm.setPositionGoal(positionGoal));
+  public Command setPositionGoal(ClimberGoal climberGoal) {
+    state = climberGoal;
+    return Commands.runOnce(() -> arm.setPositionGoal(climberGoal.getPosition()));
   }
 
   public Command waitUntilPosition() {
@@ -57,13 +58,36 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command climbSequenceL3() {
-    return Commands.sequence(
-        Commands.runOnce(() -> state = ClimberGoal.L1_POSITION_GOAL),
+    switch (state){
+      case L1_POSITION_GOAL:
+        return Commands.sequence(
+        setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
         waitUntilPosition(),
-        Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
+        setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
         waitUntilPosition(),
-        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+        setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
         waitUntilPosition());
+        
+      case L2_POSITION_GOAL:
+        return Commands.sequence(setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+        waitUntilPosition(),
+        setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+        waitUntilPosition());
+        
+      case L2_FLIP_GOAL:
+        return Commands.sequence(setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+        waitUntilPosition());
+        
+      default:
+        return Commands.sequence(
+        setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
+        waitUntilPosition(),
+        setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+        waitUntilPosition(),
+        setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+        waitUntilPosition());
+        
+    }
   }
 
   public Command climbAutoSequence() {
