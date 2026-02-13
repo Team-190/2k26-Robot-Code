@@ -58,35 +58,34 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command climbSequenceL3() {
-    switch (state){
+    switch (state) {
       case L1_POSITION_GOAL:
         return Commands.sequence(
-        setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-        waitUntilPosition(),
-        setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-        waitUntilPosition(),
-        setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-        waitUntilPosition());
-        
+            setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
+            waitUntilPosition(),
+            setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+            waitUntilPosition(),
+            setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+            waitUntilPosition());
+
       case L2_POSITION_GOAL:
-        return Commands.sequence(setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-        waitUntilPosition(),
-        setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-        waitUntilPosition());
-        
+        return Commands.sequence(
+            setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+            waitUntilPosition(),
+            setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+            waitUntilPosition());
+
       case L2_FLIP_GOAL:
-        return Commands.sequence(setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-        waitUntilPosition());
-        
+        return Commands.sequence(setPositionGoal(ClimberGoal.L2_FLIP_GOAL), waitUntilPosition());
+
       default:
         return Commands.sequence(
-        setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-        waitUntilPosition(),
-        setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-        waitUntilPosition(),
-        setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-        waitUntilPosition());
-        
+            setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
+            waitUntilPosition(),
+            setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+            waitUntilPosition(),
+            setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+            waitUntilPosition());
     }
   }
 

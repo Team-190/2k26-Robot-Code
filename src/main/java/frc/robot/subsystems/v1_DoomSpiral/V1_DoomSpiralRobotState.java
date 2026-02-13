@@ -1,10 +1,18 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
@@ -24,6 +32,9 @@ public class V1_DoomSpiralRobotState {
   private static Rotation2d robotHeading;
   private static Rotation2d headingOffset;
   private static SwerveModulePosition[] modulePositions;
+
+  public static final InterpolatingTreeMap<Distance, Rotation2d> hoodAngleTree;
+  public static final InterpolatingTreeMap<Distance, AngularVelocity> flywheelSpeedTree;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
@@ -48,6 +59,22 @@ public class V1_DoomSpiralRobotState {
 
     scoreAngle = new Rotation2d();
     feedAngle = new Rotation2d();
+    hoodAngleTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) -> start.interpolate(end, t));
+    flywheelSpeedTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                AngularVelocity.ofBaseUnits(
+                    Interpolator.forDouble()
+                        .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
+                    RadiansPerSecond));
   }
 
   public static void periodic(
