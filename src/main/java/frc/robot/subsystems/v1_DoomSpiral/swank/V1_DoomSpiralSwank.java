@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.swank;
 
+import static frc.robot.subsystems.v1_DoomSpiral.swank.V1_DoomSpiralSwankConstants.SWANK_VOLTAGE;
 import static frc.robot.subsystems.v1_DoomSpiral.swank.V1_DoomSpiralSwankState.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,7 +27,7 @@ public class V1_DoomSpiralSwank extends SubsystemBase {
     voltageGoal = 0;
     currentState = IDLE;
 
-    setDefaultCommand(run(() -> currentState = OPEN_LOOP_AUTO_ENABLE));
+    setDefaultCommand(runOnce(() -> currentState = OPEN_LOOP_AUTO_ENABLE));
   }
 
   public void periodic() {
@@ -122,9 +123,9 @@ public class V1_DoomSpiralSwank extends SubsystemBase {
               < FieldConstants.LinesVertical.oppHubCenter;
     }
     if (isRobotSideLeft ^ isTurnedLeft) {
-      return -12.0;
+      return -SWANK_VOLTAGE;
     } else {
-      return 12.0;
+      return SWANK_VOLTAGE;
     }
   }
 }
