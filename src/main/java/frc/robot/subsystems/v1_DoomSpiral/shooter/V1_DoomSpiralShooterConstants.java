@@ -10,8 +10,8 @@ import frc.robot.subsystems.shared.hood.HoodConstants;
 
 public class V1_DoomSpiralShooterConstants {
 
-  public static final double flywheelVelocityIncrementRPS = 1;
-  public static final Rotation2d hoodAngleIncrementRotations = Rotation2d.fromDegrees(1);
+  public static final double FLYWHEEL_VELOCITY_INCREMENT_RPS = 1;
+  public static final Rotation2d HOOD_ANGLE_INCREMENT_ROTATIONS = Rotation2d.fromDegrees(1);
 
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
