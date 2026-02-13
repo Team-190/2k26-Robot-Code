@@ -214,23 +214,15 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    xkeys
-        .d8()
-        .onTrue(
-            climber.setPositionGoal(
-                V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition()));
+    xkeys.d8().onTrue(climber.setPositionDefault());
 
-    xkeys
-        .d9()
-        .onTrue(
-            climber.setPositionGoal(
-                V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition()));
+    xkeys.d9().onTrue(climber.setPositionL1());
 
     xkeys.d10().onTrue(climber.climbSequenceL3());
 
-    xkeys.e8().whileTrue(climber.setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
+    xkeys.e8().whileTrue(climber.clockwiseSlow());
 
-    xkeys.e9().whileTrue(climber.setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE));
+    xkeys.e9().whileTrue(climber.counterClockwiseSlow());
 
     xkeys.e10().onTrue(climber.runZeroSequence());
   }
