@@ -180,8 +180,9 @@ public class Hood {
 
   public Command resetHoodZero() {
     return Commands.sequence(
+        Commands.runOnce(() -> io.setPosition(constants.maxAngle)),
         Commands.runOnce(() -> currentState = HoodState.IDLE),
-        Commands.run(() -> io.setVoltage(constants.zeroVoltage.in(Volts)))
+        Commands.run(() -> io.setVoltage(-constants.zeroVoltage.in(Volts)))
             .until(
                 () ->
                     inputs.torqueCurrent.isNear(
