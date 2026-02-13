@@ -15,6 +15,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBo
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
@@ -126,27 +127,8 @@ public class V1_DoomSpiralIntakeConstants {
           .ZERO_OFFSET(ZERO_OFFSET)
           .build();
 
-  public static enum LinkageState {
-    STOW(STOW_ANGLE),
-    INTAKE(DEPLOY_ANGLE);
-
-    @Getter private final Rotation2d rotation;
-
-    LinkageState(Rotation2d rotation) {
-      this.rotation = rotation;
-    }
-  }
-
-  public static enum RollerState {
-    INTAKE(12, -12),
-    EXTAKE(-12, 12);
-
-    @Getter private final double topRollerVoltage;
-    @Getter private final double bottomRollerVoltage;
-
-    RollerState(double topRollerVoltage, double bottomRollerVoltage) {
-      this.topRollerVoltage = topRollerVoltage;
-      this.bottomRollerVoltage = bottomRollerVoltage;
-    }
+  public static enum IntakeState {
+    STOW,
+    INTAKE;
   }
 }
