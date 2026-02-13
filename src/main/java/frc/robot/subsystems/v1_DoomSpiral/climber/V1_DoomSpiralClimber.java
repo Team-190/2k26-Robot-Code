@@ -71,8 +71,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
         Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());
   }
 
-  public Command runZeroSequence(){
-    return
-        Commands.runOnce(() -> setPosition(new Rotation2d(0))).andThen(Commands.runOnce(() -> setPositionGoal(new Rotation2d(0))));
+  public Command runZeroSequence() {
+    return Commands.runOnce(() -> setPosition(new Rotation2d(0)))
+        .andThen(Commands.runOnce(() -> setPositionGoal(new Rotation2d(0))));
   }
 }
