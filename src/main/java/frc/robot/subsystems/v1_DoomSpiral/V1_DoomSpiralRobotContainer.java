@@ -48,6 +48,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
+import frc.robot.util.XKeysInput;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -61,6 +62,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralShooter shooter;
 
   private final CommandXboxController driver = new CommandXboxController(0);
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
 
@@ -238,6 +240,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     driver.leftBumper().onTrue(intake.toggleIntake());
 
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
+
+    xkeys.f5().whileTrue(shooter.incrementFlywheelVelocity());
+
+    xkeys.f6().whileTrue(shooter.decrementFlywheelVelocity());
+
+    xkeys.g5().whileTrue(shooter.incrementHoodAngle());
+
+    xkeys.g6().whileTrue(shooter.decrementHoodAngle());
   }
 
   private void configureAutos() {

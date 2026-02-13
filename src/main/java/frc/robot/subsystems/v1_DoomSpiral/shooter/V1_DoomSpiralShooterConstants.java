@@ -9,6 +9,13 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 import frc.robot.subsystems.shared.hood.HoodConstants;
 
 public class V1_DoomSpiralShooterConstants {
+
+  public static final double FLYWHEEL_VELOCITY_INCREMENT_RPS = 1;
+  public static final double FLYWHEEL_VELOCITY_DECREMENT_RPS = -1;
+
+  public static final double HOOD_ANGLE_INCREMENT_DEGREES = 1;
+  public static final double HOOD_ANGLE_DECREMENT_DEGREES = -1;
+
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(30)
