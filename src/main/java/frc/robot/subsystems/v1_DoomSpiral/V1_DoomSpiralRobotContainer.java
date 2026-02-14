@@ -1,6 +1,5 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
@@ -9,7 +8,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -33,7 +31,6 @@ import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
-import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
@@ -60,7 +57,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalo
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.XKeysInput;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -308,13 +304,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             shooter.setGoal(
                 HoodGoal.SCORE,
                 V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-                    .get(V1_DoomSpiralRobotState.getDistanceToHub()).in(RadiansPerSecond)));
+                    .get(V1_DoomSpiralRobotState.getDistanceToHub())
+                    .in(RadiansPerSecond)));
 
-    driver.rightTrigger()
-    .whileTrue(
-        Commands.parallel(
-            shooter.setGoal(HoodGoal.SCORE,(V1_DoomSpiralRobotState.getFlywheelSpeedTree().get(V1_DoomSpiralRobotState.getDistanceToHub())).in(RadiansPerSecond)),
-            spindexer.setSpindexerVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+    driver
+        .rightTrigger()
+        .whileTrue(
+            Commands.parallel(
+                shooter.setGoal(
+                    HoodGoal.SCORE,
+                    (V1_DoomSpiralRobotState.getFlywheelSpeedTree()
+                            .get(V1_DoomSpiralRobotState.getDistanceToHub()))
+                        .in(RadiansPerSecond)),
+                spindexer.setSpindexerVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
 
     // Shooter button board commands
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
