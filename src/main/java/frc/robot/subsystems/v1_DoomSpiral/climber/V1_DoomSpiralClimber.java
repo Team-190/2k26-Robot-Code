@@ -86,40 +86,30 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
         setVoltage(12).until(this::atGoal),
         Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
         setVoltage(-12).until(this::atGoal),
+        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
         setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
             .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0))));
   }
 
   public Command climbSequenceL3() {
-    switch (state) {
-      case L1_POSITION_GOAL:
-        return Commands.sequence(
-            setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-            waitUntilPosition(),
-            setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-            waitUntilPosition(),
-            setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-            waitUntilPosition());
-
-      case L2_POSITION_GOAL:
-        return Commands.sequence(
-            setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-            waitUntilPosition(),
-            setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-            waitUntilPosition());
-
-      case L2_FLIP_GOAL:
-        return Commands.sequence(setPositionGoal(ClimberGoal.L2_FLIP_GOAL), waitUntilPosition());
-
-      default:
-        return Commands.sequence(
-            setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-            waitUntilPosition(),
-            setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-            waitUntilPosition(),
-            setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-            waitUntilPosition());
-    }
+    return switch (state) {
+      case L2_POSITION_GOAL ->
+          Commands.sequence(
+              setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+              waitUntilPosition(),
+              setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+              waitUntilPosition());
+      case L2_FLIP_GOAL ->
+          Commands.sequence(setPositionGoal(ClimberGoal.L2_FLIP_GOAL), waitUntilPosition());
+      default ->
+          Commands.sequence(
+              setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
+              waitUntilPosition(),
+              setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
+              waitUntilPosition(),
+              setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
+              waitUntilPosition());
+    };
   }
 
   public Command climbAutoSequence() {

@@ -269,7 +269,16 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             Commands.either(
                 climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
                 climber.setPositionGoal(ClimberGoal.DEFAULT),
-                () -> climber.getArmPosition().equals(ClimberGoal.DEFAULT.getPosition())))
+                () ->
+                    climber
+                        .getArmPosition()
+                        .getMeasure()
+                        .isNear(
+                            ClimberGoal.DEFAULT.getPosition().getMeasure(),
+                            Radians.of(
+                                V1_DoomSpiralClimberConstants.CONSTRAINTS
+                                    .goalToleranceRadians()
+                                    .get()))))
         .whileTrue(
             climber
                 .waitUntilPosition()
@@ -316,6 +325,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
     xkeys.d5().onTrue(spindexer.decreaseFeederVoltage());
 
+    // Zero button board commands
     xkeys.h8().onTrue(climber.resetClimberZero());
     xkeys.h9().onTrue(intake.resetIntakeZero());
     xkeys.h10().whileTrue(shooter.zeroHood());
