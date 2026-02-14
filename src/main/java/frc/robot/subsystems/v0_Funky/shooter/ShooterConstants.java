@@ -13,7 +13,6 @@ import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretConstraints;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretGains;
-import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 
 public class ShooterConstants {
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
