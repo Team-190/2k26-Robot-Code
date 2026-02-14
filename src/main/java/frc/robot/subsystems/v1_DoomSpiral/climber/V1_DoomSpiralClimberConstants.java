@@ -74,4 +74,10 @@ public class V1_DoomSpiralClimberConstants {
           .withCurrentLimits(CURRENT_LIMITS)
           .withEnableFOC(ENABLE_FOC)
           .build();
+
+  public record RollPIDConstants(
+      double kP, double kD, double maxVelocity, double maxAcceleration) {}
+
+  public static final RollPIDConstants ROLL_PID_CONSTANTS =
+      new RollPIDConstants(0.0, 0.0, 0.0, 0.0);
 }

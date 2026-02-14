@@ -1,8 +1,11 @@
 package frc.robot.subsystems.v1_DoomSpiral.climber;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -18,6 +21,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   private final Supplier<Angle> rollSupplier;
 
   private ClimberGoal state;
+  private final ProfiledPIDController controller;
 
   @AutoLogOutput(key = "Climber/isClimbed")
   private boolean isClimbed; // TODO: Update this
@@ -27,6 +31,14 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     this.rollSupplier = rollSupplier;
 
     state = ClimberGoal.DEFAULT;
+    controller =
+        new ProfiledPIDController(
+            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kP(),
+            0,
+            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kD(),
+            new TrapezoidProfile.Constraints(
+                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
+                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
 
     setDefaultCommand(setPositionGoal(state.getPosition()));
   }
@@ -70,7 +82,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
         setVoltage(12).until(this::atGoal),
         Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
         setVoltage(-12).until(this::atGoal),
-        setVoltage(12).until(() -> rollSupplier.get().isNear(Radians.of(1), Radians.of(0.1))));
+        setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+            .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0))));
   }
 
   public Command climbAutoSequence() {
