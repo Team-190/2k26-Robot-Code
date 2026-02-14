@@ -48,6 +48,10 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
             voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()));
   }
 
+  public Command setLinkageVoltage(double voltage) {
+    return linkage.setVoltage(voltage);
+  }
+
   public Command stopRoller() {
     return Commands.parallel(topRoller.setVoltage(0), bottomRoller.setVoltage(0));
   }

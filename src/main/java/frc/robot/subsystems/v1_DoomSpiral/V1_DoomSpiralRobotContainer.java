@@ -311,7 +311,30 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .onFalse(intake.stopRoller());
     xkeys.f1().onTrue(intake.increaseSpeedOffset());
     xkeys.f2().onTrue(intake.decreaseSpeedOffset());
-    xkeys.g1().whileTrue(intake.toggleIntake()); // TODO: Fix this
+    xkeys
+        .g1()
+        .whileTrue(
+            intake
+                .getLinkage()
+                .setVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .onlyWhile(
+                    () ->
+                        intake.getLinkage().getPosition().getRadians()
+                            > V1_DoomSpiralIntakeConstants.IntakeState.STOW.getAngle().getRadians())
+                .andThen(intake.getLinkage().setVoltage(0)));
+    xkeys
+        .g1()
+        .whileTrue(
+            intake
+                .getLinkage()
+                .setVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .onlyWhile(
+                    () ->
+                        intake.getLinkage().getPosition().getRadians()
+                            < V1_DoomSpiralIntakeConstants.IntakeState.INTAKE
+                                .getAngle()
+                                .getRadians())
+                .andThen(intake.getLinkage().setVoltage(0)));
     xkeys
         .h1()
         .or(xkeys.h2().or(xkeys.h3()))
