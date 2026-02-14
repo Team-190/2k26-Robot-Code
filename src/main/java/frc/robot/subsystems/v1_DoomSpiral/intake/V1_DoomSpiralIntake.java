@@ -40,6 +40,12 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     Logger.recordOutput("Intake/Intake State", intakeState);
   }
 
+  /**
+   * Sets the voltage of the top and bottom rollers of the intake subsystem.
+   * The voltage is offset by the roller voltage offset stored in the robot state.
+   * @param voltage the voltage to set the rollers to
+   * @return a command that sets the voltage of the top and bottom rollers
+   */
   public Command setRollerVoltage(double voltage) {
     return Commands.parallel(
         topRoller.setVoltage(
@@ -48,6 +54,12 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
             voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()));
   }
 
+  /**
+   * Sets the voltage of the linkage subsystem of the intake.
+   * 
+   * @param voltage the voltage to set the linkage to
+   * @return a command that sets the voltage of the linkage
+   */
   public Command setLinkageVoltage(double voltage) {
     return linkage.setVoltage(voltage);
   }

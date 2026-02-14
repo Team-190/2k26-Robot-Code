@@ -25,9 +25,25 @@ import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
 
-  /**
-   * Field relative drive command using two joysticks (controlling linear and angular velocities).
-   */
+
+/**
+ * A command that drives a SwerveDrive using joystick input.
+ *
+ * @param drive The SwerveDrive to control.
+ * @param driveConstants The constants for the SwerveDrive.
+ * @param xSupplier The supplier of the x-axis joystick input.
+ * @param ySupplier The supplier of the y-axis joystick input.
+ * @param omegaSupplier The supplier of the omega joystick input.
+ * @param rotationSupplier The supplier of the rotation of the robot.
+ * @param hijackX The supplier of whether to hijack (override) the x-axis velocity.
+ * @param hijackY The supplier of whether to hijack the y-axis velocity.
+ * @param hijackOmega The supplier of whether to hijack (override) the omega.
+ * @param hijackedX The supplier of the hijacked x-axis value velocity.
+ * @param hijackedY The supplier of the hijacked y-axis value velocity.
+ * @param hijackedOmega The supplier of the hijacked omega value.
+ *
+ * @return A command that drives the SwerveDrive.
+ **/
   @Trace
   public static Command joystickDrive(
       SwerveDrive drive,

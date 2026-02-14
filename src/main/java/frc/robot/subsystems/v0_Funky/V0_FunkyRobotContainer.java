@@ -222,6 +222,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return Commands.none();
+    return autoChooser.selectedCommand();
   }
 }

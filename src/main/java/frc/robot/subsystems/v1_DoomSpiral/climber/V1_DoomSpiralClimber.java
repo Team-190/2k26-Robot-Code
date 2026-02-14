@@ -52,18 +52,42 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return arm.inputs.position;
   }
 
+  /**
+   * Sets the voltage being passed into the arm subsystem.
+   *
+   * @param voltage the voltage passed into the arm.
+   * @return A command that sets the specified voltage.
+   */
   public Command setVoltage(double voltage) {
     return runOnce(() -> arm.setVoltage(voltage)).andThen(this.idle());
   }
 
+  /**
+   * Resets position of the arm subsystem to the given position.
+   *
+   * @param position the position to reset the arm to.
+   * @return a command that resets the arm to the given position.
+   */
   public Command setPosition(Rotation2d position) {
     return Commands.runOnce(() -> arm.setPosition(position));
   }
 
+  /**
+   * Sets the goal for the arm subsystem to the given position.
+   *
+   * @param positionGoal the Rotation2d to set the arm to.
+   * @return A command that sets the arm to the given position and waits until the arm is at the goal.
+   */
   public Command setPositionGoal(Rotation2d positionGoal) {
     return runOnce(() -> arm.setPositionGoal(positionGoal)).andThen(waitUntilPosition());
   }
 
+  /**
+   * Sets the goal for the arm subsystem to the given position.
+   *
+   * @param climberGoal the ClimberGoal to set the arm to.
+   * @return A command that sets the arm to the given position and waits until the arm is at the goal.
+   */
   public Command setPositionGoal(ClimberGoal climberGoal) {
     return runOnce(() -> state = climberGoal);
   }
@@ -80,6 +104,14 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return Commands.runOnce(() -> arm.setVoltage(0));
   }
 
+  /**
+   * A command that either climbs to level 3, or if the robot is already at level 2, then it will
+   * climb to level 3. If the robot is already at level 1, then it will climb to level 2, and then
+   * climb to level 3. If the robot is already at level 3, then it will do nothing.
+   * @return A command that will climb to level 3 if the robot is at level 1, or if the robot is
+   *     at level 2, then it will climb to level 3. If the robot is already at level 3, then it will do
+   *     nothing.
+   */
   public Command climbSequenceL3() {
     return Commands.either(
         Commands.sequence(
@@ -105,6 +137,10 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
         () -> state.equals(ClimberGoal.L1_POSITION_GOAL));
   }
 
+  /**
+   * A command that sets the arm to the auto position for level 1, and then waits until the arm is at the goal.
+   * @return A command that sets the arm to the auto position for level 1, and then waits until the arm is at the goal.
+   */
   public Command climbAutoSequence() {
     return Commands.sequence(
         Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());

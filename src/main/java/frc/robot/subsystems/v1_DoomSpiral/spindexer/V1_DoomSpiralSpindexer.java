@@ -49,28 +49,34 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs(getName(), inputs);
 
+    io.setVoltage(
     switch (state) {
-      case STOP -> {
-        io.setVoltage(0);
-      }
-      case OPEN_LOOP_VOLTAGE -> {
-        io.setVoltage(voltageGoal);
-      }
-      case SPINDEXER_ONLY_VOLTAGE -> io.setVoltage(voltageGoal);
+        case STOP -> 0.00;
+        case OPEN_LOOP_VOLTAGE, SPINDEXER_ONLY_VOLTAGE -> voltageGoal;
     }
+);
+
 
     kicker.periodic();
     feeder.periodic();
   }
 
+
+  /**
+   * Gets the position of the spindexer subsystem.
+   *
+   * @return The position of the spindexer subsystem.
+   */
   public Rotation2d getSpindexerPosition() {
     return inputs.position;
   }
 
   /**
-   * Sets the voltage being passed into the spindexer subsystem.
-   *
-   * @param spindexerVolts the voltage passed into the spindexer.
+   * Sets the voltage being passed into the spindexer, feeder, and kicker subsystems.
+   * 
+   * @param spindexerVolts the voltage passed into the spindexer subsystem.
+   * @param feederVolts the voltage passed into the feeder subsystem.
+   * @param kickerVolts the voltage passed into the kicker subsystem.
    * @return A command that sets the specified voltage.
    */
   public Command setVoltage(double spindexerVolts, double feederVolts, double kickerVolts) {
@@ -85,10 +91,23 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         feeder.setVoltage(feederVolts + V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()));
   }
 
+
+  /**
+   * Sets the voltage being passed into the spindexer, feeder, and kicker subsystems.
+   *
+   * @param allVolts the voltage passed into the spindexer, feeder, and kicker.
+   * @return A command that sets the specified voltage.
+   */
   public Command setVoltage(double allVolts) {
     return setVoltage(allVolts, allVolts, allVolts);
   }
 
+  /**
+   * Sets the voltage being passed into the spindexer subsystem only.
+   *
+   * @param volts the voltage passed into the spindexer.
+   * @return A command that sets the specified voltage.
+   */
   public Command setSpindexerVoltage(double volts) {
     return Commands.runOnce(
             () -> {
@@ -98,11 +117,6 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         .alongWith(kicker.setVoltage(0), feeder.setVoltage(0));
   }
 
-  /**
-   * Stops the spindexer.
-   *
-   * @return A command that sets the voltage to zero.
-   */
   public Command stopSpindexer() {
     return Commands.runOnce(() -> state = STOP);
   }
