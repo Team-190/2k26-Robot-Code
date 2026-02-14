@@ -13,6 +13,7 @@ import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -26,7 +27,9 @@ public class V1_DoomSpiralRobotState {
   private static Rotation2d headingOffset;
   private static SwerveModulePosition[] modulePositions;
 
-  public static final ShooterOffsets shooterOffsets;
+  @Getter private static final ShooterOffsets shooterOffsets;
+  @Getter private static final IntakeOffsets intakeOffsets;
+  @Getter private static final SpindexerOffsets spindexerOffsets;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
@@ -43,8 +46,6 @@ public class V1_DoomSpiralRobotState {
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity")
   @Getter
   private static final double feedVelocity;
-
-  @Getter private static final SpindexerOffsets spindexerOffsets;
 
   private static final FieldZone globalZone;
 
@@ -66,6 +67,7 @@ public class V1_DoomSpiralRobotState {
     feedVelocity = 0;
 
     shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
+    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
     spindexerOffsets = new SpindexerOffsets(0, 0, 0);
   }
 
@@ -122,5 +124,14 @@ public class V1_DoomSpiralRobotState {
       this.flywheel = flywheel;
       this.hood = hood;
     }
+  }
+
+  @Data
+  @AllArgsConstructor
+  public static class IntakeOffsets {
+    private Rotation2d stowOffset;
+    private Rotation2d bumpOffset;
+    private Rotation2d collectOffset;
+    private double rollerVoltsOffset;
   }
 }
