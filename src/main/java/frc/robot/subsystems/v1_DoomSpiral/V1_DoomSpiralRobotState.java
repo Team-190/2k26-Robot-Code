@@ -84,7 +84,7 @@ public class V1_DoomSpiralRobotState {
             (start, end, q) ->
                 InverseInterpolator.forDouble()
                     .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-            (start, end, t) -> start.interpolate(end, t));
+            Rotation2d::interpolate);
     flywheelSpeedTree =
         new InterpolatingTreeMap<>(
             (start, end, q) ->
@@ -117,7 +117,7 @@ public class V1_DoomSpiralRobotState {
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
-    Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "/GlobalPose", getGlobalPose());
 
     distanceToHub =
         Distance.ofBaseUnits(
@@ -126,7 +126,7 @@ public class V1_DoomSpiralRobotState {
                 .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
                 .getNorm(),
             Meters);
-    Logger.recordOutput("Robot/distanceToHub", distanceToHub);
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "/Distance To Hub", distanceToHub);
 
     scoreAngle = hoodAngleTree.get(distanceToHub);
   }

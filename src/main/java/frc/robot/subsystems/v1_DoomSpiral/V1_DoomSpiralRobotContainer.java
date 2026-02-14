@@ -358,6 +358,21 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.h9().onTrue(intake.resetIntakeZero());
     xkeys.h10().whileTrue(shooter.zeroHood());
 
+    // Chassis button board commands
+    xkeys
+        .b8()
+        .whileTrue(
+            swank.setVoltage(
+                -V1_DoomSpiralSwankConstants.SWANK_VOLTAGE)); // Left -> CW -> neg volts
+    xkeys.b9().whileTrue(swank.setVoltage(V1_DoomSpiralSwankConstants.SWANK_VOLTAGE));
+    xkeys
+        .b10()
+        .whileTrue(
+            SharedCompositeCommands.resetHeading(
+                drive,
+                V1_DoomSpiralRobotState::resetPose,
+                V1_DoomSpiralRobotState.getGlobalPose()::getTranslation));
+
     // Intake button board commands
 
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
