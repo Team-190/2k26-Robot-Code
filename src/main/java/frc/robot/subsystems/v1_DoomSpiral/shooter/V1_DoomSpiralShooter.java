@@ -1,9 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -110,7 +107,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return flywheel.setVoltage(volts);
   }
 
-  public Command setFlywheelVelocity(double velocityRadiansPerSecond){
+  public Command setFlywheelVelocity(double velocityRadiansPerSecond) {
     return flywheel.setGoal(velocityRadiansPerSecond, true);
   }
 
@@ -118,7 +115,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return flywheel.setVoltage(0);
   }
 
-  public Command setGoal(HoodGoal hoodGoal, double  velocityRadiansPerSecond) {
+  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
     return Commands.parallel(
         setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, true));
   }

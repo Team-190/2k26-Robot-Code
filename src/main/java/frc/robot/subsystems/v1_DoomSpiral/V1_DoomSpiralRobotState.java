@@ -50,10 +50,6 @@ public class V1_DoomSpiralRobotState {
   @Getter
   private static Rotation2d scoreAngle;
 
-  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity")
-  @Getter
-  private static final double scoreVelocity;
-
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
   @Getter
   private static final Rotation2d feedAngle;
@@ -76,7 +72,6 @@ public class V1_DoomSpiralRobotState {
             2);
 
     scoreAngle = new Rotation2d();
-    scoreVelocity = 0;
 
     feedAngle = new Rotation2d();
     feedVelocity = 0;
@@ -101,14 +96,13 @@ public class V1_DoomSpiralRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    distanceToHub = Distance.ofBaseUnits(
-                            getGlobalPose()
-                                .getTranslation()
-                                .minus(
-                                    AllianceFlipUtil.apply(
-                                        FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-                                .getNorm(),
-                            Meters);
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getGlobalPose()
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
   }
 
   public static void periodic(
@@ -125,14 +119,13 @@ public class V1_DoomSpiralRobotState {
 
     Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
 
-    distanceToHub = Distance.ofBaseUnits(
-                            getGlobalPose()
-                                .getTranslation()
-                                .minus(
-                                    AllianceFlipUtil.apply(
-                                        FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-                                .getNorm(),
-                            Meters);
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getGlobalPose()
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
     Logger.recordOutput("Robot/distanceToHub", distanceToHub);
 
     scoreAngle = hoodAngleTree.get(distanceToHub);

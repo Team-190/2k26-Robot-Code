@@ -23,7 +23,7 @@ public class V1_DoomSpiralShooterConstants {
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
           .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 40.0))
           .withMomentOfInertia(0.05)
-          .withGearRatio(24.0/18)
+          .withGearRatio(24.0 / 18)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
