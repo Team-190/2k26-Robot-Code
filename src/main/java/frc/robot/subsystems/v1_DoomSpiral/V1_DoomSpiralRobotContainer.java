@@ -58,6 +58,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.XKeysInput;
@@ -73,7 +74,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
   private V1_DoomSpiralShooter shooter;
-  
+
 
   private final CommandXboxController driver = new CommandXboxController(0);
   private final XKeysInput xkeys = new XKeysInput(1);
@@ -249,13 +250,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private void configureButtonBindings() {
     drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
+        DriveCommands.joystickDriveAlignToHub(
             drive,
             V1_DoomSpiralConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
             () -> driver.getRightX(),
-            V1_DoomSpiralRobotState::getHeading));
+            V1_DoomSpiralRobotState::getHeading,
+            driver.rightTrigger(),
+            () ->
+                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                    .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
+                    .getAngle()
+                    .getRadians()));
 
     driver
         .povDown()
