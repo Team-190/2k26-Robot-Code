@@ -92,24 +92,29 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command climbSequenceL3() {
-    return switch (state) {
-      case L2_POSITION_GOAL ->
-          Commands.sequence(
-              setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-              waitUntilPosition(),
-              setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-              waitUntilPosition());
-      case L2_FLIP_GOAL ->
-          Commands.sequence(setPositionGoal(ClimberGoal.L2_FLIP_GOAL), waitUntilPosition());
-      default ->
-          Commands.sequence(
-              setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-              waitUntilPosition(),
-              setPositionGoal(ClimberGoal.L2_FLIP_GOAL),
-              waitUntilPosition(),
-              setPositionGoal(ClimberGoal.L2_POSITION_GOAL),
-              waitUntilPosition());
-    };
+    return Commands.either(Commands.sequence(
+        Commands.runOnce(() -> state = ClimberGoal.L1_POSITION_GOAL),
+        setVoltage(12).until(this::atGoal),
+        Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
+        setVoltage(-12).until(this::atGoal),
+        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+        setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+            .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0)))), 
+            
+            Commands.either(Commands.sequence(
+        Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
+        setVoltage(-12).until(this::atGoal),
+        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+        setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+            .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0)))), 
+            
+            Commands.sequence(
+        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+        setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+            .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0)))),
+            () -> state.equals(ClimberGoal.L2_FLIP_GOAL)), 
+            () -> state.equals(ClimberGoal.L1_POSITION_GOAL));
+    
   }
 
   public Command climbAutoSequence() {
