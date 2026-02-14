@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -30,6 +31,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
@@ -55,6 +57,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.XKeysInput;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -243,13 +246,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private void configureButtonBindings() {
     drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
+        DriveCommands.joystickDriveAlignToHub(
             drive,
             V1_DoomSpiralConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
             () -> driver.getRightX(),
-            V1_DoomSpiralRobotState::getHeading));
+            V1_DoomSpiralRobotState::getHeading,
+            driver.rightTrigger(),
+            () ->
+                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                    .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
+                    .getAngle()
+                    .getRadians()));
 
     driver
         .povDown()
@@ -289,7 +298,25 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                         V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
     driver.y().whileTrue(climber.climbSequenceL3());
 
-    driver.rightBumper().onTrue(shooter.setGoal(HoodGoal.SCORE, 0));
+    driver
+        .rightBumper()
+        .onTrue(
+            shooter.setGoal(
+                HoodGoal.SCORE,
+                V1_DoomSpiralRobotState.getFlywheelSpeedTree()
+                    .get(V1_DoomSpiralRobotState.getDistanceToHub())
+                    .in(RadiansPerSecond)));
+
+    driver
+        .rightTrigger()
+        .whileTrue(
+            Commands.parallel(
+                shooter.setGoal(
+                    HoodGoal.SCORE,
+                    (V1_DoomSpiralRobotState.getFlywheelSpeedTree()
+                            .get(V1_DoomSpiralRobotState.getDistanceToHub()))
+                        .in(RadiansPerSecond)),
+                spindexer.setSpindexerVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
 
     // Shooter button board commands
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());

@@ -144,7 +144,7 @@ public class AutoAlignCommand extends Command {
         && alignHeadingController.atGoal();
   }
 
-  private double calculate(
+  public static double calculate(
       ProfiledPIDController controller, double setpoint, double measurement, double speed) {
     double pidOutput = 0.0;
 

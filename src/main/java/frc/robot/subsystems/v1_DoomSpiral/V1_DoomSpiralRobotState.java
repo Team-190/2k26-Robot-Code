@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
+import frc.robot.FieldConstants;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
@@ -39,16 +41,14 @@ public class V1_DoomSpiralRobotState {
   @Getter private static final IntakeOffsets intakeOffsets;
   @Getter private static final SpindexerOffsets spindexerOffsets;
 
-  public static final InterpolatingTreeMap<Distance, Rotation2d> hoodAngleTree;
-  public static final InterpolatingTreeMap<Distance, AngularVelocity> flywheelSpeedTree;
+  @Getter private static final InterpolatingTreeMap<Distance, Rotation2d> hoodAngleTree;
+  @Getter private static final InterpolatingTreeMap<Distance, AngularVelocity> flywheelSpeedTree;
+
+  @Getter private static Distance distanceToHub;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
-  private static final Rotation2d scoreAngle;
-
-  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity")
-  @Getter
-  private static final double scoreVelocity;
+  private static Rotation2d scoreAngle;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
   @Getter
@@ -72,7 +72,6 @@ public class V1_DoomSpiralRobotState {
             2);
 
     scoreAngle = new Rotation2d();
-    scoreVelocity = 0;
 
     feedAngle = new Rotation2d();
     feedVelocity = 0;
@@ -96,6 +95,14 @@ public class V1_DoomSpiralRobotState {
                     Interpolator.forDouble()
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
+
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getGlobalPose()
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
   }
 
   public static void periodic(
@@ -111,6 +118,17 @@ public class V1_DoomSpiralRobotState {
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
     Logger.recordOutput("Robot/Pose/GlobalPose", getGlobalPose());
+
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getGlobalPose()
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
+    Logger.recordOutput("Robot/distanceToHub", distanceToHub);
+
+    scoreAngle = hoodAngleTree.get(distanceToHub);
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
