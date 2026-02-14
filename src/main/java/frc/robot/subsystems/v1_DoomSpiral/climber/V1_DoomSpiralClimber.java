@@ -53,7 +53,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command setVoltage(double voltage) {
-    return runOnce(() -> arm.setVoltage(voltage));
+    return runOnce(() -> arm.setVoltage(voltage)).andThen(this.idle());
   }
 
   public Command setPosition(Rotation2d position) {
@@ -61,7 +61,11 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command setPositionGoal(Rotation2d positionGoal) {
-    return runOnce(() -> arm.setPositionGoal(positionGoal));
+    return runOnce(() -> arm.setPositionGoal(positionGoal)).andThen(waitUntilPosition());
+  }
+
+  public Command setPositionGoal(ClimberGoal climberGoal) {
+    return runOnce(() -> state = climberGoal);
   }
 
   public Command waitUntilPosition() {
@@ -76,14 +80,40 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return Commands.runOnce(() -> arm.setVoltage(0));
   }
 
-  public Command climbSequenceL3() {
+  public Command climbSequenceL3Old() {
     return Commands.sequence(
         Commands.runOnce(() -> state = ClimberGoal.L1_POSITION_GOAL),
         setVoltage(12).until(this::atGoal),
         Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
-        setVoltage(-12).until(this::atGoal),
+        setVoltage(12).until(this::atGoal),
+        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
         setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
             .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0))));
+  }
+
+  public Command climbSequenceL3() {
+    return Commands.either(
+        Commands.sequence(
+            Commands.runOnce(() -> state = ClimberGoal.L1_POSITION_GOAL),
+            setVoltage(12).until(this::atGoal),
+            Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
+            setVoltage(12).until(this::atGoal),
+            Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+            setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+                .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0)))),
+        Commands.either(
+            Commands.sequence(
+                Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
+                setVoltage(12).until(this::atGoal),
+                Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+                setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+                    .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0)))),
+            Commands.sequence(
+                Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
+                setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
+                    .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0)))),
+            () -> state.equals(ClimberGoal.L2_FLIP_GOAL)),
+        () -> state.equals(ClimberGoal.L1_POSITION_GOAL));
   }
 
   public Command climbAutoSequence() {

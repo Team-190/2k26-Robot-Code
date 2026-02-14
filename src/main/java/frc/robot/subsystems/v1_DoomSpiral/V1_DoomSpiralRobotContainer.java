@@ -22,6 +22,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
@@ -37,11 +38,13 @@ import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralIntakeTest;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
+import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
+import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
@@ -64,7 +67,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
-
   private V1_DoomSpiralShooter shooter;
 
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -174,14 +176,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralSpindexerConstants.FEEDER_ROLLER_CONSTANTS),
                   "Kicker",
                   "Feeder");
-          vision =
-              new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
-
           shooter =
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFXSim(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFXSim(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
+          vision =
+              new Vision(
+                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+
           break;
 
         default:
@@ -261,6 +263,34 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
 
+    driver
+        .x()
+        .onTrue(
+            Commands.either(
+                climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
+                climber.setPositionGoal(ClimberGoal.DEFAULT),
+                () ->
+                    climber
+                        .getArmPosition()
+                        .getMeasure()
+                        .isNear(
+                            ClimberGoal.DEFAULT.getPosition().getMeasure(),
+                            Radians.of(
+                                V1_DoomSpiralClimberConstants.CONSTRAINTS
+                                    .goalToleranceRadians()
+                                    .get()))))
+        .whileTrue(
+            climber
+                .waitUntilPosition()
+                .andThen(
+                    DriveCommands.autoAlignTowerCommand(
+                        drive,
+                        V1_DoomSpiralRobotState::getGlobalPose,
+                        V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
+    driver.y().whileTrue(climber.climbSequenceL3());
+
+    driver.rightBumper().onTrue(shooter.setGoal(HoodGoal.SCORE, 0));
+
     // Shooter button board commands
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
 
@@ -295,7 +325,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
     xkeys.d5().onTrue(spindexer.decreaseFeederVoltage());
 
+    // Zero button board commands
+
+    xkeys.h8().onTrue(climber.resetClimberZero());
+    xkeys.h9().onTrue(intake.resetIntakeZero());
+    xkeys.h10().whileTrue(shooter.zeroHood());
+
     // Intake button board commands
+
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
     xkeys.b2().onTrue(intake.decrementStowOffset());
     xkeys.b3().onTrue(intake.incrementStowOffset());
