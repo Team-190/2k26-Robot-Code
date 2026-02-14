@@ -4,6 +4,7 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,9 +16,9 @@ import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
@@ -27,6 +28,9 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.subsystems.shared.turret.TurretIO;
+import frc.robot.subsystems.shared.turret.TurretIOSim;
+import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
@@ -41,10 +45,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
   private Shooter shooter;
   private Feeder feeder;
   private Vision vision;
-  private V1_DoomSpiralIntake intake;
-  private GenericRollerIO topIO;
-  private GenericRollerIO bottomIO;
-  private FourBarLinkageIO linkageIO;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -74,10 +74,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V0_FunkyRobotState::getGlobalPose,
                   V0_FunkyRobotState::resetPose);
-          // shooter =
-          //     new Shooter(
-          //         new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS));
-          // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
+            shooter =
+                    new Shooter(
+                            new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS),
+                            new TurretIOTalonFX(ShooterConstants.TURRET_CONSTANTS));          // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
@@ -88,8 +88,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       NetworkTablesJNI::now,
                       List.of(),
                       List.of()));
-          intake = new V1_DoomSpiralIntake(topIO, bottomIO, linkageIO);
-
           break;
 
         case V0_FUNKY_SIM:
@@ -111,7 +109,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
-          shooter = new Shooter(new GenericFlywheelIOSim(ShooterConstants.SHOOT_CONSTANTS));
+          shooter =
+              new Shooter(
+                  new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS),
+                  new TurretIOSim(ShooterConstants.TURRET_CONSTANTS));
           feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
@@ -137,7 +138,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     }
 
     if (shooter == null) {
-      shooter = new Shooter(new GenericFlywheelIO() {});
+      shooter = new Shooter(new GenericFlywheelIO() {}, new TurretIO() {});
     }
 
     if (feeder == null) {
