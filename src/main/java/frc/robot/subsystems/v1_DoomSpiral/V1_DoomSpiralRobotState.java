@@ -67,7 +67,7 @@ public class V1_DoomSpiralRobotState {
     feedVelocity = 0;
 
     shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
-    intakeOffsets = new IntakeOffsets(0, 0, 0, 0, 0, 0, 0);
+    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
     spindexerOffsets = new SpindexerOffsets(0, 0, 0);
   }
 
