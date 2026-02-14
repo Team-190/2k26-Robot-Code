@@ -1,5 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -56,6 +58,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private SwerveDrive drive;
+  private GyroIO gyroIO;
   private V1_DoomSpiralSwank swank;
   private V1_DoomSpiralClimber climber;
   private V1_DoomSpiralIntake intake;
@@ -73,10 +76,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V1_DOOMSPIRAL:
+          gyroIO = new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS);
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                  new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                  gyroIO,
                   new SwerveModuleIOTalonFX(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
@@ -94,7 +98,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new V1_DoomSpiralClimber(
-                  new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS));
+                  new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
+                  gyroIO.getRoll().asSupplier());
           intake =
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFX(
@@ -151,7 +156,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
               new V1_DoomSpiralClimber(
-                  new ArmIOTalonFXSim(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS));
+                  new ArmIOTalonFXSim(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
+                  Radians::zero);
           intake =
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFXSim(
@@ -182,11 +188,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           break;
       }
     }
+    if (gyroIO == null) {
+      gyroIO = new GyroIO() {};
+    }
     if (drive == null) {
       drive =
           new SwerveDrive(
               V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-              new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+              gyroIO,
               new SwerveModuleIO() {},
               new SwerveModuleIO() {},
               new SwerveModuleIO() {},
@@ -199,7 +208,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (climber == null) {
-      climber = new V1_DoomSpiralClimber(new ArmIO() {});
+      climber = new V1_DoomSpiralClimber(new ArmIO() {}, Radians::zero);
     }
 
     if (intake == null) {
