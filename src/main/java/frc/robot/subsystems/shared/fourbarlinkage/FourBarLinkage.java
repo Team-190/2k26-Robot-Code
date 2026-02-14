@@ -158,6 +158,10 @@ public class FourBarLinkage {
         });
   }
 
+  public Command setPosition(Rotation2d position) {
+    return Commands.runOnce(() -> io.setPosition(position));
+  }
+
   /**
    * Checks if the linkage is at the goal position.
    *

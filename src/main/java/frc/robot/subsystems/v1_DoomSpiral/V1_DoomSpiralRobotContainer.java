@@ -1,5 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -12,16 +14,16 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
@@ -48,11 +50,15 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
+import frc.robot.subsystems.v1_DoomSpiral.swank.*;
+import frc.robot.util.XKeysInput;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private SwerveDrive drive;
+  private GyroIO gyroIO;
+  private V1_DoomSpiralSwank swank;
   private V1_DoomSpiralClimber climber;
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
@@ -61,6 +67,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralShooter shooter;
 
   private final CommandXboxController driver = new CommandXboxController(0);
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
 
@@ -68,10 +75,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V1_DOOMSPIRAL:
+          gyroIO = new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS);
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                  new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                  gyroIO,
                   new SwerveModuleIOTalonFX(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
@@ -86,9 +94,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
+          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new V1_DoomSpiralClimber(
-                  new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS));
+                  new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
+                  gyroIO.getRoll().asSupplier());
           intake =
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFX(
@@ -128,34 +138,39 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                   new GyroIO() {},
-                  new SwerveModuleIOSim(
+                  new SwerveModuleIOTalonFXSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
-                  new SwerveModuleIOSim(
+                  new SwerveModuleIOTalonFXSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
-                  new SwerveModuleIOSim(
+                  new SwerveModuleIOTalonFXSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
-                  new SwerveModuleIOSim(
+                  new SwerveModuleIOTalonFXSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   () -> Pose2d.kZero,
                   V1_DoomSpiralRobotState::resetPose);
+          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
               new V1_DoomSpiralClimber(
-                  new ArmIOSim(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS));
+                  new ArmIOTalonFXSim(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
+                  Radians::zero);
           intake =
               new V1_DoomSpiralIntake(
-                  new GenericRollerIOSim(V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new GenericRollerIOSim(
+                  new GenericRollerIOTalonFXSim(
+                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOTalonFXSim(
                       V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_BOTTOM),
                   new FourBarLinkageIOSim(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFXSim(),
-                  new GenericRollerIOSim(V1_DoomSpiralSpindexerConstants.KICKER_ROLLER_CONSTANTS),
-                  new GenericRollerIOSim(V1_DoomSpiralSpindexerConstants.FEEDER_ROLLER_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(
+                      V1_DoomSpiralSpindexerConstants.KICKER_ROLLER_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(
+                      V1_DoomSpiralSpindexerConstants.FEEDER_ROLLER_CONSTANTS),
                   "Kicker",
                   "Feeder");
           vision =
@@ -172,11 +187,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           break;
       }
     }
+    if (gyroIO == null) {
+      gyroIO = new GyroIO() {};
+    }
     if (drive == null) {
       drive =
           new SwerveDrive(
               V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-              new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+              gyroIO,
               new SwerveModuleIO() {},
               new SwerveModuleIO() {},
               new SwerveModuleIO() {},
@@ -184,9 +202,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               V1_DoomSpiralRobotState::getGlobalPose,
               V1_DoomSpiralRobotState::resetPose);
     }
+    if (swank == null) {
+      swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIO() {});
+    }
 
     if (climber == null) {
-      climber = new V1_DoomSpiralClimber(new ArmIO() {});
+      climber = new V1_DoomSpiralClimber(new ArmIO() {}, Radians::zero);
     }
 
     if (intake == null) {
@@ -238,6 +259,58 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     driver.leftBumper().onTrue(intake.toggleIntake());
 
     driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
+
+    // Shooter button board commands
+    xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
+
+    xkeys.f6().onTrue(shooter.decrementFlywheelVelocity());
+
+    xkeys.g5().onTrue(shooter.incrementHoodAngle());
+
+    xkeys.g6().onTrue(shooter.decrementHoodAngle());
+
+    // Climber button board commands
+    xkeys.d8().onTrue(climber.setPositionDefault());
+
+    xkeys.d9().onTrue(climber.setPositionL1());
+
+    xkeys.d10().onTrue(climber.climbSequenceL3());
+
+    xkeys.e8().whileTrue(climber.clockwiseSlow());
+
+    xkeys.e9().whileTrue(climber.counterClockwiseSlow());
+
+    xkeys.e10().onTrue(climber.runZeroSequence());
+
+    // Spindexer button board commands
+    xkeys
+        .b5()
+        .whileTrue(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE));
+    xkeys
+        .b6()
+        .whileTrue(spindexer.setVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE));
+    xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage());
+    xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage());
+    xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
+    xkeys.d5().onTrue(spindexer.decreaseFeederVoltage());
+
+    xkeys.h8().onTrue(climber.resetClimberZero());
+    xkeys.h9().onTrue(intake.resetIntakeZero());
+    xkeys.h10().whileTrue(shooter.zeroHood());
+    // Chassis button board commands
+    xkeys
+        .b8()
+        .whileTrue(
+            swank.setVoltage(
+                -V1_DoomSpiralSwankConstants.SWANK_VOLTAGE)); // Left -> CW -> neg volts
+    xkeys.b9().whileTrue(swank.setVoltage(V1_DoomSpiralSwankConstants.SWANK_VOLTAGE));
+    xkeys
+        .b10()
+        .whileTrue(
+            SharedCompositeCommands.resetHeading(
+                drive,
+                V1_DoomSpiralRobotState::resetPose,
+                V1_DoomSpiralRobotState.getGlobalPose()::getTranslation));
   }
 
   private void configureAutos() {
