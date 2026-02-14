@@ -80,17 +80,6 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return Commands.runOnce(() -> arm.setVoltage(0));
   }
 
-  public Command climbSequenceL3Old() {
-    return Commands.sequence(
-        Commands.runOnce(() -> state = ClimberGoal.L1_POSITION_GOAL),
-        setVoltage(12).until(this::atGoal),
-        Commands.runOnce(() -> state = ClimberGoal.L2_FLIP_GOAL),
-        setVoltage(12).until(this::atGoal),
-        Commands.runOnce(() -> state = ClimberGoal.L2_POSITION_GOAL),
-        setVoltage(controller.calculate(rollSupplier.get().in(Radians), Math.PI))
-            .until(() -> rollSupplier.get().isNear(Radians.of(Math.PI), Degrees.of(1.0))));
-  }
-
   public Command climbSequenceL3() {
     return Commands.either(
         Commands.sequence(
