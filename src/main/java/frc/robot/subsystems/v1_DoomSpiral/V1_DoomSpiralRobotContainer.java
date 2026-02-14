@@ -32,7 +32,6 @@ import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralIntakeTest;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -286,6 +285,46 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage());
     xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
     xkeys.d5().onTrue(spindexer.decreaseFeederVoltage());
+
+    // Intake button board commands
+    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
+    xkeys.b2().onTrue(intake.decrementStowOffset());
+    xkeys.b3().onTrue(intake.incrementStowOffset());
+    xkeys
+        .c1()
+        .onTrue(
+            intake
+                .setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)
+                .alongWith(intake.bump()));
+    xkeys.c2().onTrue(intake.decrementBumpOffset());
+    xkeys.c3().onTrue(intake.incrementBumpOffset());
+    xkeys
+        .d1()
+        .onTrue(
+            intake
+                .setRollerVoltage(V1_DoomSpiralIntakeConstants.COLLECTING_VOLTAGE)
+                .alongWith(intake.deploy()));
+    xkeys.d2().onTrue(intake.decrementCollectOffset());
+    xkeys.d3().onTrue(intake.incrementCollectOffset());
+    xkeys
+        .e1()
+        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))
+        .onFalse(intake.stopRoller());
+    xkeys
+        .e2()
+        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE))
+        .onFalse(intake.stopRoller());
+    xkeys.f1().onTrue(intake.increaseSpeedOffset());
+    xkeys.f2().onTrue(intake.decreaseSpeedOffset());
+    xkeys.g1().whileTrue(intake.toggleIntake()); // TODO: Fix this
+    xkeys
+        .h1()
+        .or(xkeys.h2().or(xkeys.h3()))
+        .whileTrue(
+            intake
+                .toggleIntake()
+                .andThen(intake.waitUntilIntakeAtGoal(), Commands.waitSeconds(0.25))
+                .repeatedly());
   }
 
   private void configureAutos() {

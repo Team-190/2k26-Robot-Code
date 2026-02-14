@@ -10,25 +10,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
 import lombok.Getter;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralIntake extends SubsystemBase {
-  private GenericRoller topRoller;
-  private GenericRoller bottomRoller;
-  @Getter private FourBarLinkage linkage;
+  private final GenericRoller topRoller;
+  private final GenericRoller bottomRoller;
+  @Getter private final FourBarLinkage linkage;
 
   private IntakeState intakeState;
 
   public V1_DoomSpiralIntake(
       GenericRollerIO topIO, GenericRollerIO bottomIO, FourBarLinkageIO linkageIO) {
-    topRoller = new GenericRoller(topIO, this, "IntakeTopFlywheel");
-    bottomRoller = new GenericRoller(bottomIO, this, "IntakeBottomFlywheel");
+    topRoller = new GenericRoller(topIO, this, "Top");
+    bottomRoller = new GenericRoller(bottomIO, this, "Bottom");
     linkage =
         new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, 0);
   }
@@ -43,7 +41,11 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command setRollerVoltage(double voltage) {
-    return Commands.parallel(topRoller.setVoltage(voltage), bottomRoller.setVoltage(voltage));
+    return Commands.parallel(
+        topRoller.setVoltage(
+            voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()),
+        bottomRoller.setVoltage(
+            voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()));
   }
 
   public Command stopRoller() {
@@ -53,17 +55,28 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   public Command deploy() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.DEPLOY_ANGLE));
-  }
-
-  public Command setLinkageVoltage(double volts) {
-    return linkage.setVoltage(volts);
+        linkage.setPositionGoal(
+            IntakeState.INTAKE
+                .getAngle()
+                .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset())));
   }
 
   public Command stow() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.STOW),
-        linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.STOW_ANGLE));
+        linkage.setPositionGoal(
+            IntakeState.STOW
+                .getAngle()
+                .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())));
+  }
+
+  public Command bump() {
+    return Commands.sequence(
+        Commands.runOnce(() -> intakeState = IntakeState.BUMP),
+        linkage.setPositionGoal(
+            IntakeState.BUMP
+                .getAngle()
+                .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset())));
   }
 
   public Command toggleIntake() {
@@ -71,14 +84,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
         Commands.parallel(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
         Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
         () -> intakeState.equals(IntakeState.STOW));
-  }
-
-  public Command setIntakeBumpSetpoint(double intakeBumpSetpoint) {
-    return Commands.runOnce(() -> robotState.intakeBumpSetpoint = intakeBumpSetpoint);
-  }
-
-  public Command setIntakeDepotSetpoint(double intakeDepotSetpoint) {
-    return Commands.runOnce(() -> robotState.intakeDepotSetpoint = intakeDepotSetpoint);
   }
 
   public Command resetIntakeZero() {
@@ -107,7 +112,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   /** Piecewise logic for the linkage offset */
-  public double calculateXOffset(double yPos) {
+  private double calculateXOffset(double yPos) {
     final double Y_MIN = V1_DoomSpiralIntakeConstants.LINK_BOUNDS.MIN();
     final double Y_PHASE_1 = V1_DoomSpiralIntakeConstants.LINK_BOUNDS.PHASE_1();
     final double Y_PHASE_2 = V1_DoomSpiralIntakeConstants.LINK_BOUNDS.PHASE_2();
@@ -127,39 +132,87 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     return 0;
   }
 
-  public Command subtractStowOffset() {
-    return Commands.runOnce(() -> robotState.stowOffset -= 0.5);
+  public boolean atGoal() {
+    return linkage.atGoal();
   }
 
-  public Command addStowOffset() {
-    return Commands.runOnce(() -> robotState.stowOffset += 0.5);
+  public Command waitUntilIntakeAtGoal() {
+    return linkage.waitUntilLinkageAtGoal();
   }
 
-  public Command subtractDepotOffset() {
-    return Commands.runOnce(() -> robotState.depotOffset -= 0.5);
+  public Command incrementStowOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setStowOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets()
+                        .getStowOffset()
+                        .plus(Rotation2d.fromDegrees(0.5))));
   }
 
-  public Command addDepotOffset() {
-    return Commands.runOnce(() -> robotState.depotOffset += 0.5);
+  public Command decrementStowOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setStowOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets()
+                        .getStowOffset()
+                        .minus(Rotation2d.fromDegrees(0.5))));
   }
 
-  public Command addCollectOffset() {
-    return Commands.runOnce(() -> robotState.collectOffset += 0.5);
+  public Command incrementBumpOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setBumpOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets()
+                        .getBumpOffset()
+                        .plus(Rotation2d.fromDegrees(0.5))));
   }
 
-  public Command subtractCollectOffset() {
-    return Commands.runOnce(() -> robotState.collectOffset -= 0.5);
+  public Command decrementBumpOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setBumpOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets()
+                        .getBumpOffset()
+                        .minus(Rotation2d.fromDegrees(0.5))));
   }
 
-  public Command setCollectIntakeSetpoint(double collectIntakeSetpoint) {
-    return Commands.runOnce(() -> robotState.collectIntakeSetpoint = collectIntakeSetpoint);
+  public Command incrementCollectOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setCollectOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets()
+                        .getCollectOffset()
+                        .plus(Rotation2d.fromDegrees(0.5))));
   }
 
-  public Command increaseSpeed() {
-    return Commands.runOnce(() -> robotState.intakeVolts += 0.25);
+  public Command decrementCollectOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setCollectOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets()
+                        .getCollectOffset()
+                        .minus(Rotation2d.fromDegrees(0.5))));
   }
 
-  public Command decreaseSpeed() {
-    return Commands.runOnce(() -> robotState.intakeVolts -= 0.25);
+  public Command increaseSpeedOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setRollerVoltsOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset() + 0.25));
+  }
+
+  public Command decreaseSpeedOffset() {
+    return Commands.runOnce(
+        () ->
+            V1_DoomSpiralRobotState.getIntakeOffsets()
+                .setRollerVoltsOffset(
+                    V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset() - 0.25));
   }
 }

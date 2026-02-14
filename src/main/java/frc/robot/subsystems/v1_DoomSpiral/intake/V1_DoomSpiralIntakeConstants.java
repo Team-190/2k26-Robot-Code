@@ -14,13 +14,14 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
-  public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
-  public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
 
   public static final double INTAKE_VOLTAGE = 12.0;
   public static final double EXTAKE_VOLTAGE = -12.0;
+  public static final double COLLECTING_VOLTAGE = 5;
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
@@ -44,7 +45,6 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
 
-  public static final boolean IS_CAN_FD = false;
   public static final int MOTOR_CAN_ID = 22;
   public static final int CAN_CODER_CAN_ID = 23;
 
@@ -62,8 +62,6 @@ public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(170);
   // points A and D on the intake.
-
-  public static final boolean LINKAGE_ENABLE_FOC = false;
 
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
@@ -105,7 +103,6 @@ public class V1_DoomSpiralIntakeConstants {
       FourBarLinkageConstants.builder()
           .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
           .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-          .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
           .CONSTRAINTS(CONSTRAINTS)
           .GAINS(GAINS)
           .GEAR_RATIO(GEAR_RATIO)
@@ -125,8 +122,13 @@ public class V1_DoomSpiralIntakeConstants {
           .ZERO_OFFSET(ZERO_OFFSET)
           .build();
 
-  public static enum IntakeState {
-    STOW,
-    INTAKE;
+  @RequiredArgsConstructor
+  @Getter
+  public enum IntakeState {
+    STOW(Rotation2d.fromDegrees(9)),
+    INTAKE(Rotation2d.fromDegrees(170)),
+    BUMP(Rotation2d.fromDegrees(150));
+
+    private final Rotation2d angle;
   }
 }
