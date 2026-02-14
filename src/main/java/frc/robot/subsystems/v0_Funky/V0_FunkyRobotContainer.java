@@ -27,10 +27,12 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
 import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
+import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.util.XKeysInput;
 import java.util.List;
 
@@ -39,6 +41,10 @@ public class V0_FunkyRobotContainer implements RobotContainer {
   private Shooter shooter;
   private Feeder feeder;
   private Vision vision;
+  private V1_DoomSpiralIntake intake;
+  private GenericRollerIO topIO;
+  private GenericRollerIO bottomIO;
+  private FourBarLinkageIO linkageIO;
 
   private final CommandXboxController driver = new CommandXboxController(0);
 
@@ -82,6 +88,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       NetworkTablesJNI::now,
                       List.of(),
                       List.of()));
+          intake = new V1_DoomSpiralIntake(topIO, bottomIO, linkageIO);
+
           break;
 
         case V0_FUNKY_SIM:
