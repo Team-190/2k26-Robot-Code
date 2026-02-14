@@ -23,7 +23,7 @@ public class V1_DoomSpiralShooterConstants {
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
           .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 40.0))
           .withMomentOfInertia(0.05)
-          .withGearRatio(1.0)
+          .withGearRatio(24.0/18)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
@@ -35,9 +35,9 @@ public class V1_DoomSpiralShooterConstants {
           .withConstraints(
               new GenericFlywheelConstants.Constraints(
                   new LoggedTunableNumber(
-                      "Shooter/Flywheel/MaxAccelerationRotationsPerSecondSquared", 6),
+                      "Shooter/Flywheel/MaxAccelerationRadiansPerSecondSquared", 6),
                   new LoggedTunableNumber(
-                      "Shooter/Flywheel/CruisingVelocityRotationsPerSecondSquared", 4),
+                      "Shooter/Flywheel/CruisingVelocityRadiansPerSecondSquared", 4),
                   new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadians", 0.05)))
           .withOpposedFollowerCANID(31)
           .build();

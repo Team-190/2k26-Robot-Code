@@ -110,6 +110,10 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return flywheel.setVoltage(volts);
   }
 
+  public Command setFlywheelVelocity(double velocityRadiansPerSecond){
+    return flywheel.setGoal(velocityRadiansPerSecond, true);
+  }
+
   public Command stopFlywheel() {
     return flywheel.setVoltage(0);
   }

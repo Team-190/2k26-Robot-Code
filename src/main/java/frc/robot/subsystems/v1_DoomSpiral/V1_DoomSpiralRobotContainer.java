@@ -73,6 +73,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
   private V1_DoomSpiralShooter shooter;
+  
 
   private final CommandXboxController driver = new CommandXboxController(0);
   private final XKeysInput xkeys = new XKeysInput(1);
@@ -300,16 +301,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             shooter.setGoal(
                 HoodGoal.SCORE,
                 V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-                    .get(
-                        Distance.ofBaseUnits(
-                            V1_DoomSpiralRobotState.getGlobalPose()
-                                .getTranslation()
-                                .minus(
-                                    AllianceFlipUtil.apply(
-                                        FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-                                .getNorm(),
-                            Meters)).in(RadiansPerSecond)));
-                            
+                    .get(V1_DoomSpiralRobotState.getDistanceToHub()).in(RadiansPerSecond)));
+
+    driver.rightTrigger()
+    .whileTrue(
+        Commands.parallel(
+            shooter.setGoal(HoodGoal.SCORE,(V1_DoomSpiralRobotState.getFlywheelSpeedTree().get(V1_DoomSpiralRobotState.getDistanceToHub())).in(RadiansPerSecond)),
+            spindexer.setSpindexerVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
 
     // Shooter button board commands
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
