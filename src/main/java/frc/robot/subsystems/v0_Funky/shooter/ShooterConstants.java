@@ -13,16 +13,14 @@ import frc.robot.subsystems.shared.turret.TurretConstants.TurretGains;
 import frc.robot.subsystems.v0_Funky.V0_FunkyConstants;
 
 public class ShooterConstants {
-  public static final int SHOOTER_ID = 30;
-  public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
-          .withLeaderCANID(SHOOTER_ID)
+          .withLeaderCANID(30)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
           .withCurrentLimit(new CurrentLimits(60.0, 40.0))
           .withMomentOfInertia(0.05)
           .withGearRatio(1.0)
-          .withMotorConfig(SHOOTER_MOTORS)
+          .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
                   new LoggedTunableNumber("Shooter/Flywheel/Ks", 0),

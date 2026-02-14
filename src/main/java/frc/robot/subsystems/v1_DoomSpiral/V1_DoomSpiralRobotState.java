@@ -21,6 +21,7 @@ import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
+import lombok.Data;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -33,6 +34,8 @@ public class V1_DoomSpiralRobotState {
   private static Rotation2d headingOffset;
   private static SwerveModulePosition[] modulePositions;
 
+  public static final ShooterOffsets shooterOffsets;
+
   public static final InterpolatingTreeMap<Distance, Rotation2d> hoodAngleTree;
   public static final InterpolatingTreeMap<Distance, AngularVelocity> flywheelSpeedTree;
 
@@ -40,9 +43,19 @@ public class V1_DoomSpiralRobotState {
   @Getter
   private static final Rotation2d scoreAngle;
 
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity")
+  @Getter
+  private static final double scoreVelocity;
+
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
   @Getter
   private static final Rotation2d feedAngle;
+
+  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity")
+  @Getter
+  private static final double feedVelocity;
+
+  @Getter private static final SpindexerOffsets spindexerOffsets;
 
   private static final FieldZone globalZone;
 
@@ -58,7 +71,13 @@ public class V1_DoomSpiralRobotState {
             2);
 
     scoreAngle = new Rotation2d();
+    scoreVelocity = 0;
+
     feedAngle = new Rotation2d();
+    feedVelocity = 0;
+
+    shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
+    spindexerOffsets = new SpindexerOffsets(0, 0, 0);
     hoodAngleTree =
         new InterpolatingTreeMap<>(
             (start, end, q) ->
@@ -106,5 +125,29 @@ public class V1_DoomSpiralRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
+  }
+
+  @Data
+  public static class SpindexerOffsets {
+    private double spindexer;
+    private double feeder;
+    private double kicker;
+
+    public SpindexerOffsets(double spindexer, double feeder, double kicker) {
+      this.spindexer = spindexer;
+      this.feeder = feeder;
+      this.kicker = kicker;
+    }
+  }
+
+  @Data
+  public static class ShooterOffsets {
+    private double flywheel;
+    private Rotation2d hood;
+
+    public ShooterOffsets(double flywheel, Rotation2d hood) {
+      this.flywheel = flywheel;
+      this.hood = hood;
+    }
   }
 }

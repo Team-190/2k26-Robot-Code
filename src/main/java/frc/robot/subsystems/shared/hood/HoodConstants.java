@@ -1,43 +1,52 @@
 package frc.robot.subsystems.shared.hood;
 
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import lombok.Builder;
+import lombok.NonNull;
 
-@Builder
+@Builder(setterPrefix = "with")
 public class HoodConstants {
-  public final int MOTOR_CAN_ID;
-  @Builder.Default public final CANBus CAN_LOOP = new CANBus();
+  @NonNull public final Integer motorCanId;
+  @NonNull public final CANBus canBus;
 
-  public final double GEAR_RATIO;
-  public final double CURRENT_LIMIT;
-  public final double MOMENT_OF_INERTIA;
-  public final DCMotor MOTOR_CONFIG;
-  public final double LENGTH_METERS;
-  public final double MIN_ANGLE;
-  public final double MAX_ANGLE;
+  @NonNull public final Double gearRatio;
+  @NonNull public final Double currentLimits;
+  @NonNull public final Double momentOfInertia;
+  @NonNull public final DCMotor motorConfig;
+  @NonNull public final Double lengthMeters;
+  @NonNull public final Rotation2d minAngle;
+  @NonNull public final Rotation2d maxAngle;
 
-  public final Gains GAINS;
-  public final Constraints CONSTRAINTS;
+  @NonNull public final Voltage zeroVoltage;
+  @NonNull public final Current zeroCurrentThreshold;
+  @NonNull public final Current zeroCurrentEpsilon;
+
+  @NonNull public final Gains gains;
+  @NonNull public final Constraints constraints;
 
   public enum HoodGoal {
     SCORE,
     FEED,
-    STOW
+    STOW,
+    OVERRIDE
   }
 
   @Builder(setterPrefix = "with")
   public record Gains(
-      LoggedTunableNumber kp,
-      LoggedTunableNumber kd,
-      LoggedTunableNumber ks,
-      LoggedTunableNumber kv,
-      LoggedTunableNumber ka) {}
+      @NonNull LoggedTunableNumber kp,
+      @NonNull LoggedTunableNumber kd,
+      @NonNull LoggedTunableNumber ks,
+      @NonNull LoggedTunableNumber kv,
+      @NonNull LoggedTunableNumber ka) {}
 
   @Builder(setterPrefix = "with")
   public record Constraints(
-      LoggedTunableNumber maxVelocityRadiansPerSecond,
-      LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
-      LoggedTunableNumber goalToleranceRadians) {}
+      @NonNull LoggedTunableNumber maxVelocityRadiansPerSecond,
+      @NonNull LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
+      @NonNull LoggedTunableNumber goalToleranceRadians) {}
 }

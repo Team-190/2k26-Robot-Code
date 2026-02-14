@@ -20,8 +20,8 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class FourBarLinkage {
-  public final FourBarLinkageIO io;
-  public final String aKitTopic;
+  private final FourBarLinkageIO io;
+  private final String aKitTopic;
   private final FourBarLinkageIOInputsAutoLogged inputs;
 
   private FourBarLinkageState currentState;
@@ -123,6 +123,13 @@ public class FourBarLinkage {
     return inputs.position;
   }
 
+  public Command setIdle() {
+    return Commands.runOnce(
+        () -> {
+          currentState = FourBarLinkageState.IDLE;
+        });
+  }
+
   /**
    * Sets the voltage being passed into the linkage subsystem.
    *
@@ -149,6 +156,10 @@ public class FourBarLinkage {
           currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
           currentOutput = currentState.set(position);
         });
+  }
+
+  public Command setPosition(Rotation2d position) {
+    return Commands.runOnce(() -> io.setPosition(position));
   }
 
   /**
