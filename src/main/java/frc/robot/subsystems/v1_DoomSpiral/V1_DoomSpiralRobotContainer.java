@@ -31,6 +31,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
@@ -55,8 +56,8 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.XKeysInput;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -70,7 +71,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
   private V1_DoomSpiralShooter shooter;
-
 
   private final CommandXboxController driver = new CommandXboxController(0);
   private final XKeysInput xkeys = new XKeysInput(1);
