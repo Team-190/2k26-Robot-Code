@@ -8,6 +8,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import frc.robot.subsystems.shared.hood.HoodConstants;
@@ -23,7 +24,7 @@ public class V1_DoomSpiralShooterConstants {
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
           .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 40.0))
           .withMomentOfInertia(0.05)
-          .withGearRatio(24.0 / 18)
+          .withGearRatio(24.0 / 18.0)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
@@ -42,21 +43,38 @@ public class V1_DoomSpiralShooterConstants {
           .withOpposedFollowerCANID(31)
           .build();
 
-  public static final HoodConstants HOOD_CONSTANTS = // TODO: Fix these constants
+  public static final HoodConstants HOOD_CONSTANTS =
       HoodConstants.builder()
-          .withMotorCanId(-1)
+          .withMotorCanId(32)
           .withCurrentLimits(40.0)
-          .withGearRatio(1.0)
+          .withGearRatio((36.0 / 12.0) * (24.0 / 18.0) * (296.0 / 14.0))
           .withMomentOfInertia(0.0001)
           .withMotorConfig(DCMotor.getKrakenX44Foc(1))
           .withCanBus(CANBus.roboRIO())
-          .withLengthMeters(.1)
+          .withLengthMeters(0.101596)
           .withMinAngle(new Rotation2d())
-          .withMaxAngle(new Rotation2d(Math.PI / 2))
+          .withMaxAngle(Rotation2d.fromDegrees(38.659704))
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
-          .withConstraints(HoodConstants.Constraints.builder().build())
-          .withGains(HoodConstants.Gains.builder().build())
+          .withConstraints(
+              HoodConstants.Constraints.builder()
+                  .withMaxVelocityRadiansPerSecond(
+                      new LoggedTunableNumber("Shooter/Hood/MaxVelocityRadiansPerSecond", 1))
+                  .withMaxAccelerationRadiansPerSecondSqaured(
+                      new LoggedTunableNumber(
+                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared", 1))
+                  .withGoalToleranceRadians(
+                      new LoggedTunableNumber(
+                          "Shooter/Hood/GoalToleranceRadians", Units.degreesToRadians(0.1)))
+                  .build())
+          .withGains(
+              HoodConstants.Gains.builder()
+                  .withKp(new LoggedTunableNumber("Shooter/Hood/Kp", 0))
+                  .withKd(new LoggedTunableNumber("Shooter/Hood/Kd", 0))
+                  .withKs(new LoggedTunableNumber("Shooter/Hood/Ks", 0))
+                  .withKa(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
+                  .withKv(new LoggedTunableNumber("Shooter/Hood/Kv", 0))
+                  .build())
           .build();
 }
