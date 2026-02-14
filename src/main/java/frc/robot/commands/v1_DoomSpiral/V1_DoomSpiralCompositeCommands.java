@@ -17,6 +17,4 @@ public class V1_DoomSpiralCompositeCommands {
             shooter.waitUntilAtGoal())
         .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
-
-  
 }
