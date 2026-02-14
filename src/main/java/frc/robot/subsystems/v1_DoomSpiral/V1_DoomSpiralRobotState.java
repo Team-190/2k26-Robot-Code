@@ -40,7 +40,7 @@ public class V1_DoomSpiralRobotState {
   @Getter private static final SpindexerOffsets spindexerOffsets;
 
   public static final InterpolatingTreeMap<Distance, Rotation2d> hoodAngleTree;
-  public static final InterpolatingTreeMap<Distance, AngularVelocity> flywheelSpeedTree;
+  @Getter public static final InterpolatingTreeMap<Distance, AngularVelocity> flywheelSpeedTree;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
