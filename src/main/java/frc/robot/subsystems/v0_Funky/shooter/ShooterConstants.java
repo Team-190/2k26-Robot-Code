@@ -15,16 +15,15 @@ import frc.robot.subsystems.shared.turret.TurretConstants.TurretConstraints;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretGains;
 
 public class ShooterConstants {
-  public static final int SHOOTER_ID = 30;
-  public static final DCMotor SHOOTER_MOTORS = DCMotor.getKrakenX60Foc(2);
-  public static final GenericFlywheelConstants SHOOTER_FLYWHEEL_CONSTANTS =
+  public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
-          .withLeaderCANID(SHOOTER_ID)
+          .withLeaderCANID(30)
+          .withCanBus(CANBus.roboRIO())
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
           .withCurrentLimit(new CurrentLimits(60.0, 40.0))
           .withMomentOfInertia(0.05)
           .withGearRatio(1.0)
-          .withMotorConfig(SHOOTER_MOTORS)
+          .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
                   new LoggedTunableNumber("Shooter/Flywheel/Ks", 0),
@@ -40,6 +39,7 @@ public class ShooterConstants {
                       "Shooter/Flywheel/CruisingVelocityRotationsPerSecondSquared", 4),
                   new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadians", 0.05)))
           .withOpposedFollowerCANID(31)
+          .withEnableFOC(false)
           .build();
 
   public static final TurretConstants TURRET_CONSTANTS =
@@ -49,7 +49,7 @@ public class ShooterConstants {
           .withTurretCANID(2)
           .withMotorInversion(InvertedValue.CounterClockwise_Positive)
           .withEncoderInversion(SensorDirectionValue.Clockwise_Positive)
-          .withCanBus(new CANBus())
+          .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(16)
           .withEncoder2ID(15)
           .withMaxAngle(Rotation2d.fromRadians(2 * Math.PI))

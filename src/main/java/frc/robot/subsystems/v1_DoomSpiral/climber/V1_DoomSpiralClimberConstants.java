@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.climber;
 
+import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
@@ -12,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public class V1_DoomSpiralClimberConstants {
+
+  public static final double SLOW_VOLTAGE = 1.0;
   public static final Gains SLOT_0_GAINS =
       Gains.builder()
           .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 0))
@@ -71,5 +74,12 @@ public class V1_DoomSpiralClimberConstants {
           .withConstraints(CONSTRAINTS)
           .withCurrentLimits(CURRENT_LIMITS)
           .withEnableFOC(ENABLE_FOC)
+          .withCanBus(CANBus.roboRIO())
           .build();
+
+  public record RollPIDConstants(
+      double kP, double kD, double maxVelocity, double maxAcceleration) {}
+
+  public static final RollPIDConstants ROLL_PID_CONSTANTS =
+      new RollPIDConstants(0.0, 0.0, 0.0, 0.0);
 }

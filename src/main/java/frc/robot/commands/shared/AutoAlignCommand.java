@@ -144,7 +144,18 @@ public class AutoAlignCommand extends Command {
         && alignHeadingController.atGoal();
   }
 
-  private double calculate(
+  /**
+   * Calculates the PID output for the given setpoint, measurement, and speed. If the controller is
+   * not at the setpoint, calculate the PID output. Otherwise, reset the controller with the given
+   * measurement and speed.
+   *
+   * @param controller The profiled PID controller to use.
+   * @param setpoint The setpoint of the controller.
+   * @param measurement The current measurement.
+   * @param speed The current speed.
+   * @return The calculated PID output.
+   */
+  public static double calculate(
       ProfiledPIDController controller, double setpoint, double measurement, double speed) {
     double pidOutput = 0.0;
 

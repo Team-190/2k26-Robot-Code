@@ -1,7 +1,7 @@
 package frc.robot;
 
 public final class RobotConfig {
-  public static final RobotType ROBOT = RobotType.V0_FUNKY;
+  public static final RobotType ROBOT = RobotType.V1_DOOMSPIRAL_SIM;
 
   public enum RobotType {
     V0_FUNKY,

@@ -4,7 +4,6 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -16,6 +15,7 @@ import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
@@ -54,27 +54,27 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V0_FUNKY:
-          // drive =
-          //     new SwerveDrive(
-          //         V0_FunkyConstants.DRIVE_CONSTANTS,
-          //         new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
-          //         new SwerveModuleIOTalonFX(
-          //             V0_FunkyConstants.DRIVE_CONSTANTS,
-          //             V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
-          //         new SwerveModuleIOTalonFX(
-          //             V0_FunkyConstants.DRIVE_CONSTANTS,
-          //             V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
-          //         new SwerveModuleIOTalonFX(
-          //             V0_FunkyConstants.DRIVE_CONSTANTS,
-          //             V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
-          //         new SwerveModuleIOTalonFX(
-          //             V0_FunkyConstants.DRIVE_CONSTANTS,
-          //             V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-          //         V0_FunkyRobotState::getGlobalPose,
-          //         V0_FunkyRobotState::resetPose);
+          drive =
+              new SwerveDrive(
+                  V0_FunkyConstants.DRIVE_CONSTANTS,
+                  new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
+                  new SwerveModuleIOTalonFX(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
+                  V0_FunkyRobotState::getGlobalPose,
+                  V0_FunkyRobotState::resetPose);
           shooter =
               new Shooter(
-                  new GenericFlywheelIOTalonFX(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS),
+                  new GenericFlywheelIOTalonFX(ShooterConstants.SHOOT_CONSTANTS),
                   new TurretIOTalonFX(ShooterConstants.TURRET_CONSTANTS));
           // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
@@ -110,7 +110,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   V0_FunkyRobotState::resetPose);
           shooter =
               new Shooter(
-                  new GenericFlywheelIOSim(ShooterConstants.SHOOTER_FLYWHEEL_CONSTANTS),
+                  new GenericFlywheelIOSim(ShooterConstants.SHOOT_CONSTANTS),
                   new TurretIOSim(ShooterConstants.TURRET_CONSTANTS));
           feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
@@ -222,17 +222,6 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return Commands.sequence(
-            shooter.setTurretGoal(Rotation2d.fromRadians((Math.PI))),
-            Commands.waitSeconds(1),
-            shooter.waitUntilAtGoal(),
-            shooter.setTurretGoal(Rotation2d.fromRadians(0)),
-            Commands.waitSeconds(1),
-            shooter.waitUntilAtGoal(),
-            shooter.setTurretGoal(Rotation2d.fromRadians((Math.PI))),
-            Commands.waitSeconds(1),
-            shooter.waitUntilAtGoal(),
-            shooter.setTurretGoal(Rotation2d.fromRadians(0)))
-        .repeatedly();
+    return autoChooser.selectedCommand();
   }
 }

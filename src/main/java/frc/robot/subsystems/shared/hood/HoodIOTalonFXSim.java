@@ -23,14 +23,14 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
     hoodSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
-            constants.MOTOR_CONFIG,
-            constants.GEAR_RATIO,
-            constants.LENGTH_METERS,
-            constants.MIN_ANGLE,
-            constants.MAX_ANGLE,
+                constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
+            constants.motorConfig,
+            constants.gearRatio,
+            constants.lengthMeters,
+            constants.minAngle.getRadians(),
+            constants.maxAngle.getRadians(),
             true,
-            constants.MIN_ANGLE);
+            constants.minAngle.getRadians());
 
     hoodController = super.hoodMotor.getSimState();
   }
@@ -45,10 +45,10 @@ public class HoodIOTalonFXSim extends HoodIOTalonFX {
 
     hoodSim.update(GompeiLib.getLoopPeriod());
 
-    Angle rotorPosition = Angle.ofBaseUnits(hoodSim.getAngleRads() * constants.GEAR_RATIO, Radians);
+    Angle rotorPosition = Angle.ofBaseUnits(hoodSim.getAngleRads() * constants.gearRatio, Radians);
     AngularVelocity rotorVelocity =
         AngularVelocity.ofBaseUnits(
-            hoodSim.getVelocityRadPerSec() * constants.GEAR_RATIO, RadiansPerSecond);
+            hoodSim.getVelocityRadPerSec() * constants.gearRatio, RadiansPerSecond);
     hoodController.setRawRotorPosition(rotorPosition);
     hoodController.setRotorVelocity(rotorVelocity);
 

@@ -3,7 +3,6 @@ package frc.robot.subsystems.v1_DoomSpiral.swank;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.system.plant.DCMotor;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 
 public class V1_DoomSpiralSwankConstants {
 
@@ -12,9 +11,11 @@ public class V1_DoomSpiralSwankConstants {
   public static final int MOTOR_CAN_ID = 9;
   public static final double SUPPLY_CURRENT_LIMIT = 40;
   public static final double STATOR_CURRENT_LIMIT = 40;
-  public static final CANBus CAN_LOOP = V1_DoomSpiralConstants.DRIVE_CONFIG.canBus();
+  public static final CANBus CAN_LOOP = CANBus.roboRIO();
 
   public static final InvertedValue INVERSION = InvertedValue.CounterClockwise_Positive;
 
   public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX44Foc(1);
+
+  public static final double SWANK_VOLTAGE = 12.0;
 }

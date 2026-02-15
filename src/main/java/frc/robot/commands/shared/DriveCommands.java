@@ -1,10 +1,12 @@
 package frc.robot.commands.shared;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -16,6 +18,7 @@ import frc.robot.FieldConstants;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -23,7 +26,21 @@ import org.littletonrobotics.junction.Logger;
 public final class DriveCommands {
 
   /**
-   * Field relative drive command using two joysticks (controlling linear and angular velocities).
+   * A command that drives a SwerveDrive using joystick input.
+   *
+   * @param drive The SwerveDrive to control.
+   * @param driveConstants The constants for the SwerveDrive.
+   * @param xSupplier The supplier of the x-axis joystick input.
+   * @param ySupplier The supplier of the y-axis joystick input.
+   * @param omegaSupplier The supplier of the omega joystick input.
+   * @param rotationSupplier The supplier of the rotation of the robot.
+   * @param hijackX The supplier of whether to hijack (override) the x-axis velocity.
+   * @param hijackY The supplier of whether to hijack the y-axis velocity.
+   * @param hijackOmega The supplier of whether to hijack (override) the omega.
+   * @param hijackedX The supplier of the hijacked x-axis value velocity.
+   * @param hijackedY The supplier of the hijacked y-axis value velocity.
+   * @param hijackedOmega The supplier of the hijacked omega value.
+   * @return A command that drives the SwerveDrive.
    */
   @Trace
   public static Command joystickDrive(
@@ -32,7 +49,13 @@ public final class DriveCommands {
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
-      Supplier<Rotation2d> rotationSupplier) {
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier hijackX,
+      BooleanSupplier hijackY,
+      BooleanSupplier hijackOmega,
+      DoubleSupplier hijackedX,
+      DoubleSupplier hijackedY,
+      DoubleSupplier hijackedOmega) {
     return Commands.run(
         () -> {
           // Apply deadband
@@ -56,6 +79,12 @@ public final class DriveCommands {
 
           double angular = omega * drive.getMaxAngularSpeedRadPerSec();
 
+          fieldRelativeXVel = hijackX.getAsBoolean() ? hijackedX.getAsDouble() : fieldRelativeXVel;
+
+          fieldRelativeYVel = hijackY.getAsBoolean() ? hijackedY.getAsDouble() : fieldRelativeYVel;
+
+          angular = hijackOmega.getAsBoolean() ? hijackedOmega.getAsDouble() : angular;
+
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   fieldRelativeXVel,
@@ -68,6 +97,65 @@ public final class DriveCommands {
           drive.runVelocity(chassisSpeeds);
         },
         drive);
+  }
+
+  public static Command joystickDrive(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier) {
+    return joystickDrive(
+        drive,
+        driveConstants,
+        xSupplier,
+        ySupplier,
+        omegaSupplier,
+        rotationSupplier,
+        () -> false,
+        () -> false,
+        () -> false,
+        () -> 0.0,
+        () -> 0.0,
+        () -> 0.0);
+  }
+
+  public static Command joystickDriveAlignToHub(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier hijackOmega,
+      DoubleSupplier setpoint) {
+    ProfiledPIDController omegaController =
+        new ProfiledPIDController(
+            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            0.0,
+            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                Double.POSITIVE_INFINITY));
+    return joystickDrive(
+        drive,
+        driveConstants,
+        xSupplier,
+        ySupplier,
+        omegaSupplier,
+        rotationSupplier,
+        () -> false,
+        () -> false,
+        hijackOmega,
+        () -> 0.0,
+        () -> 0.0,
+        () ->
+            AutoAlignCommand.calculate(
+                omegaController,
+                setpoint.getAsDouble(),
+                rotationSupplier.get().getRadians(),
+                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
   }
 
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {

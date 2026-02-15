@@ -1,12 +1,12 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
@@ -15,46 +15,42 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
-  public static final int CAN_ID_TOP = 20;
-  public static final double CURRENT_LIMIT_TOP = 40.0;
-  public static final MomentOfInertia MOMENT_OF_INERTIA_TOP = Units.KilogramSquareMeters.of(0.0004);
-  public static final double GEAR_RATIO_TOP = 2.67; // might be 8/3
-  public static final DCMotor GEARBOX_TOP = DCMotor.getKrakenX60(1);
 
-  public static final Rotation2d STOW_ANGLE = Rotation2d.fromDegrees(9);
-  public static final Rotation2d DEPLOY_ANGLE = Rotation2d.fromDegrees(170);
+  public static final double INTAKE_VOLTAGE = 12.0;
+  public static final double EXTAKE_VOLTAGE = -12.0;
+
+  public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
+  public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(0.5);
+  public static final double LINKAGE_SLOW_VOLTAGE = 0.5;
+
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
-          .withRollerCANID(CAN_ID_TOP)
-          .withSupplyCurrentLimit(CURRENT_LIMIT_TOP)
-          .withRollerGearbox(GEARBOX_TOP)
-          .withRollerMotorGearRatio(GEAR_RATIO_TOP)
-          .withMomentOfInertia(MOMENT_OF_INERTIA_TOP)
+          .withRollerCANID(20)
+          .withSupplyCurrentLimit(40.0)
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withRollerMotorGearRatio(8.0 / 3.0)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
           .withCanBus(CANBus.roboRIO())
           .build();
 
-  public static final int CAN_ID_BOTTOM = 21;
-  public static final double CURRENT_LIMIT_BOTTOM = 40.0;
-  public static final MomentOfInertia MOMENT_OF_INERTIA_BOTTOM =
-      Units.KilogramSquareMeters.of(0.0004);
-  public static final double GEAR_RATIO_BOTTOM = 2.67;
-  public static final DCMotor GEARBOX_BOTTOM = DCMotor.getKrakenX60(1);
-
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
       GenericRollerConstants.builder()
-          .withRollerCANID(CAN_ID_BOTTOM)
-          .withSupplyCurrentLimit(CURRENT_LIMIT_BOTTOM)
-          .withRollerGearbox(GEARBOX_BOTTOM)
-          .withRollerMotorGearRatio(GEAR_RATIO_BOTTOM)
-          .withMomentOfInertia(MOMENT_OF_INERTIA_BOTTOM)
+          .withRollerCANID(21)
+          .withSupplyCurrentLimit(40.0)
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withRollerMotorGearRatio(8.0 / 3.0)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
           .withCanBus(CANBus.roboRIO())
           .build();
 
   public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
 
-  public static final boolean IS_CAN_FD = false;
   public static final int MOTOR_CAN_ID = 22;
   public static final int CAN_CODER_CAN_ID = 23;
 
@@ -72,8 +68,6 @@ public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(170);
   // points A and D on the intake.
-
-  public static final boolean LINKAGE_ENABLE_FOC = false;
 
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
@@ -115,7 +109,6 @@ public class V1_DoomSpiralIntakeConstants {
       FourBarLinkageConstants.builder()
           .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
           .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-          .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
           .CONSTRAINTS(CONSTRAINTS)
           .GAINS(GAINS)
           .GEAR_RATIO(GEAR_RATIO)
@@ -134,4 +127,14 @@ public class V1_DoomSpiralIntakeConstants {
           .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
           .ZERO_OFFSET(ZERO_OFFSET)
           .build();
+
+  @RequiredArgsConstructor
+  @Getter
+  public enum IntakeState {
+    STOW(Rotation2d.fromDegrees(9)),
+    INTAKE(Rotation2d.fromDegrees(170)),
+    BUMP(Rotation2d.fromDegrees(150));
+
+    private final Rotation2d angle;
+  }
 }

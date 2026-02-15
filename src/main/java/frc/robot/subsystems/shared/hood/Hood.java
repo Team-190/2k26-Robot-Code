@@ -13,6 +13,8 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -28,8 +30,12 @@ public class Hood {
   private HoodGoal positionGoal;
   private double voltageGoal;
 
+  @Getter @Setter private Rotation2d overridePosition;
+
   private final Supplier<Rotation2d> scoreRotationSupplier;
   private final Supplier<Rotation2d> feedRotationSupplier;
+
+  private final HoodConstants constants;
 
   /**
    * Constructor for the Funky hood subsystem. Makes a routine that sets the voltage passed into the
@@ -41,6 +47,7 @@ public class Hood {
    */
   public Hood(
       HoodIO io,
+      HoodConstants constants,
       Subsystem subsystem,
       int index,
       Supplier<Rotation2d> scoreRotationSupplier,
@@ -64,6 +71,8 @@ public class Hood {
 
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
+
+    this.constants = constants;
   }
 
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
@@ -71,6 +80,7 @@ public class Hood {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
+    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
         Rotation2d position;
@@ -80,6 +90,9 @@ public class Hood {
             break;
           case FEED:
             position = feedRotationSupplier.get();
+            break;
+          case OVERRIDE:
+            position = overridePosition;
             break;
           case STOW:
           default:
@@ -163,6 +176,33 @@ public class Hood {
    */
   public void setFeedforward(double ks, double kv, double ka) {
     io.setFeedforward(ks, kv, ka);
+  }
+
+  /**
+   * Resets the hood to the zero position, while ensuring that the motor is not producing any
+   * torque.
+   *
+   * <p>This command sequence is as follows:
+   *
+   * <ol>
+   *   <li>Move the hood to its maximum angle.
+   *   <li>Set the hood state to idle.
+   *   <li>Apply a negative voltage to the hood motor until the torque current is near zero.
+   *   <li>Set the hood position to zero.
+   * </ol>
+   *
+   * @return A command sequence that resets the hood to the zero position
+   */
+  public Command resetHoodZero() {
+    return Commands.sequence(
+        Commands.runOnce(() -> io.setPosition(constants.maxAngle)),
+        Commands.runOnce(() -> currentState = HoodState.IDLE),
+        Commands.run(() -> io.setVoltage(-constants.zeroVoltage.in(Volts)))
+            .until(
+                () ->
+                    inputs.torqueCurrent.isNear(
+                        constants.zeroCurrentThreshold, constants.zeroCurrentEpsilon)),
+        Commands.runOnce(() -> io.setPosition(Rotation2d.kZero)));
   }
 
   /**
