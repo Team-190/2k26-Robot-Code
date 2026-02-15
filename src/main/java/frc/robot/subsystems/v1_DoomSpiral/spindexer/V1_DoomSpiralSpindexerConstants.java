@@ -43,11 +43,11 @@ public class V1_DoomSpiralSpindexerConstants {
 
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(41)
+          .withLeaderCANID(41)
           .withSupplyCurrentLimit(30.0)
           .withRollerGearbox(DCMotor.getKrakenX44(1))
           .withRollerMotorGearRatio(24.0 / 16.0)
-          .withInvertedValue(InvertedValue.Clockwise_Positive)
+          .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
           .withNeutralMode(NeutralModeValue.Coast)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0000559571))
           .withCanBus(CANBus.roboRIO())
@@ -55,12 +55,12 @@ public class V1_DoomSpiralSpindexerConstants {
 
   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(42)
+          .withLeaderCANID(42)
           .withSupplyCurrentLimit(30.0)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(1.0)
           .withNeutralMode(NeutralModeValue.Brake)
-          .withInvertedValue(InvertedValue.Clockwise_Positive)
+          .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001710116))
           .withCanBus(CANBus.roboRIO())
           .build();

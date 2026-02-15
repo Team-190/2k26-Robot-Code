@@ -108,8 +108,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFX(
                       V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new GenericRollerIOTalonFX(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_BOTTOM),
                   new FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -166,8 +164,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFXSim(
                       V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new GenericRollerIOTalonFXSim(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_BOTTOM),
                   new FourBarLinkageIOSim(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -216,9 +212,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (intake == null) {
-      intake =
-          new V1_DoomSpiralIntake(
-              new GenericRollerIO() {}, new GenericRollerIO() {}, new FourBarLinkageIO() {});
+      intake = new V1_DoomSpiralIntake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
     }
 
     if (spindexer == null) {

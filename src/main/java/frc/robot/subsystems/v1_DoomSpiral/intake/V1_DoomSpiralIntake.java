@@ -17,24 +17,20 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralIntake extends SubsystemBase {
-  private final GenericRoller topRoller;
-  private final GenericRoller bottomRoller;
+  private final GenericRoller roller;
   @Getter private final FourBarLinkage linkage;
 
   private IntakeState intakeState;
 
-  public V1_DoomSpiralIntake(
-      GenericRollerIO topIO, GenericRollerIO bottomIO, FourBarLinkageIO linkageIO) {
-    topRoller = new GenericRoller(topIO, this, "Top");
-    bottomRoller = new GenericRoller(bottomIO, this, "Bottom");
+  public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
+    roller = new GenericRoller(rollerIO, this, "1");
     linkage =
         new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, 0);
   }
 
   @Override
   public void periodic() {
-    topRoller.periodic();
-    bottomRoller.periodic();
+    roller.periodic();
     linkage.periodic();
 
     Logger.recordOutput("Intake/Intake State", intakeState);
@@ -49,9 +45,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
    */
   public Command setRollerVoltage(double voltage) {
     return Commands.parallel(
-        topRoller.setVoltage(
-            voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()),
-        bottomRoller.setVoltage(
+        roller.setVoltage(
             voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()));
   }
 
@@ -66,7 +60,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command stopRoller() {
-    return Commands.parallel(topRoller.setVoltage(0), bottomRoller.setVoltage(0));
+    return roller.setVoltage(0);
   }
 
   public Command deploy() {

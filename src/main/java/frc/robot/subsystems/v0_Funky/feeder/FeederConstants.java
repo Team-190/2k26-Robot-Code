@@ -11,12 +11,12 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstant
 public class FeederConstants {
   public static final GenericRollerConstants FEEDER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(20)
+          .withLeaderCANID(20)
           .withSupplyCurrentLimit(40.0)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(1.0 / 2.0)
           .withNeutralMode(NeutralModeValue.Brake)
-          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
+          .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withMomentOfInertia(MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters))
           .build();
 }

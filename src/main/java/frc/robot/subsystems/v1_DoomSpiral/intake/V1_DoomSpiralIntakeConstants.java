@@ -30,24 +30,13 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
-          .withRollerCANID(20)
+          .withLeaderCANID(20)
           .withSupplyCurrentLimit(40.0)
           .withNeutralMode(NeutralModeValue.Coast)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(8.0 / 3.0)
-          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
-          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-          .withCanBus(CANBus.roboRIO())
-          .build();
-
-  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
-      GenericRollerConstants.builder()
-          .withRollerCANID(21)
-          .withSupplyCurrentLimit(40.0)
-          .withNeutralMode(NeutralModeValue.Coast)
-          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
-          .withRollerMotorGearRatio(8.0 / 3.0)
+          .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
+          .withAlignedFollowerCANID(21)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
           .withCanBus(CANBus.roboRIO())
           .build();
