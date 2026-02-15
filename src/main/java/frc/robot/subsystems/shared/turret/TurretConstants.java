@@ -1,0 +1,72 @@
+package frc.robot.subsystems.shared.turret;
+
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import lombok.Builder;
+import lombok.NonNull;
+
+@Builder(setterPrefix = "with")
+public class TurretConstants {
+
+  @NonNull public final Integer turretCANID;
+  @NonNull public final Integer encoder1ID;
+  @NonNull public final Integer encoder2ID;
+  @NonNull public final InvertedValue motorInversion;
+  @NonNull public final SensorDirectionValue encoderInversion;
+  @NonNull public final Rotation2d maxAngle;
+  @NonNull public final Rotation2d minAngle;
+  @NonNull public final Double gearRatio;
+  @NonNull public final TurretGains gains;
+  @NonNull public final TurretConstraints constraints;
+
+  @NonNull public final Rotation2d e1Offset;
+  @NonNull public final Rotation2d e2Offset;
+
+  @NonNull public final Double supplyCurrentLimit;
+  @NonNull public final Double statorCurrentLimit;
+  @NonNull public final DCMotor motorConfig;
+  @NonNull public final Double momentOfInertia;
+  @NonNull public final TurretAngleCalculation turretAngleCalculation;
+
+  @NonNull public final CANBus canBus;
+
+  @Builder(setterPrefix = "with")
+  public record TurretGains(
+      @NonNull LoggedTunableNumber kP,
+      @NonNull LoggedTunableNumber kD,
+      @NonNull LoggedTunableNumber kV,
+      @NonNull LoggedTunableNumber kA,
+      @NonNull LoggedTunableNumber kS) {}
+
+  @Builder(setterPrefix = "with")
+  public record TurretConstraints(
+      @NonNull LoggedTunableNumber maxAccelerationRadiansPerSecondSquared,
+      @NonNull LoggedTunableNumber cruisingVelocityRadiansPerSecond,
+      @NonNull LoggedTunableNumber goalToleranceRadians) {}
+
+  @Builder(setterPrefix = "with")
+  public record TurretAngleCalculation(
+      int gear0ToothCount, int gear1ToothCount, int gear2ToothCount) {
+
+    public double gear1Ratio() {
+      return (double) gear0ToothCount / gear1ToothCount;
+    }
+
+    public double gear2Ratio() {
+      return (double) gear0ToothCount / gear2ToothCount;
+    }
+
+    /**
+     * Calculates the difference between the gear 1 ratio and gear 2 ratio.
+     *
+     * @return the difference between the gear 1 ratio and gear 2 ratio.
+     */
+    public double gearRatioDifference() {
+      return gear1Ratio() - gear2Ratio();
+    }
+  }
+}

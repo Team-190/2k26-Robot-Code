@@ -3,7 +3,7 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
     id "com.peterabeles.gversion" version "1.10"
     id "io.freefair.lombok" version "8.4"
-    id "com.diffplug.spotless" version "6.12.0"
+    id "com.diffplug.spotless" version "6.25.0"
     id "io.freefair.aspectj.post-compile-weaving" version "8.4"
 }
 
@@ -48,7 +48,6 @@ gradle.projectsEvaluated {
         }
 
         println "deploySrcDir set to: ${project.ext.deploySrcDir}"
-
     } catch (Throwable e) {
         println "Could not read RobotType: ${e.message}"
         project.ext.deploySrcDir = "src/main/deploy"
@@ -130,18 +129,6 @@ repositories {
                 includeGroup "edu.wpi.team190"
             }
         }
-    } else if (!useLocalGompeiLib) {
-        println "Using JitPack for GompeiLib."
-        GLibRepoPath = "com.github.Team-190:gompeilib:2026.+"
-        // Fallback to JitPack if credentials are missing
-        exclusiveContent {
-            forRepository {
-                maven { url = uri("https://jitpack.io") }
-            }
-            filter {
-                includeGroup "com.github.Team-190"
-            }
-        }
     } else {
         println "Using local GompeiLib build."
 
@@ -169,17 +156,17 @@ task checkRoboRIOtoRobotType {
     doLast {
         def ROBORIO_COMMENT = fetchNameUsingJSch(
                 roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
-        )
+                )
         println "RoboRIO Name: ${ROBORIO_COMMENT}"
 
         // Ensure the build output directory is in the classpath
         def buildOutputDir = file('build/classes/java/main')
         URLClassLoader loader = new URLClassLoader([
-                buildOutputDir.toURI().toURL()
+            buildOutputDir.toURI().toURL()
         ] as URL[], this.class.classLoader)
 
         // Set file path names and constants
-        def robotTypeClassName = 'frc.robot.Constants$RobotType'
+        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
         def constantsClassName = 'frc.robot.RobotConfig'
         def robotType = null
         def constantsClass = null
@@ -192,7 +179,6 @@ task checkRoboRIOtoRobotType {
 
             def constants = robotType.enumConstants
             println "Enum constants: ${constants.collect { it.name() }}"
-
         } catch (ClassNotFoundException e) {
             println "Error: Class ${robotTypeClassName} not found. ${e.message}"
         }
@@ -216,7 +202,6 @@ task checkRoboRIOtoRobotType {
             // Load the class from the extended classloader
             constantsClass = loader.loadClass(constantsClassName)
             println "Loaded class: ${constantsClass.name}"
-
         } catch (ClassNotFoundException e) {
             println "Error: Class ${constantsClassName} not found. ${e.message}"
         }
@@ -235,7 +220,6 @@ task checkRoboRIOtoRobotType {
         } else {
             throw new GradleException("Mismatch! The RoboRIO comment '${ROBORIO_COMMENT}' does not match the ROBOT value '${robotEnumValue.name()}'\nTo Fix: Match RoboRIO comment to ROBOT in file '${constantsClassName}'")
         }
-
     }
 }
 
@@ -355,7 +339,11 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -467,9 +455,9 @@ tasks.register('appendBuildVersion') {
 
         def dep = configurations.detachedConfiguration(
                 dependencies.create(GLibRepoPath)
-        ).resolvedConfiguration.firstLevelModuleDependencies.find {
-            it.moduleName == "gompeilib"
-        }
+                ).resolvedConfiguration.firstLevelModuleDependencies.find {
+                    it.moduleName == "gompeilib"
+                }
 
         def ver = dep?.moduleVersion ?: "unknown"
         "${src}:${ver}"

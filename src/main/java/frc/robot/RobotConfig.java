@@ -1,7 +1,12 @@
 package frc.robot;
 
-import frc.robot.Constants.RobotType;
-
 public final class RobotConfig {
-  public static final RobotType ROBOT = RobotType.V0_FUNKY;
+  public static final RobotType ROBOT = RobotType.V1_DOOMSPIRAL_SIM;
+
+  public enum RobotType {
+    V0_FUNKY,
+    V0_FUNKY_SIM,
+    V1_DOOMSPIRAL,
+    V1_DOOMSPIRAL_SIM,
+  }
 }

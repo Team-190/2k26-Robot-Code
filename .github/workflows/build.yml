@@ -5,14 +5,23 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Build
+  Build:
     runs-on: ubuntu-latest
     container: wpilib/roborio-cross-ubuntu:2024-22.04
+
+    env:
+      GPR_USER: ${{ github.actor }}
+      GPR_KEY: ${{ secrets.GPR_KEY }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
       - name: Grant execute permission
         run: chmod +x gradlew
+
       - name: Build robot code
-        run: ./gradlew build
+        run: |
+          ./gradlew build \
+            -Pgpr.user=$GPR_USER \
+            -Pgpr.key=$GPR_KEY \
+            --refresh-dependencies

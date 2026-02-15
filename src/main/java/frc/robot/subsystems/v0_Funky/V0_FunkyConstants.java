@@ -19,66 +19,106 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V0_FunkyConstants {
   public static final DriveConfig DRIVE_CONFIG =
-      new DriveConfig(
-          V0_FunkyTunerConstants.kCANBus,
-          V0_FunkyTunerConstants.DrivetrainConstants.Pigeon2Id,
-          V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-          V0_FunkyTunerConstants.kWheelRadius.in(Meters),
-          DCMotor.getKrakenX60Foc(1),
-          DCMotor.getKrakenX44Foc(1),
-          V0_FunkyTunerConstants.FrontLeft,
-          V0_FunkyTunerConstants.FrontRight,
-          V0_FunkyTunerConstants.BackLeft,
-          V0_FunkyTunerConstants.BackRight,
-          V0_FunkyTunerConstants.kDriveClosedLoopOutput,
-          V0_FunkyTunerConstants.kSteerClosedLoopOutput,
-          Units.inchesToMeters(34.5),
-          Units.inchesToMeters(34.5));
+      DriveConfig.builder()
+          .withCanBus(V0_FunkyTunerConstants.kCANBus)
+          .withPigeon2Id(V0_FunkyTunerConstants.DrivetrainConstants.Pigeon2Id)
+          .withMaxLinearVelocityMetersPerSecond(
+              V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond))
+          .withWheelRadiusMeters(V0_FunkyTunerConstants.kWheelRadius.in(Meters))
+          .withDriveModel(DCMotor.getKrakenX60Foc(1))
+          .withTurnModel(DCMotor.getKrakenX44Foc(1))
+          .withFrontLeft(V0_FunkyTunerConstants.FrontLeft)
+          .withFrontRight(V0_FunkyTunerConstants.FrontRight)
+          .withBackLeft(V0_FunkyTunerConstants.BackLeft)
+          .withBackRight(V0_FunkyTunerConstants.BackRight)
+          .withDriveClosedLoopOutputType(V0_FunkyTunerConstants.kDriveClosedLoopOutput)
+          .withSteerClosedLoopOutputType(V0_FunkyTunerConstants.kSteerClosedLoopOutput)
+          .withBumperLength(Units.inchesToMeters(34.5))
+          .withBumperWidth(Units.inchesToMeters(34.5))
+          .build();
+
   public static final Gains GAINS =
-      new Gains(
-          new LoggedTunableNumber("Drive/Teleop/Drive Ks", V0_FunkyTunerConstants.driveGains.kS),
-          new LoggedTunableNumber("Drive/Teleop/Drive Kv", V0_FunkyTunerConstants.driveGains.kV),
-          new LoggedTunableNumber("Drive/Teleop/Drive Kp", V0_FunkyTunerConstants.driveGains.kP),
-          new LoggedTunableNumber("Drive/Teleop/Drive Kd", V0_FunkyTunerConstants.driveGains.kD),
-          new LoggedTunableNumber("Drive/Teleop/Turn Kp", V0_FunkyTunerConstants.steerGains.kP),
-          new LoggedTunableNumber("Drive/Teleop/Turn Kd", V0_FunkyTunerConstants.steerGains.kD));
+      Gains.builder()
+          .withDriveKs(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Ks", V0_FunkyTunerConstants.driveGains.kS))
+          .withDriveKv(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
+          .withDriveKp(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Kp", V0_FunkyTunerConstants.driveGains.kP))
+          .withDriveKd(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Kd", V0_FunkyTunerConstants.driveGains.kD))
+          .withTurnKp(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kp", V0_FunkyTunerConstants.steerGains.kP))
+          .withTurnKd(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kd", V0_FunkyTunerConstants.steerGains.kD))
+          .build();
+
   public static final AutoGains AUTO_GAINS =
-      new AutoGains(
-          new LoggedTunableNumber("Drive/Auto/Translation Kp", 0.0),
-          new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0),
-          new LoggedTunableNumber("Drive/Auto/Rotation Kp", 0.0),
-          new LoggedTunableNumber("Drive/Auto/Rotation Kd", 0.0));
+      AutoGains.builder()
+          .withTranslationKp(new LoggedTunableNumber("Drive/Auto/Translation Kp", 0.0))
+          .withTranslationKd(new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0))
+          .withRotationKp(new LoggedTunableNumber("Drive/Auto/Rotation Kp", 0.0))
+          .withRotationKd(new LoggedTunableNumber("Drive/Auto/Rotation Kd", 0.0))
+          .build();
+
+  public static final PIDControllerConstants X_PID_CONSTANTS =
+      PIDControllerConstants.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/X/Kp", 0.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/X/Kd", 0.0))
+          .withTolerance(new LoggedTunableNumber("Drive/Auto Align/X/Tolerance", 0.0))
+          .withMaxVelocity(new LoggedTunableNumber("Drive/Auto Align/X/Max Velocity", 0.0))
+          .build();
+
+  public static final PIDControllerConstants Y_PID_CONSTANTS =
+      PIDControllerConstants.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Y/Kp", 0.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Y/Kd", 0.0))
+          .withTolerance(new LoggedTunableNumber("Drive/Auto Align/Y/Tolerance", 0.0))
+          .withMaxVelocity(new LoggedTunableNumber("Drive/Auto Align/Y/Max Velocity", 0.0))
+          .build();
+
+  public static final PIDControllerConstants OMEGA_PID_CONSTANTS =
+      PIDControllerConstants.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 0.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.0))
+          .withTolerance(new LoggedTunableNumber("Drive/Auto Align/Theta/Tolerance", 0.0))
+          .withMaxVelocity(new LoggedTunableNumber("Drive/Auto Align/Theta/Max Velocity", 0.0))
+          .build();
+
   public static final AutoAlignNearConstants AUTO_ALIGN_NEAR_CONSTANTS =
-      new AutoAlignNearConstants(
-          new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/X/Kp", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/X/Kd", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/X/Tolerance", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/X/Max Velocity", 0.0)),
-          new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/Y/Kp", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Y/Kd", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Y/Tolerance", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Y/Max Velocity", 0.0)),
-          new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Tolerance", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Max Velocity", 0.0)),
-          new LoggedTunableNumber("Drive/Auto Align/Position Threshold Meters", 0.0));
+      AutoAlignNearConstants.builder()
+          .withXPIDConstants(X_PID_CONSTANTS)
+          .withYPIDConstants(Y_PID_CONSTANTS)
+          .withOmegaPIDConstants(OMEGA_PID_CONSTANTS)
+          .withPositionThresholdMeters(
+              new LoggedTunableNumber(
+                  "Drive/Auto Align/Position Threshold Meters", Units.inchesToMeters(0.25)))
+          .build();
+
   public static final double ODOMETRY_FREQUENCY = 250.0;
   public static final double DRIVER_DEADBAND = 0.1;
   public static final double OPERATOR_DEADBAND = 0.1;
+  public static final double TRIGGER_DEADBAND = 0.05;
+
+  public static final double SHOOTER_VOLTAGE = 12.0;
+  public static final double FEEDER_VOLTAGE = 6.0;
 
   public static final SwerveDriveConstants DRIVE_CONSTANTS =
-      new SwerveDriveConstants(
-          DRIVE_CONFIG,
-          GAINS,
-          AUTO_GAINS,
-          AUTO_ALIGN_NEAR_CONSTANTS,
-          OPERATOR_DEADBAND,
-          ODOMETRY_FREQUENCY,
-          DRIVER_DEADBAND);
+      SwerveDriveConstants.builder()
+          .withDriveConfig(DRIVE_CONFIG)
+          .withGains(GAINS)
+          .withAutoGains(AUTO_GAINS)
+          .withAutoAlignConstants(AUTO_ALIGN_NEAR_CONSTANTS)
+          .withOdometryFrequency(ODOMETRY_FREQUENCY)
+          .withDriverDeadband(DRIVER_DEADBAND)
+          .withOperatorDeadband(OPERATOR_DEADBAND)
+          .build();
 
   public static final LimelightConfig LIMELIGHT_CONFIG =
       LimelightConfig.builder()

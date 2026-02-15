@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+    container: wpilib/roborio-cross-ubuntu:2024-22.04
+
+    env:
+      GPR_USER: ${{ github.actor }}
+      GPR_KEY: ${{ secrets.GPR_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Spotless lint
+        run: |
+          ./gradlew spotlessCheck \
+            -Pgpr.user=$GPR_USER \
+            -Pgpr.key=$GPR_KEY
