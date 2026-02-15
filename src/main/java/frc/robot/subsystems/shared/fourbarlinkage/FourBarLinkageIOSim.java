@@ -86,7 +86,7 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
     feedback.setPID(kp, ki, kd);
   }
 
-  public void setFeedforward(double ks, double kv, double ka) {
+  public void setFeedforward(double ks, double kv, double kg, double ka) {
     feedforward.setKs(ks);
     feedforward.setKv(kv);
     feedforward.setKa(ka);

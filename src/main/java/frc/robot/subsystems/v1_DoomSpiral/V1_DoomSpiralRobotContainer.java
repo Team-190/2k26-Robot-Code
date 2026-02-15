@@ -23,7 +23,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
@@ -449,13 +448,15 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return shooter
-        .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.minAngle)
-        .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5))
-        .andThen(
-            shooter
-                .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.maxAngle)
-                .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5)))
-        .repeatedly();
+    // return shooter
+    //     .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.minAngle)
+    //     .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5))
+    //     .andThen(
+    //         shooter
+    //             .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.maxAngle)
+    //             .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5)))
+    //     .repeatedly();
+    return intake.setRollerVoltage(1);
+    // return intake.linkageSysId();
   }
 }

@@ -233,4 +233,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                     V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()
                         - V1_DoomSpiralIntakeConstants.ROLLER_VOLTAGE_INCREMENT));
   }
+
+  public Command linkageSysId() {
+    return linkage.runSysId();
+  }
 }

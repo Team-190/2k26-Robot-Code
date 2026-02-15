@@ -48,6 +48,7 @@ public class FourBarLinkageConstants {
       LoggedTunableNumber kp,
       LoggedTunableNumber kd,
       LoggedTunableNumber ks,
+      LoggedTunableNumber kg,
       LoggedTunableNumber kv,
       LoggedTunableNumber ka) {}
 

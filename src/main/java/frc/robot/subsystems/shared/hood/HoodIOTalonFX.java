@@ -59,9 +59,10 @@ public class HoodIOTalonFX implements HoodIO {
     config.Slot0.kV = constants.gains.kv().get();
     config.Slot0.kA = constants.gains.ka().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        constants.constraints.maxVelocityRadiansPerSecond().get();
+        Units.radiansToRotations(constants.constraints.maxVelocityRadiansPerSecond().get());
     config.MotionMagic.MotionMagicAcceleration =
-        constants.constraints.maxAccelerationRadiansPerSecondSqaured().get();
+        Units.radiansToRotations(
+            constants.constraints.maxAccelerationRadiansPerSecondSqaured().get());
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
 
     positionRotations = hoodMotor.getPosition();

@@ -47,8 +47,8 @@ public class V1_DoomSpiralIntakeConstants {
   public static final int CAN_CODER_CAN_ID = 23;
 
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
-      SensorDirectionValue.CounterClockwise_Positive; // TODO: set correct direction
-  public static final int GEAR_RATIO = 1;
+      SensorDirectionValue.Clockwise_Positive;
+  public static final double GEAR_RATIO = 50.79235079;
   public static final int SUPPLY_CURRENT_LIMIT = 40;
   public static final int STATOR_CURRENT_LIMIT = 40;
 
@@ -58,22 +58,23 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final Rotation2d ZERO_OFFSET = Rotation2d.kPi;
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
-  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(170);
+  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(163.564453);
   // points A and D on the intake.
 
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
   public static final Gains GAINS =
       new Gains(
-          new LoggedTunableNumber("Linkage/KP", 1.0),
-          new LoggedTunableNumber("Linkage/KD", 0.1),
-          new LoggedTunableNumber("Linkage/KS", 0.0),
+          new LoggedTunableNumber("Linkage/KP", 200.0),
+          new LoggedTunableNumber("Linkage/KD", 0.0),
+          new LoggedTunableNumber("Linkage/KS", 0.35537),
+          new LoggedTunableNumber("Linkage/KG", 0.0),
           new LoggedTunableNumber("Linkage/KV", 0.0),
           new LoggedTunableNumber("Linkage/KA", 0.0));
   public static final Constraints CONSTRAINTS =
       new Constraints(
-          new LoggedTunableNumber("Linkage/Max Velocity", 1.0),
-          new LoggedTunableNumber("Linkage/Max Acceleration", 1.0),
+          new LoggedTunableNumber("Linkage/Max Velocity", 10.0),
+          new LoggedTunableNumber("Linkage/Max Acceleration", 50.0),
           new LoggedTunableNumber(
               "Linkage/Goal Tolerance", Rotation2d.fromDegrees(1.0).getRadians()));
 
@@ -124,7 +125,7 @@ public class V1_DoomSpiralIntakeConstants {
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(170)),
+    INTAKE(Rotation2d.fromDegrees(163)),
     BUMP(Rotation2d.fromDegrees(150));
 
     private final Rotation2d angle;

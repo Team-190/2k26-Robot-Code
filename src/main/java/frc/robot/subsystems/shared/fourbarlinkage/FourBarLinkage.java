@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -84,9 +86,41 @@ public class FourBarLinkage {
 
   public void periodic() {
     io.updateInputs(inputs);
+
     Logger.processInputs(aKitTopic, inputs);
 
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          io.setPID(constants.GAINS.kp().get(), 0, constants.GAINS.kd().get());
+
+          io.setFeedforward(
+              constants.GAINS.ks().get(),
+              constants.GAINS.kv().get(),
+              constants.GAINS.kg().get(),
+              constants.GAINS.ka().get());
+        },
+        constants.GAINS.kp(),
+        constants.GAINS.kd(),
+        constants.GAINS.ks(),
+        constants.GAINS.kg(),
+        constants.GAINS.kv(),
+        constants.GAINS.ka());
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            io.setProfile(
+                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get(),
+                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
+                constants.CONSTRAINTS.goalToleranceRadians().get()),
+        constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured(),
+        constants.CONSTRAINTS.maxVelocityRadiansPerSecond(),
+        constants.CONSTRAINTS.goalToleranceRadians());
+
+    Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
+    Logger.recordOutput(aKitTopic + "/State", currentState);
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
@@ -289,6 +323,7 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
+        Commands.print("Sys Id being run"),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> atGoal(constants.MAX_ANGLE)),
