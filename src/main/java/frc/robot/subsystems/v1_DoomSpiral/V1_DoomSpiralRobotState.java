@@ -95,6 +95,27 @@ public class V1_DoomSpiralRobotState {
                     Interpolator.forDouble()
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
+    hoodAngleTree.put(Meters.of(1.34), Rotation2d.fromDegrees(19.0));
+    hoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(19.0));
+    hoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(24.0));
+    hoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(27.0));
+    hoodAngleTree.put(Meters.of(3.82), Rotation2d.fromDegrees(29.0));
+    hoodAngleTree.put(Meters.of(4.09), Rotation2d.fromDegrees(30.0));
+    hoodAngleTree.put(Meters.of(4.40), Rotation2d.fromDegrees(31.0));
+    hoodAngleTree.put(Meters.of(4.77), Rotation2d.fromDegrees(32.0));
+    hoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(32.0));
+    hoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(35.0));
+
+    flywheelSpeedTree.put(Meters.of(1.34), RadiansPerSecond.of(210.0));
+    flywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
+    flywheelSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
+    flywheelSpeedTree.put(Meters.of(2.81), RadiansPerSecond.of(230.0));
+    flywheelSpeedTree.put(Meters.of(3.82), RadiansPerSecond.of(250.0));
+    flywheelSpeedTree.put(Meters.of(4.09), RadiansPerSecond.of(255.0));
+    flywheelSpeedTree.put(Meters.of(4.40), RadiansPerSecond.of(260.0));
+    flywheelSpeedTree.put(Meters.of(4.77), RadiansPerSecond.of(265.0));
+    flywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
+    flywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
     distanceToHub =
         Distance.ofBaseUnits(
@@ -140,7 +161,7 @@ public class V1_DoomSpiralRobotState {
   }
 
   public static Rotation2d getHeading() {
-    return localization.getEstimatedPose(globalZone).getRotation();
+    return localization.getHeading();
   }
 
   public static Pose2d getGlobalPose() {

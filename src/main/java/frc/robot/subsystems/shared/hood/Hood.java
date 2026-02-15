@@ -179,16 +179,18 @@ public class Hood {
   }
 
   /**
-   * Resets the hood to the zero position, while ensuring that the motor is not producing any torque.
+   * Resets the hood to the zero position, while ensuring that the motor is not producing any
+   * torque.
    *
-   * <p>This command sequence is as follows:</p>
+   * <p>This command sequence is as follows:
+   *
    * <ol>
-   *   <li>Move the hood to its maximum angle.</li>
-   *   <li>Set the hood state to idle.</li>
-   *   <li>Apply a negative voltage to the hood motor until the torque current is near zero.</li>
-   *   <li>Set the hood position to zero.</li>
+   *   <li>Move the hood to its maximum angle.
+   *   <li>Set the hood state to idle.
+   *   <li>Apply a negative voltage to the hood motor until the torque current is near zero.
+   *   <li>Set the hood position to zero.
    * </ol>
-   * 
+   *
    * @return A command sequence that resets the hood to the zero position
    */
   public Command resetHoodZero() {

@@ -76,7 +76,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    * Sets the goal for the arm subsystem to the given position.
    *
    * @param positionGoal the Rotation2d to set the arm to.
-   * @return A command that sets the arm to the given position and waits until the arm is at the goal.
+   * @return A command that sets the arm to the given position and waits until the arm is at the
+   *     goal.
    */
   public Command setPositionGoal(Rotation2d positionGoal) {
     return runOnce(() -> arm.setPositionGoal(positionGoal)).andThen(waitUntilPosition());
@@ -86,7 +87,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    * Sets the goal for the arm subsystem to the given position.
    *
    * @param climberGoal the ClimberGoal to set the arm to.
-   * @return A command that sets the arm to the given position and waits until the arm is at the goal.
+   * @return A command that sets the arm to the given position and waits until the arm is at the
+   *     goal.
    */
   public Command setPositionGoal(ClimberGoal climberGoal) {
     return runOnce(() -> state = climberGoal);
@@ -108,8 +110,9 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    * A command that either climbs to level 3, or if the robot is already at level 2, then it will
    * climb to level 3. If the robot is already at level 1, then it will climb to level 2, and then
    * climb to level 3. If the robot is already at level 3, then it will do nothing.
-   * @return A command that will climb to level 3 if the robot is at level 1, or if the robot is
-   *     at level 2, then it will climb to level 3. If the robot is already at level 3, then it will do
+   *
+   * @return A command that will climb to level 3 if the robot is at level 1, or if the robot is at
+   *     level 2, then it will climb to level 3. If the robot is already at level 3, then it will do
    *     nothing.
    */
   public Command climbSequenceL3() {
@@ -138,8 +141,11 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   /**
-   * A command that sets the arm to the auto position for level 1, and then waits until the arm is at the goal.
-   * @return A command that sets the arm to the auto position for level 1, and then waits until the arm is at the goal.
+   * A command that sets the arm to the auto position for level 1, and then waits until the arm is
+   * at the goal.
+   *
+   * @return A command that sets the arm to the auto position for level 1, and then waits until the
+   *     arm is at the goal.
    */
   public Command climbAutoSequence() {
     return Commands.sequence(

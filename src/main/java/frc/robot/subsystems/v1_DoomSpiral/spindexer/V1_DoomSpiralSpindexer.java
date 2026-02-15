@@ -50,17 +50,14 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     Logger.processInputs(getName(), inputs);
 
     io.setVoltage(
-    switch (state) {
-        case STOP -> 0.00;
-        case OPEN_LOOP_VOLTAGE, SPINDEXER_ONLY_VOLTAGE -> voltageGoal;
-    }
-);
-
+        switch (state) {
+          case STOP -> 0.00;
+          case OPEN_LOOP_VOLTAGE, SPINDEXER_ONLY_VOLTAGE -> voltageGoal;
+        });
 
     kicker.periodic();
     feeder.periodic();
   }
-
 
   /**
    * Gets the position of the spindexer subsystem.
@@ -73,7 +70,7 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
 
   /**
    * Sets the voltage being passed into the spindexer, feeder, and kicker subsystems.
-   * 
+   *
    * @param spindexerVolts the voltage passed into the spindexer subsystem.
    * @param feederVolts the voltage passed into the feeder subsystem.
    * @param kickerVolts the voltage passed into the kicker subsystem.
@@ -90,7 +87,6 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         kicker.setVoltage(kickerVolts + V1_DoomSpiralRobotState.getSpindexerOffsets().getKicker()),
         feeder.setVoltage(feederVolts + V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()));
   }
-
 
   /**
    * Sets the voltage being passed into the spindexer, feeder, and kicker subsystems.

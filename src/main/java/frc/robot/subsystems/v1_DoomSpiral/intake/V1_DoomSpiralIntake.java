@@ -41,8 +41,9 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   /**
-   * Sets the voltage of the top and bottom rollers of the intake subsystem.
-   * The voltage is offset by the roller voltage offset stored in the robot state.
+   * Sets the voltage of the top and bottom rollers of the intake subsystem. The voltage is offset
+   * by the roller voltage offset stored in the robot state.
+   *
    * @param voltage the voltage to set the rollers to
    * @return a command that sets the voltage of the top and bottom rollers
    */
@@ -56,7 +57,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
 
   /**
    * Sets the voltage of the linkage subsystem of the intake.
-   * 
+   *
    * @param voltage the voltage to set the linkage to
    * @return a command that sets the voltage of the linkage
    */

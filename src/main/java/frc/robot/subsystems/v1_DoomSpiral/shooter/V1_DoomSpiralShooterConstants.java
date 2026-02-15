@@ -21,6 +21,8 @@ public class V1_DoomSpiralShooterConstants {
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(30)
+          .withCanBus(CANBus.roboRIO())
+          .withEnableFOC(true)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
           .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 40.0))
           .withMomentOfInertia(0.05)

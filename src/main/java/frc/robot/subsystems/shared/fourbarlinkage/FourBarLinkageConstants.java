@@ -12,7 +12,7 @@ import lombok.Builder;
 @Builder
 public class FourBarLinkageConstants {
 
-  @Builder.Default public final CANBus CAN_LOOP = new CANBus();
+  @Builder.Default public final CANBus CAN_LOOP = CANBus.roboRIO();
 
   public final int MOTOR_CAN_ID;
 

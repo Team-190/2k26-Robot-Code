@@ -20,8 +20,8 @@ import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
@@ -144,16 +144,16 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                   new GyroIO() {},
-                  new SwerveModuleIOTalonFXSim(
+                  new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
-                  new SwerveModuleIOTalonFXSim(
+                  new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
-                  new SwerveModuleIOTalonFXSim(
+                  new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
-                  new SwerveModuleIOTalonFXSim(
+                  new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   () -> Pose2d.kZero,
