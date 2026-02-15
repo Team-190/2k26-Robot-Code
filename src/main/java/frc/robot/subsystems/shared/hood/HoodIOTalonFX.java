@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -147,8 +148,10 @@ public class HoodIOTalonFX implements HoodIO {
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRadiansPerSecond;
-    config.MotionMagic.MotionMagicAcceleration = maxAccelerationRadiansPerSecondSquared;
+    config.MotionMagic.MotionMagicCruiseVelocity =
+        Units.radiansToRotations(maxVelocityRadiansPerSecond);
+    config.MotionMagic.MotionMagicAcceleration =
+        Units.radiansToRotations(maxAccelerationRadiansPerSecondSquared);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
   }
 

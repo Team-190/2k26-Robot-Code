@@ -63,18 +63,18 @@ public class V1_DoomSpiralShooterConstants {
           .withConstraints(
               HoodConstants.Constraints.builder()
                   .withMaxVelocityRadiansPerSecond(
-                      new LoggedTunableNumber("Shooter/Hood/MaxVelocityRadiansPerSecond", 1))
+                      new LoggedTunableNumber("Shooter/Hood/MaxVelocityRadiansPerSecond", 200))
                   .withMaxAccelerationRadiansPerSecondSqaured(
                       new LoggedTunableNumber(
-                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared", 1))
+                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared", 1000))
                   .withGoalToleranceRadians(
                       new LoggedTunableNumber(
-                          "Shooter/Hood/GoalToleranceRadians", Units.degreesToRadians(0.1)))
+                          "Shooter/Hood/GoalToleranceRadians", Units.degreesToRadians(0.01)))
                   .build())
           .withGains(
               HoodConstants.Gains.builder()
-                  .withKp(new LoggedTunableNumber("Shooter/Hood/Kp", 0))
-                  .withKd(new LoggedTunableNumber("Shooter/Hood/Kd", 0))
+                  .withKp(new LoggedTunableNumber("Shooter/Hood/Kp", 600))
+                  .withKd(new LoggedTunableNumber("Shooter/Hood/Kd", 2))
                   .withKs(new LoggedTunableNumber("Shooter/Hood/Ks", 0.32492))
                   .withKa(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .withKv(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
