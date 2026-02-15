@@ -2,6 +2,7 @@ package frc.robot.subsystems.v0_Funky.feeder;
 
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.MomentOfInertia;
@@ -15,6 +16,7 @@ public class FeederConstants {
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(1.0 / 2.0)
           .withNeutralMode(NeutralModeValue.Brake)
+          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withMomentOfInertia(MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters))
           .build();
 }

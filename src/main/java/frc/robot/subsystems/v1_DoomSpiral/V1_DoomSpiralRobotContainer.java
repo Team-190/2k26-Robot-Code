@@ -343,10 +343,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     // Spindexer button board commands
     xkeys
         .b5()
-        .whileTrue(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE));
+        .whileTrue(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE))
+        .onFalse(spindexer.setVoltage(0));
     xkeys
         .b6()
-        .whileTrue(spindexer.setVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE));
+        .whileTrue(spindexer.setVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE))
+        .onFalse(spindexer.setVoltage(0));
     xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage());
     xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage());
     xkeys.d5().onTrue(spindexer.increaseFeederVoltage());

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -34,6 +35,7 @@ public class V1_DoomSpiralIntakeConstants {
           .withNeutralMode(NeutralModeValue.Coast)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(8.0 / 3.0)
+          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
           .withCanBus(CANBus.roboRIO())
           .build();
@@ -44,6 +46,7 @@ public class V1_DoomSpiralIntakeConstants {
           .withSupplyCurrentLimit(40.0)
           .withNeutralMode(NeutralModeValue.Coast)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withRollerMotorGearRatio(8.0 / 3.0)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
           .withCanBus(CANBus.roboRIO())
