@@ -45,8 +45,13 @@ public class HoodIOTalonFX implements HoodIO {
     config.CurrentLimits.SupplyCurrentLimit = constants.currentLimits;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = constants.invertedValue;
     config.Feedback.SensorToMechanismRatio = constants.gearRatio;
-    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = constants.minAngle.getRotations();
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle.getRotations();
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle.getRotations();
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
     config.Slot0.kP = constants.gains.kp().get();
     config.Slot0.kD = constants.gains.kd().get();
     config.Slot0.kS = constants.gains.ks().get();
@@ -56,10 +61,6 @@ public class HoodIOTalonFX implements HoodIO {
         constants.constraints.maxVelocityRadiansPerSecond().get();
     config.MotionMagic.MotionMagicAcceleration =
         constants.constraints.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.minAngle.getRotations())
-        .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(constants.minAngle.getRotations())
-        .withReverseSoftLimitEnable(true);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
 
     positionRotations = hoodMotor.getPosition();

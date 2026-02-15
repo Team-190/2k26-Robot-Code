@@ -62,9 +62,9 @@ public class Hood {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(0.75).per(Seconds),
+                Volts.of(4.5),
+                Seconds.of(4),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
@@ -81,6 +81,8 @@ public class Hood {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
     Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
+    Logger.recordOutput(aKitTopic + "/State", currentState);
+    
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
         Rotation2d position;
@@ -235,5 +237,11 @@ public class Hood {
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kReverse));
+
+    // return Commands.sequence(
+    //     Commands.runOnce(() -> currentState = HoodState.IDLE),
+    //     characterizationRoutine.quasistatic(Direction.kForward),
+    //     Commands.waitSeconds(3),
+    //     characterizationRoutine.quasistatic(Direction.kReverse));
   }
 }

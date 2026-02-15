@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shared.hood;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Current;
@@ -17,6 +18,7 @@ public class HoodConstants {
   @NonNull public final Double gearRatio;
   @NonNull public final Double currentLimits;
   @NonNull public final Double momentOfInertia;
+  @NonNull public final InvertedValue invertedValue;
   @NonNull public final DCMotor motorConfig;
   @NonNull public final Double lengthMeters;
   @NonNull public final Rotation2d minAngle;

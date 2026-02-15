@@ -132,4 +132,8 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   public Command waitUntilAtGoal() {
     return hood.waitUntilHoodAtGoal().alongWith(flywheel.waitUntilAtGoal());
   }
+
+  public Command hoodSysId() {
+    return hood.runSysId();
+  }
 }
