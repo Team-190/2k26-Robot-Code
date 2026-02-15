@@ -32,8 +32,8 @@ public class V1_DoomSpiralConstants {
           V1_DoomSpiralTunerConstants.BackRight,
           V1_DoomSpiralTunerConstants.kDriveClosedLoopOutput,
           V1_DoomSpiralTunerConstants.kSteerClosedLoopOutput,
-          Units.inchesToMeters(37.25),
-          Units.inchesToMeters(28.25)); // TODO: Double check these
+          Units.inchesToMeters(37.5),
+          Units.inchesToMeters(28.5));
 
   public static final Gains GAINS =
       new Gains(
