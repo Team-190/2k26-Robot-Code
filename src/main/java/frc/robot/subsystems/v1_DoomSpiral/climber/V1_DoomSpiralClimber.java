@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
@@ -20,6 +21,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   private final Arm arm;
   private final Supplier<Angle> rollSupplier;
 
+  private Rotation2d goal;
+
   private ClimberGoal state;
   private final ProfiledPIDController controller;
 
@@ -30,6 +33,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     arm = new Arm(io, this, 1);
     this.rollSupplier = rollSupplier;
 
+    goal = Rotation2d.kZero;
+
     state = ClimberGoal.DEFAULT;
     controller =
         new ProfiledPIDController(
@@ -39,8 +44,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
             new TrapezoidProfile.Constraints(
                 V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
                 V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
-
-    setDefaultCommand(setPositionGoal(state.getPosition()));
+    CommandScheduler.getInstance().schedule(arm.setPosition(Rotation2d.kZero));
+    setDefaultCommand(stop());
   }
 
   @Override
@@ -59,7 +64,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    * @return A command that sets the specified voltage.
    */
   public Command setVoltage(double voltage) {
-    return runOnce(() -> arm.setVoltage(voltage)).andThen(this.idle());
+    return arm.setVoltage(voltage).andThen(this.idle());
   }
 
   /**
@@ -69,7 +74,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    * @return a command that resets the arm to the given position.
    */
   public Command setPosition(Rotation2d position) {
-    return Commands.runOnce(() -> arm.setPosition(position));
+    return arm.setPosition(position);
   }
 
   /**
@@ -80,7 +85,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    *     goal.
    */
   public Command setPositionGoal(Rotation2d positionGoal) {
-    return runOnce(() -> arm.setPositionGoal(positionGoal)).andThen(waitUntilPosition());
+    return Commands.runOnce(() -> goal = positionGoal).andThen(setVoltage(5).until(this::atGoal));
   }
 
   /**
@@ -91,7 +96,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    *     goal.
    */
   public Command setPositionGoal(ClimberGoal climberGoal) {
-    return runOnce(() -> state = climberGoal);
+    return setPositionGoal(climberGoal.getPosition());
   }
 
   public Command waitUntilPosition() {
@@ -99,11 +104,12 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return arm.atGoal();
+    return Math.abs(arm.getArmPosition().minus(goal).getRadians())
+        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalToleranceRadians().get();
   }
 
   public Command stop() {
-    return Commands.runOnce(() -> arm.setVoltage(0));
+    return arm.setVoltage(0).andThen(this.idle());
   }
 
   /**
@@ -175,5 +181,9 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   public Command setPositionL1() {
     return setPositionGoal(
         V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition());
+  }
+
+  public Command runSysId() {
+    return arm.sysIdRoutine();
   }
 }

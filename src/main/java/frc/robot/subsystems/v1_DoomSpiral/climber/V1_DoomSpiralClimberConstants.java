@@ -58,10 +58,10 @@ public class V1_DoomSpiralClimberConstants {
 
   @AllArgsConstructor
   public enum ClimberGoal {
-    L1_POSITION_GOAL(new Rotation2d(0)),
-    L1_AUTO_POSITION_GOAL(new Rotation2d(0)),
-    L2_POSITION_GOAL(new Rotation2d(0)),
-    L2_FLIP_GOAL(new Rotation2d(0)),
+    L1_POSITION_GOAL(new Rotation2d(Math.PI / 2)),
+    L1_AUTO_POSITION_GOAL(new Rotation2d(-Math.PI / 2)),
+    L2_POSITION_GOAL(new Rotation2d(3 * Math.PI / 2)),
+    L2_FLIP_GOAL(new Rotation2d(5 * Math.PI / 2)),
     DEFAULT(new Rotation2d(0));
 
     @Getter private final Rotation2d position;

@@ -33,7 +33,6 @@ import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
-import frc.robot.commands.shared.KSCharacterization;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
@@ -471,7 +470,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //     Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false);
     // return intake.linkageSysId();
 
-    return new KSCharacterization(
-        drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
+    // return new KSCharacterization(
+    //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
+
+    return climber.runSysId();
   }
 }
