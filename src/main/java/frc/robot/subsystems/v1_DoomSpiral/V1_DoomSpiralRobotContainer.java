@@ -244,7 +244,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             V1_DoomSpiralConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
-            () -> driver.getRightX(),
+            () -> -driver.getRightX(),
             V1_DoomSpiralRobotState::getHeading,
             driver.rightTrigger(),
             () ->
