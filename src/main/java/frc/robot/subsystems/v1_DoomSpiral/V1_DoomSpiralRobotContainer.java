@@ -7,7 +7,6 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,6 +33,7 @@ import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
+import frc.robot.commands.shared.KSCharacterization;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
@@ -467,8 +467,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //             .andThen(shooter.waitUntilFlywheelAtGoal(), Commands.waitSeconds(.75)))
     //     .repeatedly();
 
-    return shooter.setFlywheelGoal(
-        Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false);
+    // return shooter.setFlywheelGoal(
+    //     Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false);
     // return intake.linkageSysId();
+
+    return new KSCharacterization(
+        drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
   }
 }

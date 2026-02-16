@@ -42,7 +42,7 @@ public class V1_DoomSpiralShooterConstants {
                   new LoggedTunableNumber(
                       "Shooter/Flywheel/CruisingVelocityRadiansPerSecondSquared", 4),
                   new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadians", 0.05)))
-            .withOpposedFollowerCANID(30)
+          .withOpposedFollowerCANID(30)
           .build();
 
   public static final HoodConstants HOOD_CONSTANTS =
