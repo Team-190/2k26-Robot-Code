@@ -1,6 +1,7 @@
 package frc.robot.commands.shared;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +19,7 @@ import frc.robot.FieldConstants;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -34,12 +36,18 @@ public final class DriveCommands {
    * @param ySupplier The supplier of the y-axis joystick input.
    * @param omegaSupplier The supplier of the omega joystick input.
    * @param rotationSupplier The supplier of the rotation of the robot.
-   * @param hijackX The supplier of whether to hijack (override) the x-axis velocity.
-   * @param hijackY The supplier of whether to hijack the y-axis velocity.
-   * @param hijackOmega The supplier of whether to hijack (override) the omega.
-   * @param hijackedX The supplier of the hijacked x-axis value velocity.
-   * @param hijackedY The supplier of the hijacked y-axis value velocity.
-   * @param hijackedOmega The supplier of the hijacked omega value.
+   * @param hijackXSuppliers A list of pairs of boolean suppliers and double suppliers for hijacking
+   *     the x velocity. If the boolean supplier is true, the x velocity will be set to the value of
+   *     the double supplier. If multiple boolean suppliers are true, the first one in the list will
+   *     take precedence.
+   * @param hijackYSuppliers A list of pairs of boolean suppliers and double suppliers for hijacking
+   *     the y velocity. If the boolean supplier is true, the y velocity will be set to the value of
+   *     the double supplier. If multiple boolean suppliers are true, the first one in the list will
+   *     take precedence.
+   * @param hijackOmegaSuppliers A list of pairs of boolean suppliers and double suppliers for
+   *     hijacking the omega velocity. If the boolean supplier is true, the omega velocity will be
+   *     set to the value of the double supplier. If multiple boolean suppliers are true, the first
+   *     one in the list will take precedence.
    * @return A command that drives the SwerveDrive.
    */
   @Trace
@@ -50,12 +58,9 @@ public final class DriveCommands {
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
       Supplier<Rotation2d> rotationSupplier,
-      BooleanSupplier hijackX,
-      BooleanSupplier hijackY,
-      BooleanSupplier hijackOmega,
-      DoubleSupplier hijackedX,
-      DoubleSupplier hijackedY,
-      DoubleSupplier hijackedOmega) {
+      List<Pair<BooleanSupplier, DoubleSupplier>> hijackXSuppliers,
+      List<Pair<BooleanSupplier, DoubleSupplier>> hijackYSuppliers,
+      List<Pair<BooleanSupplier, DoubleSupplier>> hijackOmegaSuppliers) {
     return Commands.run(
         () -> {
           // Apply deadband
@@ -79,11 +84,26 @@ public final class DriveCommands {
 
           double angular = omega * drive.getMaxAngularSpeedRadPerSec();
 
-          fieldRelativeXVel = hijackX.getAsBoolean() ? hijackedX.getAsDouble() : fieldRelativeXVel;
+          fieldRelativeXVel =
+              hijackXSuppliers.stream()
+                  .filter(pair -> pair.getFirst().getAsBoolean())
+                  .map(pair -> pair.getSecond().getAsDouble())
+                  .findFirst()
+                  .orElse(fieldRelativeXVel);
 
-          fieldRelativeYVel = hijackY.getAsBoolean() ? hijackedY.getAsDouble() : fieldRelativeYVel;
+          fieldRelativeYVel =
+              hijackYSuppliers.stream()
+                  .filter(pair -> pair.getFirst().getAsBoolean())
+                  .map(pair -> pair.getSecond().getAsDouble())
+                  .findFirst()
+                  .orElse(fieldRelativeYVel);
 
-          angular = hijackOmega.getAsBoolean() ? hijackedOmega.getAsDouble() : angular;
+          angular =
+              hijackOmegaSuppliers.stream()
+                  .filter(pair -> pair.getFirst().getAsBoolean())
+                  .map(pair -> pair.getSecond().getAsDouble())
+                  .findFirst()
+                  .orElse(angular);
 
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -113,23 +133,22 @@ public final class DriveCommands {
         ySupplier,
         omegaSupplier,
         rotationSupplier,
-        () -> false,
-        () -> false,
-        () -> false,
-        () -> 0.0,
-        () -> 0.0,
-        () -> 0.0);
+        List.of(),
+        List.of(),
+        List.of());
   }
 
-  public static Command joystickDriveAlignToHub(
+  public static Command joystickDriveRotationLock(
       SwerveDrive drive,
       SwerveDriveConstants driveConstants,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
       Supplier<Rotation2d> rotationSupplier,
-      BooleanSupplier hijackOmega,
-      DoubleSupplier setpoint) {
+      BooleanSupplier pointAtHub,
+      DoubleSupplier hubSetpoint,
+      BooleanSupplier cardinalDirectionAlign,
+      DoubleSupplier cardinalDirectionSetpoint) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
@@ -138,6 +157,9 @@ public final class DriveCommands {
             new TrapezoidProfile.Constraints(
                 driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
                 Double.POSITIVE_INFINITY));
+    omegaController.enableContinuousInput(-Math.PI, Math.PI);
+    omegaController.setTolerance(
+        driveConstants.autoAlignConstants.omegaPIDConstants().tolerance().get(), 0);
     return joystickDrive(
         drive,
         driveConstants,
@@ -145,17 +167,25 @@ public final class DriveCommands {
         ySupplier,
         omegaSupplier,
         rotationSupplier,
-        () -> false,
-        () -> false,
-        hijackOmega,
-        () -> 0.0,
-        () -> 0.0,
-        () ->
-            AutoAlignCommand.calculate(
-                omegaController,
-                setpoint.getAsDouble(),
-                rotationSupplier.get().getRadians(),
-                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
+        List.of(),
+        List.of(),
+        List.of(
+            Pair.of(
+                pointAtHub,
+                () ->
+                    AutoAlignCommand.calculate(
+                        omegaController,
+                        hubSetpoint.getAsDouble(),
+                        rotationSupplier.get().getRadians(),
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
+            Pair.of(
+                cardinalDirectionAlign,
+                () ->
+                    AutoAlignCommand.calculate(
+                        omegaController,
+                        cardinalDirectionSetpoint.getAsDouble(),
+                        rotationSupplier.get().getRadians(),
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))));
   }
 
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {

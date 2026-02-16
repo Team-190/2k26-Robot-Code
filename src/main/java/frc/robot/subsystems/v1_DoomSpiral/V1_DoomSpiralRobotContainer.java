@@ -239,7 +239,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private void configureButtonBindings() {
     drive.setDefaultCommand(
-        DriveCommands.joystickDriveAlignToHub(
+        DriveCommands.joystickDriveRotationLock(
             drive,
             V1_DoomSpiralConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
@@ -251,7 +251,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
                     .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
                     .getAngle()
-                    .getRadians()));
+                    .getRadians(),
+            driver.rightBumper(),
+            () ->
+                Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                    * (Math.PI / 2.0)));
 
     driver
         .povDown()

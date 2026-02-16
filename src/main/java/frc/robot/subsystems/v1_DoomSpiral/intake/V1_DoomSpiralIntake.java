@@ -26,6 +26,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     roller = new GenericRoller(rollerIO, this, "1");
     linkage =
         new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, 0);
+
+    intakeState = IntakeState.STOW;
   }
 
   @Override
