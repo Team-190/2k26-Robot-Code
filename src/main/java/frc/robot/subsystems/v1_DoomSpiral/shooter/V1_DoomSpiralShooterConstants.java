@@ -20,7 +20,7 @@ public class V1_DoomSpiralShooterConstants {
 
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
-          .withLeaderCANID(30)
+          .withLeaderCANID(31)
           .withCanBus(CANBus.roboRIO())
           .withEnableFOC(true)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
@@ -30,11 +30,11 @@ public class V1_DoomSpiralShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
-                  new LoggedTunableNumber("Shooter/Flywheel/Ks", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kv", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Ka", 0),
                   new LoggedTunableNumber("Shooter/Flywheel/Kp", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kd", 0)))
+                  new LoggedTunableNumber("Shooter/Flywheel/Kd", 0),
+                  new LoggedTunableNumber("Shooter/Flywheel/Ks", 0.25923),
+                  new LoggedTunableNumber("Shooter/Flywheel/Kv", 0.025598),
+                  new LoggedTunableNumber("Shooter/Flywheel/Ka", 0.00056992)))
           .withConstraints(
               new GenericFlywheelConstants.Constraints(
                   new LoggedTunableNumber(
@@ -42,7 +42,7 @@ public class V1_DoomSpiralShooterConstants {
                   new LoggedTunableNumber(
                       "Shooter/Flywheel/CruisingVelocityRadiansPerSecondSquared", 4),
                   new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadians", 0.05)))
-          .withOpposedFollowerCANID(31)
+            .withOpposedFollowerCANID(30)
           .build();
 
   public static final HoodConstants HOOD_CONSTANTS =
