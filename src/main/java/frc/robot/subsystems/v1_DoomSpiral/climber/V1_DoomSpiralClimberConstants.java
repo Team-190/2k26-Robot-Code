@@ -50,7 +50,7 @@ public class V1_DoomSpiralClimberConstants {
           .withMinAngle(Rotation2d.fromRadians(-100 * Math.PI))
           .withMaxAngle(Rotation2d.fromRadians(100 * Math.PI))
           .withNumMotors(1)
-          .withGearRatio(165.0)
+          .withGearRatio(168.0)
           .withLengthMeters(0.259)
           .withContinuousOutput(false)
           .withMomentOfInertia(0.0817231996)
