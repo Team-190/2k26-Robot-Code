@@ -1,6 +1,7 @@
 package frc.robot.commands.v1_DoomSpiral;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.shared.hood.HoodConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
@@ -14,6 +15,7 @@ public class V1_DoomSpiralCompositeCommands {
     return shooter
         .setGoal(HoodConstants.HoodGoal.FEED, V1_DoomSpiralRobotState::getFeedVelocity)
         .until(shooter::atGoal)
+        .andThen(Commands.print("shooter at goal (both)"))
         .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
 }

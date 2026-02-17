@@ -16,7 +16,6 @@ import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood {
@@ -108,7 +107,7 @@ public class Hood {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
     Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
-    Logger.recordOutput(aKitTopic+"/At Goal", io.atGoal());
+    Logger.recordOutput(aKitTopic + "/At Goal", io.atGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
 
     switch (currentState) {
