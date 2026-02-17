@@ -60,21 +60,22 @@ public class V1_DoomSpiralConstants {
   public static final AutoAlignNearConstants AUTO_ALIGN_NEAR_CONSTANTS =
       new AutoAlignNearConstants(
           new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/X/Kp", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/X/Kd", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/X/Tolerance", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/X/Max Velocity", 0.0)),
+              new LoggedTunableNumber("Drive/Auto Align/X Constants/kP", 3),
+              new LoggedTunableNumber("Drive/Auto Align/X Constants/kD", 0.15),
+              new LoggedTunableNumber("Drive/Auto Align/X Constants/tolerance", 0.03),
+              new LoggedTunableNumber("Drive/Auto Align/X Constants/maxVelocity", 2.5)),
           new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/Y/Kp", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Y/Kd", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Y/Tolerance", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Y/Max Velocity", 0.0)),
+              new LoggedTunableNumber("Drive/Auto Align/Y Constants/kP", 3),
+              new LoggedTunableNumber("Drive/Auto Align/Y Constants/kD", 0.15),
+              new LoggedTunableNumber("Drive/Auto Align/Y Constants/tolerance", 0.03),
+              new LoggedTunableNumber("Drive/Auto Align/Y Constants/maxVelocity", 2.5)),
           new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Tolerance", 0.0),
-              new LoggedTunableNumber("Drive/Auto Align/Theta/Max Velocity", 0.0)),
-          new LoggedTunableNumber("Drive/Auto Align/Position Threshold Meters", 0.0));
+              new LoggedTunableNumber("Drive/Auto Align/Omega Constants/kP", 2 * Math.PI),
+              new LoggedTunableNumber("Drive/Auto Align/Omega Constants/kD", 0.05),
+              new LoggedTunableNumber(
+                  "Drive/Auto Align/Omega Constants/tolerance", Units.degreesToRadians(0.25)),
+              new LoggedTunableNumber("Drive/Auto Align/Omega Constants/maxVelocity", Math.PI)),
+          new LoggedTunableNumber("Drive/Auto Align/positionThresholdDegrees", 0.03));
 
   public static final double ODOMETRY_FREQUENCY = 250.0;
   public static final double DRIVER_DEADBAND = 0.1;

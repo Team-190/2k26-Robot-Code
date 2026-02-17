@@ -60,7 +60,8 @@ public final class DriveCommands {
       Supplier<Rotation2d> rotationSupplier,
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackXSuppliers,
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackYSuppliers,
-      List<Pair<BooleanSupplier, DoubleSupplier>> hijackOmegaSuppliers) {
+      List<Pair<BooleanSupplier, DoubleSupplier>> hijackOmegaSuppliers,
+      BooleanSupplier slowMode) {
     return Commands.run(
         () -> {
           // Apply deadband
@@ -89,21 +90,21 @@ public final class DriveCommands {
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(fieldRelativeXVel);
+                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeXVel * 0.1) : fieldRelativeXVel);
 
           fieldRelativeYVel =
               hijackYSuppliers.stream()
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(fieldRelativeYVel);
+                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeYVel * 0.1) : fieldRelativeYVel);
 
           angular =
               hijackOmegaSuppliers.stream()
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(angular);
+                  .orElse(slowMode.getAsBoolean() ? (angular * 0.1) : angular);
 
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -135,7 +136,8 @@ public final class DriveCommands {
         rotationSupplier,
         List.of(),
         List.of(),
-        List.of());
+        List.of(),
+        () -> false);
   }
 
   public static Command joystickDriveRotationLock(
@@ -148,7 +150,8 @@ public final class DriveCommands {
       BooleanSupplier pointAtHub,
       DoubleSupplier hubSetpoint,
       BooleanSupplier cardinalDirectionAlign,
-      DoubleSupplier cardinalDirectionSetpoint) {
+      DoubleSupplier cardinalDirectionSetpoint,
+      BooleanSupplier slowMode) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
@@ -185,7 +188,16 @@ public final class DriveCommands {
                         omegaController,
                         cardinalDirectionSetpoint.getAsDouble(),
                         rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))));
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
+            Pair.of(
+                slowMode,
+                () ->
+                    AutoAlignCommand.calculate(
+                        omegaController,
+                        AllianceFlipUtil.apply(Rotation2d.kCCW_90deg).getRadians(),
+                        rotationSupplier.get().getRadians(),
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
+        slowMode);
   }
 
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {
