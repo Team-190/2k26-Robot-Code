@@ -273,8 +273,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .x()
         .onTrue(
             Commands.either(
-                climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-                climber.setPositionGoal(ClimberGoal.DEFAULT),
+                climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition()),
+                climber.setPositionGoal(ClimberGoal.DEFAULT.getPosition()),
                 () ->
                     climber
                         .getArmPosition()
@@ -293,7 +293,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                         drive,
                         V1_DoomSpiralRobotState::getGlobalPose,
                         V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
-    driver.y().whileTrue(climber.climbSequenceL3());
+    driver.y().onTrue(climber.climbSequenceL3());
 
     driver
         .rightBumper()
