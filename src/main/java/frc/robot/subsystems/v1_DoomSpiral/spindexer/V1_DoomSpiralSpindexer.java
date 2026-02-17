@@ -111,7 +111,7 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
    * @param volts the voltage passed into the spindexer.
    * @return A command that sets the specified voltage.
    */
-  public Command setSpindexerVoltage(double volts) {
+  public Command setSpindexerOnlyVoltage(double volts) {
     return Commands.runOnce(
             () -> {
               state = SPINDEXER_ONLY_VOLTAGE;

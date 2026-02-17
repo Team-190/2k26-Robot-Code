@@ -2,6 +2,7 @@ package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Milliamps;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
@@ -9,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import frc.robot.subsystems.shared.hood.HoodConstants;
@@ -16,7 +18,16 @@ import frc.robot.subsystems.shared.hood.HoodConstants;
 public class V1_DoomSpiralShooterConstants {
 
   public static final double FLYWHEEL_VELOCITY_INCREMENT_RPS = 1;
-  public static final Rotation2d HOOD_ANGLE_INCREMENT_ROTATIONS = Rotation2d.fromDegrees(1);
+  public static final Rotation2d HOOD_ANGLE_INCREMENT_MAGNITUDE = Rotation2d.fromDegrees(1);
+
+  public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
+  public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(19.0);
+
+  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(300);
+  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(0.0);
+
+  public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
+  public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(19.0);
 
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()

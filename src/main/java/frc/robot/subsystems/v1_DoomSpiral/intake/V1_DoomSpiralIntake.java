@@ -20,7 +20,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   private final GenericRoller roller;
   @Getter private final FourBarLinkage linkage;
 
-  private IntakeState intakeState;
+  @Getter private IntakeState intakeState;
 
   public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
@@ -98,7 +98,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   public Command toggleIntake() {
     return Commands.either(
         Commands.parallel(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
-        Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
+        stow(),
         () -> intakeState.equals(IntakeState.STOW));
   }
 

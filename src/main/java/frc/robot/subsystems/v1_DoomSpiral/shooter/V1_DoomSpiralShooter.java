@@ -98,7 +98,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
             V1_DoomSpiralRobotState.getShooterOffsets()
                 .setHood(
                     (V1_DoomSpiralRobotState.getShooterOffsets().getHood())
-                        .plus(V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_ROTATIONS)));
+                        .plus(V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_MAGNITUDE)));
   }
 
   public Command decrementHoodAngle() {
@@ -107,7 +107,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
             V1_DoomSpiralRobotState.getShooterOffsets()
                 .setHood(
                     (V1_DoomSpiralRobotState.getShooterOffsets().getHood())
-                        .minus(V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_ROTATIONS)));
+                        .minus(V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_MAGNITUDE)));
   }
 
   public Command setHoodVoltage(double volts) {

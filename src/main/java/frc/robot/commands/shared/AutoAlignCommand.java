@@ -16,15 +16,12 @@ public class AutoAlignCommand extends Command {
   private final Pose2d targetPose;
   private final BooleanSupplier valid;
   private final Supplier<Pose2d> robotPose;
-  private final AutoAlignNearConstants constants;
 
   private ChassisSpeeds speeds;
 
   private final ProfiledPIDController alignXController;
   private final ProfiledPIDController alignYController;
   private final ProfiledPIDController alignHeadingController;
-
-  private final double maxAccelerationMetersPerSecond;
 
   /**
    * Creates a new AutoAlignCommand.
@@ -49,8 +46,6 @@ public class AutoAlignCommand extends Command {
     this.targetPose = targetPose;
     this.valid = valid;
     this.robotPose = robotPose;
-    this.constants = constants;
-    this.maxAccelerationMetersPerSecond = maxAccelerationMetersPerSecond;
 
     alignXController =
         new ProfiledPIDController(

@@ -188,6 +188,32 @@ public final class DriveCommands {
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))));
   }
 
+  public static Command rotateToAngle(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      Rotation2d currentRotation,
+      Rotation2d targetRotation) {
+    ProfiledPIDController omegaController =
+        new ProfiledPIDController(
+            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            0.0,
+            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                Double.POSITIVE_INFINITY));
+    return Commands.run(
+        () ->
+            drive.runVelocity(
+                new ChassisSpeeds(
+                    0.0,
+                    0.0,
+                    AutoAlignCommand.calculate(
+                        omegaController,
+                        targetRotation.getRadians(),
+                        currentRotation.getRadians(),
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))));
+  }
+
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {
     return Commands.run(() -> drive.runVelocity(new ChassisSpeeds(0.0, velocity, 0.0)))
         .withTimeout(time);

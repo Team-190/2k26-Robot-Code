@@ -319,4 +319,7 @@ public class FieldConstants {
       return layout;
     }
   }
+
+  public static final Translation2d FEED_TRANSLATION =
+      new Translation2d(LinesHorizontal.center, LinesVertical.starting);
 }
