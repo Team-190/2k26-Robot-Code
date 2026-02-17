@@ -462,8 +462,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //             .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5)))
     //     .repeatedly();
     return shooter
-        .setFlywheelGoal(0, false)
-        .andThen(shooter.waitUntilFlywheelAtGoal(), Commands.waitSeconds(.75))
+        .stopFlywheel()
+        .andThen(Commands.waitSeconds(5))
         .andThen(
             shooter
                 .setFlywheelGoal(

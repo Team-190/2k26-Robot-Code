@@ -30,11 +30,11 @@ public class V1_DoomSpiralShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
               new GenericFlywheelConstants.Gains(
-                  new LoggedTunableNumber("Shooter/Flywheel/Kp", 0),
+                  new LoggedTunableNumber("Shooter/Flywheel/Kp", .5),
                   new LoggedTunableNumber("Shooter/Flywheel/Kd", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Ks", 0.25923),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kv", 0.025598),
-                  new LoggedTunableNumber("Shooter/Flywheel/Ka", 0.00056992)))
+                  new LoggedTunableNumber("Shooter/Flywheel/Ks", 0.19463),
+                  new LoggedTunableNumber("Shooter/Flywheel/Kv", 0.15943),
+                  new LoggedTunableNumber("Shooter/Flywheel/Ka", 0.0066192)))
           .withConstraints(
               new GenericFlywheelConstants.Constraints(
                   new LoggedTunableNumber(

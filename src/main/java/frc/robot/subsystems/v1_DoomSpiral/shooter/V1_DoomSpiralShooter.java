@@ -154,7 +154,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command stopFlywheel() {
-    return flywheel.setVoltage(0);
+    return flywheel.stop();
   }
 
   public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
