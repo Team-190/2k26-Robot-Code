@@ -14,7 +14,7 @@ public class Shooter extends SubsystemBase {
   private final Turret turret;
 
   public Shooter(GenericFlywheelIO io, TurretIO turretIO) {
-    flywheel = new GenericFlywheel(io, this, "Flywheel 1");
+    flywheel = new GenericFlywheel(io, this, () -> 0, "Flywheel 1");
     turret =
         new Turret(
             turretIO,

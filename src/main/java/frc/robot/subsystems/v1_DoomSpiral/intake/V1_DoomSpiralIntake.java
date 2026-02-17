@@ -23,7 +23,9 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   private IntakeState intakeState;
 
   public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
-    roller = new GenericRoller(rollerIO, this, "1");
+    roller =
+        new GenericRoller(
+            rollerIO, this, V1_DoomSpiralRobotState.getIntakeOffsets()::getRollerVoltsOffset, "1");
     linkage =
         new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, 0);
 

@@ -51,6 +51,8 @@ public class V1_DoomSpiralRobotState {
 
   @Getter private static double feedVelocity;
 
+  @Getter private static double scoreVelocity;
+
   private static final FieldZone globalZone;
 
   static {
@@ -68,6 +70,7 @@ public class V1_DoomSpiralRobotState {
 
     feedAngle = new Rotation2d();
     feedVelocity = 0;
+    scoreVelocity = 0;
 
     shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
     intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
@@ -88,16 +91,16 @@ public class V1_DoomSpiralRobotState {
                     Interpolator.forDouble()
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
-    hoodAngleTree.put(Meters.of(1.34), Rotation2d.fromDegrees(19.0));
-    hoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(19.0));
-    hoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(24.0));
-    hoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(27.0));
-    hoodAngleTree.put(Meters.of(3.82), Rotation2d.fromDegrees(29.0));
-    hoodAngleTree.put(Meters.of(4.09), Rotation2d.fromDegrees(30.0));
-    hoodAngleTree.put(Meters.of(4.40), Rotation2d.fromDegrees(31.0));
-    hoodAngleTree.put(Meters.of(4.77), Rotation2d.fromDegrees(32.0));
-    hoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(32.0));
-    hoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(35.0));
+    hoodAngleTree.put(Meters.of(1.34), Rotation2d.fromDegrees(5.0));
+    hoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(7.0));
+    hoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(7.0));
+    hoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(9.0));
+    hoodAngleTree.put(Meters.of(3.82), Rotation2d.fromDegrees(10.0));
+    hoodAngleTree.put(Meters.of(4.09), Rotation2d.fromDegrees(13.0));
+    hoodAngleTree.put(Meters.of(4.40), Rotation2d.fromDegrees(14.0));
+    hoodAngleTree.put(Meters.of(4.77), Rotation2d.fromDegrees(16.0));
+    hoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
+    hoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
 
     flywheelSpeedTree.put(Meters.of(1.34), RadiansPerSecond.of(210.0));
     flywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
@@ -131,7 +134,7 @@ public class V1_DoomSpiralRobotState {
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "/GlobalPose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
 
     distanceToHub =
         Distance.ofBaseUnits(
@@ -140,14 +143,20 @@ public class V1_DoomSpiralRobotState {
                 .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
                 .getNorm(),
             Meters);
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "/Distance To Hub", distanceToHub);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Hood/Score Angle", scoreAngle);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
 
     scoreAngle = hoodAngleTree.get(distanceToHub);
     feedVelocity = flywheelSpeedTree.get(distanceToHub).in(RadiansPerSecond);
-    feedAngle = Rotation2d.fromDegrees(17.0);
+    feedAngle = Rotation2d.fromDegrees(17.0); // TODO: tune feed angle
+    scoreVelocity =
+        V1_DoomSpiralRobotState.getFlywheelSpeedTree()
+            .get(V1_DoomSpiralRobotState.getDistanceToHub())
+            .in(RadiansPerSecond);
+
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity", scoreVelocity);
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {

@@ -35,8 +35,12 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
       String feederName) {
     this.io = io;
     inputs = new V1_DoomSpiralSpindexerIOInputsAutoLogged();
-    kicker = new GenericRoller(kickerIO, this, kickerName);
-    feeder = new GenericRoller(feederIO, this, feederName);
+    kicker =
+        new GenericRoller(
+            kickerIO, this, V1_DoomSpiralRobotState.getSpindexerOffsets()::getKicker, kickerName);
+    feeder =
+        new GenericRoller(
+            feederIO, this, V1_DoomSpiralRobotState.getSpindexerOffsets()::getFeeder, feederName);
 
     state = STOP;
     voltageGoal = 0;
@@ -86,8 +90,8 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
               voltageGoal =
                   spindexerVolts + V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer();
             }),
-        kicker.setVoltage(kickerVolts + V1_DoomSpiralRobotState.getSpindexerOffsets().getKicker()),
-        feeder.setVoltage(feederVolts + V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()));
+        kicker.setVoltage(kickerVolts),
+        feeder.setVoltage(feederVolts));
   }
 
   /**

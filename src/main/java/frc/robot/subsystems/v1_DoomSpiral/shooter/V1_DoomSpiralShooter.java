@@ -21,7 +21,9 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public V1_DoomSpiralShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
 
-    flywheel = new GenericFlywheel(flywheelIO, this, "1");
+    flywheel =
+        new GenericFlywheel(
+            flywheelIO, this, V1_DoomSpiralRobotState.getShooterOffsets()::getFlywheel, "1");
     hood =
         new Hood(
             hoodIO,
@@ -29,7 +31,8 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
             this,
             1,
             V1_DoomSpiralRobotState::getScoreAngle,
-            V1_DoomSpiralRobotState::getFeedAngle);
+            V1_DoomSpiralRobotState::getFeedAngle,
+            V1_DoomSpiralRobotState.getShooterOffsets()::getHood);
   }
 
   @Override
@@ -84,10 +87,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setOverrideHoodGoal(Rotation2d position) {
-    return Commands.runOnce(
-            () ->
-                hood.setOverridePosition(
-                    position.plus(V1_DoomSpiralRobotState.getShooterOffsets().getHood())))
+    return Commands.runOnce(() -> hood.setOverridePosition(position))
         .andThen(hood.setGoal(HoodGoal.OVERRIDE));
   }
 
@@ -122,9 +122,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setFlywheelGoal(double velocityRadiansPerSecond, boolean useTorqueControl) {
-    return flywheel.setGoal(
-        velocityRadiansPerSecond + V1_DoomSpiralRobotState.getShooterOffsets().getFlywheel(),
-        useTorqueControl);
+    return flywheel.setGoal(velocityRadiansPerSecond, useTorqueControl);
   }
 
   public Command incrementFlywheelVelocity() {
@@ -150,7 +148,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setFlywheelVelocity(double velocityRadiansPerSecond) {
-    return flywheel.setGoal(velocityRadiansPerSecond, true);
+    return flywheel.setGoal(velocityRadiansPerSecond, false);
   }
 
   public Command stopFlywheel() {

@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -267,7 +266,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.leftBumper().onTrue(intake.toggleIntake());
 
-    driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
+    driver
+        .b()
+        .whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     driver
         .x()
@@ -297,23 +299,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver
         .rightBumper()
-        .onTrue(
-            shooter.setGoal(
-                HoodGoal.SCORE,
-                V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-                    .get(V1_DoomSpiralRobotState.getDistanceToHub())
-                    .in(RadiansPerSecond)));
+        .onTrue(shooter.setGoal(HoodGoal.SCORE, () -> V1_DoomSpiralRobotState.getScoreVelocity()));
 
     driver
         .rightTrigger()
-        .whileTrue(
-            Commands.parallel(
-                shooter.setGoal(
-                    HoodGoal.SCORE,
-                    (V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-                            .get(V1_DoomSpiralRobotState.getDistanceToHub()))
-                        .in(RadiansPerSecond)),
-                spindexer.setSpindexerVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+        .whileTrue(V1_DoomSpiralCompositeCommands.scoreCommand(shooter, spindexer))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     // Shooter button board commands
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
@@ -402,26 +393,26 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .g1()
         .whileTrue(
             intake
-                .getLinkage()
-                .setVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
                 .onlyWhile(
                     () ->
                         intake.getLinkage().getPosition().getRadians()
                             > V1_DoomSpiralIntakeConstants.IntakeState.STOW.getAngle().getRadians())
-                .andThen(intake.getLinkage().setVoltage(0)));
+                .andThen(intake.setLinkageVoltage(0)))
+        .onFalse(intake.setLinkageVoltage(0));
     xkeys
         .g1()
         .whileTrue(
             intake
-                .getLinkage()
-                .setVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
                 .onlyWhile(
                     () ->
                         intake.getLinkage().getPosition().getRadians()
                             < V1_DoomSpiralIntakeConstants.IntakeState.INTAKE
                                 .getAngle()
                                 .getRadians())
-                .andThen(intake.getLinkage().setVoltage(0)));
+                .andThen(intake.setLinkageVoltage(0)))
+        .onFalse(intake.setLinkageVoltage(0));
     xkeys
         .h1()
         .or(xkeys.h2().or(xkeys.h3()))

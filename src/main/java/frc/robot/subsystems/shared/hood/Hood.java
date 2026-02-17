@@ -35,6 +35,8 @@ public class Hood {
   private final Supplier<Rotation2d> scoreRotationSupplier;
   private final Supplier<Rotation2d> feedRotationSupplier;
 
+  private final Supplier<Rotation2d> hoodAngleOffsetSupplier;
+
   private final HoodConstants constants;
 
   /**
@@ -51,7 +53,8 @@ public class Hood {
       Subsystem subsystem,
       int index,
       Supplier<Rotation2d> scoreRotationSupplier,
-      Supplier<Rotation2d> feedRotationSupplier) {
+      Supplier<Rotation2d> feedRotationSupplier,
+      Supplier<Rotation2d> hoodAngleOffsetSupplier) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
@@ -71,6 +74,8 @@ public class Hood {
 
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
+
+    this.hoodAngleOffsetSupplier = hoodAngleOffsetSupplier;
 
     this.constants = constants;
   }
@@ -112,23 +117,14 @@ public class Hood {
 
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
-        Rotation2d position;
-        switch (positionGoal) {
-          case SCORE:
-            position = scoreRotationSupplier.get();
-            break;
-          case FEED:
-            position = feedRotationSupplier.get();
-            break;
-          case OVERRIDE:
-            position = overridePosition;
-            break;
-          case STOW:
-          default:
-            position = Rotation2d.kZero;
-            break;
-        }
-        io.setPosition(position);
+        Rotation2d position =
+            switch (positionGoal) {
+              case SCORE -> scoreRotationSupplier.get();
+              case FEED -> feedRotationSupplier.get();
+              case OVERRIDE -> overridePosition;
+              default -> Rotation2d.kZero;
+            };
+        io.setPosition(position.plus(hoodAngleOffsetSupplier.get()));
         break;
       case OPEN_LOOP_VOLTAGE_CONTROL:
         io.setVoltage(voltageGoal);

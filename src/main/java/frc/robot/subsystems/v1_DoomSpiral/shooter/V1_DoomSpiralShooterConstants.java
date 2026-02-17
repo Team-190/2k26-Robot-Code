@@ -69,7 +69,7 @@ public class V1_DoomSpiralShooterConstants {
                           "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared", 1000))
                   .withGoalToleranceRadians(
                       new LoggedTunableNumber(
-                          "Shooter/Hood/GoalToleranceRadians", Units.degreesToRadians(0.01)))
+                          "Shooter/Hood/GoalToleranceRadians", Units.degreesToRadians(1)))
                   .build())
           .withGains(
               HoodConstants.Gains.builder()
