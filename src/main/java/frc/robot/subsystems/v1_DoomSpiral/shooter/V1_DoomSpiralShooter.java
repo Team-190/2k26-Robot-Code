@@ -20,6 +20,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   private final GenericFlywheel flywheel;
 
   public V1_DoomSpiralShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
+    setName("Shooter");
 
     flywheel =
         new GenericFlywheel(

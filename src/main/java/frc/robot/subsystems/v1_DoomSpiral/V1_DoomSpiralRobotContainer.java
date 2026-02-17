@@ -295,7 +295,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                         drive,
                         V1_DoomSpiralRobotState::getGlobalPose,
                         V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
-    driver.y().onTrue(climber.climbSequenceL3());
+    
+                        driver.y().onTrue(climber.climbSequenceL3());
 
     driver
         .rightBumper()
