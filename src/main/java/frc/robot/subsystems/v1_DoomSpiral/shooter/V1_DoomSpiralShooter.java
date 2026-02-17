@@ -24,13 +24,13 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     flywheel =
         new GenericFlywheel(
-            flywheelIO, this, V1_DoomSpiralRobotState.getShooterOffsets()::getFlywheel, "1");
+            flywheelIO, this, V1_DoomSpiralRobotState.getShooterOffsets()::getFlywheel, "");
     hood =
         new Hood(
             hoodIO,
             V1_DoomSpiralShooterConstants.HOOD_CONSTANTS,
             this,
-            1,
+            "",
             V1_DoomSpiralRobotState::getScoreAngle,
             V1_DoomSpiralRobotState::getFeedAngle,
             V1_DoomSpiralRobotState.getShooterOffsets()::getHood);
@@ -156,7 +156,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return flywheel.stop();
   }
 
-  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
+  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) { //TODO: Figure out why it doesnt work
     return Commands.parallel(
         setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, false));
   }

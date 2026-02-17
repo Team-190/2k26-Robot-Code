@@ -28,7 +28,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   private boolean isClimbed; // TODO: Update this
 
   public V1_DoomSpiralClimber(ArmIO io, Supplier<Angle> rollSupplier) {
-      setName("Climber");
+    setName("Climber");
     arm = new Arm(io, this, 1);
     this.rollSupplier = rollSupplier;
 

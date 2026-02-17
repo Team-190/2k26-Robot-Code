@@ -23,7 +23,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   private IntakeState intakeState;
 
   public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
-    setName("Shooter");
+    setName("Intake");
     roller =
         new GenericRoller(
             rollerIO, this, V1_DoomSpiralRobotState.getIntakeOffsets()::getRollerVoltsOffset, "1");

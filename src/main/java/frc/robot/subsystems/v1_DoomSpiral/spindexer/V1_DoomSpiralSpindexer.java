@@ -33,7 +33,7 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
       GenericRollerIO feederIO,
       String kickerName,
       String feederName) {
-        setName("Spindexer");
+    setName("Spindexer");
     this.io = io;
     inputs = new V1_DoomSpiralSpindexerIOInputsAutoLogged();
     kicker =

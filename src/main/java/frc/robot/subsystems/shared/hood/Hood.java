@@ -45,13 +45,13 @@ public class Hood {
    *
    * @param io the IO implementation
    * @param subsystem the parent subsystem
-   * @param index the index of the hood in the subsystem
+   * @param name the name of the hood (for logging purposes)
    */
   public Hood(
       HoodIO io,
       HoodConstants constants,
       Subsystem subsystem,
-      int index,
+      String name,
       Supplier<Rotation2d> scoreRotationSupplier,
       Supplier<Rotation2d> feedRotationSupplier,
       Supplier<Rotation2d> hoodAngleOffsetSupplier) {
@@ -60,7 +60,7 @@ public class Hood {
 
     this.currentState = HoodState.IDLE;
 
-    aKitTopic = subsystem.getName() + "/Hood" + index;
+    aKitTopic = subsystem.getName() + "/Hood" + name;
 
     characterizationRoutine =
         new SysIdRoutine(
