@@ -26,7 +26,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotState {
@@ -46,17 +45,11 @@ public class V1_DoomSpiralRobotState {
 
   @Getter private static Distance distanceToHub;
 
-  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
-  @Getter
-  private static Rotation2d scoreAngle;
+  @Getter private static Rotation2d scoreAngle;
 
-  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Feed Angle")
-  @Getter
-  private static final Rotation2d feedAngle;
+  @Getter private static Rotation2d feedAngle;
 
-  @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity")
-  @Getter
-  private static final double feedVelocity;
+  @Getter private static double feedVelocity;
 
   private static final FieldZone globalZone;
 
@@ -148,8 +141,13 @@ public class V1_DoomSpiralRobotState {
                 .getNorm(),
             Meters);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "/Distance To Hub", distanceToHub);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Hood/Score Angle", scoreAngle);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
 
     scoreAngle = hoodAngleTree.get(distanceToHub);
+    feedVelocity = flywheelSpeedTree.get(distanceToHub).in(RadiansPerSecond);
+    feedAngle = Rotation2d.fromDegrees(17.0);
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {

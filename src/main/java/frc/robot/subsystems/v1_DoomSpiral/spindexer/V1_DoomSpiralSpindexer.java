@@ -49,6 +49,8 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs(getName(), inputs);
 
+    Logger.recordOutput(getName() + "/Voltage Goal", voltageGoal);
+
     io.setVoltage(
         switch (state) {
           case STOP -> 0.00;

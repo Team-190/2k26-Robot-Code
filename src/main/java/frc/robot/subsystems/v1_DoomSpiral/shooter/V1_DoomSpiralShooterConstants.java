@@ -41,7 +41,7 @@ public class V1_DoomSpiralShooterConstants {
                       "Shooter/Flywheel/MaxAccelerationRadiansPerSecondSquared", 6),
                   new LoggedTunableNumber(
                       "Shooter/Flywheel/CruisingVelocityRadiansPerSecondSquared", 4),
-                  new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadians", 0.05)))
+                  new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadiansPerSecond", 5)))
           .withOpposedFollowerCANID(30)
           .build();
 

@@ -159,6 +159,6 @@ public class HoodIOTalonFX implements HoodIO {
   @Override
   public boolean atGoal() {
     return Math.abs(positionGoal.getRotations() - positionRotations.getValueAsDouble())
-        <= constants.constraints.goalToleranceRadians().get();
+        <= Units.radiansToRotations(constants.constraints.goalToleranceRadians().get());
   }
 }

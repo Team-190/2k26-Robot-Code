@@ -108,6 +108,7 @@ public class Hood {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
     Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
+    Logger.recordOutput(aKitTopic+"/At Goal", io.atGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
 
     switch (currentState) {
@@ -171,7 +172,6 @@ public class Hood {
    *
    * @return If the hood is within tolerance of the goal (true) or not (false).
    */
-  @AutoLogOutput(key = "Hood/At Goal")
   public boolean atGoal() {
     return io.atGoal();
   }
