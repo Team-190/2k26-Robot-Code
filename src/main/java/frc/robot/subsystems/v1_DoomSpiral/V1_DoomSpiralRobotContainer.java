@@ -38,7 +38,6 @@ import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
@@ -251,7 +250,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
                     .getAngle()
                     .getRadians(),
-            driver.rightBumper(),
+            driver.leftTrigger(),
             () ->
                 Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
                     * (Math.PI / 2.0),
@@ -276,9 +275,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.y().onTrue(climber.climbSequenceL3());
 
-    driver
-        .rightBumper()
-        .onTrue(shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity));
+    //    driver
+    //        .rightBumper()
+    //        .onTrue(shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity));
 
     driver
         .rightTrigger()
