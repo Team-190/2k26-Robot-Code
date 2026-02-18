@@ -97,6 +97,8 @@ public class HoodIOTalonFX implements HoodIO {
         positionSetpointRotations,
         positionErrorRotations);
 
+    hoodMotor.setPosition(0);
+
     voltageControlRequest = new VoltageOut(0.0);
     positionControlRequest = new MotionMagicVoltage(0.0);
     positionGoal = Rotation2d.kZero;

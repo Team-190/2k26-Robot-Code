@@ -50,9 +50,9 @@ public class V1_DoomSpiralCompositeCommands {
             DriveCommands.rotateToAngle(
                 drive,
                 V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                V1_DoomSpiralRobotState.getHeading(),
+                V1_DoomSpiralRobotState::getHeading,
                 shotParameters.robotAngle()),
-            shooter.setGoal(HoodGoal.OVERRIDE, shotParameters.flywheelSpeed().in(RadiansPerSecond)),
+            shooter.setFlywheelVelocity(shotParameters.flywheelSpeed().in(RadiansPerSecond)),
             shooter.setOverrideHoodGoal(shotParameters.hoodAngle())),
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }

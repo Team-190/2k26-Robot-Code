@@ -267,7 +267,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
     driver.leftBumper().onTrue(intake.toggleIntake());
-    driver.leftBumper().and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW))).whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE));
+    driver
+        .leftBumper()
+        .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
+        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE));
 
     driver
         .b()
