@@ -156,7 +156,8 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return flywheel.stop();
   }
 
-  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) { //TODO: Figure out why it doesnt work
+  public Command setGoal(
+      HoodGoal hoodGoal, double velocityRadiansPerSecond) { // TODO: Figure out why it doesnt work
     return Commands.parallel(
         setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, false));
   }

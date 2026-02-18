@@ -38,7 +38,6 @@ import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
@@ -253,10 +252,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
                     .getAngle()
                     .getRadians(),
-            driver.rightBumper(),
+            driver.leftTrigger(),
             () ->
                 Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
-                    * (Math.PI / 2.0)));
+                    * (Math.PI / 2.0),
+            driver.x()));
 
     driver
         .povDown()
@@ -274,36 +274,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
-    driver
-        .x()
-        .onTrue(
-            Commands.either(
-                climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition()),
-                climber.setPositionGoal(ClimberGoal.DEFAULT.getPosition()),
-                () ->
-                    climber
-                        .getArmPosition()
-                        .getMeasure()
-                        .isNear(
-                            ClimberGoal.DEFAULT.getPosition().getMeasure(),
-                            Radians.of(
-                                V1_DoomSpiralClimberConstants.CONSTRAINTS
-                                    .goalToleranceRadians()
-                                    .get()))))
-        .whileTrue(
-            climber
-                .waitUntilPosition()
-                .andThen(
-                    DriveCommands.autoAlignTowerCommand(
-                        drive,
-                        V1_DoomSpiralRobotState::getGlobalPose,
-                        V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
+    driver.x().onTrue(climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition()));
 
     driver.y().onTrue(climber.climbSequenceL3());
 
-    driver
-        .rightBumper()
-        .onTrue(shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity));
+    //    driver
+    //        .rightBumper()
+    //        .onTrue(shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity));
 
     driver
         .rightTrigger()
@@ -360,9 +337,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.d10().onTrue(climber.climbSequenceL3());
 
-    xkeys.e8().whileTrue(climber.clockwiseSlow());
+    xkeys.e8().whileTrue(climber.clockwiseSlow()).onFalse(climber.setVoltage(0));
 
-    xkeys.e9().whileTrue(climber.counterClockwiseSlow());
+    xkeys.e9().whileTrue(climber.counterClockwiseSlow()).onFalse(climber.setVoltage(0));
 
     xkeys.e10().onTrue(climber.runZeroSequence());
 

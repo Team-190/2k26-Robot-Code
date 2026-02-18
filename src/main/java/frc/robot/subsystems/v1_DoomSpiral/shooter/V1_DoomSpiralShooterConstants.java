@@ -35,7 +35,7 @@ public class V1_DoomSpiralShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEnableFOC(true)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
-          .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 40.0))
+          .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 80.0))
           .withMomentOfInertia(0.05)
           .withGearRatio(24.0 / 18.0)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
