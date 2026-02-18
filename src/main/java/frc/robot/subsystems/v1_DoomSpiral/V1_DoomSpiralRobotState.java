@@ -145,12 +145,9 @@ public class V1_DoomSpiralRobotState {
             Meters);
 
     scoreAngle = hoodAngleTree.get(distanceToHub);
-    feedVelocity = flywheelSpeedTree.get(distanceToHub).in(RadiansPerSecond);
+    feedVelocity = 450;
     feedAngle = Rotation2d.fromDegrees(17.0); // TODO: tune feed angle
-    scoreVelocity =
-        V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-            .get(V1_DoomSpiralRobotState.getDistanceToHub())
-            .in(RadiansPerSecond);
+    scoreVelocity = flywheelSpeedTree.get(distanceToHub).in(RadiansPerSecond);
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
