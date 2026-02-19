@@ -10,7 +10,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
@@ -46,6 +46,7 @@ import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
+import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
@@ -55,7 +56,8 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalo
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.XKeysInput;
+import frc.robot.util.input.XKeysInput;
+import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -69,7 +71,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private Vision vision;
   private V1_DoomSpiralShooter shooter;
 
-  private final CommandXboxController driver = new CommandXboxController(0);
+  private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
@@ -265,6 +267,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
     driver.leftBumper().onTrue(intake.toggleIntake());
+    driver
+        .leftBumper()
+        .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
+        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE));
 
     driver
         .b()
@@ -282,6 +288,40 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     driver
         .rightTrigger()
         .whileTrue(V1_DoomSpiralCompositeCommands.scoreCommand(shooter, spindexer))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+
+    driver
+        .topLeftPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive,
+                shooter,
+                spindexer,
+                V1_DoomSpiralRobotState.FixedShots.LEFT_TRENCH.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+    driver
+        .topRightPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive,
+                shooter,
+                spindexer,
+                V1_DoomSpiralRobotState.FixedShots.RIGHT_TRENCH.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+    driver
+        .bottomLeftPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive, shooter, spindexer, V1_DoomSpiralRobotState.FixedShots.HUB.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+    driver
+        .bottomRightPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive,
+                shooter,
+                spindexer,
+                V1_DoomSpiralRobotState.FixedShots.TOWER.getParameters()))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     // Shooter button board commands

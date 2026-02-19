@@ -200,6 +200,37 @@ public final class DriveCommands {
         slowMode);
   }
 
+  public static Command rotateToAngle(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      Supplier<Rotation2d> currentRotation,
+      Rotation2d targetRotation) {
+    ProfiledPIDController omegaController =
+        new ProfiledPIDController(
+            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            0.0,
+            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                Double.POSITIVE_INFINITY));
+    omegaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    omegaController.setTolerance(
+        driveConstants.autoAlignConstants.omegaPIDConstants().tolerance().get(), 0);
+    return Commands.run(
+        () ->
+            drive.runVelocity(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    0.0,
+                    0.0,
+                    AutoAlignCommand.calculate(
+                        omegaController,
+                        targetRotation.getRadians(),
+                        currentRotation.get().getRadians(),
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
+                    AllianceFlipUtil.apply(currentRotation.get()))));
+  }
+
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {
     return Commands.run(() -> drive.runVelocity(new ChassisSpeeds(0.0, velocity, 0.0)))
         .withTimeout(time);
