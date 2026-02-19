@@ -52,11 +52,7 @@ public class FourBarLinkage {
    * @param index The index of multiple linkages in the same subsystem.
    */
   public FourBarLinkage(
-      FourBarLinkageIO io,
-      FourBarLinkageConstants constants,
-      Subsystem subsystem,
-      Supplier<Rotation2d> positionOffsetSupplier,
-      int index) {
+      FourBarLinkageIO io, FourBarLinkageConstants constants, Subsystem subsystem, int index) {
 
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
@@ -133,7 +129,7 @@ public class FourBarLinkage {
         io.setVoltage(currentOutput.volts().in(Volts));
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
-        io.setPositionGoal(currentOutput.position().plus(positionOffsetSupplier.get()));
+        io.setPositionGoal(currentOutput.position());
       }
       default -> {}
     }
