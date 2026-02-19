@@ -6,24 +6,22 @@ import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.AnimationDirectionValue;
+import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import frc.robot.Robot;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
+import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralCANdle extends VirtualSubsystem {
   private final CANdle leds;
   private final CANdleConfiguration config;
-
-  private final Notifier loadingNotifier;
 
   private AnimationType statusLights;
   private AnimationType mainLights;
@@ -163,23 +161,19 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     config = new CANdleConfiguration();
     config.LED.BrightnessScalar = 1.00;
     config.LED.StripType = RGBW;
+    config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
     PhoenixUtil.tryUntilOk(5, () -> leds.getConfigurator().apply(config, 0.25));
     leds.setControl(new EmptyControl());
     for (int i = 0; i < 8; i++) {
       leds.setControl(new EmptyAnimation(i));
     }
 
-    loadingNotifier =
-        new Notifier(
-            () -> {
-              synchronized (this) {
-                leds.setControl(
-                    new SingleFadeAnimation(0, V1_DoomSpiralCANdleConstants.LED_COUNT - 1)
-                        .withSlot(7)
-                        .withColor(new RGBWColor(Color.kRed)));
-              }
-            });
-    loadingNotifier.startPeriodic(GompeiLib.getLoopPeriod());
+    synchronized (this) {
+      leds.setControl(
+          new SingleFadeAnimation(0, V1_DoomSpiralCANdleConstants.LED_COUNT)
+              .withSlot(0)
+              .withColor(new RGBWColor(Color.kRed)));
+    }
     statusLights = AnimationType.JITTING;
     mainLights = AnimationType.DEFAULT;
   }
@@ -193,9 +187,10 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
   @Override
   public synchronized void periodic() {
 
-    if (DriverStation.isEStopped()) {
-      loadingNotifier.stop();
+    Logger.recordOutput("Leds/mainLights", mainLights);
+    Logger.recordOutput("Leds/statusLights", statusLights);
 
+    if (DriverStation.isEStopped()) {
       if (!estopped) {
         clearSlots(0, 7);
         AnimationType.E_STOPPED.animationSetter.accept(leds, Section.WHOLE);
@@ -205,9 +200,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
       return;
     }
 
-    if (loopCycleCount > V1_DoomSpiralCANdleConstants.MIN_LOOP_CYCLE_COUNT) {
-      loadingNotifier.stop();
-    } else {
+    if (loopCycleCount <= V1_DoomSpiralCANdleConstants.MIN_LOOP_CYCLE_COUNT) {
       loopCycleCount++;
       return;
     }

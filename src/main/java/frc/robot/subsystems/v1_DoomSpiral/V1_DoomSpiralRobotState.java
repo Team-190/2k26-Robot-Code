@@ -97,7 +97,7 @@ public class V1_DoomSpiralRobotState {
     intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
     spindexerOffsets = new SpindexerOffsets(0, 0, 0);
 
-    ledStates = new LEDStates(false, false, false, false, false, false);
+    ledStates = new LEDStates(false, false, false, false, false, false, false);
 
     shootAngleTree =
         new InterpolatingTreeMap<>(

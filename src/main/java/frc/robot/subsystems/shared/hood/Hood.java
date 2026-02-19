@@ -59,6 +59,7 @@ public class Hood {
     this.io = io;
 
     this.currentState = HoodState.IDLE;
+    this.positionGoal = HoodGoal.STOW;
 
     aKitTopic = subsystem.getName() + "/Hood" + name;
 
