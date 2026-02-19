@@ -59,7 +59,12 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     io.setVoltage(
         switch (state) {
           case STOP -> 0.00;
-          case OPEN_LOOP_VOLTAGE, SPINDEXER_ONLY_VOLTAGE -> voltageGoal;
+          case OPEN_LOOP_VOLTAGE, SPINDEXER_ONLY_VOLTAGE ->
+              Math.max(
+                      0,
+                      (voltageGoal + V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer())
+                          * Math.signum(voltageGoal))
+                  * Math.signum(voltageGoal);
         });
 
     kicker.periodic();

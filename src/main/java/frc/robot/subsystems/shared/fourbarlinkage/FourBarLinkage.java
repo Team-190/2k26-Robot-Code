@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -28,6 +29,7 @@ public class FourBarLinkage {
 
   private FourBarLinkageState currentState;
   private FourBarLinkageState.Output currentOutput;
+
   private final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
@@ -50,7 +52,11 @@ public class FourBarLinkage {
    * @param index The index of multiple linkages in the same subsystem.
    */
   public FourBarLinkage(
-      FourBarLinkageIO io, FourBarLinkageConstants constants, Subsystem subsystem, int index) {
+      FourBarLinkageIO io,
+      FourBarLinkageConstants constants,
+      Subsystem subsystem,
+      Supplier<Rotation2d> positionOffsetSupplier,
+      int index) {
 
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
@@ -127,7 +133,7 @@ public class FourBarLinkage {
         io.setVoltage(currentOutput.volts().in(Volts));
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
-        io.setPositionGoal(currentOutput.position());
+        io.setPositionGoal(currentOutput.position().plus(positionOffsetSupplier.get()));
       }
       default -> {}
     }
@@ -184,11 +190,11 @@ public class FourBarLinkage {
    * @param position the goal
    * @return A command to set the goal to the specified value.
    */
-  public Command setPositionGoal(Rotation2d position) {
+  public Command setPositionGoal(Rotation2d position, Supplier<Rotation2d> positionOffset) {
     return Commands.runOnce(
         () -> {
           currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
-          currentOutput = currentState.set(position);
+          currentOutput = currentState.set(position.plus(positionOffset.get()));
         });
   }
 
