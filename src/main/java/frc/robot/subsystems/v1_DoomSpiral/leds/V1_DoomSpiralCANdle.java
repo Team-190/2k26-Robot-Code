@@ -29,6 +29,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
   private AnimationType mainLights;
 
   private int loopCycleCount = 0;
+  private boolean estopped = false;
 
   @RequiredArgsConstructor
   private enum AnimationType {
@@ -52,15 +53,21 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     INTAKE_COLLECTING(
         (leds, section) -> {
           leds.setControl(
-              new ColorFlowAnimation(section.getStart(), section.getEnd() / 2)
+              new ColorFlowAnimation(
+                      section.getEnd(),
+                      (section.getSlot() + (section.getEnd() - section.getSlot()) / 2) + 1)
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kAqua))
+                  .withDirection(AnimationDirectionValue.Forward)
                   .withFrameRate(50));
 
           leds.setControl(
-              new ColorFlowAnimation(section.getEnd(), section.getEnd() / 2)
+              new ColorFlowAnimation(
+                      section.getSlot() + (section.getEnd() - section.getSlot()) / 2,
+                      section.getStart() + 1)
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kAqua))
+                  .withDirection(AnimationDirectionValue.Forward)
                   .withFrameRate(50));
         }),
 
@@ -81,17 +88,21 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     SPITTING(
         (leds, section) -> {
           leds.setControl(
-              new ColorFlowAnimation(section.getStart(), section.getEnd() / 2)
-                  .withDirection(AnimationDirectionValue.Backward)
+              new ColorFlowAnimation(
+                      section.getEnd(),
+                      (section.getSlot() + (section.getEnd() - section.getSlot()) / 2) + 1)
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kPurple))
+                  .withDirection(AnimationDirectionValue.Backward)
                   .withFrameRate(50));
 
           leds.setControl(
-              new ColorFlowAnimation(section.getEnd(), section.getEnd() / 2)
-                  .withDirection(AnimationDirectionValue.Backward)
-                  .withSlot(section.getSlot())
+              new ColorFlowAnimation(
+                      section.getSlot() + (section.getEnd() - section.getSlot()) / 2,
+                      section.getStart() + 1)
+                  .withSlot(section.getSlot() + 1)
                   .withColor(new RGBWColor(Color.kPurple))
+                  .withDirection(AnimationDirectionValue.Backward)
                   .withFrameRate(50));
         }),
     AUTO_CLIMB(
@@ -134,7 +145,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     public int getEnd() {
       return switch (this) {
         case STATUS -> 7;
-        case MAIN, WHOLE -> V1_DoomSpiralCANdleConstants.LED_COUNT - 1;
+        case MAIN, WHOLE -> V1_DoomSpiralCANdleConstants.LED_COUNT;
       };
     }
 
@@ -164,7 +175,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
               synchronized (this) {
                 leds.setControl(
                     new SingleFadeAnimation(0, V1_DoomSpiralCANdleConstants.LED_COUNT - 1)
-                        .withSlot(8)
+                        .withSlot(7)
                         .withColor(new RGBWColor(Color.kRed)));
               }
             });
@@ -173,14 +184,27 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     mainLights = AnimationType.DEFAULT;
   }
 
+  private void clearSlots(int startSlot, int endSlot) {
+    for (int i = startSlot; i <= endSlot; i++) {
+      leds.setControl(new EmptyAnimation(i));
+    }
+  }
+
   @Override
   public synchronized void periodic() {
 
     if (DriverStation.isEStopped()) {
       loadingNotifier.stop();
-      AnimationType.E_STOPPED.animationSetter.accept(leds, Section.WHOLE);
+
+      if (!estopped) {
+        clearSlots(0, 7);
+        AnimationType.E_STOPPED.animationSetter.accept(leds, Section.WHOLE);
+        estopped = true;
+      }
+
       return;
     }
+
     if (loopCycleCount > V1_DoomSpiralCANdleConstants.MIN_LOOP_CYCLE_COUNT) {
       loadingNotifier.stop();
     } else {
@@ -196,6 +220,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     AnimationType secondaryAnimationType = getSecondaryAnimationType();
 
     if (primaryAnimationType != mainLights) {
+      clearSlots(1, 7);
       primaryAnimationType.animationSetter.accept(leds, Section.MAIN);
       mainLights = primaryAnimationType;
     }
@@ -210,12 +235,8 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     if (DriverStation.isDisabled()) {
       return getSecondaryAnimationType();
     }
-    if (DriverStation.isAutonomous()) {
-      if (V1_DoomSpiralRobotState.getLedStates().isAutoClimbing()) {
-        return AnimationType.AUTO_CLIMB;
-      } else {
-        return AnimationType.DEFAULT;
-      }
+    if (DriverStation.isAutonomous() && V1_DoomSpiralRobotState.getLedStates().isAutoClimbing()) {
+      return AnimationType.AUTO_CLIMB;
     }
 
     if (V1_DoomSpiralRobotState.getLedStates().isIntakeIn()) {
@@ -236,6 +257,10 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
     if (V1_DoomSpiralRobotState.getLedStates().isSpitting()) {
       return AnimationType.SPITTING;
+    }
+
+    if (Robot.isJitting()) {
+      return AnimationType.JITTING;
     }
 
     return AnimationType.DEFAULT;
