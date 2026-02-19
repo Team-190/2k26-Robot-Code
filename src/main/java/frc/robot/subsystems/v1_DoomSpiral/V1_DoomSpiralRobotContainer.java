@@ -126,10 +126,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
           vision =
               new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark),
                   new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_CONFIG,
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
                       NetworkTablesJNI::now,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),

@@ -103,4 +103,64 @@ public class V1_DoomSpiralConstants {
           .megatag2XYStdev(0)
           .robotToCameraTransform(new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0)))
           .build();
+
+  public static final LimelightConfig LIMELIGHT_SHOOTER_CONFIG =
+      LimelightConfig.builder()
+          .key("shooter")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  0.054,
+                  0.055,
+                  0.538,
+                  new Rotation3d(
+                      Units.degreesToRadians(0),
+                      Units.degreesToRadians(90 - 62.000),
+                      Units.degreesToRadians(90.000))))
+          .build();
+
+  public static final LimelightConfig LIMELIGHT_LEFT_CONFIG =
+      LimelightConfig.builder()
+          .key("left")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  0.387,
+                  0.239,
+                  0.305,
+                  new Rotation3d(
+                      Units.degreesToRadians(0),
+                      Units.degreesToRadians(90 - 83.300),
+                      Units.degreesToRadians(105.888))))
+          .build();
+
+  public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =
+      LimelightConfig.builder()
+          .key("right")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  -0.337,
+                  0.264,
+                  0.484,
+                  new Rotation3d(
+                      Units.degreesToRadians(180),
+                      Units.degreesToRadians(90 - 87.400),
+                      Units.degreesToRadians(21.778))))
+          .build();
 }
