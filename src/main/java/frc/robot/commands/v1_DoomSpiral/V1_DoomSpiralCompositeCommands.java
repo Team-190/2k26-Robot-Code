@@ -47,13 +47,14 @@ public class V1_DoomSpiralCompositeCommands {
       FixedShotParameters shotParameters) {
     return Commands.sequence(
         Commands.parallel(
-            DriveCommands.rotateToAngle(
-                drive,
-                V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                V1_DoomSpiralRobotState::getHeading,
-                shotParameters.robotAngle()),
-            shooter.setFlywheelVelocity(shotParameters.flywheelSpeed().in(RadiansPerSecond)),
-            shooter.setOverrideHoodGoal(shotParameters.hoodAngle())),
+                DriveCommands.rotateToAngle(
+                    drive,
+                    V1_DoomSpiralConstants.DRIVE_CONSTANTS,
+                    V1_DoomSpiralRobotState::getHeading,
+                    shotParameters.robotAngle()),
+                shooter.setFlywheelVelocity(shotParameters.flywheelSpeed().in(RadiansPerSecond)),
+                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()))
+            .until(shooter::atGoal),
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
 }
