@@ -89,8 +89,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     return Commands.runOnce(() -> goal = positionGoal)
         .andThen(
             Commands.either(
-                arm.setVoltage(5),
-                arm.setVoltage(-5),
+                arm.setVoltage(12),
+                arm.setVoltage(-12),
                 () -> positionGoal.minus(arm.getArmPosition()).getRadians() > 0),
             waitUntilPosition())
         .andThen(stop());
