@@ -1,6 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.leds;
 
-import static com.ctre.phoenix6.signals.StripTypeValue.RGBW;
+import static com.ctre.phoenix6.signals.StripTypeValue.GRB;
 
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.*;
@@ -160,7 +160,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     leds = new CANdle(V1_DoomSpiralCANdleConstants.CAN_ID, V1_DoomSpiralCANdleConstants.CAN_LOOP);
     config = new CANdleConfiguration();
     config.LED.BrightnessScalar = 1.00;
-    config.LED.StripType = RGBW;
+    config.LED.StripType = GRB;
     config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
     PhoenixUtil.tryUntilOk(5, () -> leds.getConfigurator().apply(config, 0.25));
     leds.setControl(new EmptyControl());
