@@ -133,6 +133,20 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeading,
                       NetworkTablesJNI::now,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
           break;
 
@@ -394,7 +408,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 .alongWith(intake.bump()));
     xkeys.c2().onTrue(intake.decrementBumpOffset());
     xkeys.c3().onTrue(intake.incrementBumpOffset());
-    xkeys.d1().onTrue(intake.collect());
+    xkeys.d1().onTrue(intake.deploy());
     xkeys.d2().onTrue(intake.decrementCollectOffset());
     xkeys.d3().onTrue(intake.incrementCollectOffset());
     xkeys

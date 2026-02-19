@@ -92,18 +92,6 @@ public class V1_DoomSpiralConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_CONFIG = // TODO: Put in actual values
-      LimelightConfig.builder()
-          .key("limelight")
-          .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(0)
-          .verticalFOV(0)
-          .megatagXYStdev(0)
-          .metatagThetaStdev(0)
-          .megatag2XYStdev(0)
-          .robotToCameraTransform(new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0)))
-          .build();
-
   public static final LimelightConfig LIMELIGHT_SHOOTER_CONFIG =
       LimelightConfig.builder()
           .key("shooter")
@@ -115,13 +103,13 @@ public class V1_DoomSpiralConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  0.054,
-                  0.055,
+                  -0.055,
+                  -0.054,
                   0.538,
                   new Rotation3d(
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(90 - 62.000),
-                      Units.degreesToRadians(90.000))))
+                      Units.degreesToRadians(-90.000))))
           .build();
 
   public static final LimelightConfig LIMELIGHT_LEFT_CONFIG =
@@ -135,13 +123,13 @@ public class V1_DoomSpiralConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  0.387,
-                  0.239,
+                  -0.239,
+                  -0.387,
                   0.305,
                   new Rotation3d(
                       Units.degreesToRadians(0),
-                      Units.degreesToRadians(90 - 83.300),
-                      Units.degreesToRadians(105.888))))
+                      Units.degreesToRadians(6.7),
+                      Units.degreesToRadians(106))))
           .build();
 
   public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =
@@ -155,12 +143,12 @@ public class V1_DoomSpiralConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  -0.337,
-                  0.264,
+                  -0.264,
+                  0.337,
                   0.484,
-                  new Rotation3d(
-                      Units.degreesToRadians(180),
-                      Units.degreesToRadians(90 - 87.400),
-                      Units.degreesToRadians(21.778))))
+                  // camera is upside down so need to build the angles sequentially
+                  new Rotation3d(0.0, 0.0, Units.degreesToRadians(180 - 21.6))
+                      .rotateBy(new Rotation3d(0.0, Units.degreesToRadians(2.79), 0.0))
+                      .rotateBy(new Rotation3d(Math.PI, 0, 0))))
           .build();
 }
