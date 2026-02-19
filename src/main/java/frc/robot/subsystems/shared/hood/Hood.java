@@ -27,7 +27,7 @@ public class Hood {
 
   private HoodState currentState;
 
-  private HoodGoal positionGoal;
+  @Getter private HoodGoal positionGoal;
   private double voltageGoal;
 
   @Getter @Setter private Rotation2d overridePosition;

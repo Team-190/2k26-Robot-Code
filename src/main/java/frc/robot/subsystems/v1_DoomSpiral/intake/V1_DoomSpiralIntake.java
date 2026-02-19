@@ -39,6 +39,19 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     linkage.periodic();
 
     Logger.recordOutput("Intake/Intake State", intakeState);
+
+    V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
+      V1_DoomSpiralRobotState.getLedStates()
+          .setIntakeCollecting(
+              roller.getVoltageGoalVolts() == V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE);
+      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    } else {
+      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
+      V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
+    }
+    V1_DoomSpiralRobotState.getLedStates()
+        .setSpitting(roller.getVoltageGoalVolts() == V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE);
   }
 
   /**

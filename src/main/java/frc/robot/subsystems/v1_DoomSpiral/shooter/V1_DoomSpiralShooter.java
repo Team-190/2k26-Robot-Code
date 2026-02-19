@@ -81,6 +81,15 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     hood.periodic();
     flywheel.periodic();
+
+    if (hood.getPositionGoal().equals(HoodGoal.SCORE)
+        || hood.getPositionGoal().equals(HoodGoal.FEED)) {
+      V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
+      V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
+    } else {
+      V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(false);
+      V1_DoomSpiralRobotState.getLedStates().setShooterShooting(false);
+    }
   }
 
   public Command setHoodGoal(HoodGoal goal) {
