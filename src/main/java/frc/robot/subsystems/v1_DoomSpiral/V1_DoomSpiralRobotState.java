@@ -34,6 +34,11 @@ public class V1_DoomSpiralRobotState {
   private static final AprilTagFieldLayout fieldLayout;
 
   private static final FieldZone globalZone;
+  private static final FieldZone blueHubZone;
+  private static final FieldZone redHubZone;
+  private static final FieldZone blueTowerZone;
+  private static final FieldZone redTowerZone;
+  private static final FieldZone centerFieldZone;
 
   private static final Localization localization;
 
@@ -58,6 +63,11 @@ public class V1_DoomSpiralRobotState {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
+    blueHubZone = new FieldZone(new HashSet<>());
+    redHubZone = new FieldZone(new HashSet<>());
+    blueTowerZone = new FieldZone(new HashSet<>());
+    redTowerZone = new FieldZone(new HashSet<>());
+    centerFieldZone = new FieldZone(new HashSet<>());
 
     localization =
         new Localization(

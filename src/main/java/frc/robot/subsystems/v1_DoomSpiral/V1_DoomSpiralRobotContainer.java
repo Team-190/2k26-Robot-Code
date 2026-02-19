@@ -133,6 +133,20 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeading,
                       NetworkTablesJNI::now,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
           break;
 
