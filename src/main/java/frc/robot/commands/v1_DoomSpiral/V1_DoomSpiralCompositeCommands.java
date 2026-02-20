@@ -30,8 +30,7 @@ public class V1_DoomSpiralCompositeCommands {
     return shooter
         .setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity)
         .until(shooter::atGoal)
-        .andThen(
-            spindexer.setSpindexerOnlyVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
+        .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
 
   public static Command stopShooterCommand(

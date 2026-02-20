@@ -62,9 +62,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
    * @return a command that sets the voltage of the top and bottom rollers
    */
   public Command setRollerVoltage(double voltage) {
-    return Commands.parallel(
-        roller.setVoltage(
-            voltage + V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()));
+    return roller.setVoltage(voltage);
   }
 
   /**
@@ -85,27 +83,24 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
         linkage.setPositionGoal(
-            IntakeState.INTAKE
-                .getAngle()
-                .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset())));
+            IntakeState.INTAKE.getAngle(),
+            (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset())));
   }
 
   public Command stow() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.STOW),
         linkage.setPositionGoal(
-            IntakeState.STOW
-                .getAngle()
-                .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())));
+            IntakeState.STOW.getAngle(),
+            (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())));
   }
 
   public Command bump() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.BUMP),
         linkage.setPositionGoal(
-            IntakeState.BUMP
-                .getAngle()
-                .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset())));
+            IntakeState.BUMP.getAngle(),
+            (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset())));
   }
 
   public Command toggleIntake() {
@@ -122,7 +117,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
 
   public Command resetIntakeZero() {
     return Commands.sequence(
-        linkage.setPosition(Rotation2d.kZero), linkage.setPositionGoal(Rotation2d.kZero));
+        linkage.setPosition(Rotation2d.kZero),
+        linkage.setPositionGoal(Rotation2d.kZero, Rotation2d::new));
   }
 
   public Transform3d getHopperWallTransform() {

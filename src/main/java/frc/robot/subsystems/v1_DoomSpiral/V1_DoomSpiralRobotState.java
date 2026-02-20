@@ -5,8 +5,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
@@ -132,27 +131,27 @@ public class V1_DoomSpiralRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    shootAngleTree.put(Meters.of(1.34), Rotation2d.fromDegrees(5.0));
-    shootAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(7.0));
-    shootAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(7.0));
-    shootAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(9.0));
-    shootAngleTree.put(Meters.of(3.82), Rotation2d.fromDegrees(10.0));
-    shootAngleTree.put(Meters.of(4.09), Rotation2d.fromDegrees(13.0));
-    shootAngleTree.put(Meters.of(4.40), Rotation2d.fromDegrees(14.0));
-    shootAngleTree.put(Meters.of(4.77), Rotation2d.fromDegrees(16.0));
-    shootAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
-    shootAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
+    shootAngleTree.put(Meters.of(1.08169), Rotation2d.fromDegrees(5.0));
+    shootAngleTree.put(Meters.of(1.34257), Rotation2d.fromDegrees(6.5));
+    shootAngleTree.put(Meters.of(1.676884), Rotation2d.fromDegrees(9.5));
+    shootAngleTree.put(Meters.of(2.013799), Rotation2d.fromDegrees(13));
+    shootAngleTree.put(Meters.of(2.26935), Rotation2d.fromDegrees(13.5));
+    shootAngleTree.put(Meters.of(2.539004), Rotation2d.fromDegrees(16.5));
+    shootAngleTree.put(Meters.of(2.748745), Rotation2d.fromDegrees(18.5));
+    shootAngleTree.put(Meters.of(3.039446), Rotation2d.fromDegrees(18.5));
+    shootAngleTree.put(Meters.of(3.280458), Rotation2d.fromDegrees(19.5));
+    shootAngleTree.put(Meters.of(3.527742), Rotation2d.fromDegrees(20.0));
 
-    shootSpeedTree.put(Meters.of(1.34), RadiansPerSecond.of(210.0));
-    shootSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
-    shootSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
-    shootSpeedTree.put(Meters.of(2.81), RadiansPerSecond.of(230.0));
-    shootSpeedTree.put(Meters.of(3.82), RadiansPerSecond.of(250.0));
-    shootSpeedTree.put(Meters.of(4.09), RadiansPerSecond.of(255.0));
-    shootSpeedTree.put(Meters.of(4.40), RadiansPerSecond.of(260.0));
-    shootSpeedTree.put(Meters.of(4.77), RadiansPerSecond.of(265.0));
-    shootSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
-    shootSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
+    shootSpeedTree.put(Meters.of(1.08169), RadiansPerSecond.of(350));
+    shootSpeedTree.put(Meters.of(1.34257), RadiansPerSecond.of(350));
+    shootSpeedTree.put(Meters.of(1.676884), RadiansPerSecond.of(350));
+    shootSpeedTree.put(Meters.of(2.013799), RadiansPerSecond.of(350));
+    shootSpeedTree.put(Meters.of(2.26935), RadiansPerSecond.of(350));
+    shootSpeedTree.put(Meters.of(2.539004), RadiansPerSecond.of(350));
+    shootSpeedTree.put(Meters.of(2.748745), RadiansPerSecond.of(370));
+    shootSpeedTree.put(Meters.of(3.039446), RadiansPerSecond.of(370));
+    shootSpeedTree.put(Meters.of(3.280458), RadiansPerSecond.of(380));
+    shootSpeedTree.put(Meters.of(3.527742), RadiansPerSecond.of(420));
 
     feedAngleTree.put(
         Meters.of(0.0),
@@ -196,12 +195,13 @@ public class V1_DoomSpiralRobotState {
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
 
+    Translation3d hubTranslation =
+        AllianceFlipUtil.shouldFlip()
+            ? FieldConstants.Hub.oppTopCenterPoint
+            : FieldConstants.Hub.topCenterPoint;
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose()
-                .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-                .getNorm(),
+            getGlobalPose().getTranslation().minus(hubTranslation.toTranslation2d()).getNorm(),
             Meters);
 
     distanceToFeedTranslation =
