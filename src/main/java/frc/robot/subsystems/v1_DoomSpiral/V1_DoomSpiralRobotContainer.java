@@ -8,6 +8,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,6 +36,7 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralTrenchAutoLeft;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -463,7 +465,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    // Autos here
+    autoChooser.addRoutine(
+        "Left Trench",
+        () ->
+            V1_DoomSpiralTrenchAutoLeft.V1_DoomSpiralTrenchLeft(
+                drive, intake, shooter, spindexer, climber));
+    SmartDashboard.putData("Autonomous Modes", autoChooser);
   }
 
   @Override
@@ -509,6 +516,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
 
     // return climber.runSysId();
-    return DriveCommands.wheelRadiusCharacterization(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS);
+    return autoChooser.selectedCommand();
   }
 }
