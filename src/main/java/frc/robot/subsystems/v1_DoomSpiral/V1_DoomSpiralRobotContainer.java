@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Radians;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -169,7 +168,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-                  () -> Pose2d.kZero,
+                  V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
           swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
