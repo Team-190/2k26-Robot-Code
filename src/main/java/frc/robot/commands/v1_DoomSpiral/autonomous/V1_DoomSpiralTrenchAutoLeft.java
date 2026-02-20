@@ -4,22 +4,18 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
-import frc.robot.commands.shared.DriveCommands;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
+import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
+import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
 
 /** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
 public class V1_DoomSpiralTrenchAutoLeft {
 
-  private static final double INTAKE_VOLTAGE = 3;
-  private static final double SPINDEXER_VOLTAGE = 3;
-  private static final double SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND = 400;
-  private static final double WAIT_TIME = 4;
   private static final double SHOOT_TIME = 4;
 
   /**
@@ -55,11 +51,10 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Deploy the intake
 
-                Commands.print("Deploy Intake"), // TODO: IMPL
-
-                // Start the intake
-
-                intake.setRollerVoltage(INTAKE_VOLTAGE),
+                intake
+                    .deploy()
+                    .alongWith(
+                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
 
                 // Folow the path
 
@@ -68,16 +63,13 @@ public class V1_DoomSpiralTrenchAutoLeft {
                 // Stop the intake and align the shooter in parallel
 
                 Commands.parallel(
-                    intake.stopRoller(),
-                    shooter.setGoal(HoodGoal.SCORE, SHOOTER_FLYWHEEL_VELOCITY_RADS_PER_SECOND)),
-
-                // Wait to reach the goal
-
-                Commands.waitSeconds(WAIT_TIME),
+                        intake.stopRoller(),
+                        shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity))
+                    .until(shooter::atGoal),
 
                 // Start the spindexer
 
-                spindexer.setVoltage(SPINDEXER_VOLTAGE),
+                spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE),
 
                 // Wait for shooter to finish shooting
 
@@ -85,17 +77,7 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Stop the spindexer, stow the hood, and align to tower in parallel
 
-                Commands.parallel(
-                    spindexer.stopSpindexer(),
-                    shooter.setGoal(HoodGoal.STOW, 0),
-                    DriveCommands.autoAlignTowerCommand(
-                        drive,
-                        V1_DoomSpiralRobotState::getGlobalPose,
-                        V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
-
-                // Climb to L1
-
-                climber.climbAutoSequence()));
+                Commands.parallel(spindexer.stopSpindexer(), shooter.setGoal(HoodGoal.STOW, 0))));
 
     return routine;
   }

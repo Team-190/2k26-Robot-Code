@@ -49,7 +49,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
    * @return a command that sets the voltage of the top and bottom rollers
    */
   public Command setRollerVoltage(double voltage) {
-    return Commands.parallel(roller.setVoltage(voltage));
+    return roller.setVoltage(voltage);
   }
 
   /**
