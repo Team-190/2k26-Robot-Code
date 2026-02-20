@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import frc.robot.Robot;
@@ -22,6 +23,8 @@ import org.littletonrobotics.junction.Logger;
 public class V1_DoomSpiralCANdle extends VirtualSubsystem {
   private final CANdle leds;
   private final CANdleConfiguration config;
+
+  private final Trigger lowBatteryTrigger;
 
   private AnimationType statusLights;
   private AnimationType mainLights;
@@ -163,6 +166,12 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     config.LED.StripType = GRB;
     config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
     PhoenixUtil.tryUntilOk(5, () -> leds.getConfigurator().apply(config, 0.25));
+    lowBatteryTrigger =
+        new Trigger(
+                () ->
+                    RobotController.getBatteryVoltage()
+                        < V1_DoomSpiralCANdleConstants.LOW_BATTERY_VOLTAGE)
+            .debounce(1.0);
     leds.setControl(new EmptyControl());
     for (int i = 0; i < 8; i++) {
       leds.setControl(new EmptyAnimation(i));
@@ -204,10 +213,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
       loopCycleCount++;
       return;
     }
-
-    V1_DoomSpiralRobotState.getLedStates()
-        .setLowBattery(
-            RobotController.getBatteryVoltage() < V1_DoomSpiralCANdleConstants.LOW_BATTERY_VOLTAGE);
 
     AnimationType primaryAnimationType = getPrimaryAnimationType();
     AnimationType secondaryAnimationType = getSecondaryAnimationType();
@@ -261,7 +266,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
   private AnimationType getSecondaryAnimationType() {
 
-    if (V1_DoomSpiralRobotState.getLedStates().isLowBattery()) {
+    if (lowBatteryTrigger.getAsBoolean()) {
       return AnimationType.LOW_BATTERY;
     }
 
