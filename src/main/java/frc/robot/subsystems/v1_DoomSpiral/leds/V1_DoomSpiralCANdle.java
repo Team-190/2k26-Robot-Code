@@ -180,7 +180,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     synchronized (this) {
       leds.setControl(
           new SingleFadeAnimation(0, V1_DoomSpiralCANdleConstants.LED_COUNT)
-              .withSlot(0)
+              .withSlot(1)
               .withColor(new RGBWColor(Color.kRed)));
     }
     statusLights = AnimationType.JITTING;
