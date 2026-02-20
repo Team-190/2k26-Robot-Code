@@ -6,6 +6,7 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -262,9 +263,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             V1_DoomSpiralRobotState::getHeading,
             driver.rightTrigger(),
             () ->
-                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                (AllianceFlipUtil.shouldFlip()
+                        ? FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()
+                        : FieldConstants.Hub.topCenterPoint.toTranslation2d())
                     .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
                     .getAngle()
+                    .minus(Rotation2d.kCW_Pi_2)
                     .getRadians(),
             driver.leftTrigger(),
             () ->
