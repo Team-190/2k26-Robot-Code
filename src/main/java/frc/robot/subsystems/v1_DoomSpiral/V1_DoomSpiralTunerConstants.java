@@ -84,7 +84,7 @@ public class V1_DoomSpiralTunerConstants {
 
   public static final double kDriveGearRatio = 7.03125;
   public static final double kSteerGearRatio = 26.09090909090909;
-  public static final Distance kWheelRadius = Inches.of(2);
+  public static final Distance kWheelRadius = Inches.of(1.751); // Is this correct?
 
   public static final boolean kInvertLeftSide = false;
   public static final boolean kInvertRightSide = true;
