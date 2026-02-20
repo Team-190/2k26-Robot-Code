@@ -7,7 +7,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -501,15 +500,15 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //             .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.maxAngle)
     //             .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5)))
     //     .repeatedly();
-    return shooter
-        .stopFlywheel()
-        .andThen(Commands.waitSeconds(5))
-        .andThen(
-            shooter
-                .setFlywheelGoal(
-                    Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false)
-                .andThen(shooter.waitUntilFlywheelAtGoal(), Commands.waitSeconds(.75)))
-        .repeatedly();
+    //    return shooter
+    //        .stopFlywheel()
+    //        .andThen(Commands.waitSeconds(5))
+    //        .andThen(
+    //            shooter
+    //                .setFlywheelGoal(
+    //                    Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false)
+    //                .andThen(shooter.waitUntilFlywheelAtGoal(), Commands.waitSeconds(.75)))
+    //        .repeatedly();
 
     // return shooter.setFlywheelGoal(
     //     Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false);
@@ -519,5 +518,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
 
     // return climber.runSysId();
+    return DriveCommands.wheelRadiusCharacterization(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS);
   }
 }

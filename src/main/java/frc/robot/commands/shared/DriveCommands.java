@@ -263,7 +263,8 @@ public final class DriveCommands {
         constants);
   }
 
-  public static Command wheelRadiusCharacterization(SwerveDrive drive) {
+  public static Command wheelRadiusCharacterization(
+      SwerveDrive drive, SwerveDriveConstants driveConstants) {
     double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
     SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
@@ -316,7 +317,7 @@ public final class DriveCommands {
                         wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
                       }
                       double wheelRadius =
-                          (state.gyroDelta * /*DriveConstants.DRIVE_CONFIG.driveBaseRadius()*/ 0)
+                          (state.gyroDelta * driveConstants.driveConfig.driveBaseRadius())
                               / wheelDelta;
 
                       NumberFormat formatter = new DecimalFormat("#0.000");
