@@ -1,6 +1,5 @@
 package frc.robot;
 
-import choreo.Choreo;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
@@ -19,9 +18,7 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
-import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -170,13 +167,13 @@ public class Robot extends LoggedRobot {
     String DEPLOY_DIR =
         Filesystem.getDeployDirectory().getPath()
             + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
-    try {
-      var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
-      m.setAccessible(true);
-      m.invoke(null, new File(DEPLOY_DIR + "/choreo"));
-    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
+    // try {
+    //   var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
+    //   m.setAccessible(true);
+    //   m.invoke(null, new File(DEPLOY_DIR + "/choreo"));
+    // } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+    //   throw new RuntimeException(e);
+    // }
     // Log active commands
     Map<String, Integer> commandCounts = new HashMap<>();
     BiConsumer<Command, Boolean> logCommandFunction =

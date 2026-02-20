@@ -10,6 +10,7 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
@@ -31,6 +32,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotState {
   private static final AprilTagFieldLayout fieldLayout;
+
+  private static double robotYawVelocity;
 
   private static final FieldZone globalZone;
   private static final FieldZone blueHubZone;
@@ -187,6 +190,8 @@ public class V1_DoomSpiralRobotState {
     InternalLoggedTracer.reset();
     InternalLoggedTracer.record("Reset Instance Variables", "RobotState/Periodic");
 
+    V1_DoomSpiralRobotState.robotYawVelocity = robotYawVelocity;
+
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
@@ -221,7 +226,8 @@ public class V1_DoomSpiralRobotState {
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    localization.addPoseObservations(observations);
+    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(2.0))
+      localization.addPoseObservations(observations);
   }
 
   public static void resetPose(Pose2d pose) {
