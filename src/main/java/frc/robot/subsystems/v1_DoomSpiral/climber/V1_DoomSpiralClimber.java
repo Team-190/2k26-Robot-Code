@@ -186,7 +186,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command resetClimberZero() {
-    return Commands.sequence(setPosition(Rotation2d.kZero), setPositionGoal(Rotation2d.kZero));
+    return Commands.sequence(setPosition(Rotation2d.kZero));
   }
 
   public Command clockwiseSlow() {

@@ -491,7 +491,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
 
     // return climber.runSysId();
-    // return autoChooser.selectedCommand();
-    return intake.agitate();
+    return autoChooser.selectedCommand();
+    // return intake.agitate();
   }
 }

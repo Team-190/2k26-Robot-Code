@@ -17,7 +17,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 /** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
 public class V1_DoomSpiralTrenchAutoLeft {
 
-  private static final double SHOOT_TIME = 4;
+  private static final double SHOOT_TIME = 13.4;
 
   /**
    * @param drive The Swerve Drive subsystem
