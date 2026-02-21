@@ -61,15 +61,15 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kAqua))
                   .withDirection(AnimationDirectionValue.Forward)
-                  .withFrameRate(50));
+                  .withFrameRate(70));
 
           leds.setControl(
               new ColorFlowAnimation(
                       section.getStart() + (section.getEnd() - section.getStart()) / 2,
                       section.getStart() + 1)
-                  .withSlot(section.getSlot())
+                  .withSlot(section.getSlot() + 1)
                   .withColor(new RGBWColor(Color.kAqua))
-                  .withDirection(AnimationDirectionValue.Forward)
+                  .withDirection(AnimationDirectionValue.Backward)
                   .withFrameRate(70));
         }),
 
@@ -97,7 +97,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kPurple))
                   .withDirection(AnimationDirectionValue.Backward)
-                  .withFrameRate(50));
+                  .withFrameRate(70));
 
           leds.setControl(
               new ColorFlowAnimation(
@@ -105,7 +105,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                       section.getStart() + 1)
                   .withSlot(section.getSlot() + 1)
                   .withColor(new RGBWColor(Color.kPurple))
-                  .withDirection(AnimationDirectionValue.Backward)
+                  .withDirection(AnimationDirectionValue.Forward)
                   .withFrameRate(70));
         }),
     AUTO_CLIMB(

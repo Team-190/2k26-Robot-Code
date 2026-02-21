@@ -410,14 +410,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     // Intake button board commands
 
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
-    xkeys.b2().onTrue(intake.decrementStowOffset());
-    xkeys.b3().onTrue(intake.incrementStowOffset());
+    xkeys.b3().onTrue(intake.decrementStowOffset());
+    xkeys.b2().onTrue(intake.incrementStowOffset());
     xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()));
-    xkeys.c2().onTrue(intake.decrementBumpOffset());
-    xkeys.c3().onTrue(intake.incrementBumpOffset());
+    xkeys.c3().onTrue(intake.decrementBumpOffset());
+    xkeys.c2().onTrue(intake.incrementBumpOffset());
     xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()));
-    xkeys.d2().onTrue(intake.decrementCollectOffset());
-    xkeys.d3().onTrue(intake.incrementCollectOffset());
+    xkeys.d3().onTrue(intake.decrementCollectOffset());
+    xkeys.d2().onTrue(intake.incrementCollectOffset());
     xkeys
         .e1()
         .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))

@@ -25,7 +25,7 @@ public class V1_DoomSpiralIntakeConstants {
   public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
-  public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(0.5);
+  public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
   public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =

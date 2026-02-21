@@ -111,25 +111,29 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command agitate() {
-    return Commands.sequence(
-        Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(150)),
+    return Commands.parallel(
         Commands.sequence(
-                linkage.setPositionGoal(
-                    agitationAngle,
-                    (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
-                Commands.runOnce(
-                    () -> agitationAngle = agitationAngle.minus(agitationDelta.times(2))),
-                linkage.setPositionGoal(
-                    agitationAngle,
-                    (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
-                Commands.runOnce(() -> agitationAngle = agitationAngle.plus(agitationDelta)))
-            .repeatedly()
-            .until(
-                () ->
-                    agitationAngle.getRadians()
-                        <= V1_DoomSpiralIntakeConstants.MIN_ANGLE
-                            .minus(agitationDelta)
-                            .getRadians()));
+            Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(150)),
+            Commands.sequence(
+                    linkage.setPositionGoal(
+                        agitationAngle,
+                        (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
+                    waitUntilIntakeAtGoal(),
+                    Commands.runOnce(
+                        () -> agitationAngle = agitationAngle.minus(agitationDelta.times(2))),
+                    linkage.setPositionGoal(
+                        agitationAngle,
+                        (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
+                    waitUntilIntakeAtGoal(),
+                    Commands.runOnce(() -> agitationAngle = agitationAngle.plus(agitationDelta)))
+                .repeatedly()
+                .until(
+                    () ->
+                        agitationAngle.getRadians()
+                            <= V1_DoomSpiralIntakeConstants.MIN_ANGLE
+                                .minus(agitationDelta)
+                                .getRadians())),
+        setRollerVoltage(6.0));
   }
 
   public Command toggleIntake() {
@@ -207,63 +211,75 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command incrementStowOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setStowOffset(
-                    V1_DoomSpiralRobotState.getIntakeOffsets()
-                        .getStowOffset()
-                        .plus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT)));
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V1_DoomSpiralRobotState.getIntakeOffsets()
+                    .setStowOffset(
+                        V1_DoomSpiralRobotState.getIntakeOffsets()
+                            .getStowOffset()
+                            .plus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+        stow());
   }
 
   public Command decrementStowOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setStowOffset(
-                    V1_DoomSpiralRobotState.getIntakeOffsets()
-                        .getStowOffset()
-                        .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT)));
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V1_DoomSpiralRobotState.getIntakeOffsets()
+                    .setStowOffset(
+                        V1_DoomSpiralRobotState.getIntakeOffsets()
+                            .getStowOffset()
+                            .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+        stow());
   }
 
   public Command incrementBumpOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setBumpOffset(
-                    V1_DoomSpiralRobotState.getIntakeOffsets()
-                        .getBumpOffset()
-                        .plus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT)));
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V1_DoomSpiralRobotState.getIntakeOffsets()
+                    .setBumpOffset(
+                        V1_DoomSpiralRobotState.getIntakeOffsets()
+                            .getBumpOffset()
+                            .plus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+        bump());
   }
 
   public Command decrementBumpOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setBumpOffset(
-                    V1_DoomSpiralRobotState.getIntakeOffsets()
-                        .getBumpOffset()
-                        .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT)));
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V1_DoomSpiralRobotState.getIntakeOffsets()
+                    .setBumpOffset(
+                        V1_DoomSpiralRobotState.getIntakeOffsets()
+                            .getBumpOffset()
+                            .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+        bump());
   }
 
   public Command incrementCollectOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setCollectOffset(
-                    V1_DoomSpiralRobotState.getIntakeOffsets()
-                        .getCollectOffset()
-                        .plus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT)));
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V1_DoomSpiralRobotState.getIntakeOffsets()
+                    .setCollectOffset(
+                        V1_DoomSpiralRobotState.getIntakeOffsets()
+                            .getCollectOffset()
+                            .plus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+        deploy());
   }
 
   public Command decrementCollectOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setCollectOffset(
-                    V1_DoomSpiralRobotState.getIntakeOffsets()
-                        .getCollectOffset()
-                        .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT)));
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V1_DoomSpiralRobotState.getIntakeOffsets()
+                    .setCollectOffset(
+                        V1_DoomSpiralRobotState.getIntakeOffsets()
+                            .getCollectOffset()
+                            .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+        deploy());
   }
 
   public Command increaseSpeedOffset() {
