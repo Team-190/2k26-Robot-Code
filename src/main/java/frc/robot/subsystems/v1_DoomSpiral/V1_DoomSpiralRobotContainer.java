@@ -5,9 +5,9 @@ import static edu.wpi.first.units.Units.Radians;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -35,6 +35,7 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralTrenchAutoLeft;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -135,22 +136,21 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeading,
                       NetworkTablesJNI::now,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG,
-                      V1_DoomSpiralRobotState::getHeading,
-                      NetworkTablesJNI::now,
-                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
-                      V1_DoomSpiralRobotState::getHeading,
-                      NetworkTablesJNI::now,
-                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
-          leds = new V1_DoomSpiralCANdle();
+          //   new CameraLimelight(
+          //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG),
+          //       V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG,
+          //       V1_DoomSpiralRobotState::getHeading,
+          //       NetworkTablesJNI::now,
+          //       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+          //       List.of()),
+          //   new CameraLimelight(
+          //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+          //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+          //       V1_DoomSpiralRobotState::getHeading,
+          //       NetworkTablesJNI::now,
+          //       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+          //       List.of()));
           break;
 
         case V1_DOOMSPIRAL_SIM:
@@ -170,7 +170,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-                  () -> Pose2d.kZero,
+                  V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
           swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
@@ -472,7 +472,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    // Autos here
+    autoChooser.addRoutine(
+        "Left Trench",
+        () ->
+            V1_DoomSpiralTrenchAutoLeft.V1_DoomSpiralTrenchLeft(
+                drive, intake, shooter, spindexer, climber));
+    SmartDashboard.putData("Autonomous Modes", autoChooser);
   }
 
   @Override
@@ -518,6 +523,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
 
     // return climber.runSysId();
-    return DriveCommands.wheelRadiusCharacterization(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS);
+    return autoChooser.selectedCommand();
   }
 }

@@ -38,7 +38,7 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
     AutoRoutine routine = drive.getAutoFactory().newRoutine("trenchAutoLeft");
 
-    AutoTrajectory LEFT_TRENCH = routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH);
+    AutoTrajectory LEFT_TRENCH = routine.trajectory("LEFT_TRENCH");
 
     routine
         .active()
@@ -47,7 +47,8 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Set the inital pose
 
-                LEFT_TRENCH.resetOdometry(),
+                Commands.runOnce(
+                    () -> V1_DoomSpiralRobotState.resetPose(LEFT_TRENCH.getInitialPose().get())),
 
                 // Deploy the intake
 

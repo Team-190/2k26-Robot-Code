@@ -9,22 +9,22 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"8.875 in",
+    "val":0.225425
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.125 in",
+    "val":0.333375
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"-8.875 in",
+    "val":-0.225425
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"13.125 in",
+    "val":0.333375
    }
   },
   "mass":{
@@ -76,7 +76,7 @@
  },
  "generationFeatures":[],
  "codegen":{
-  "root":null,
+  "root":"../../java/frc/robot",
   "genVars":true,
   "genTrajData":true,
   "useChoreoLib":true
