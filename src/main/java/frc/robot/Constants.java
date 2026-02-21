@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 
 public final class Constants {
-  public static final boolean TUNING_MODE = true;
+  public static final boolean TUNING_MODE = false;
   public static final double LOOP_PERIOD_SECONDS = 0.02;
 
   public static RobotMode getMode() {
