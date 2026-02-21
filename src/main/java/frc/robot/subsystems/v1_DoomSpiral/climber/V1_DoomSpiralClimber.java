@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -171,7 +172,13 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    */
   public Command climbAutoSequence() {
     return Commands.sequence(
-        Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());
+            Commands.runOnce(
+                () -> {
+                  state = ClimberGoal.L1_AUTO_POSITION_GOAL;
+                  V1_DoomSpiralRobotState.getLedStates().setAutoClimbing(true);
+                }),
+            waitUntilPosition())
+        .finallyDo(() -> V1_DoomSpiralRobotState.getLedStates().setAutoClimbing(false));
   }
 
   public Command runZeroSequence() { // add actual zeroing later

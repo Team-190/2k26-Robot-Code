@@ -27,7 +27,7 @@ public class Hood {
 
   private HoodState currentState;
 
-  private HoodGoal positionGoal;
+  @Getter private HoodGoal positionGoal;
   private double voltageGoal;
 
   @Getter @Setter private Rotation2d overridePosition;
@@ -59,6 +59,7 @@ public class Hood {
     this.io = io;
 
     this.currentState = HoodState.IDLE;
+    this.positionGoal = HoodGoal.STOW;
 
     aKitTopic = subsystem.getName() + "/Hood" + name;
 

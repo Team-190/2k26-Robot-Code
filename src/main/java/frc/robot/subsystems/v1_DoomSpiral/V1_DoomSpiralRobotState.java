@@ -61,6 +61,8 @@ public class V1_DoomSpiralRobotState {
   @Getter private static final IntakeOffsets intakeOffsets;
   @Getter private static final SpindexerOffsets spindexerOffsets;
 
+  @Getter private static final LEDStates ledStates;
+
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
@@ -92,6 +94,12 @@ public class V1_DoomSpiralRobotState {
                 .minus(AllianceFlipUtil.apply(FieldConstants.FEED_TRANSLATION))
                 .getNorm(),
             Meters);
+
+    shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
+    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
+    spindexerOffsets = new SpindexerOffsets(0, 0, 0);
+
+    ledStates = new LEDStates(false, false, false, false, false, false);
 
     shootAngleTree =
         new InterpolatingTreeMap<>(
@@ -176,10 +184,6 @@ public class V1_DoomSpiralRobotState {
     scoreVelocity = 0;
     feedAngle = new Rotation2d();
     feedVelocity = 0;
-
-    shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
-    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
-    spindexerOffsets = new SpindexerOffsets(0, 0, 0);
   }
 
   public static void periodic(
@@ -302,5 +306,11 @@ public class V1_DoomSpiralRobotState {
             V1_DoomSpiralShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
     @Getter private final FixedShotParameters parameters;
+  }
+
+  @Data
+  @AllArgsConstructor
+  public static class LEDStates {
+    boolean IntakeCollecting, IntakeIn, ShooterPrepping, ShooterShooting, Spitting, AutoClimbing;
   }
 }
