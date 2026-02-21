@@ -51,7 +51,7 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Deploy the intake
 
-                intake.deploy().alongWith(intake.setRollerVoltage(12.0)),
+                intake.deploy().alongWith(intake.setRollerVoltage(8.0)),
 
                 // Follow the path
 
