@@ -26,8 +26,9 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
   private final Trigger lowBatteryTrigger;
 
-  private AnimationType statusLights;
-  private AnimationType mainLights;
+  private AnimationType lightType;
+
+  private final RainbowAnimation candleAnimation;
 
   private int loopCycleCount = 0;
   private boolean estopped = false;
@@ -56,7 +57,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
           leds.setControl(
               new ColorFlowAnimation(
                       section.getEnd(),
-                      (section.getSlot() + (section.getEnd() - section.getSlot()) / 2) + 1)
+                      (section.getStart() + (section.getEnd() - section.getStart()) / 2) + 1)
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kAqua))
                   .withDirection(AnimationDirectionValue.Forward)
@@ -64,12 +65,12 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
           leds.setControl(
               new ColorFlowAnimation(
-                      section.getSlot() + (section.getEnd() - section.getSlot()) / 2,
+                      section.getStart() + (section.getEnd() - section.getStart()) / 2,
                       section.getStart() + 1)
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kAqua))
                   .withDirection(AnimationDirectionValue.Forward)
-                  .withFrameRate(50));
+                  .withFrameRate(70));
         }),
 
     PREPPING(
@@ -84,14 +85,14 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
             leds.setControl(
                 new StrobeAnimation(section.getStart(), section.getEnd())
                     .withSlot(section.getSlot())
-                    .withColor(new RGBWColor(Color.kYellowGreen))
+                    .withColor(new RGBWColor(Color.kYellow))
                     .withFrameRate(70))),
     SPITTING(
         (leds, section) -> {
           leds.setControl(
               new ColorFlowAnimation(
                       section.getEnd(),
-                      (section.getSlot() + (section.getEnd() - section.getSlot()) / 2) + 1)
+                      (section.getStart() + (section.getEnd() - section.getStart()) / 2) + 1)
                   .withSlot(section.getSlot())
                   .withColor(new RGBWColor(Color.kPurple))
                   .withDirection(AnimationDirectionValue.Backward)
@@ -99,12 +100,12 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
           leds.setControl(
               new ColorFlowAnimation(
-                      section.getSlot() + (section.getEnd() - section.getSlot()) / 2,
+                      section.getStart() + (section.getEnd() - section.getStart()) / 2,
                       section.getStart() + 1)
                   .withSlot(section.getSlot() + 1)
                   .withColor(new RGBWColor(Color.kPurple))
                   .withDirection(AnimationDirectionValue.Backward)
-                  .withFrameRate(50));
+                  .withFrameRate(70));
         }),
     AUTO_CLIMB(
         (leds, section) ->
@@ -171,7 +172,11 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                 () ->
                     RobotController.getBatteryVoltage()
                         < V1_DoomSpiralCANdleConstants.LOW_BATTERY_VOLTAGE)
-            .debounce(1.0);
+            .debounce(.5);
+    candleAnimation =
+        new RainbowAnimation(Section.STATUS.getStart(), Section.STATUS.getEnd())
+            .withFrameRate(80)
+            .withDirection(AnimationDirectionValue.Forward);
     leds.setControl(new EmptyControl());
     for (int i = 0; i < 8; i++) {
       leds.setControl(new EmptyAnimation(i));
@@ -183,8 +188,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
               .withSlot(1)
               .withColor(new RGBWColor(Color.kRed)));
     }
-    statusLights = AnimationType.JITTING;
-    mainLights = AnimationType.DEFAULT;
+    lightType = AnimationType.JITTING;
   }
 
   private void clearSlots(int startSlot, int endSlot) {
@@ -196,8 +200,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
   @Override
   public synchronized void periodic() {
 
-    Logger.recordOutput("Leds/mainLights", mainLights);
-    Logger.recordOutput("Leds/statusLights", statusLights);
+    Logger.recordOutput("Leds/Animation Type", lightType);
 
     if (DriverStation.isEStopped()) {
       if (!estopped) {
@@ -215,64 +218,56 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     }
 
     AnimationType primaryAnimationType = getPrimaryAnimationType();
-    AnimationType secondaryAnimationType = getSecondaryAnimationType();
 
-    if (primaryAnimationType != mainLights) {
+    if (primaryAnimationType != lightType) {
       clearSlots(1, 7);
+      leds.setControl(candleAnimation);
       primaryAnimationType.animationSetter.accept(leds, Section.MAIN);
-      mainLights = primaryAnimationType;
-    }
-
-    if (secondaryAnimationType != statusLights) {
-      secondaryAnimationType.animationSetter.accept(leds, Section.STATUS);
-      statusLights = secondaryAnimationType;
+      lightType = primaryAnimationType;
     }
   }
 
   private AnimationType getPrimaryAnimationType() {
     if (DriverStation.isDisabled()) {
-      return getSecondaryAnimationType();
+      
+      if (lowBatteryTrigger.getAsBoolean()) {
+        return AnimationType.LOW_BATTERY;
+      }
+
+      if (Robot.isJitting()) {
+        return AnimationType.JITTING;
+      }
+      
+    return AnimationType.DEFAULT;
     }
     if (DriverStation.isAutonomous() && V1_DoomSpiralRobotState.getLedStates().isAutoClimbing()) {
       return AnimationType.AUTO_CLIMB;
-    }
-
-    if (V1_DoomSpiralRobotState.getLedStates().isIntakeIn()) {
-      return AnimationType.INTAKE_IN;
-    }
-
-    if (V1_DoomSpiralRobotState.getLedStates().isIntakeCollecting()) {
-      return AnimationType.INTAKE_COLLECTING;
-    }
-
-    if (V1_DoomSpiralRobotState.getLedStates().isShooterPrepping()) {
-      return AnimationType.PREPPING;
     }
 
     if (V1_DoomSpiralRobotState.getLedStates().isShooterShooting()) {
       return AnimationType.SHOOTING;
     }
 
+    if (V1_DoomSpiralRobotState.getLedStates().isShooterPrepping()) {
+      return AnimationType.PREPPING;
+    }
+
+    if (V1_DoomSpiralRobotState.getLedStates().isIntakeCollecting()) {
+      return AnimationType.INTAKE_COLLECTING;
+    }
+
     if (V1_DoomSpiralRobotState.getLedStates().isSpitting()) {
       return AnimationType.SPITTING;
     }
 
-    if (Robot.isJitting()) {
-      return AnimationType.JITTING;
-    }
-
-    return AnimationType.DEFAULT;
-  }
-
-  private AnimationType getSecondaryAnimationType() {
-
-    if (lowBatteryTrigger.getAsBoolean()) {
-      return AnimationType.LOW_BATTERY;
+    if (V1_DoomSpiralRobotState.getLedStates().isIntakeIn()) {
+      return AnimationType.INTAKE_IN;
     }
 
     if (Robot.isJitting()) {
       return AnimationType.JITTING;
     }
+
     return AnimationType.DEFAULT;
   }
 }
