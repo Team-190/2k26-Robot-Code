@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,6 +12,9 @@ import frc.robot.subsystems.shared.hood.Hood;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+
+import static frc.robot.subsystems.v1_DoomSpiral.swank.V1_DoomSpiralSwankConstants.GEAR_RATIO;
+
 import java.util.function.DoubleSupplier;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
@@ -130,9 +134,9 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return Commands.runOnce(
         () ->
             V1_DoomSpiralRobotState.getShooterOffsets()
-                .setFlywheel(
+                .setFlywheel(MathUtil.clamp(
                     V1_DoomSpiralRobotState.getShooterOffsets().getFlywheel()
-                        + V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS));
+                        + V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS, -V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.motorConfig.freeSpeedRadPerSec*V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.motorConfig.freeSpeedRadPerSec*V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio)));
   }
 
   public Command decrementFlywheelVelocity() {
@@ -140,8 +144,8 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getShooterOffsets()
                 .setFlywheel(
-                    V1_DoomSpiralRobotState.getShooterOffsets().getFlywheel()
-                        - V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS));
+                    MathUtil.clamp(V1_DoomSpiralRobotState.getShooterOffsets().getFlywheel()
+                        - V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS, -V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.motorConfig.freeSpeedRadPerSec*V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.motorConfig.freeSpeedRadPerSec*V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio)));
   }
 
   public Command setFlywheelVoltage(double volts) {

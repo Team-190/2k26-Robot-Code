@@ -2,6 +2,7 @@ package frc.robot.subsystems.v1_DoomSpiral.spindexer;
 
 import static frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerState.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -134,8 +135,11 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getSpindexerOffsets()
                 .setSpindexer(
-                    V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer()
-                        + V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE));
+                    MathUtil.clamp(
+                        V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer()
+                            + V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
+                        -12,
+                        12)));
   }
 
   public Command decreaseSpindexerVoltage() {
@@ -143,8 +147,11 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getSpindexerOffsets()
                 .setSpindexer(
-                    V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer()
-                        - V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE));
+                    MathUtil.clamp(
+                        V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer()
+                            - V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
+                        -12,
+                        12)));
   }
 
   public Command decreaseFeederVoltage() {
@@ -152,8 +159,11 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getSpindexerOffsets()
                 .setFeeder(
-                    V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()
-                        - V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE));
+                    MathUtil.clamp(
+                        V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()
+                            - V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
+                        -12,
+                        12)));
   }
 
   public Command increaseFeederVoltage() {
@@ -161,8 +171,11 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getSpindexerOffsets()
                 .setFeeder(
-                    V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()
-                        + V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE));
+                    MathUtil.clamp(
+                        V1_DoomSpiralRobotState.getSpindexerOffsets().getFeeder()
+                            + V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
+                        -12,
+                        12)));
   }
 
   public Command increaseKickerVoltage() {
@@ -170,8 +183,11 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getSpindexerOffsets()
                 .setKicker(
-                    V1_DoomSpiralRobotState.getSpindexerOffsets().getKicker()
-                        + V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE));
+                    MathUtil.clamp(
+                        V1_DoomSpiralRobotState.getSpindexerOffsets().getKicker()
+                            + V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
+                        -12,
+                        12)));
   }
 
   public Command decreaseKickerVoltage() {
@@ -179,7 +195,10 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () ->
             V1_DoomSpiralRobotState.getSpindexerOffsets()
                 .setKicker(
-                    V1_DoomSpiralRobotState.getSpindexerOffsets().getKicker()
-                        - V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE));
+                    MathUtil.clamp(
+                        V1_DoomSpiralRobotState.getSpindexerOffsets().getKicker()
+                            - V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
+                        -12,
+                        12)));
   }
 }
