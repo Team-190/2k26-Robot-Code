@@ -9,8 +9,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
@@ -47,7 +45,6 @@ import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
 import frc.robot.subsystems.v1_DoomSpiral.leds.V1_DoomSpiralCANdle;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
@@ -126,7 +123,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark),
@@ -293,14 +289,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
     driver.leftBumper().onTrue(intake.toggleIntake());
-    driver
-        .leftBumper()
-        .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
-        .onTrue(
-            intake
-                .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
-                .onlyWhile(() -> !intake.atGoal() || driver.leftBumper().getAsBoolean())
-                .andThen(intake.stopRoller()));
+    // driver
+    //     .leftBumper()
+    //     .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
+    //     .onTrue(
+    //         intake
+    //             .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
+    //             .onlyWhile(() -> !intake.atGoal() || driver.leftBumper().getAsBoolean())
+    //             .andThen(intake.stopRoller()));
 
     driver
         .b()
@@ -416,15 +412,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
     xkeys.b2().onTrue(intake.decrementStowOffset());
     xkeys.b3().onTrue(intake.incrementStowOffset());
-    xkeys
-        .c1()
-        .onTrue(
-            intake
-                .setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)
-                .alongWith(intake.bump()));
+    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()));
     xkeys.c2().onTrue(intake.decrementBumpOffset());
     xkeys.c3().onTrue(intake.incrementBumpOffset());
-    xkeys.d1().onTrue(intake.deploy());
+    xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()));
     xkeys.d2().onTrue(intake.decrementCollectOffset());
     xkeys.d3().onTrue(intake.incrementCollectOffset());
     xkeys
@@ -439,36 +430,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.f2().onTrue(intake.decreaseSpeedOffset());
     xkeys
         .g1()
-        .whileTrue(
-            intake
-                .setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .onlyWhile(
-                    () ->
-                        intake.getLinkage().getPosition().getRadians()
-                            > V1_DoomSpiralIntakeConstants.IntakeState.STOW.getAngle().getRadians())
-                .andThen(intake.setLinkageVoltage(0)))
+        .whileTrue(intake.setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE))
         .onFalse(intake.setLinkageVoltage(0));
     xkeys
-        .g1()
-        .whileTrue(
-            intake
-                .setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .onlyWhile(
-                    () ->
-                        intake.getLinkage().getPosition().getRadians()
-                            < V1_DoomSpiralIntakeConstants.IntakeState.INTAKE
-                                .getAngle()
-                                .getRadians())
-                .andThen(intake.setLinkageVoltage(0)))
+        .g2()
+        .whileTrue(intake.setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE))
         .onFalse(intake.setLinkageVoltage(0));
-    xkeys
-        .h1()
-        .or(xkeys.h2().or(xkeys.h3()))
-        .whileTrue(
-            intake
-                .toggleIntake()
-                .andThen(intake.waitUntilIntakeAtGoal(), Commands.waitSeconds(0.25))
-                .repeatedly());
+    xkeys.h1().or(xkeys.h2().or(xkeys.h3())).whileTrue(intake.agitate());
   }
 
   private void configureAutos() {
@@ -523,6 +491,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
 
     // return climber.runSysId();
-    return autoChooser.selectedCommand();
+    // return autoChooser.selectedCommand();
+    return intake.agitate();
   }
 }

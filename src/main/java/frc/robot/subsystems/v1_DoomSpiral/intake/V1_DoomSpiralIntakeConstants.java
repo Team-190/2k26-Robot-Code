@@ -21,12 +21,12 @@ import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
 
-  public static final double INTAKE_VOLTAGE = 12.0;
-  public static final double EXTAKE_VOLTAGE = -12.0;
+  public static final double INTAKE_VOLTAGE = 8.0;
+  public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
   public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(0.5);
-  public static final double LINKAGE_SLOW_VOLTAGE = 0.5;
+  public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
@@ -125,7 +125,7 @@ public class V1_DoomSpiralIntakeConstants {
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(155.39)),
+    INTAKE(Rotation2d.fromDegrees(151.259766)),
     BUMP(Rotation2d.fromDegrees(150));
 
     private final Rotation2d angle;

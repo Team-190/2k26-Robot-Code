@@ -83,10 +83,11 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     SHOOTING(
         (leds, section) ->
             leds.setControl(
-                new StrobeAnimation(section.getStart(), section.getEnd())
+                new FireAnimation(125, section.getStart())
                     .withSlot(section.getSlot())
-                    .withColor(new RGBWColor(Color.kYellow))
-                    .withFrameRate(70))),
+                    .withSparking(0.586)
+                    .withCooling(0.226)
+                    .withFrameRate(130))),
     SPITTING(
         (leds, section) -> {
           leds.setControl(
@@ -229,7 +230,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
   private AnimationType getPrimaryAnimationType() {
     if (DriverStation.isDisabled()) {
-      
+
       if (lowBatteryTrigger.getAsBoolean()) {
         return AnimationType.LOW_BATTERY;
       }
@@ -237,8 +238,8 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
       if (Robot.isJitting()) {
         return AnimationType.JITTING;
       }
-      
-    return AnimationType.DEFAULT;
+
+      return AnimationType.DEFAULT;
     }
     if (DriverStation.isAutonomous() && V1_DoomSpiralRobotState.getLedStates().isAutoClimbing()) {
       return AnimationType.AUTO_CLIMB;

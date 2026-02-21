@@ -16,6 +16,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -261,6 +262,39 @@ public final class DriveCommands {
         robotPoseSupplier,
         new Pose2d(FieldConstants.Tower.centerPoint, new Rotation2d()),
         constants);
+  }
+
+  public static Command aimAtHub(SwerveDrive drive, SwerveDriveConstants driveConstants) {
+    ProfiledPIDController omegaController =
+        new ProfiledPIDController(
+            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            0.0,
+            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            new TrapezoidProfile.Constraints(
+                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                Double.POSITIVE_INFINITY));
+    omegaController.enableContinuousInput(-Math.PI, Math.PI);
+    omegaController.setTolerance(
+        driveConstants.autoAlignConstants.omegaPIDConstants().tolerance().get(), 0);
+    return Commands.run(
+        () -> {
+          drive.runVelocity(
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  0.0,
+                  0.0,
+                  AutoAlignCommand.calculate(
+                      omegaController,
+                      (AllianceFlipUtil.shouldFlip()
+                              ? FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()
+                              : FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                          .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
+                          .getAngle()
+                          .minus(Rotation2d.kCW_Pi_2)
+                          .getRadians(),
+                      V1_DoomSpiralRobotState.getHeading().getRadians(),
+                      drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
+                  V1_DoomSpiralRobotState.getHeading()));
+        });
   }
 
   public static Command wheelRadiusCharacterization(

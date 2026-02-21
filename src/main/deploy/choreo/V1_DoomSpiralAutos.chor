@@ -32,20 +32,20 @@
    "val":68.0388555
   },
   "inertia":{
-   "exp":"6 kg m ^ 2",
-   "val":6.0
+   "exp":"8 kg m ^ 2",
+   "val":8.0
   },
   "gearing":{
-   "exp":"6.5",
-   "val":6.5
+   "exp":"7.03",
+   "val":7.03
   },
   "radius":{
    "exp":"2 in",
    "val":0.0508
   },
   "vmax":{
-   "exp":"6000 RPM",
-   "val":628.3185307179587
+   "exp":"5800 RPM",
+   "val":607.3745796940267
   },
   "tmax":{
    "exp":"1.2 N * m",
@@ -77,8 +77,8 @@
  "generationFeatures":[],
  "codegen":{
   "root":"../../java/frc/robot",
-  "genVars":true,
-  "genTrajData":true,
-  "useChoreoLib":true
+  "genVars":false,
+  "genTrajData":false,
+  "useChoreoLib":false
  }
 }

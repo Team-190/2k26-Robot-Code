@@ -44,6 +44,8 @@ public class V1_DoomSpiralRobotState {
 
   private static final Localization localization;
 
+  private static Rotation2d robotHeading;
+
   @Getter private static Distance distanceToHub;
   @Getter private static Distance distanceToFeedTranslation;
 
@@ -78,6 +80,8 @@ public class V1_DoomSpiralRobotState {
             List.of(globalZone),
             V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
             2);
+
+    robotHeading = Rotation2d.kZero;
 
     distanceToHub =
         Distance.ofBaseUnits(
@@ -197,6 +201,8 @@ public class V1_DoomSpiralRobotState {
     V1_DoomSpiralRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
+
+    V1_DoomSpiralRobotState.robotHeading = robotHeading;
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
 

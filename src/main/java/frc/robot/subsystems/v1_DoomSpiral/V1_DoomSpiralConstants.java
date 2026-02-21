@@ -52,9 +52,9 @@ public class V1_DoomSpiralConstants {
 
   public static final AutoGains AUTO_GAINS =
       new AutoGains(
-          new LoggedTunableNumber("Drive/Auto/Translation Kp", 10.0),
+          new LoggedTunableNumber("Drive/Auto/Translation Kp", 3.0),
           new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0),
-          new LoggedTunableNumber("Drive/Auto/Rotation Kp", 5.0),
+          new LoggedTunableNumber("Drive/Auto/Rotation Kp", 3.0),
           new LoggedTunableNumber("Drive/Auto/Rotation Kd", 0.0));
 
   public static final AutoAlignNearConstants AUTO_ALIGN_NEAR_CONSTANTS =

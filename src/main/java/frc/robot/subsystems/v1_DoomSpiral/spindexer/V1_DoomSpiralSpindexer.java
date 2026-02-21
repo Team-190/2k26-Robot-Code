@@ -127,7 +127,8 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
   }
 
   public Command stopSpindexer() {
-    return Commands.runOnce(() -> state = STOP);
+    return Commands.parallel(
+        Commands.runOnce(() -> state = STOP), kicker.setVoltage(0), feeder.setVoltage(0.0));
   }
 
   public Command increaseSpindexerVoltage() {
