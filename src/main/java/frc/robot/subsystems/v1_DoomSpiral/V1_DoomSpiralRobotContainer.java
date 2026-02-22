@@ -312,7 +312,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     .andThen(Commands.runOnce(() -> climber.setDeployed(true))))
                 .onlyIf(() -> !climber.isDeployed()));
 
-    driver.y().onTrue(climber.climbSequenceL3());
+    driver.y().whileTrue(climber.climbSequenceL3()).onFalse(climber.stop());
 
     //    driver
     //        .rightBumper()
