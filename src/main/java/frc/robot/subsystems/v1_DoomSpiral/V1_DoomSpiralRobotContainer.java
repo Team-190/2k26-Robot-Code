@@ -305,7 +305,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.x().onTrue(climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition()));
 
-    driver.y().onTrue(climber.climbSequenceL3());
+    driver.y().whileTrue(climber.climbSequenceL3()).onFalse(climber.stop());
 
     //    driver
     //        .rightBumper()
