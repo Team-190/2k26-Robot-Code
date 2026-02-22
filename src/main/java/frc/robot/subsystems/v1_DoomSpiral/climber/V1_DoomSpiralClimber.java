@@ -13,6 +13,8 @@ import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -28,6 +30,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   @AutoLogOutput(key = "Climber/isClimbed")
   private boolean isClimbed; // TODO: Update this
 
+  @Setter @Getter private boolean deployed;
+
   public V1_DoomSpiralClimber(ArmIO io, Supplier<Angle> rollSupplier) {
     setName("Climber");
     arm = new Arm(io, this, 1);
@@ -36,6 +40,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     goal = Rotation2d.kZero;
 
     state = ClimberGoal.DEFAULT;
+    deployed = false;
     controller =
         new ProfiledPIDController(
             V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kP(),
@@ -53,6 +58,8 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
     Logger.recordOutput(getName() + "/Goal", goal);
     Logger.recordOutput(getName() + "/At Goal Real", atGoal());
+    Logger.recordOutput(getName() + "/State", state);
+    Logger.recordOutput(getName() + "/Deployed", isDeployed());
   }
 
   public Rotation2d getArmPosition() {

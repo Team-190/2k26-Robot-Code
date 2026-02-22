@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
 
-  public static final double INTAKE_VOLTAGE = 8.0;
+  public static final double INTAKE_VOLTAGE = 12.0;
   public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
