@@ -62,14 +62,14 @@ public class V1_DoomSpiralShooterConstants {
               AngularConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/MaxVelocityRadiansPerSecond", RadiansPerSecond.of(6)))
+                          "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(6)))
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared",
+                          "Shooter/Hood/MaxAcceleration",
                           RadiansPerSecondPerSecond.of(4)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/GoalToleranceRadians", Radians.of(5)))
+                          "Shooter/Hood/GoalTolerance", Radians.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
           .build();
@@ -93,14 +93,14 @@ public class V1_DoomSpiralShooterConstants {
               AngularConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/MaxVelocityRadiansPerSecond", RadiansPerSecond.of(200)))
+                          "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared",
+                          "Shooter/Hood/MaxAcceleration",
                           RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/GoalToleranceRadians", Degrees.of(1.0)))
+                          "Shooter/Hood/GoalTolerance", Degrees.of(1.0)))
                   .build())
           .withGains(
               Gains.builder()

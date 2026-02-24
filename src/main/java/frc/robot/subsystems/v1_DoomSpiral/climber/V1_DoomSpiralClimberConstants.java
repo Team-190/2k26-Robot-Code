@@ -36,13 +36,13 @@ public class V1_DoomSpiralClimberConstants {
       AngularConstraints.builder()
           .withMaxVelocity(
               new LoggedTunableMeasure<>(
-                  "Climber/CruisingVelocityRotationsPerSecondSquared", RadiansPerSecond.of(4)))
+                  "Climber/MaxVelocity", RadiansPerSecond.of(4)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Climber/MaxAccelerationRotationsPerSecondSquared",
+                  "Climber/MaxAcceleration",
                   RadiansPerSecondPerSecond.of(6)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Climber/GoalToleranceRadians", Radians.of(0.05)))
+              new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.05)))
           .build();
 
   public static final CurrentLimits CURRENT_LIMITS =

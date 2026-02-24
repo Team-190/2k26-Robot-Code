@@ -45,15 +45,15 @@ public class ShooterConstants {
               AngularConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxAccelerationRotationsPerSecondSquared",
+                          "Shooter/Flywheel/MaxAcceleration",
                           RadiansPerSecondPerSecond.of(6)))
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/CruisingVelocityRotationsPerSecondSquared",
+                          "Shooter/Flywheel/MaxVelocity",
                           RadiansPerSecond.of(4)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalToleranceRadians", Radians.of(5)))
+                          "Shooter/Flywheel/GoalTolerance", Radians.of(5)))
                   .build())
           .withOpposedFollowerCANID(31)
           .withEnableFOC(false)
@@ -91,15 +91,15 @@ public class ShooterConstants {
               AngularConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxAccelerationRotationsPerSecondSquared",
+                          "Shooter/Flywheel/MaxAcceleration",
                           RadiansPerSecondPerSecond.of(35.566371)))
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/CruisingVelocityRotationsPerSecondSquared",
+                          "Shooter/Flywheel/MaxVelocity",
                           RadiansPerSecond.of(89.566371)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalToleranceRadians", Radians.of(3)))
+                          "Shooter/Flywheel/GoalTolerance", Radians.of(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()

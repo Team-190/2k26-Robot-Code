@@ -134,10 +134,10 @@ public class V1_DoomSpiralConstants {
           .withRotationConstraints(AUTO_ALIGN_THETA_CONSTRAINTS)
           .withLinearThreshold(
               new LoggedTunableMeasure<>(
-                  "Drive/Auto Align/Position Threshold Meters", Inches.of(0.25)))
+                  "Drive/Auto Align/Position Threshold", Inches.of(0.25)))
           .withAngularThreshold(
               new LoggedTunableMeasure<>(
-                  "Drive/Auto Align/Angular Threshold Meters", Radians.of(0.25)))
+                  "Drive/Auto Align/Angular Threshold", Radians.of(0.25)))
           .build();
 
   public static final double ODOMETRY_FREQUENCY = 250.0;
