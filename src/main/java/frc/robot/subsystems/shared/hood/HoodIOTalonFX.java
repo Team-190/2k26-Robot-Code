@@ -13,7 +13,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -151,13 +156,11 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    config.MotionMagic.MotionMagicCruiseVelocity =
-        Units.radiansToRotations(maxVelocityRadiansPerSecond);
-    config.MotionMagic.MotionMagicAcceleration =
-        Units.radiansToRotations(maxAccelerationRadiansPerSecondSquared);
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
+    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity.in(RotationsPerSecond);
+    config.MotionMagic.MotionMagicAcceleration = maxAcceleration.in(RotationsPerSecondPerSecond);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
   }
 

@@ -3,6 +3,7 @@ package frc.robot.subsystems.shared.turret;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -187,8 +188,8 @@ public class TurretIOTalonFX implements TurretIO {
   @Override
   public boolean atTurretPositionGoal() {
     double positionRotations = position.getValueAsDouble();
-    return Math.abs(positionGoal.getValue() - positionRotations) * 2 * Math.PI
-        <= constants.constraints.goalTolerance().get().in(Radians);
+    return Math.abs(positionGoal.getValue() - positionRotations)
+        <= constants.constraints.goalTolerance().get().in(Rotations);
   }
 
   @Override

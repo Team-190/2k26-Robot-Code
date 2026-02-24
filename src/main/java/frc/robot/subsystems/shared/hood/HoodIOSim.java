@@ -9,6 +9,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
@@ -88,12 +95,12 @@ public class HoodIOSim implements HoodIO {
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
     feedback.setConstraints(
-        new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedback.setTolerance(goalToleranceRadians);
+        new Constraints(maxVelocity.in(RadiansPerSecond), maxAcceleration.in(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(goalTolerance.in(Radians));
   }
 
   @Override

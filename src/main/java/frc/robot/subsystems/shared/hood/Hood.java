@@ -3,6 +3,10 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -104,11 +108,11 @@ public class Hood {
         hashCode(),
         () ->
             io.setProfile(
-                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond),
-                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
-                constants.constraints.goalTolerance().get().in(Radians)),
-        constants.constraints.maxAcceleration(),
+                constants.constraints.maxVelocity().get(),
+                constants.constraints.maxAcceleration().get(),
+                constants.constraints.goalTolerance().get()),
         constants.constraints.maxVelocity(),
+        constants.constraints.maxAcceleration(),
         constants.constraints.goalTolerance());
 
     io.updateInputs(inputs);
@@ -239,11 +243,11 @@ public class Hood {
    * @param goalToleranceRadians Tolerance (rad)
    */
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
     io.setProfile(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
+        maxVelocity, maxAcceleration, goalTolerance);
   }
 
   /**
