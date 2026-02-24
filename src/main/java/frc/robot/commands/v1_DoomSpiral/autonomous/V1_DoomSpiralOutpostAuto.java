@@ -88,7 +88,7 @@ public class V1_DoomSpiralOutpostAuto {
                     DriveCommands.autoAlignTowerCommand(
                         drive,
                         V1_DoomSpiralRobotState::getGlobalPose,
-                        V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)),
+                        V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)),
 
                 // Climb to L1
                 climber.climbAutoSequence()));

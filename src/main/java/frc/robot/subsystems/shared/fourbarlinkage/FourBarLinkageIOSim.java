@@ -37,16 +37,16 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
 
     feedback =
         new ProfiledPIDController(
-            constants.GAINS.kp().get(),
+            constants.GAINS.kP().get(),
             0.0,
-            constants.GAINS.kd().get(),
+            constants.GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get()));
+                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
+                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
 
-    feedback.setTolerance(constants.CONSTRAINTS.goalToleranceRadians().get());
+    feedback.setTolerance(constants.CONSTRAINTS.goalTolerance().get().in(Radians));
     feedforward =
-        new SimpleMotorFeedforward(constants.GAINS.ks().get(), constants.GAINS.kv().get());
+        new SimpleMotorFeedforward(constants.GAINS.kS().get(), constants.GAINS.kV().get());
   }
 
   public void updateInputs(FourBarLinkageIOInputs inputs) {

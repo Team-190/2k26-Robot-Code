@@ -3,6 +3,10 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -10,7 +14,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
@@ -88,27 +93,27 @@ public class Hood {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          io.setPID(constants.gains.kp().get(), 0, constants.gains.kd().get());
+          io.setPID(constants.gains.kP().get(), 0, constants.gains.kD().get());
 
           io.setFeedforward(
-              constants.gains.ks().get(), constants.gains.kv().get(), constants.gains.ka().get());
+              constants.gains.kS().get(), constants.gains.kV().get(), constants.gains.kA().get());
         },
-        constants.gains.kp(),
-        constants.gains.kd(),
-        constants.gains.ks(),
-        constants.gains.kv(),
-        constants.gains.ka());
+        constants.gains.kP(),
+        constants.gains.kD(),
+        constants.gains.kS(),
+        constants.gains.kV(),
+        constants.gains.kA());
 
-    LoggedTunableNumber.ifChanged(
+    LoggedTunableMeasure.ifChanged(
         hashCode(),
         () ->
             io.setProfile(
-                constants.constraints.maxAccelerationRadiansPerSecondSqaured().get(),
-                constants.constraints.maxVelocityRadiansPerSecond().get(),
-                constants.constraints.goalToleranceRadians().get()),
-        constants.constraints.maxAccelerationRadiansPerSecondSqaured(),
-        constants.constraints.maxVelocityRadiansPerSecond(),
-        constants.constraints.goalToleranceRadians());
+                constants.constraints.maxVelocity().get(),
+                constants.constraints.maxAcceleration().get(),
+                constants.constraints.goalTolerance().get()),
+        constants.constraints.maxVelocity(),
+        constants.constraints.maxAcceleration(),
+        constants.constraints.goalTolerance());
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
@@ -238,11 +243,10 @@ public class Hood {
    * @param goalToleranceRadians Tolerance (rad)
    */
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    io.setProfile(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
+    io.setProfile(maxVelocity, maxAcceleration, goalTolerance);
   }
 
   /**

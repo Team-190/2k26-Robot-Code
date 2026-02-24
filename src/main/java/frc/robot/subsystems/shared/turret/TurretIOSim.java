@@ -2,6 +2,9 @@ package frc.robot.subsystems.shared.turret;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -47,9 +50,9 @@ public class TurretIOSim implements TurretIO {
             0.0,
             constants.gains.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.constraints.cruisingVelocityRadiansPerSecond().get(),
-                constants.constraints.maxAccelerationRadiansPerSecondSquared().get()));
-    feedback.setTolerance(constants.constraints.goalToleranceRadians().get());
+                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
+                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constants.constraints.goalTolerance().get().in(Radians));
 
     feedback.disableContinuousInput();
 

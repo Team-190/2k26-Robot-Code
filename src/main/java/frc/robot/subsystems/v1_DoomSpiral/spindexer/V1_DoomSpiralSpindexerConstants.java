@@ -1,11 +1,14 @@
 package frc.robot.subsystems.v1_DoomSpiral.spindexer;
 
+import static edu.wpi.first.units.Units.Amps;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 
 public class V1_DoomSpiralSpindexerConstants {
@@ -44,7 +47,11 @@ public class V1_DoomSpiralSpindexerConstants {
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
           .withLeaderCANID(41)
-          .withSupplyCurrentLimit(30.0)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(30.0))
+                  .withStatorCurrentLimit(Amps.of(30.0))
+                  .build())
           .withRollerGearbox(DCMotor.getKrakenX44(1))
           .withRollerMotorGearRatio(24.0 / 16.0)
           .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
@@ -56,7 +63,11 @@ public class V1_DoomSpiralSpindexerConstants {
   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
           .withLeaderCANID(42)
-          .withSupplyCurrentLimit(30.0)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(30.0))
+                  .withStatorCurrentLimit(Amps.of(30.0))
+                  .build())
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(1.0)
           .withNeutralMode(NeutralModeValue.Brake)

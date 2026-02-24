@@ -1,15 +1,21 @@
 package frc.robot.subsystems.v1_DoomSpiral.climber;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.ArmParameters;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Constraints;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.CurrentLimits;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants.Gains;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -26,20 +32,20 @@ public class V1_DoomSpiralClimberConstants {
           .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0))
           .build();
 
-  public static final Constraints CONSTRAINTS =
-      Constraints.builder()
-          .withMaxAccelerationRadiansPerSecondSquared(
-              new LoggedTunableNumber("Climber/MaxAccelerationRotationsPerSecondSquared", 6))
-          .withCruisingVelocityRadiansPerSecond(
-              new LoggedTunableNumber("Climber/CruisingVelocityRotationsPerSecondSquared", 4))
-          .withGoalToleranceRadians(new LoggedTunableNumber("Climber/GoalToleranceRadians", 0.05))
+  public static final AngularConstraints CONSTRAINTS =
+      AngularConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(4)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Climber/MaxAcceleration", RadiansPerSecondPerSecond.of(6)))
+          .withGoalTolerance(new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.05)))
           .build();
 
   public static final CurrentLimits CURRENT_LIMITS =
       CurrentLimits.builder()
-          .withArmSupplyCurrentLimit(40.0)
-          .withArmStatorCurrentLimit(80.0)
-          .withArmTorqueCurrentLimit(40.0)
+          .withSupplyCurrentLimit(Amps.of(40.0))
+          .withStatorCurrentLimit(Amps.of(80.0))
           .build();
 
   public static boolean ENABLE_FOC = false;

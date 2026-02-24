@@ -1,5 +1,8 @@
 package frc.robot.commands.shared;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -14,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignConstants;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.util.AllianceFlipUtil;
@@ -155,15 +158,21 @@ public final class DriveCommands {
       BooleanSupplier slowMode) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
-            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            driveConstants.autoAlignConstants.rotationGains().kP().get(),
             0.0,
-            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            driveConstants.autoAlignConstants.rotationGains().kD().get(),
             new TrapezoidProfile.Constraints(
-                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                driveConstants
+                    .autoAlignConstants
+                    .rotationConstraints()
+                    .maxVelocity()
+                    .get()
+                    .in(RadiansPerSecond),
                 Double.POSITIVE_INFINITY));
     omegaController.enableContinuousInput(-Math.PI, Math.PI);
     omegaController.setTolerance(
-        driveConstants.autoAlignConstants.omegaPIDConstants().tolerance().get(), 0);
+        driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
+        0);
     return joystickDrive(
         drive,
         driveConstants,
@@ -208,16 +217,22 @@ public final class DriveCommands {
       Rotation2d targetRotation) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
-            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            driveConstants.autoAlignConstants.rotationGains().kP().get(),
             0.0,
-            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            driveConstants.autoAlignConstants.rotationGains().kD().get(),
             new TrapezoidProfile.Constraints(
-                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                driveConstants
+                    .autoAlignConstants
+                    .rotationConstraints()
+                    .maxVelocity()
+                    .get()
+                    .in(RadiansPerSecond),
                 Double.POSITIVE_INFINITY));
     omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
     omegaController.setTolerance(
-        driveConstants.autoAlignConstants.omegaPIDConstants().tolerance().get(), 0);
+        driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
+        0);
     return Commands.run(
         () ->
             drive.runVelocity(
@@ -250,13 +265,13 @@ public final class DriveCommands {
       SwerveDrive drive,
       Supplier<Pose2d> robotPoseSupplier,
       Pose2d targetPose,
-      AutoAlignNearConstants constants) {
+      AutoAlignConstants constants) {
     return new AutoAlignCommand(
         drive, targetPose, () -> true, robotPoseSupplier, constants, Double.POSITIVE_INFINITY);
   }
 
   public static Command autoAlignTowerCommand(
-      SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier, AutoAlignNearConstants constants) {
+      SwerveDrive drive, Supplier<Pose2d> robotPoseSupplier, AutoAlignConstants constants) {
     return autoAlignPoseCommand(
         drive,
         robotPoseSupplier,
@@ -267,15 +282,21 @@ public final class DriveCommands {
   public static Command aimAtHub(SwerveDrive drive, SwerveDriveConstants driveConstants) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
-            driveConstants.autoAlignConstants.omegaPIDConstants().kP().get(),
+            driveConstants.autoAlignConstants.rotationGains().kP().get(),
             0.0,
-            driveConstants.autoAlignConstants.omegaPIDConstants().kD().get(),
+            driveConstants.autoAlignConstants.rotationGains().kD().get(),
             new TrapezoidProfile.Constraints(
-                driveConstants.autoAlignConstants.omegaPIDConstants().maxVelocity().get(),
+                driveConstants
+                    .autoAlignConstants
+                    .rotationConstraints()
+                    .maxVelocity()
+                    .get()
+                    .in(RadiansPerSecond),
                 Double.POSITIVE_INFINITY));
     omegaController.enableContinuousInput(-Math.PI, Math.PI);
     omegaController.setTolerance(
-        driveConstants.autoAlignConstants.omegaPIDConstants().tolerance().get(), 0);
+        driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
+        0);
     return Commands.run(
         () -> {
           drive.runVelocity(
