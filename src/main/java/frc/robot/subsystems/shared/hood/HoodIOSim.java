@@ -13,9 +13,6 @@ import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
@@ -99,7 +96,8 @@ public class HoodIOSim implements HoodIO {
       Measure<AngularAccelerationUnit> maxAcceleration,
       Measure<AngleUnit> goalTolerance) {
     feedback.setConstraints(
-        new Constraints(maxVelocity.in(RadiansPerSecond), maxAcceleration.in(RadiansPerSecondPerSecond)));
+        new Constraints(
+            maxVelocity.in(RadiansPerSecond), maxAcceleration.in(RadiansPerSecondPerSecond)));
     feedback.setTolerance(goalTolerance.in(Radians));
   }
 

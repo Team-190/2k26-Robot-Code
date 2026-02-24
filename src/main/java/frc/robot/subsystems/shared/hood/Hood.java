@@ -246,8 +246,7 @@ public class Hood {
       Measure<AngularVelocityUnit> maxVelocity,
       Measure<AngularAccelerationUnit> maxAcceleration,
       Measure<AngleUnit> goalTolerance) {
-    io.setProfile(
-        maxVelocity, maxAcceleration, goalTolerance);
+    io.setProfile(maxVelocity, maxAcceleration, goalTolerance);
   }
 
   /**
