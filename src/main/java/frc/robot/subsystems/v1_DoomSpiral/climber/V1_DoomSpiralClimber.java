@@ -55,6 +55,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
     Logger.recordOutput(getName() + "/Goal", goal);
     Logger.recordOutput(getName() + "/At Goal Real", atGoal());
+    Logger.recordOutput(getName() + "/State", state);
   }
 
   public Rotation2d getArmPosition() {
