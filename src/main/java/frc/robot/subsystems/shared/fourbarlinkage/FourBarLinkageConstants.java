@@ -6,7 +6,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import lombok.Builder;
 
 @Builder
@@ -32,7 +33,7 @@ public class FourBarLinkageConstants {
   public final Rotation2d MAX_ANGLE;
 
   public final Gains GAINS;
-  public final Constraints CONSTRAINTS;
+  public final AngularConstraints CONSTRAINTS;
 
   public final LinkLengths LINK_LENGTHS;
   public final LinkBounds LINK_BOUNDS;
@@ -43,19 +44,6 @@ public class FourBarLinkageConstants {
   public final Translation3d LINKAGE_OFFSET;
 
   @Builder.Default public final boolean ENABLE_FOC = false;
-
-  public record Gains(
-      LoggedTunableNumber kp,
-      LoggedTunableNumber kd,
-      LoggedTunableNumber ks,
-      LoggedTunableNumber kg,
-      LoggedTunableNumber kv,
-      LoggedTunableNumber ka) {}
-
-  public record Constraints(
-      LoggedTunableNumber maxVelocityRadiansPerSecond,
-      LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
-      LoggedTunableNumber goalToleranceRadians) {}
 
   public record LinkLengths(double AB, double BC, double CD, double DA) {}
 

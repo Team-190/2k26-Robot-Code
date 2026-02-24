@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
-import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -16,7 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   private final TalonFX talonFX;
@@ -54,18 +56,17 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonFXConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     talonFXConfig.Feedback.SensorToMechanismRatio = constants.GEAR_RATIO;
-    talonFXConfig.Slot0.kP = constants.GAINS.kp().get();
-    talonFXConfig.Slot0.kD = constants.GAINS.kd().get();
-    talonFXConfig.Slot0.kS = constants.GAINS.ks().get();
-    talonFXConfig.Slot0.kG = constants.GAINS.kg().get();
-    talonFXConfig.Slot0.kV = constants.GAINS.kv().get();
-    talonFXConfig.Slot0.kA = constants.GAINS.ka().get();
+    talonFXConfig.Slot0.kP = constants.GAINS.kP().get();
+    talonFXConfig.Slot0.kD = constants.GAINS.kD().get();
+    talonFXConfig.Slot0.kS = constants.GAINS.kS().get();
+    talonFXConfig.Slot0.kG = constants.GAINS.kG().get();
+    talonFXConfig.Slot0.kV = constants.GAINS.kV().get();
+    talonFXConfig.Slot0.kA = constants.GAINS.kA().get();
     talonFXConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
-        Units.radiansToRotations(constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get());
+        constants.CONSTRAINTS.maxVelocity().get().in(RotationsPerSecond);
     talonFXConfig.MotionMagic.MotionMagicAcceleration =
-        Units.radiansToRotations(
-            constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get());
+        constants.CONSTRAINTS.maxAcceleration().get().in(RotationsPerSecondPerSecond);
     talonFXConfig
         .SoftwareLimitSwitch
         .withForwardSoftLimitThreshold(constants.MAX_ANGLE.getRotations())
@@ -195,7 +196,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   @Override
   public boolean atGoal() {
     return Math.abs(
-            positionRotations.getValue().minus(positionGoalRotations.getMeasure()).in(Radian))
-        <= constants.CONSTRAINTS.goalToleranceRadians().get();
+            positionRotations.getValue().minus(positionGoalRotations.getMeasure()).in(Rotations))
+        <= constants.CONSTRAINTS.goalTolerance().get().in(Rotations);
   }
 }

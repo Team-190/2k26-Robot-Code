@@ -1,5 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral.climber;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -116,7 +118,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
   public boolean atGoal() {
     return Math.abs(arm.getArmPosition().getRadians() - goal.getRadians())
-        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalToleranceRadians().get();
+        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalTolerance().get().in(Radians);
   }
 
   public Command stop() {

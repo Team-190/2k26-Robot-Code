@@ -6,7 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -29,7 +30,7 @@ public class HoodConstants {
   @NonNull public final Current zeroCurrentEpsilon;
 
   @NonNull public final Gains gains;
-  @NonNull public final Constraints constraints;
+  @NonNull public final AngularConstraints constraints;
 
   public enum HoodGoal {
     SCORE,
@@ -37,18 +38,4 @@ public class HoodConstants {
     STOW,
     OVERRIDE
   }
-
-  @Builder(setterPrefix = "with")
-  public record Gains(
-      @NonNull LoggedTunableNumber kp,
-      @NonNull LoggedTunableNumber kd,
-      @NonNull LoggedTunableNumber ks,
-      @NonNull LoggedTunableNumber kv,
-      @NonNull LoggedTunableNumber ka) {}
-
-  @Builder(setterPrefix = "with")
-  public record Constraints(
-      @NonNull LoggedTunableNumber maxVelocityRadiansPerSecond,
-      @NonNull LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
-      @NonNull LoggedTunableNumber goalToleranceRadians) {}
 }

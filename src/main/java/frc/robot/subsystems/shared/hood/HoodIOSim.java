@@ -36,15 +36,15 @@ public class HoodIOSim implements HoodIO {
 
     feedback =
         new ProfiledPIDController(
-            constants.gains.kp().get(),
+            constants.gains.kP().get(),
             0.0,
-            constants.gains.kd().get(),
+            constants.gains.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.constraints.maxVelocityRadiansPerSecond().get(),
-                constants.constraints.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedback.setTolerance(constants.constraints.goalToleranceRadians().get());
+                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
+                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constants.constraints.goalTolerance().get().in(Radians));
     feedforward =
-        new SimpleMotorFeedforward(constants.gains.ks().get(), constants.gains.kv().get());
+        new SimpleMotorFeedforward(constants.gains.kS().get(), constants.gains.kV().get());
   }
 
   @Override

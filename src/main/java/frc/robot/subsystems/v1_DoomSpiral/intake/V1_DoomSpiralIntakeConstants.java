@@ -1,5 +1,10 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -8,11 +13,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Constraints;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
@@ -31,7 +38,11 @@ public class V1_DoomSpiralIntakeConstants {
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
           .withLeaderCANID(20)
-          .withSupplyCurrentLimit(40.0)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(40.0))
+                  .withStatorCurrentLimit(Amps.of(40.0))
+                  .build())
           .withNeutralMode(NeutralModeValue.Coast)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(8.0 / 3.0)
@@ -64,19 +75,23 @@ public class V1_DoomSpiralIntakeConstants {
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
   public static final Gains GAINS =
-      new Gains(
-          new LoggedTunableNumber("Linkage/KP", 200.0),
-          new LoggedTunableNumber("Linkage/KD", 0.0),
-          new LoggedTunableNumber("Linkage/KS", 0.35537),
-          new LoggedTunableNumber("Linkage/KG", 0.0),
-          new LoggedTunableNumber("Linkage/KV", 0.0),
-          new LoggedTunableNumber("Linkage/KA", 0.0));
-  public static final Constraints CONSTRAINTS =
-      new Constraints(
-          new LoggedTunableNumber("Linkage/Max Velocity", 10.0),
-          new LoggedTunableNumber("Linkage/Max Acceleration", 50.0),
-          new LoggedTunableNumber(
-              "Linkage/Goal Tolerance", Rotation2d.fromDegrees(1.0).getRadians()));
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
+          .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
+          .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+          .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
+          .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+          .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
+          .build();
+  public static final AngularConstraints CONSTRAINTS =
+      AngularConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+          .withGoalTolerance(new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+          .build();
 
   public static final LinkLengths LINK_LENGTHS =
       new LinkLengths(

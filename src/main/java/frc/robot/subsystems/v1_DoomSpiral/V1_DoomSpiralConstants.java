@@ -1,21 +1,28 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoGains;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.Gains;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.PIDControllerConstants;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
+import frc.robot.subsystems.v0_Funky.V0_FunkyTunerConstants;
 
 public class V1_DoomSpiralConstants {
   public static final DriveConfig DRIVE_CONFIG =
@@ -35,47 +42,103 @@ public class V1_DoomSpiralConstants {
           Units.inchesToMeters(37.5),
           Units.inchesToMeters(28.5));
 
-  public static final Gains GAINS =
-      new Gains(
-          new LoggedTunableNumber(
-              "Drive/Teleop/Drive Ks", V1_DoomSpiralTunerConstants.driveGains.kS),
-          new LoggedTunableNumber(
-              "Drive/Teleop/Drive Kv", V1_DoomSpiralTunerConstants.driveGains.kV),
-          new LoggedTunableNumber(
-              "Drive/Teleop/Drive Kp", V1_DoomSpiralTunerConstants.driveGains.kP),
-          new LoggedTunableNumber(
-              "Drive/Teleop/Drive Kd", V1_DoomSpiralTunerConstants.driveGains.kD),
-          new LoggedTunableNumber(
-              "Drive/Teleop/Turn Kp", V1_DoomSpiralTunerConstants.steerGains.kP),
-          new LoggedTunableNumber(
-              "Drive/Teleop/Turn Kd", V1_DoomSpiralTunerConstants.steerGains.kD));
-
-  public static final AutoGains AUTO_GAINS =
-      new AutoGains(
-          new LoggedTunableNumber("Drive/Auto/Translation Kp", 3.0),
-          new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0),
-          new LoggedTunableNumber("Drive/Auto/Rotation Kp", 3.0),
-          new LoggedTunableNumber("Drive/Auto/Rotation Kd", 0.0));
-
-  public static final AutoAlignNearConstants AUTO_ALIGN_NEAR_CONSTANTS =
-      new AutoAlignNearConstants(
-          new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/X Constants/kP", 3),
-              new LoggedTunableNumber("Drive/Auto Align/X Constants/kD", 0.15),
-              new LoggedTunableNumber("Drive/Auto Align/X Constants/tolerance", 0.03),
-              new LoggedTunableNumber("Drive/Auto Align/X Constants/maxVelocity", 2.5)),
-          new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/Y Constants/kP", 3),
-              new LoggedTunableNumber("Drive/Auto Align/Y Constants/kD", 0.15),
-              new LoggedTunableNumber("Drive/Auto Align/Y Constants/tolerance", 0.03),
-              new LoggedTunableNumber("Drive/Auto Align/Y Constants/maxVelocity", 2.5)),
-          new PIDControllerConstants(
-              new LoggedTunableNumber("Drive/Auto Align/Omega Constants/kP", 2 * Math.PI),
-              new LoggedTunableNumber("Drive/Auto Align/Omega Constants/kD", 0.05),
+  public static final Gains DRIVE_GAINS =
+      Gains.builder()
+          .withKP(
               new LoggedTunableNumber(
-                  "Drive/Auto Align/Omega Constants/tolerance", Units.degreesToRadians(0.25)),
-              new LoggedTunableNumber("Drive/Auto Align/Omega Constants/maxVelocity", Math.PI)),
-          new LoggedTunableNumber("Drive/Auto Align/positionThresholdDegrees", 0.03));
+                  "Drive/Teleoperated/Drive Kp", V0_FunkyTunerConstants.driveGains.kP))
+          .withKD(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Kd", V0_FunkyTunerConstants.driveGains.kD))
+          .withKS(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Ks", V0_FunkyTunerConstants.driveGains.kS))
+          .withKV(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
+          .build();
+
+  public static final Gains TRANSLATION_AUTO_GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 3.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0))
+          .build();
+
+  public static final Gains ROTATION_AUTO_GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto/Rotation Kp", 3.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto/Rotation Kd", 0.0))
+          .build();
+
+  public static final Gains AUTO_ALIGN_X_GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/X/Kp", 3.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/X/Kd", 0.15))
+          .build();
+
+  public static final LinearConstraints AUTO_ALIGN_X_CONSTRAINTS =
+      LinearConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/X/Max Velocity", MetersPerSecond.of(2.5)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/X/Max Acceleration", MetersPerSecondPerSecond.of(0.0)))
+          .withGoalTolerance(
+              new LoggedTunableMeasure<>("Drive/Auto Align/X/Max Velocity", Meters.of(0.03)))
+          .build();
+
+  public static final Gains AUTO_ALIGN_Y_GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Y/Kp", 3.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Y/Kd", 0.15))
+          .build();
+
+  public static final LinearConstraints AUTO_ALIGN_Y_CONSTRAINTS =
+      LinearConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Y/Max Velocity", MetersPerSecond.of(2.5)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Y/Max Acceleration", MetersPerSecondPerSecond.of(0.0)))
+          .withGoalTolerance(
+              new LoggedTunableMeasure<>("Drive/Auto Align/Y/Max Velocity", Meters.of(0.03)))
+          .build();
+
+  public static final Gains AUTO_ALIGN_THETA_GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 2.0 * Math.PI))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.05))
+          .build();
+
+  public static final AngularConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
+      AngularConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Theta/Max Velocity", RadiansPerSecond.of(Math.PI)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Theta/Max Acceleration", RadiansPerSecondPerSecond.of(0.0)))
+          .withGoalTolerance(
+              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Max Velocity", Degrees.of(0.25)))
+          .build();
+
+  public static final SwerveDriveConstants.AutoAlignConstants AUTO_ALIGN_CONSTANTS =
+      SwerveDriveConstants.AutoAlignConstants.builder()
+          .withXGains(AUTO_ALIGN_X_GAINS)
+          .withXConstraints(AUTO_ALIGN_X_CONSTRAINTS)
+          .withYGains(AUTO_ALIGN_Y_GAINS)
+          .withYConstraints(AUTO_ALIGN_Y_CONSTRAINTS)
+          .withRotationGains(AUTO_ALIGN_THETA_GAINS)
+          .withRotationConstraints(AUTO_ALIGN_THETA_CONSTRAINTS)
+          .withLinearThreshold(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Position Threshold Meters", Inches.of(0.25)))
+          .withAngularThreshold(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Angular Threshold Meters", Radians.of(0.25)))
+          .build();
 
   public static final double ODOMETRY_FREQUENCY = 250.0;
   public static final double DRIVER_DEADBAND = 0.1;
@@ -84,9 +147,9 @@ public class V1_DoomSpiralConstants {
   public static final SwerveDriveConstants DRIVE_CONSTANTS =
       SwerveDriveConstants.builder()
           .withDriveConfig(DRIVE_CONFIG)
-          .withGains(GAINS)
-          .withAutoGains(AUTO_GAINS)
-          .withAutoAlignConstants(AUTO_ALIGN_NEAR_CONSTANTS)
+          .withAutoTranslationGains(TRANSLATION_AUTO_GAINS)
+          .withAutoRotationGains(ROTATION_AUTO_GAINS)
+          .withAutoAlignConstants(AUTO_ALIGN_CONSTANTS)
           .withOdometryFrequency(ODOMETRY_FREQUENCY)
           .withDriverDeadband(DRIVER_DEADBAND)
           .withOperatorDeadband(OPERATOR_DEADBAND)

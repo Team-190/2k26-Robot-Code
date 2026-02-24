@@ -1,11 +1,16 @@
 package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
@@ -58,27 +63,28 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kV(),
         V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kA());
 
-    LoggedTunableNumber.ifChanged(
+    LoggedTunableMeasure.ifChanged(
         hashCode(),
         () ->
             flywheel.setProfile(
                 V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
                     .constraints
-                    .maxAccelerationRadiansPerSecondSquared()
-                    .get(),
+                    .maxAcceleration()
+                    .get()
+                    .in(RadiansPerSecondPerSecond),
                 V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
                     .constraints
-                    .cruisingVelocityRadiansPerSecond()
-                    .get(),
+                    .maxVelocity()
+                    .get()
+                    .in(RadiansPerSecond),
                 V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
                     .constraints
-                    .goalToleranceRadiansPerSecond()
-                    .get()),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints
-            .maxAccelerationRadiansPerSecondSquared(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints
-            .cruisingVelocityRadiansPerSecond(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.goalToleranceRadiansPerSecond());
+                    .goalTolerance()
+                    .get()
+                    .in(Radians)),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.maxAcceleration(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.maxVelocity(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.goalTolerance());
 
     hood.periodic();
     flywheel.periodic();

@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shared.turret;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -16,7 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class TurretIOTalonFX implements TurretIO {
 
@@ -78,9 +80,9 @@ public class TurretIOTalonFX implements TurretIO {
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle.getRotations();
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle.getRotations();
     config.MotionMagic.MotionMagicAcceleration =
-        constants.constraints.maxAccelerationRadiansPerSecondSquared().get();
+        constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond);
     config.MotionMagic.MotionMagicCruiseVelocity =
-        constants.constraints.cruisingVelocityRadiansPerSecond().get();
+        constants.constraints.maxVelocity().get().in(RadiansPerSecond);
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
@@ -186,7 +188,7 @@ public class TurretIOTalonFX implements TurretIO {
   public boolean atTurretPositionGoal() {
     double positionRotations = position.getValueAsDouble();
     return Math.abs(positionGoal.getValue() - positionRotations) * 2 * Math.PI
-        <= constants.constraints.goalToleranceRadians().get();
+        <= constants.constraints.goalTolerance().get().in(Radians);
   }
 
   @Override

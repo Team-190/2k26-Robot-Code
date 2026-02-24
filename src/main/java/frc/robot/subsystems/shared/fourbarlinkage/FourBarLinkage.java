@@ -1,6 +1,8 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -13,7 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import java.util.function.Supplier;
@@ -94,31 +97,31 @@ public class FourBarLinkage {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          io.setPID(constants.GAINS.kp().get(), 0, constants.GAINS.kd().get());
+          io.setPID(constants.GAINS.kP().get(), 0, constants.GAINS.kD().get());
 
           io.setFeedforward(
-              constants.GAINS.ks().get(),
-              constants.GAINS.kv().get(),
-              constants.GAINS.kg().get(),
-              constants.GAINS.ka().get());
+              constants.GAINS.kS().get(),
+              constants.GAINS.kV().get(),
+              constants.GAINS.kG().get(),
+              constants.GAINS.kA().get());
         },
-        constants.GAINS.kp(),
-        constants.GAINS.kd(),
-        constants.GAINS.ks(),
-        constants.GAINS.kg(),
-        constants.GAINS.kv(),
-        constants.GAINS.ka());
+        constants.GAINS.kP(),
+        constants.GAINS.kD(),
+        constants.GAINS.kS(),
+        constants.GAINS.kG(),
+        constants.GAINS.kV(),
+        constants.GAINS.kA());
 
-    LoggedTunableNumber.ifChanged(
+    LoggedTunableMeasure.ifChanged(
         hashCode(),
         () ->
             io.setProfile(
-                constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured().get(),
-                constants.CONSTRAINTS.maxVelocityRadiansPerSecond().get(),
-                constants.CONSTRAINTS.goalToleranceRadians().get()),
-        constants.CONSTRAINTS.maxAccelerationRadiansPerSecondSqaured(),
-        constants.CONSTRAINTS.maxVelocityRadiansPerSecond(),
-        constants.CONSTRAINTS.goalToleranceRadians());
+                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond),
+                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
+                constants.CONSTRAINTS.goalTolerance().get().in(Radians)),
+        constants.CONSTRAINTS.maxAcceleration(),
+        constants.CONSTRAINTS.maxVelocity(),
+        constants.CONSTRAINTS.goalTolerance());
 
     Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
@@ -215,7 +218,7 @@ public class FourBarLinkage {
    */
   public boolean atGoal(Rotation2d position) {
     return Math.abs(inputs.position.minus(position).getRadians())
-        <= constants.CONSTRAINTS.goalToleranceRadians().get();
+        <= constants.CONSTRAINTS.goalTolerance().get().in(Radians);
   }
 
   /**

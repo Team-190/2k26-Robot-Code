@@ -1,17 +1,23 @@
 package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import frc.robot.subsystems.shared.hood.HoodConstants;
 
@@ -35,24 +41,36 @@ public class V1_DoomSpiralShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEnableFOC(true)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
-          .withCurrentLimit(new GenericFlywheelConstants.CurrentLimits(60.0, 80.0))
+          .withCurrentLimit(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(60.0))
+                  .withStatorCurrentLimit(Amps.of(80.0))
+                  .build())
           .withMomentOfInertia(0.05)
           .withGearRatio(24.0 / 18.0)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withGains(
-              new GenericFlywheelConstants.Gains(
-                  new LoggedTunableNumber("Shooter/Flywheel/Kp", .5),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kd", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Ks", 0.19463),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kv", 0.15943),
-                  new LoggedTunableNumber("Shooter/Flywheel/Ka", 0.0066192)))
-          .withConstraints(
-              new GenericFlywheelConstants.Constraints(
-                  new LoggedTunableNumber(
-                      "Shooter/Flywheel/MaxAccelerationRadiansPerSecondSquared", 6),
-                  new LoggedTunableNumber(
-                      "Shooter/Flywheel/CruisingVelocityRadiansPerSecondSquared", 4),
-                  new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadiansPerSecond", 5)))
+              Gains.builder()
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/Kp", .5))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/Kd", 0))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/Ks", 0.19463))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/Kv", 0.15943))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/Ka", 0.0066192))
+                  .build())
+          .withConstraints( // Currently using positional angular constraints, should switch to
+              // velocity angular constraints later.
+              AngularConstraints.builder()
+                  .withMaxVelocity(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Hood/MaxVelocityRadiansPerSecond", RadiansPerSecond.of(6)))
+                  .withMaxAcceleration(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared",
+                          RadiansPerSecondPerSecond.of(4)))
+                  .withGoalTolerance(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Hood/GoalToleranceRadians", Radians.of(5)))
+                  .build())
           .withOpposedFollowerCANID(30)
           .build();
 
@@ -72,23 +90,25 @@ public class V1_DoomSpiralShooterConstants {
           .withZeroCurrentThreshold(Amps.of(40.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withConstraints(
-              HoodConstants.Constraints.builder()
-                  .withMaxVelocityRadiansPerSecond(
-                      new LoggedTunableNumber("Shooter/Hood/MaxVelocityRadiansPerSecond", 200))
-                  .withMaxAccelerationRadiansPerSecondSqaured(
-                      new LoggedTunableNumber(
-                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared", 1000))
-                  .withGoalToleranceRadians(
-                      new LoggedTunableNumber(
-                          "Shooter/Hood/GoalToleranceRadians", Units.degreesToRadians(1)))
+              AngularConstraints.builder()
+                  .withMaxVelocity(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Hood/MaxVelocityRadiansPerSecond", RadiansPerSecond.of(200)))
+                  .withMaxAcceleration(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Hood/MaxAccelerationRadiansPerSecondSquared",
+                          RadiansPerSecondPerSecond.of(1000)))
+                  .withGoalTolerance(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Hood/GoalToleranceRadians", Degrees.of(1.0)))
                   .build())
           .withGains(
-              HoodConstants.Gains.builder()
-                  .withKp(new LoggedTunableNumber("Shooter/Hood/Kp", 600))
-                  .withKd(new LoggedTunableNumber("Shooter/Hood/Kd", 2))
-                  .withKs(new LoggedTunableNumber("Shooter/Hood/Ks", 0.32492))
-                  .withKa(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
-                  .withKv(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
+              Gains.builder()
+                  .withKP(new LoggedTunableNumber("Shooter/Hood/Kp", 600))
+                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 2))
+                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", 0.32492))
+                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
+                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .build())
           .build();
 }
