@@ -58,6 +58,22 @@ public class V1_DoomSpiralConstants {
                   "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
           .build();
 
+  public static final Gains TURN_GAINS =
+      Gains.builder()
+          .withKP(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kp", V0_FunkyTunerConstants.steerGains.kP))
+          .withKD(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kd", V0_FunkyTunerConstants.steerGains.kD))
+          .withKS(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Ks", V0_FunkyTunerConstants.steerGains.kS))
+          .withKV(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kv", V0_FunkyTunerConstants.steerGains.kV))
+          .build();
+
   public static final Gains TRANSLATION_AUTO_GAINS =
       Gains.builder()
           .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 3.0))
@@ -133,11 +149,9 @@ public class V1_DoomSpiralConstants {
           .withRotationGains(AUTO_ALIGN_THETA_GAINS)
           .withRotationConstraints(AUTO_ALIGN_THETA_CONSTRAINTS)
           .withLinearThreshold(
-              new LoggedTunableMeasure<>(
-                  "Drive/Auto Align/Position Threshold", Inches.of(0.25)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Position Threshold", Inches.of(0.25)))
           .withAngularThreshold(
-              new LoggedTunableMeasure<>(
-                  "Drive/Auto Align/Angular Threshold", Radians.of(0.25)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Angular Threshold", Radians.of(0.25)))
           .build();
 
   public static final double ODOMETRY_FREQUENCY = 250.0;
@@ -147,6 +161,8 @@ public class V1_DoomSpiralConstants {
   public static final SwerveDriveConstants DRIVE_CONSTANTS =
       SwerveDriveConstants.builder()
           .withDriveConfig(DRIVE_CONFIG)
+          .withDriveGains(DRIVE_GAINS)
+          .withTurnGains(TURN_GAINS)
           .withAutoTranslationGains(TRANSLATION_AUTO_GAINS)
           .withAutoRotationGains(ROTATION_AUTO_GAINS)
           .withAutoAlignConstants(AUTO_ALIGN_CONSTANTS)

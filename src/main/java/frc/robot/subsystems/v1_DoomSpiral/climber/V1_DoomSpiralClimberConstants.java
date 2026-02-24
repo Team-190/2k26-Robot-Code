@@ -35,20 +35,17 @@ public class V1_DoomSpiralClimberConstants {
   public static final AngularConstraints CONSTRAINTS =
       AngularConstraints.builder()
           .withMaxVelocity(
-              new LoggedTunableMeasure<>(
-                  "Climber/MaxVelocity", RadiansPerSecond.of(4)))
+              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(4)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Climber/MaxAcceleration",
-                  RadiansPerSecondPerSecond.of(6)))
-          .withGoalTolerance(
-              new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.05)))
+                  "Climber/MaxAcceleration", RadiansPerSecondPerSecond.of(6)))
+          .withGoalTolerance(new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.05)))
           .build();
 
   public static final CurrentLimits CURRENT_LIMITS =
       CurrentLimits.builder()
           .withSupplyCurrentLimit(Amps.of(40.0))
-          .withStatorCurrentLimit(Amps.of(40.0))
+          .withStatorCurrentLimit(Amps.of(80.0))
           .build();
 
   public static boolean ENABLE_FOC = false;

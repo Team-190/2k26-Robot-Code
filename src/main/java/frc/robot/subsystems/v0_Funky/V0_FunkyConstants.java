@@ -58,6 +58,22 @@ public class V0_FunkyConstants {
                   "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
           .build();
 
+  public static final Gains TURN_GAINS =
+      Gains.builder()
+          .withKP(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kp", V0_FunkyTunerConstants.steerGains.kP))
+          .withKD(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kd", V0_FunkyTunerConstants.steerGains.kD))
+          .withKS(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Ks", V0_FunkyTunerConstants.steerGains.kS))
+          .withKV(
+              new LoggedTunableNumber(
+                  "Drive/Teleoperated/Turn Kv", V0_FunkyTunerConstants.steerGains.kV))
+          .build();
+
   public static final Gains TRANSLATION_AUTO_GAINS =
       Gains.builder()
           .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 0.0))
@@ -151,6 +167,8 @@ public class V0_FunkyConstants {
   public static final SwerveDriveConstants DRIVE_CONSTANTS =
       SwerveDriveConstants.builder()
           .withDriveConfig(DRIVE_CONFIG)
+          .withDriveGains(DRIVE_GAINS)
+          .withTurnGains(TURN_GAINS)
           .withAutoTranslationGains(TRANSLATION_AUTO_GAINS)
           .withAutoRotationGains(ROTATION_AUTO_GAINS)
           .withAutoAlignConstants(AUTO_ALIGN_CONSTANTS)
