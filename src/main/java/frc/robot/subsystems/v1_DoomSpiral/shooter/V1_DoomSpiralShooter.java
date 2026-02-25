@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
@@ -49,19 +50,41 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         hashCode(),
         () -> {
           flywheel.setPID(
-              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kP().get(),
-              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kD().get());
+              GainSlot.ZERO,
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kP().get(),
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kD().get());
 
           flywheel.setFeedForward(
-              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kS().get(),
-              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kV().get(),
-              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kA().get());
+              GainSlot.ZERO,
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kS().get(),
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kV().get(),
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kA().get());
         },
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kP(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kD(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kS(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kV(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gains.kA());
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kP(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kD(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kS(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kV(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kA());
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          flywheel.setPID(
+              GainSlot.ONE,
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kP().get(),
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kD().get());
+
+          flywheel.setFeedForward(
+              GainSlot.ONE,
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kS().get(),
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kV().get(),
+              V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kA().get());
+        },
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kP(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kD(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kS(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kV(),
+        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kA());
 
     LoggedTunableMeasure.ifChanged(
         hashCode(),
@@ -138,8 +161,11 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return hood.resetHoodZero();
   }
 
-  public Command setFlywheelGoal(double velocityRadiansPerSecond, boolean useTorqueControl) {
-    return flywheel.setGoal(velocityRadiansPerSecond, useTorqueControl);
+  public Command setFlywheelGoal(double velocityRadiansPerSecond) {
+    return flywheel.setVelocityGoal(velocityRadiansPerSecond);
+  }
+  public Command setFlywheelGoal(double velocityRadiansPerSecond, double feedforward) {
+    return flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward);
   }
 
   public Command incrementFlywheelVelocity() {
@@ -179,7 +205,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setFlywheelVelocity(double velocityRadiansPerSecond) {
-    return flywheel.setGoal(velocityRadiansPerSecond, false);
+    return flywheel.setVelocityGoal(velocityRadiansPerSecond);
   }
 
   public Command stopFlywheel() {
@@ -188,13 +214,16 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public Command setGoal(
       HoodGoal hoodGoal, double velocityRadiansPerSecond) { // TODO: Figure out why it doesnt work
-    return Commands.parallel(
-        setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, false));
+    return Commands.parallel(setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond));
   }
 
   public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond) {
     return Commands.parallel(
-        setHoodGoal(hoodGoal), flywheel.setGoal(velocityRadiansPerSecond, false));
+            setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond));
+  }
+  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond, DoubleSupplier feedforward) {
+    return Commands.parallel(
+            setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward));
   }
 
   public boolean atGoal() {

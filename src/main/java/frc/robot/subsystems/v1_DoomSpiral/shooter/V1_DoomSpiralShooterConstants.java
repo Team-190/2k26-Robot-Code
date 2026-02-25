@@ -49,13 +49,21 @@ public class V1_DoomSpiralShooterConstants {
           .withMomentOfInertia(0.05)
           .withGearRatio(28.0 / 24.0)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
-          .withGains(
+          .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/Kp", .5))
-                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/Kd", 0))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/Ks", 0.21467))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/Kv", 0.14015))
-                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/Ka", 0.0045447))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", .5))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", 0.21467))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.14015))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/VoltageKa", 0.0045447))
+                  .build())
+          .withTorqueGains(
+              Gains.builder()
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", .5))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 0.21467))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0.14015))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0.0045447))
                   .build())
           .withConstraints( // Currently using positional angular constraints, should switch to
               // velocity angular constraints later.
