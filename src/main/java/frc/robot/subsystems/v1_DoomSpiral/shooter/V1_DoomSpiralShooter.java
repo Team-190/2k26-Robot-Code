@@ -164,6 +164,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   public Command setFlywheelGoal(double velocityRadiansPerSecond) {
     return flywheel.setVelocityGoal(velocityRadiansPerSecond);
   }
+
   public Command setFlywheelGoal(double velocityRadiansPerSecond, double feedforward) {
     return flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward);
   }
@@ -219,11 +220,13 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond) {
     return Commands.parallel(
-            setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond));
+        setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond));
   }
-  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond, DoubleSupplier feedforward) {
+
+  public Command setGoal(
+      HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond, DoubleSupplier feedforward) {
     return Commands.parallel(
-            setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward));
+        setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward));
   }
 
   public boolean atGoal() {
