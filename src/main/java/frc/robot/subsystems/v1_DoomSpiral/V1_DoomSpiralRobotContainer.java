@@ -465,33 +465,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    // return shooter
-    //     .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.minAngle)
-    //     .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5))
-    //     .andThen(
-    //         shooter
-    //             .setOverrideHoodGoal(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.maxAngle)
-    //             .andThen(shooter.waitUntilAtGoal(), Commands.waitSeconds(0.5)))
-    //     .repeatedly();
-    //    return shooter
-    //        .stopFlywheel()
-    //        .andThen(Commands.waitSeconds(5))
-    //        .andThen(
-    //            shooter
-    //                .setFlywheelGoal(
-    //                    Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false)
-    //                .andThen(shooter.waitUntilFlywheelAtGoal(), Commands.waitSeconds(.75)))
-    //        .repeatedly();
-
-    // return shooter.setFlywheelGoal(
-    //     Units.rotationsPerMinuteToRadiansPerSecond(5800.0 / (4.0 / 3.0)), false);
-    // return intake.linkageSysId();
-
-    // return new KSCharacterization(
-    //     drive, drive::runCharacterization, drive::getFFCharacterizationVelocity);
-
-    // return climber.runSysId();
-    return autoChooser.selectedCommand();
-    // return intake.agitate();
+    return shooter.flywheelSysId();
   }
 }
