@@ -78,6 +78,8 @@ public class V1_DoomSpiralClimberConstants {
           .withArmCANID(60)
           .withArmParameters(ARM_PARAMETERS)
           .withSlot0Gains(SLOT_0_GAINS)
+          .withSlot1Gains(SLOT_0_GAINS)
+          .withSlot2Gains(SLOT_0_GAINS)
           .withConstraints(CONSTRAINTS)
           .withCurrentLimits(CURRENT_LIMITS)
           .withEnableFOC(ENABLE_FOC)

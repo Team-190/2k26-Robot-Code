@@ -29,7 +29,7 @@ public class V1_DoomSpiralSpindexerConstants {
 
   static {
     SPINDEXER_MOTOR_CAN_ID = 40;
-    SPINDEXER_GEAR_RATIO = 117.0 / 10.0;
+    SPINDEXER_GEAR_RATIO = (117.0 / 10.0) * 2.5;
     SPINDEXER_STATOR_CURRENT_LIMIT = 40.0;
     SPINDEXER_SUPPLY_CURRENT_LIMIT = 40.0;
     SPINDEXER_MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);

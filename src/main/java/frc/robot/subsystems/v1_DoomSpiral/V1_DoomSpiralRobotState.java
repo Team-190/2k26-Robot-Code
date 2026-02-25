@@ -173,7 +173,9 @@ public class V1_DoomSpiralRobotState {
     // feedHoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
     // feedHoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
 
-    feedSpeedTree.put(Meters.of(0.0), RadiansPerSecond.of(400.0));
+    feedSpeedTree.put(
+        Meters.of(0.0),
+        RadiansPerSecond.of(Units.rotationsPerMinuteToRadiansPerSecond(4971.4285714286)));
     // feedFlywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.81), RadiansPerSecond.of(230.0));
