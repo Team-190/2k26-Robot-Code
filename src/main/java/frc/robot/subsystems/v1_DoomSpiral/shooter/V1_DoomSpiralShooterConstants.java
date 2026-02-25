@@ -59,21 +59,21 @@ public class V1_DoomSpiralShooterConstants {
                   .build())
           .withTorqueGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", .5))
-                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 0.21467))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0.14015))
-                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0.0045447))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 10))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0.1))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 2.25))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0.067114))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0.11882))
                   .build())
           .withConstraints( // Currently using positional angular constraints, should switch to
               // velocity angular constraints later.
               AngularConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(6)))
+                          "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(1000)))
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(4)))
+                          "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
                   .build())
