@@ -214,6 +214,6 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command flywheelSysId() {
-    return flywheel.sysIdRoutineVoltage();
+    return flywheel.sysIdRoutineTorque();
   }
 }
