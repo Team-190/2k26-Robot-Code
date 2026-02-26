@@ -52,7 +52,7 @@ public class V1_DoomSpiralShooterConstants {
           .withVoltageGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", .5))
-                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0.0))
                   .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", 0.21467))
                   .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.14015))
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/VoltageKa", 0.0045447))

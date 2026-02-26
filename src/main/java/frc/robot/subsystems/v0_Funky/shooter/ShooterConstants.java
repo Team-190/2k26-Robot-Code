@@ -35,11 +35,11 @@ public class ShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kp", 0))
-                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kd", 0))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Ks", 0))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kv", 0))
-                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Ka", 0))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kp"))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kd"))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Ks"))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kv"))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Ka"))
                   .build())
           .withTorqueGains(
               Gains.fromDoubles()
