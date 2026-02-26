@@ -120,6 +120,7 @@ public class Hood {
     Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
     Logger.recordOutput(aKitTopic + "/At Goal", io.atGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
+    Logger.recordOutput(aKitTopic + "/Hood Offset", hoodAngleOffsetSupplier.get().getRadians());
 
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:

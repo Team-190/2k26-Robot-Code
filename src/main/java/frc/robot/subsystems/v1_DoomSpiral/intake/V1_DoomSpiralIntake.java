@@ -46,6 +46,23 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     linkage.periodic();
 
     Logger.recordOutput("Intake/Intake State", intakeState);
+    switch (intakeState) {
+      case INTAKE:
+        Logger.recordOutput(
+            "Intake/IntakeOffset",
+            V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset().getDegrees());
+        break;
+      case STOW:
+        Logger.recordOutput(
+            "Intake/StowOffset",
+            V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset().getDegrees());
+        break;
+      case BUMP:
+        Logger.recordOutput(
+            "Intake/BumpOffset",
+            V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset().getDegrees());
+        break;
+    }
 
     V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
