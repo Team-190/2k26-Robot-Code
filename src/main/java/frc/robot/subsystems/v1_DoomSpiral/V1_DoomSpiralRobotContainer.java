@@ -99,7 +99,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
+          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new V1_DoomSpiralClimber(
                   new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
@@ -168,7 +168,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
+          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
               new V1_DoomSpiralClimber(
                   new ArmIOTalonFXSim(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
