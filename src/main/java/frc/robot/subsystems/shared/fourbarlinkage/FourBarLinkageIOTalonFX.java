@@ -130,8 +130,8 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     //     (canCoder.getAbsolutePosition().getValueAsDouble() / 2.0)
     //         + constants.MIN_ANGLE.getRotations());
 
-    voltageControlRequest = new VoltageOut(0.0).withEnableFOC(constants.ENABLE_FOC);
-    positionControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(constants.ENABLE_FOC);
+    voltageControlRequest = new VoltageOut(0.0).withEnableFOC(false);
+    positionControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(false);
   }
 
   @Override
