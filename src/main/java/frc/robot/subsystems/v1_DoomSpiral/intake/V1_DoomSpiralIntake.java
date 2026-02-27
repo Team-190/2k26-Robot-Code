@@ -24,7 +24,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   @Getter private IntakeState intakeState;
 
   private Rotation2d agitationAngle;
-  private Rotation2d agitationDelta;
+  private final Rotation2d agitationDelta;
 
   public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
@@ -49,17 +49,17 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     switch (intakeState) {
       case INTAKE:
         Logger.recordOutput(
-            "Intake/IntakeOffset",
+            "Intake/IntakeOffsetDegrees",
             V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset().getDegrees());
         break;
       case STOW:
         Logger.recordOutput(
-            "Intake/StowOffset",
+            "Intake/IntakeOffsetDegrees",
             V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset().getDegrees());
         break;
       case BUMP:
         Logger.recordOutput(
-            "Intake/BumpOffset",
+            "Intake/IntakeOffsetDegrees",
             V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset().getDegrees());
         break;
     }
