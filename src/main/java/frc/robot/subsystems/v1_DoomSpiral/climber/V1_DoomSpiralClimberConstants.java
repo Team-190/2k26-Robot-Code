@@ -24,12 +24,12 @@ public class V1_DoomSpiralClimberConstants {
   public static final double SLOW_VOLTAGE = 1.0;
   public static final Gains SLOT_0_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 0))
-          .withKD(new LoggedTunableNumber("Climber/Slot0/kD", 0))
-          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0))
-          .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0))
-          .withKV(new LoggedTunableNumber("Climber/Slot0/kV", 0))
-          .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0))
+          .withKP(new LoggedTunableNumber("Climber/Slot0/kP"))
+          .withKD(new LoggedTunableNumber("Climber/Slot0/kD"))
+          .withKS(new LoggedTunableNumber("Climber/Slot0/kS"))
+          .withKG(new LoggedTunableNumber("Climber/Slot0/kG"))
+          .withKV(new LoggedTunableNumber("Climber/Slot0/kV"))
+          .withKA(new LoggedTunableNumber("Climber/Slot0/kA"))
           .build();
 
   public static final AngularConstraints CONSTRAINTS =

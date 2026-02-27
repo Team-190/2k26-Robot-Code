@@ -14,6 +14,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
@@ -32,6 +34,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotState {
   private static final AprilTagFieldLayout fieldLayout;
+
+  private static final Field2d field;
 
   private static double robotYawVelocity;
 
@@ -67,6 +71,8 @@ public class V1_DoomSpiralRobotState {
 
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+
+    field = new Field2d();
 
     globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
     blueHubZone = new FieldZone(new HashSet<>());
@@ -190,6 +196,9 @@ public class V1_DoomSpiralRobotState {
     scoreVelocity = 0;
     feedAngle = new Rotation2d();
     feedVelocity = 0;
+
+    field.setRobotPose(getGlobalPose());
+    SmartDashboard.putData("Field", field);
   }
 
   public static void periodic(
@@ -229,6 +238,8 @@ public class V1_DoomSpiralRobotState {
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
     feedVelocity = feedSpeedTree.get(distanceToFeedTranslation).in(RadiansPerSecond);
+
+    field.setRobotPose(getGlobalPose());
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
