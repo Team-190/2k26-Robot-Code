@@ -59,6 +59,7 @@ public class V1_DoomSpiralRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
+  @Getter private static Rotation2d robotAngle;
   @Getter private static Rotation2d scoreAngle;
   @Getter private static double scoreVelocity;
   @Getter private static Rotation2d feedAngle;
@@ -235,6 +236,11 @@ public class V1_DoomSpiralRobotState {
                 .getNorm(),
             Meters);
 
+    double xDiff = getGlobalPose().getX() - hubTranslation.getX();
+    double yDiff = getGlobalPose().getY() - hubTranslation.getY();
+
+    robotAngle = new Rotation2d(xDiff, yDiff).minus(Rotation2d.kCCW_90deg);
+
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
@@ -243,6 +249,9 @@ public class V1_DoomSpiralRobotState {
     field.setRobotPose(getGlobalPose());
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Rotation to Hub",
+        new Pose2d(getGlobalPose().getX(), getGlobalPose().getY(), robotAngle));
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);

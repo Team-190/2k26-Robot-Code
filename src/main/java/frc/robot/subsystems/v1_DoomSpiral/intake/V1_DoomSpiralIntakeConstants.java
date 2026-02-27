@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
 
-  public static final double INTAKE_VOLTAGE = 8.0;
+  public static final double INTAKE_VOLTAGE = 12.0;
   public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
@@ -56,6 +56,7 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final int MOTOR_CAN_ID = 22;
   public static final int CAN_CODER_CAN_ID = 23;
+  public static final Rotation2d CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
 
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
       SensorDirectionValue.Clockwise_Positive;
@@ -134,13 +135,14 @@ public class V1_DoomSpiralIntakeConstants {
           .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
           .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
           .ZERO_OFFSET(ZERO_OFFSET)
+          .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
           .build();
 
   @RequiredArgsConstructor
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(159)),
+    INTAKE(Rotation2d.fromDegrees(167)),
     BUMP(Rotation2d.fromDegrees(150));
 
     private final Rotation2d angle;

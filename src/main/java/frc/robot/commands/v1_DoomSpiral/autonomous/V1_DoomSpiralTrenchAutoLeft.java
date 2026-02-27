@@ -63,7 +63,7 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Stop the intake and align the shooter in parallel
 
-                V1_DoomSpiralCompositeCommands.scoreCommand(shooter, spindexer)
+                V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
                     .withTimeout(SHOOT_TIME),
