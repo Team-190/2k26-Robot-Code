@@ -22,6 +22,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.HubActivePeriod;
 import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
@@ -246,6 +247,14 @@ public class V1_DoomSpiralRobotState {
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity", scoreVelocity);
+
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Shift Period/Active", HubActivePeriod.isHubActive());
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Shift Period/Time Remaining",
+        HubActivePeriod.getShiftTimeRemaining());
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Shift Period/Current Shift", HubActivePeriod.getCurrentShift());
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
