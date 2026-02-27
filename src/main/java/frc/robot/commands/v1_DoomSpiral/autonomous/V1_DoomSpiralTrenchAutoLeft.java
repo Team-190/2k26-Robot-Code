@@ -12,7 +12,7 @@ import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
-import frc.robot.util.AutoCommandBuilder;
+import frc.robot.util.command.AutoCommandBuilder;
 
 /** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
 public class V1_DoomSpiralTrenchAutoLeft {
