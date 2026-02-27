@@ -18,6 +18,7 @@ public class FourBarLinkageConstants {
   public final int MOTOR_CAN_ID;
 
   public final int CAN_CODER_CAN_ID;
+  public final Rotation2d CAN_CODER_OFFSET;
   public final SensorDirectionValue CANCODER_SENSOR_DIRECTION;
 
   public final Rotation2d INTAKE_ANGLE_OFFSET;

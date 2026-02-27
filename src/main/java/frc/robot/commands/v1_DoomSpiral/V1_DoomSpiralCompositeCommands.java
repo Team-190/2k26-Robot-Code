@@ -10,6 +10,7 @@ import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState.FixedShotParameters;
+import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
@@ -26,11 +27,16 @@ public class V1_DoomSpiralCompositeCommands {
   }
 
   public static Command scoreCommand(
-      V1_DoomSpiralShooter shooter, V1_DoomSpiralSpindexer spindexer) {
-    return shooter
-        .setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity)
-        .until(shooter::atGoal)
-        .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
+      V1_DoomSpiralShooter shooter, V1_DoomSpiralIntake intake, V1_DoomSpiralSpindexer spindexer) {
+    return Commands.parallel(
+        intake.stopRoller(),
+        shooter
+            .setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity)
+            .until(
+                () ->
+                    (shooter.atGoal()
+                        && DriveCommands.atAngle(V1_DoomSpiralRobotState.getRobotAngle())))
+            .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
   }
 
   public static Command stopShooterCommand(

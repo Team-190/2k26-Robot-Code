@@ -197,6 +197,21 @@ public class FourBarLinkage {
         });
   }
 
+  /**
+   * Set the goal for the linkage.
+   *
+   * @param position the goal
+   * @return A command to set the goal to the specified value.
+   */
+  public Command setPositionGoal(
+      Supplier<Rotation2d> position, Supplier<Rotation2d> positionOffset) {
+    return Commands.runOnce(
+        () -> {
+          currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
+          currentOutput = currentState.set(position.get().plus(positionOffset.get()));
+        });
+  }
+
   public Command setPosition(Rotation2d position) {
     return Commands.runOnce(() -> io.setPosition(position));
   }

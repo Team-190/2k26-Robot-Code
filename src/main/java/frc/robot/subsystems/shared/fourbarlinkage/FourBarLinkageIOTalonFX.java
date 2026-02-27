@@ -82,7 +82,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
     canCoderConfig.MagnetSensor.SensorDirection = constants.CANCODER_SENSOR_DIRECTION;
     canCoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-    canCoderConfig.MagnetSensor.MagnetOffset = Units.degreesToRotations(155.566406);
+    canCoderConfig.MagnetSensor.MagnetOffset = constants.CAN_CODER_OFFSET.getRotations();
 
     PhoenixUtil.tryUntilOk(5, () -> canCoder.getConfigurator().apply(canCoderConfig, 0.25));
 
@@ -126,6 +126,10 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
         positionErrorRotations,
         absolutePositionRotations);
 
+    // talonFX.setPosition(
+    //     (canCoder.getAbsolutePosition().getValueAsDouble() / 2.0)
+    //         + constants.MIN_ANGLE.getRotations());
+
     voltageControlRequest = new VoltageOut(0.0).withEnableFOC(constants.ENABLE_FOC);
     positionControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(constants.ENABLE_FOC);
   }
@@ -145,7 +149,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     inputs.positionError = Rotation2d.fromRotations(positionErrorRotations.getValueAsDouble());
 
     inputs.canCoderAbsolutePosition =
-        Rotation2d.fromRotations(absolutePositionRotations.getValueAsDouble());
+        Rotation2d.fromRotations(absolutePositionRotations.getValueAsDouble() / 2.0);
   }
 
   @Override

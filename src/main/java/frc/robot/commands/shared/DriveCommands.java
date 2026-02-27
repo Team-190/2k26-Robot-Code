@@ -247,6 +247,11 @@ public final class DriveCommands {
                     AllianceFlipUtil.apply(currentRotation.get()))));
   }
 
+  public static boolean atAngle(Rotation2d targetRotation) {
+    return Math.abs(V1_DoomSpiralRobotState.getHeading().minus(targetRotation).getRadians())
+        <= Units.degreesToRadians(1.0);
+  }
+
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {
     return Commands.run(() -> drive.runVelocity(new ChassisSpeeds(0.0, velocity, 0.0)))
         .withTimeout(time);

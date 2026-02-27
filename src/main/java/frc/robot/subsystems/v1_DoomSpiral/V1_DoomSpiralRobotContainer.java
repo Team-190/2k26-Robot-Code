@@ -313,7 +313,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(V1_DoomSpiralCompositeCommands.scoreCommand(shooter, spindexer))
+        .whileTrue(V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     driver
