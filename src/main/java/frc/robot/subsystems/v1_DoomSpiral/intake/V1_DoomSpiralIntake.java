@@ -48,23 +48,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     linkage.periodic();
 
     Logger.recordOutput("Intake/Intake State", intakeState);
-    switch (intakeState) {
-      case INTAKE:
-        Logger.recordOutput(
-            "Intake/IntakeOffsetDegrees",
-            V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset().getDegrees());
-        break;
-      case STOW:
-        Logger.recordOutput(
-            "Intake/IntakeOffsetDegrees",
-            V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset().getDegrees());
-        break;
-      case BUMP:
-        Logger.recordOutput(
-            "Intake/IntakeOffsetDegrees",
-            V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset().getDegrees());
-        break;
-    }
     Logger.recordOutput("Intake/Agitation Angle", agitationAngle);
 
     V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);

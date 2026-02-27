@@ -33,6 +33,8 @@ public class FourBarLinkage {
   private FourBarLinkageState currentState;
   private FourBarLinkageState.Output currentOutput;
 
+  private Supplier<Rotation2d> positionOffset;
+
   private final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
@@ -87,6 +89,7 @@ public class FourBarLinkage {
 
     currentState = FourBarLinkageState.IDLE;
     currentOutput = currentState.set(Volts.of(0));
+    positionOffset = () -> Rotation2d.kZero;
   }
 
   public void periodic() {
@@ -126,6 +129,8 @@ public class FourBarLinkage {
     Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
+    Logger.recordOutput(aKitTopic + "/Angle Degrees", inputs.position.getDegrees());
+    Logger.recordOutput(aKitTopic + "/Offset Degrees", positionOffset.get().getDegrees());
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
@@ -194,6 +199,7 @@ public class FourBarLinkage {
         () -> {
           currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
           currentOutput = currentState.set(position.plus(positionOffset.get()));
+          this.positionOffset = positionOffset;
         });
   }
 
@@ -209,6 +215,7 @@ public class FourBarLinkage {
         () -> {
           currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
           currentOutput = currentState.set(position.get().plus(positionOffset.get()));
+          this.positionOffset = positionOffset;
         });
   }
 
