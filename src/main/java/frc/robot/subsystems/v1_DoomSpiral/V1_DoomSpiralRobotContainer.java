@@ -441,7 +441,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    new AutoCommandBuilder();
+    AutoCommandBuilder.resetAllTimeouts();
 
     autoChooser.addRoutine(
         "Left Trench",

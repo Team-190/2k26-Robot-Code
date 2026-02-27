@@ -44,7 +44,7 @@ public class V1_DoomSpiralTrenchAutoLeft {
     routine
         .active()
         .onTrue(
-            AutoCommandBuilder.getCommand(
+            AutoCommandBuilder.sequence(
                 Commands.parallel( // Set the inital pose
                     LEFT_TRENCH.resetOdometry(),
 
