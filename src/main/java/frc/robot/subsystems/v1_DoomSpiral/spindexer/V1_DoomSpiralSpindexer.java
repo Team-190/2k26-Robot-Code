@@ -56,6 +56,9 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     Logger.processInputs(getName(), inputs);
 
     Logger.recordOutput(getName() + "/Voltage Goal", voltageGoal);
+    Logger.recordOutput(
+        getName() + "/Voltage Offset",
+        V1_DoomSpiralRobotState.getSpindexerOffsets().getSpindexer());
 
     io.setVoltage(
         switch (state) {

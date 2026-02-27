@@ -40,6 +40,10 @@ public class HubActivePeriod {
           ? schedule.activeSchedule
           : schedule.inactiveSchedule;
     }
+
+    public double getDuration() {
+      return shifts[ordinal() + 1].getStartTime() - startTime;
+    }
   }
 
   private static final Timer shiftTimer = new Timer();
@@ -93,6 +97,6 @@ public class HubActivePeriod {
   }
 
   public static double getShiftTimeRemaining() {
-    return getCurrentShift().getStartTime() - shiftTimer.get();
+    return (getCurrentShift().getDuration() - shiftTimer.get());
   }
 }

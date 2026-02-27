@@ -122,6 +122,7 @@ public class Hood {
     Logger.recordOutput(aKitTopic + "/State", currentState);
     Logger.recordOutput(
         aKitTopic + "/Hood Offset Degrees", hoodAngleOffsetSupplier.get().getDegrees());
+    Logger.recordOutput(aKitTopic + "/Hood Angle Degrees", inputs.position.getDegrees());
 
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:

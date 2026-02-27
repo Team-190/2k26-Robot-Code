@@ -12,6 +12,7 @@ import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
+import frc.robot.util.AutoCommandBuilder;
 
 /** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
 public class V1_DoomSpiralTrenchAutoLeft {
@@ -43,15 +44,13 @@ public class V1_DoomSpiralTrenchAutoLeft {
     routine
         .active()
         .onTrue(
-            Commands.sequence(
+            AutoCommandBuilder.getCommand(
+                Commands.parallel( // Set the inital pose
+                    LEFT_TRENCH.resetOdometry(),
 
-                // Set the inital pose
+                    // Deploy the intake
 
-                LEFT_TRENCH.resetOdometry(),
-
-                // Deploy the intake
-
-                intake.deploy().alongWith(intake.setRollerVoltage(8.0)),
+                    intake.deploy().alongWith(intake.setRollerVoltage(8.0))),
 
                 // Follow the path
 
@@ -59,7 +58,7 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Stop drive
 
-                Commands.runOnce(() -> drive.stop()),
+                Commands.runOnce(drive::stop),
 
                 // Stop the intake and align the shooter in parallel
 

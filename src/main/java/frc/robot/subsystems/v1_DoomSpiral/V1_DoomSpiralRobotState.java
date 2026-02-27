@@ -261,7 +261,7 @@ public class V1_DoomSpiralRobotState {
         NTPrefixes.ROBOT_STATE + "Shift Period/Active", HubActivePeriod.isHubActive());
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Time Remaining",
-        HubActivePeriod.getShiftTimeRemaining());
+        String.format("%.2f", HubActivePeriod.getShiftTimeRemaining()));
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Current Shift", HubActivePeriod.getCurrentShift());
   }
