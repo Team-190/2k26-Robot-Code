@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v0_Funky.feeder;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -24,5 +23,6 @@ public class FeederConstants {
           .withNeutralMode(NeutralModeValue.Brake)
           .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withMomentOfInertia(MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters))
+          .withVoltageOffsetStep(Volts.of(1))
           .build();
 }

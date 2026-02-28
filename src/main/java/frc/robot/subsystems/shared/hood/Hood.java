@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.Offset;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
@@ -37,10 +38,10 @@ public class Hood {
 
   @Getter @Setter private Rotation2d overridePosition;
 
+  private final Offset<AngleUnit> angleOffset;
+
   private final Supplier<Rotation2d> scoreRotationSupplier;
   private final Supplier<Rotation2d> feedRotationSupplier;
-
-  private final Supplier<Rotation2d> hoodAngleOffsetSupplier;
 
   private final HoodConstants constants;
 
@@ -58,8 +59,7 @@ public class Hood {
       Subsystem subsystem,
       String name,
       Supplier<Rotation2d> scoreRotationSupplier,
-      Supplier<Rotation2d> feedRotationSupplier,
-      Supplier<Rotation2d> hoodAngleOffsetSupplier) {
+      Supplier<Rotation2d> feedRotationSupplier) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
@@ -81,7 +81,12 @@ public class Hood {
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
 
-    this.hoodAngleOffsetSupplier = hoodAngleOffsetSupplier;
+    angleOffset =
+        new Offset<>(
+            Rotation2d.kZero.getMeasure(),
+            constants.offsetStep,
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure());
 
     this.constants = constants;
   }
@@ -117,11 +122,6 @@ public class Hood {
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
-    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
-    Logger.recordOutput(aKitTopic + "/At Goal", io.atGoal());
-    Logger.recordOutput(aKitTopic + "/State", currentState);
-    Logger.recordOutput(
-        aKitTopic + "/Hood Offset Degrees", hoodAngleOffsetSupplier.get().getDegrees());
 
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
@@ -132,7 +132,8 @@ public class Hood {
               case OVERRIDE -> overridePosition;
               default -> Rotation2d.kZero;
             };
-        io.setPosition(position.plus(hoodAngleOffsetSupplier.get()));
+        angleOffset.setSetpoint(position.getMeasure());
+        io.setPosition(new Rotation2d(angleOffset.getNewSetpoint().in(Radians)));
         break;
       case OPEN_LOOP_VOLTAGE_CONTROL:
         io.setVoltage(voltageGoal);
@@ -140,6 +141,12 @@ public class Hood {
       case IDLE:
         break;
     }
+
+    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
+    Logger.recordOutput(aKitTopic + "/At Goal", io.atGoal());
+    Logger.recordOutput(aKitTopic + "/State", currentState);
+    Logger.recordOutput(aKitTopic + "/Goal", positionGoal);
+    Logger.recordOutput(aKitTopic + "/Hood Offset Degrees", angleOffset.getOffset().in(Degrees));
   }
 
   /**
@@ -240,9 +247,9 @@ public class Hood {
   /**
    * Updates the profile constraints.
    *
-   * @param maxVelocityRadiansPerSecond Maximum velocity (rad/sec)
-   * @param maxAccelerationRadiansPerSecondSquared Maximum acceleration (rad/sec^2)
-   * @param goalToleranceRadians Tolerance (rad)
+   * @param maxVelocity Maximum velocity (rad/sec)
+   * @param maxAcceleration Maximum acceleration (rad/sec^2)
+   * @param goalTolerance Tolerance (rad)
    */
   public void setProfile(
       Measure<AngularVelocityUnit> maxVelocity,
@@ -266,11 +273,17 @@ public class Hood {
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kReverse));
+  }
 
-    // return Commands.sequence(
-    //     Commands.runOnce(() -> currentState = HoodState.IDLE),
-    //     characterizationRoutine.quasistatic(Direction.kForward),
-    //     Commands.waitSeconds(3),
-    //     characterizationRoutine.quasistatic(Direction.kReverse));
+  public Command incrementOffset() {
+    return Commands.runOnce(angleOffset::increment);
+  }
+
+  public Command decrementOffset() {
+    return Commands.runOnce(angleOffset::decrement);
+  }
+
+  public Command resetOffset() {
+    return Commands.runOnce(angleOffset::reset);
   }
 }

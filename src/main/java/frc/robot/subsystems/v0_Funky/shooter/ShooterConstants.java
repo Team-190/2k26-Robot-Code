@@ -1,9 +1,6 @@
 package frc.robot.subsystems.v0_Funky.shooter;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -64,6 +61,8 @@ public class ShooterConstants {
                       new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
                   .build())
           .withOpposedFollowerCANID(31)
+          .withVelocityOffsetStep(RadiansPerSecond.of(5))
+          .withVoltageOffsetStep(Volts.of(1))
           .withEnableFOC(false)
           .build();
 

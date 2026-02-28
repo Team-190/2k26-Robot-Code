@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -30,8 +29,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     setName("Shooter");
 
     flywheel =
-        new GenericFlywheel(
-            flywheelIO, this, V1_DoomSpiralRobotState.getShooterOffsets()::getFlywheel, "");
+        new GenericFlywheel(flywheelIO, this, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS, "");
     hood =
         new Hood(
             hoodIO,
@@ -39,8 +37,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
             this,
             "",
             V1_DoomSpiralRobotState::getScoreAngle,
-            V1_DoomSpiralRobotState::getFeedAngle,
-            V1_DoomSpiralRobotState.getShooterOffsets()::getHood);
+            V1_DoomSpiralRobotState::getFeedAngle);
   }
 
   @Override
@@ -132,21 +129,11 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command incrementHoodAngle() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getShooterOffsets()
-                .setHood(
-                    (V1_DoomSpiralRobotState.getShooterOffsets().getHood())
-                        .plus(V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_MAGNITUDE)));
+    return hood.incrementOffset();
   }
 
   public Command decrementHoodAngle() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getShooterOffsets()
-                .setHood(
-                    (V1_DoomSpiralRobotState.getShooterOffsets().getHood())
-                        .minus(V1_DoomSpiralShooterConstants.HOOD_ANGLE_INCREMENT_MAGNITUDE)));
+    return hood.decrementOffset();
   }
 
   public Command setHoodVoltage(double volts) {
@@ -170,35 +157,11 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command incrementFlywheelVelocity() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getShooterOffsets()
-                .setFlywheel(
-                    MathUtil.clamp(
-                        V1_DoomSpiralRobotState.getShooterOffsets().getFlywheel()
-                            + V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS,
-                        -V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
-                                .motorConfig
-                                .freeSpeedRadPerSec
-                            * V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio,
-                        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.motorConfig.freeSpeedRadPerSec
-                            * V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio)));
+    return flywheel.incrementVelocityOffset();
   }
 
   public Command decrementFlywheelVelocity() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getShooterOffsets()
-                .setFlywheel(
-                    MathUtil.clamp(
-                        V1_DoomSpiralRobotState.getShooterOffsets().getFlywheel()
-                            - V1_DoomSpiralShooterConstants.FLYWHEEL_VELOCITY_INCREMENT_RPS,
-                        -V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
-                                .motorConfig
-                                .freeSpeedRadPerSec
-                            * V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio,
-                        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.motorConfig.freeSpeedRadPerSec
-                            * V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.gearRatio)));
+    return flywheel.decrementVelocityOffset();
   }
 
   public Command setFlywheelVoltage(double volts) {
