@@ -84,7 +84,7 @@ public class Hood {
     angleOffset =
         new Offset<>(
             Rotation2d.kZero.getMeasure(),
-            Radians.zero(),
+            constants.offsetStep,
             constants.minAngle.getMeasure(),
             constants.maxAngle.getMeasure());
 
@@ -133,7 +133,7 @@ public class Hood {
               default -> Rotation2d.kZero;
             };
         angleOffset.setSetpoint(position.getMeasure());
-        io.setPosition(new Rotation2d(angleOffset.getNewSetpoint()));
+        io.setPosition(new Rotation2d(angleOffset.getNewSetpoint().in(Radians)));
         break;
       case OPEN_LOOP_VOLTAGE_CONTROL:
         io.setVoltage(voltageGoal);

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -282,27 +281,11 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command increaseSpeedOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setRollerVoltsOffset(
-                    MathUtil.clamp(
-                        V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()
-                            + V1_DoomSpiralIntakeConstants.ROLLER_VOLTAGE_INCREMENT,
-                        -12,
-                        12)));
+    return Commands.runOnce(roller::incrementVoltageOffset);
   }
 
   public Command decreaseSpeedOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setRollerVoltsOffset(
-                    MathUtil.clamp(
-                        V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()
-                            - V1_DoomSpiralIntakeConstants.ROLLER_VOLTAGE_INCREMENT,
-                        -12,
-                        12)));
+    return Commands.runOnce(roller::decrementVoltageOffset);
   }
 
   public Command defaultCommand() {

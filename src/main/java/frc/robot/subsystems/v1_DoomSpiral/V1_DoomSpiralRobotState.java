@@ -65,9 +65,7 @@ public class V1_DoomSpiralRobotState {
   @Getter private static Rotation2d feedAngle;
   @Getter private static double feedVelocity;
 
-  @Getter private static final ShooterOffsets shooterOffsets;
   @Getter private static final IntakeOffsets intakeOffsets;
-  @Getter private static final SpindexerOffsets spindexerOffsets;
 
   @Getter private static final LEDStates ledStates;
 
@@ -107,9 +105,7 @@ public class V1_DoomSpiralRobotState {
                 .getNorm(),
             Meters);
 
-    shooterOffsets = new ShooterOffsets(0, new Rotation2d(0));
-    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d(), 0);
-    spindexerOffsets = new SpindexerOffsets(0, 0, 0);
+    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d());
 
     ledStates = new LEDStates(false, false, false, false, false, false);
 
@@ -284,36 +280,11 @@ public class V1_DoomSpiralRobotState {
   }
 
   @Data
-  public static class SpindexerOffsets {
-    private double spindexer;
-    private double feeder;
-    private double kicker;
-
-    public SpindexerOffsets(double spindexer, double feeder, double kicker) {
-      this.spindexer = spindexer;
-      this.feeder = feeder;
-      this.kicker = kicker;
-    }
-  }
-
-  @Data
-  public static class ShooterOffsets {
-    private double flywheel;
-    private Rotation2d hood;
-
-    public ShooterOffsets(double flywheel, Rotation2d hood) {
-      this.flywheel = flywheel;
-      this.hood = hood;
-    }
-  }
-
-  @Data
   @AllArgsConstructor
   public static class IntakeOffsets {
     private Rotation2d stowOffset;
     private Rotation2d bumpOffset;
     private Rotation2d collectOffset;
-    private double rollerVoltsOffset;
   }
 
   public record FixedShotParameters(
