@@ -23,9 +23,6 @@ import frc.robot.subsystems.shared.hood.HoodConstants;
 
 public class V1_DoomSpiralShooterConstants {
 
-  public static final double FLYWHEEL_VELOCITY_INCREMENT_RPS = 5;
-  public static final Rotation2d HOOD_ANGLE_INCREMENT_MAGNITUDE = Rotation2d.fromDegrees(0.5);
-
   public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
   public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(19.0);
 
@@ -78,6 +75,8 @@ public class V1_DoomSpiralShooterConstants {
                       new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
+          .withVelocityOffsetStep(RadiansPerSecond.of(5))
+          .withVoltageOffsetStep(Volts.of(1))
           .build();
 
   public static final HoodConstants HOOD_CONSTANTS =
@@ -95,6 +94,7 @@ public class V1_DoomSpiralShooterConstants {
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
+          .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
               AngularConstraints.builder()
                   .withMaxVelocity(

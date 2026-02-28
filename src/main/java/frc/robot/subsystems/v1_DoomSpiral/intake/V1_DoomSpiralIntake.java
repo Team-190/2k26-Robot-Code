@@ -1,6 +1,5 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -30,7 +29,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     setName("Intake");
     roller =
         new GenericRoller(
-            rollerIO, this, V1_DoomSpiralRobotState.getIntakeOffsets()::getRollerVoltsOffset, "1");
+            rollerIO, this, V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "1");
     linkage =
         new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, 0);
 
@@ -54,14 +53,17 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
       V1_DoomSpiralRobotState.getLedStates()
           .setIntakeCollecting(
-              roller.getVoltageGoalVolts() == V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE);
+              roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+                  == V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE);
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     } else {
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
       V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
     }
     V1_DoomSpiralRobotState.getLedStates()
-        .setSpitting(roller.getVoltageGoalVolts() == V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE);
+        .setSpitting(
+            roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+                == V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE);
   }
 
   /**
@@ -279,27 +281,11 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command increaseSpeedOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setRollerVoltsOffset(
-                    MathUtil.clamp(
-                        V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()
-                            + V1_DoomSpiralIntakeConstants.ROLLER_VOLTAGE_INCREMENT,
-                        -12,
-                        12)));
+    return Commands.runOnce(roller::incrementVoltageOffset);
   }
 
   public Command decreaseSpeedOffset() {
-    return Commands.runOnce(
-        () ->
-            V1_DoomSpiralRobotState.getIntakeOffsets()
-                .setRollerVoltsOffset(
-                    MathUtil.clamp(
-                        V1_DoomSpiralRobotState.getIntakeOffsets().getRollerVoltsOffset()
-                            - V1_DoomSpiralIntakeConstants.ROLLER_VOLTAGE_INCREMENT,
-                        -12,
-                        12)));
+    return Commands.runOnce(roller::decrementVoltageOffset);
   }
 
   public Command defaultCommand() {

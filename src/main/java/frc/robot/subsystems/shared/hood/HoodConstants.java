@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
@@ -31,6 +32,8 @@ public class HoodConstants {
 
   @NonNull public final Gains gains;
   @NonNull public final AngularConstraints constraints;
+
+  @NonNull public final Angle offsetStep;
 
   public enum HoodGoal {
     SCORE,

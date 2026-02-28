@@ -1,9 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -31,7 +28,6 @@ public class V1_DoomSpiralIntakeConstants {
   public static final double INTAKE_VOLTAGE = 12.0;
   public static final double EXTAKE_VOLTAGE = -4.0;
 
-  public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
   public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
   public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
 
@@ -49,6 +45,7 @@ public class V1_DoomSpiralIntakeConstants {
           .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
           .withOpposedFollowerCANID(21)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
+          .withVoltageOffsetStep(Volts.of(0.25))
           .withCanBus(CANBus.roboRIO())
           .build();
 
