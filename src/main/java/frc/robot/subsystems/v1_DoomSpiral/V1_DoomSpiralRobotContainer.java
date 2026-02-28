@@ -55,7 +55,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalo
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.command.AutoCommandBuilder;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
@@ -441,8 +440,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    AutoCommandBuilder.resetAllTimeouts();
-
     autoChooser.addRoutine(
         "Left Trench",
         () ->

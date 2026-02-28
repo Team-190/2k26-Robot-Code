@@ -160,7 +160,7 @@
             "x": 512.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 256.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -174,7 +174,7 @@
           {
             "title": "Battery Voltage",
             "x": 512.0,
-            "y": 128.0,
+            "y": 256.0,
             "width": 384.0,
             "height": 128.0,
             "type": "Voltage View",
@@ -190,9 +190,9 @@
             }
           },
           {
-            "title": "FMSInfo",
+            "title": "FMS Info",
             "x": 512.0,
-            "y": 256.0,
+            "y": 384.0,
             "width": 384.0,
             "height": 128.0,
             "type": "FMSInfo",
@@ -287,7 +287,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 640.0,
+            "height": 768.0,
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/Autonomous Modes",
@@ -300,7 +300,7 @@
             "x": 384.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 128.0,
+            "height": 256.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -314,7 +314,7 @@
           {
             "title": "Battery Voltage",
             "x": 384.0,
-            "y": 128.0,
+            "y": 256.0,
             "width": 384.0,
             "height": 256.0,
             "type": "Voltage View",
@@ -330,9 +330,9 @@
             }
           },
           {
-            "title": "FMSInfo",
+            "title": "FMS Info",
             "x": 384.0,
-            "y": 384.0,
+            "y": 512.0,
             "width": 384.0,
             "height": 256.0,
             "type": "FMSInfo",
@@ -360,90 +360,6 @@
               "robot_color": 4294198070,
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": false
-            }
-          },
-          {
-            "title": "Timeout 1",
-            "x": 0.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Auto/timeout1",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Timeout 2",
-            "x": 128.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Auto/timeout2",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Timeout 3",
-            "x": 256.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Auto/timeout3",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Timeout 4",
-            "x": 384.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Auto/timeout4",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Timeout 5",
-            "x": 512.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Auto/timeout5",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
-            }
-          },
-          {
-            "title": "Timeout 6",
-            "x": 640.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Auto/timeout6",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": true
             }
           }
         ]
