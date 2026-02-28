@@ -39,10 +39,10 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     inputs = new V1_DoomSpiralSpindexerIOInputsAutoLogged();
     kicker =
         new GenericRoller(
-            kickerIO, this, V1_DoomSpiralRobotState.getSpindexerOffsets()::getKicker, kickerName);
+            kickerIO, this, V1_DoomSpiralSpindexerConstants.KICKER_ROLLER_CONSTANTS, kickerName);
     feeder =
         new GenericRoller(
-            feederIO, this, V1_DoomSpiralRobotState.getSpindexerOffsets()::getFeeder, feederName);
+            feederIO, this, V1_DoomSpiralSpindexerConstants.FEEDER_ROLLER_CONSTANTS, feederName);
 
     state = STOP;
     voltageGoal = 0;

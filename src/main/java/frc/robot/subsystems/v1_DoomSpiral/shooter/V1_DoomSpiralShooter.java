@@ -30,8 +30,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     setName("Shooter");
 
     flywheel =
-        new GenericFlywheel(
-            flywheelIO, this, V1_DoomSpiralRobotState.getShooterOffsets()::getFlywheel, "");
+        new GenericFlywheel(flywheelIO, this, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS, "");
     hood =
         new Hood(
             hoodIO,
