@@ -440,6 +440,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
+    new V1_DoomSpiralAutoTrajectoryCache();
+
     autoChooser.addRoutine(
         "Left Trench Simple",
         () ->
@@ -475,7 +477,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () ->
             V1_DoomSpiralAutoRightBlueShell.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
+
     SmartDashboard.putData("Autonomous Modes", autoChooser);
+
+    autoChooser.select("Left Trench Simple");
   }
 
   @Override

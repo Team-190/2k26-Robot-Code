@@ -120,18 +120,6 @@ public class Robot extends LoggedRobot {
 
     // Start timers
     disabledTimer.restart();
-
-    RobotController.setBrownoutVoltage(6);
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our autonomous chooser on the dashboard.
-    robotContainer =
-        switch (RobotConfig.ROBOT) {
-          case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
-          case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
-          default -> new RobotContainer() {};
-        };
-
-    Elastic.selectTab("Autonomous");
     DriverStation.silenceJoystickConnectionWarning(true);
 
     try {
@@ -197,6 +185,18 @@ public class Robot extends LoggedRobot {
         .onCommandInterrupt((Command command) -> logCommandFunction.accept(command, false));
 
     WebServer.start(5800, DEPLOY_DIR);
+
+    RobotController.setBrownoutVoltage(6);
+    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // and put our autonomous chooser on the dashboard.
+    robotContainer =
+        switch (RobotConfig.ROBOT) {
+          case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
+          case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
+          default -> new RobotContainer() {};
+        };
+
+    Elastic.selectTab("Autonomous");
 
     startupTimestamp = Timer.getFPGATimestamp();
   }
