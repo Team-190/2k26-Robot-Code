@@ -146,7 +146,10 @@ public class Hood {
     Logger.recordOutput(aKitTopic + "/At Goal", io.atGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
     Logger.recordOutput(aKitTopic + "/Goal", positionGoal);
-    Logger.recordOutput(aKitTopic + "/Hood Offset Degrees", angleOffset.getOffset().in(Degrees));
+    Logger.recordOutput(
+        aKitTopic + "/Goal Degrees", String.format("%.2f", angleOffset.getSetpoint().in(Degrees)));
+    Logger.recordOutput(
+        aKitTopic + "/Offset Degrees", String.format("%.1f", angleOffset.getOffset().in(Degrees)));
   }
 
   /**

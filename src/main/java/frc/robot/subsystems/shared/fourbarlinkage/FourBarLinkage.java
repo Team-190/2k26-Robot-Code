@@ -129,14 +129,17 @@ public class FourBarLinkage {
     Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
-    Logger.recordOutput(aKitTopic + "/Angle Degrees", inputs.position.getDegrees());
-    Logger.recordOutput(aKitTopic + "/Offset Degrees", positionOffset.get().getDegrees());
+    Logger.recordOutput(
+        aKitTopic + "/Offset Degrees", String.format("%.2f", positionOffset.get().getDegrees()));
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
         io.setVoltage(currentOutput.volts().in(Volts));
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
+        Logger.recordOutput(
+            aKitTopic + "/Angle Degrees",
+            String.format("%.2f", Math.abs(currentOutput.position().getDegrees())));
         io.setPositionGoal(currentOutput.position());
       }
       default -> {}
