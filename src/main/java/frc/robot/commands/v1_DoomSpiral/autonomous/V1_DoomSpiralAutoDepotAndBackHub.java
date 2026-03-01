@@ -58,11 +58,13 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                        intake.agitate())
                     .withTimeout(5.0),
                 intake
                     .deploy()
                     .alongWith(
+                        V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
                         intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
                 DEPOT_AND_BACK_HUB_PATH_2.cmd()));
 

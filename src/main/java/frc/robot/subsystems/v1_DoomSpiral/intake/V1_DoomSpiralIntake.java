@@ -13,6 +13,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
+import frc.robot.util.command.ContinuousConditionalCommand;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -132,13 +133,12 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                     waitUntilIntakeAtGoal(),
                     Commands.runOnce(() -> agitationAngle = agitationAngle.plus(agitationDelta)))
                 .repeatedly()
-                .until(
-                    () ->
-                        agitationAngle.getRadians()
-                            <= V1_DoomSpiralIntakeConstants.MIN_ANGLE
-                                .minus(agitationDelta)
-                                .getRadians())),
-        setRollerVoltage(6.0));
+                .until(() -> agitationAngle.getRadians() <= agitationDelta.times(4).getRadians())),
+        new ContinuousConditionalCommand(
+                setRollerVoltage(6),
+                setRollerVoltage(-2),
+                () -> linkage.getPosition().getDegrees() > 60)
+            .repeatedly());
   }
 
   public Command toggleIntake() {

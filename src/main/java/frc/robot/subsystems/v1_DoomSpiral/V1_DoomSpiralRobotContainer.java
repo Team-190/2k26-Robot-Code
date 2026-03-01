@@ -480,7 +480,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
-    autoChooser.select("Left Trench Simple");
+    autoChooser.select("Right Trench Simple");
   }
 
   @Override

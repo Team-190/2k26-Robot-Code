@@ -23,7 +23,7 @@ public class V1_DoomSpiralAutoRightTrench2Cycle {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("DEPOT_AND_BACK_HUB");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_2_CYCLE");
 
     AutoTrajectory RIGHT_TRENCH_2_CYCLE_PATH_1 =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_2_CYCLE_PATH_1);
@@ -58,11 +58,13 @@ public class V1_DoomSpiralAutoRightTrench2Cycle {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                        intake.agitate())
                     .withTimeout(5.0),
                 intake
                     .deploy()
                     .alongWith(
+                        V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
                         intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
                 RIGHT_TRENCH_2_CYCLE_PATH_2.cmd(),
                 Commands.runOnce(() -> drive.stop()),
@@ -71,6 +73,7 @@ public class V1_DoomSpiralAutoRightTrench2Cycle {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
+                        intake.agitate(),
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
                     .withTimeout(5.0)));
 
