@@ -45,7 +45,6 @@ public class V1_DoomSpiralRobotState {
   private static final FieldZone redHubZone;
   private static final FieldZone blueTowerZone;
   private static final FieldZone redTowerZone;
-  private static final FieldZone centerFieldZone;
 
   private static final Localization localization;
 
@@ -74,12 +73,11 @@ public class V1_DoomSpiralRobotState {
 
     field = new Field2d();
 
-    globalZone = new FieldZone(new HashSet<>(fieldLayout.getTags()));
-    blueHubZone = new FieldZone(new HashSet<>());
-    redHubZone = new FieldZone(new HashSet<>());
-    blueTowerZone = new FieldZone(new HashSet<>());
-    redTowerZone = new FieldZone(new HashSet<>());
-    centerFieldZone = new FieldZone(new HashSet<>());
+    globalZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.globalTags));
+    blueHubZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.blueHubTags));
+    redHubZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.redHubTags));
+    blueTowerZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.blueTowerTags));
+    redTowerZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.redTowerTags));
 
     localization =
         new Localization(
@@ -101,7 +99,7 @@ public class V1_DoomSpiralRobotState {
         Distance.ofBaseUnits(
             getGlobalPose()
                 .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.FEED_TRANSLATION))
+                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
                 .getNorm(),
             Meters);
 
@@ -228,7 +226,7 @@ public class V1_DoomSpiralRobotState {
         Distance.ofBaseUnits(
             getGlobalPose()
                 .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.FEED_TRANSLATION))
+                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
                 .getNorm(),
             Meters);
 
