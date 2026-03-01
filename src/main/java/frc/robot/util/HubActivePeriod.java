@@ -42,7 +42,7 @@ public class HubActivePeriod {
     }
 
     public double getDuration() {
-      if (ordinal() + 1 > shifts.length) {
+      if (ordinal() + 1 >= shifts.length) {
         return 0.0;
       }
       return shifts[ordinal() + 1].getStartTime() - startTime;
