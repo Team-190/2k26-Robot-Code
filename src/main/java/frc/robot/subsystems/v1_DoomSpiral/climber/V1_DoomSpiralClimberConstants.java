@@ -9,6 +9,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -24,12 +25,12 @@ public class V1_DoomSpiralClimberConstants {
   public static final double SLOW_VOLTAGE = 1.0;
   public static final Gains SLOT_0_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot0/kP"))
-          .withKD(new LoggedTunableNumber("Climber/Slot0/kD"))
-          .withKS(new LoggedTunableNumber("Climber/Slot0/kS"))
-          .withKG(new LoggedTunableNumber("Climber/Slot0/kG"))
-          .withKV(new LoggedTunableNumber("Climber/Slot0/kV"))
-          .withKA(new LoggedTunableNumber("Climber/Slot0/kA"))
+          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 0.0))
+          .withKD(new LoggedTunableNumber("Climber/Slot0/kD", 0.0))
+          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0.0))
+          .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0.0))
+          .withKV(new LoggedTunableNumber("Climber/Slot0/kV", 0.0))
+          .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0.0))
           .build();
 
   public static final AngularConstraints CONSTRAINTS =
@@ -67,7 +68,7 @@ public class V1_DoomSpiralClimberConstants {
     L1_POSITION_GOAL(Rotation2d.fromDegrees(115.576172 - 8)),
     L1_AUTO_POSITION_GOAL(new Rotation2d(-Math.PI / 2)),
     L2_POSITION_GOAL(new Rotation2d(3 * Math.PI / 2)),
-    L2_FLIP_GOAL(new Rotation2d(5 * Math.PI / 2).plus(Rotation2d.fromDegrees(7.64))),
+    L2_FLIP_GOAL(new Rotation2d((5 * Math.PI / 2) + Units.degreesToRadians(7.64))),
     DEFAULT(new Rotation2d(0));
 
     @Getter private final Rotation2d position;

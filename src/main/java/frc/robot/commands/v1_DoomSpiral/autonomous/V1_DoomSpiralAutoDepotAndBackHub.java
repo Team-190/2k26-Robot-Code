@@ -34,17 +34,15 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         .active()
         .onTrue(
             Commands.sequence(
+                Commands.parallel( // Set the inital pose
+                    DEPOT_AND_BACK_HUB_PATH_1.resetOdometry(),
 
-                // Set the inital pose
+                    // Deploy the intake
 
-                DEPOT_AND_BACK_HUB_PATH_1.resetOdometry(),
-
-                // Deploy the intake
-
-                intake
+                    intake
                     .deploy()
                     .alongWith(
-                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))),
 
                 // Follow the path
 
@@ -52,7 +50,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
 
                 // Stop drive
 
-                Commands.runOnce(() -> drive.stop()),
+                Commands.runOnce(drive::stop),
 
                 // Stop the intake and align the shooter in parallel
 

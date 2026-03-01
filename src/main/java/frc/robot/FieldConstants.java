@@ -7,12 +7,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import java.util.List;
 
 /**
  * Contains information for location of field element and other useful reference points.
@@ -298,6 +300,8 @@ public class FieldConstants {
     // Relevant reference points on alliance side
     public static final Translation2d centerPoint =
         new Translation2d(0, AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(29).get().getY());
+
+    public static final Translation2d FEED_TRANSLATION = new Translation2d(0, 0);
   }
 
   public enum AprilTagLayoutType {
@@ -320,5 +324,24 @@ public class FieldConstants {
     }
   }
 
-  public static final Translation2d FEED_TRANSLATION = new Translation2d(0, 0);
+  public static class AprilTags {
+    public static final List<AprilTag> globalTags =
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags();
+    public static final List<AprilTag> blueHubTags =
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+            .filter((AprilTag tag) -> List.of(18, 19, 20, 21, 24, 25, 26, 27).contains(tag.ID))
+            .toList();
+    public static final List<AprilTag> redHubTags =
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+            .filter((AprilTag tag) -> List.of(2, 3, 4, 5, 8, 9, 10, 11).contains(tag.ID))
+            .toList();
+    public static final List<AprilTag> blueTowerTags =
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+            .filter((AprilTag tag) -> List.of(31, 32).contains(tag.ID))
+            .toList();
+    public static final List<AprilTag> redTowerTags =
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+            .filter((AprilTag tag) -> List.of(15, 16).contains(tag.ID))
+            .toList();
+  }
 }
