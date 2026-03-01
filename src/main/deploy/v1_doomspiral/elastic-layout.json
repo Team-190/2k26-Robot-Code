@@ -1,6 +1,6 @@
 {
   "version": 1.0,
-  "grid_size": 128,
+  "grid_size": 64,
   "tabs": [
     {
       "name": "Teleoperated",
@@ -9,8 +9,8 @@
           {
             "title": "Intake Rollers",
             "x": 512.0,
-            "y": 512.0,
-            "width": 384.0,
+            "y": 448.0,
+            "width": 448.0,
             "height": 256.0,
             "type": "List Layout",
             "properties": {
@@ -61,7 +61,7 @@
           {
             "title": "Shooter",
             "x": 0.0,
-            "y": 768.0,
+            "y": 576.0,
             "width": 512.0,
             "height": 384.0,
             "type": "List Layout",
@@ -130,7 +130,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 512.0,
-            "height": 256.0,
+            "height": 192.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/RobotState/Shift Period/Active",
@@ -145,22 +145,22 @@
           {
             "title": "Seconds Until Shift Change",
             "x": 0.0,
-            "y": 256.0,
+            "y": 192.0,
             "width": 512.0,
-            "height": 512.0,
+            "height": 384.0,
             "type": "Large Text Display",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/RobotState/Shift Period/Time Remaining",
               "period": 0.06,
-              "data_type": "double"
+              "data_type": "string"
             }
           },
           {
             "title": "Match Time",
             "x": 512.0,
             "y": 0.0,
-            "width": 384.0,
-            "height": 256.0,
+            "width": 448.0,
+            "height": 192.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -174,8 +174,8 @@
           {
             "title": "Battery Voltage",
             "x": 512.0,
-            "y": 256.0,
-            "width": 384.0,
+            "y": 192.0,
+            "width": 448.0,
             "height": 128.0,
             "type": "Voltage View",
             "properties": {
@@ -192,8 +192,8 @@
           {
             "title": "FMS Info",
             "x": 512.0,
-            "y": 384.0,
-            "width": 384.0,
+            "y": 320.0,
+            "width": 448.0,
             "height": 128.0,
             "type": "FMSInfo",
             "properties": {
@@ -202,11 +202,63 @@
             }
           },
           {
+            "title": "Intake Angle (º)",
+            "x": 512.0,
+            "y": 704.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/Linkage0/Angle Degrees",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Offset (º)",
+            "x": 768.0,
+            "y": 704.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/Linkage0/Offset Degrees",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Spindexer Voltage",
+            "x": 512.0,
+            "y": 832.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Spindexer/Voltage Goal",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Offset (V)",
+            "x": 768.0,
+            "y": 832.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Spindexer/Voltage Offset",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
             "title": "Field",
-            "x": 896.0,
-            "y": 512.0,
-            "width": 1152.0,
-            "height": 640.0,
+            "x": 960.0,
+            "y": 448.0,
+            "width": 960.0,
+            "height": 512.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -223,55 +275,17 @@
             }
           },
           {
-            "title": "Intake Angle",
-            "x": 512.0,
-            "y": 768.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Large Text Display",
+            "title": "Shooter Cam",
+            "x": 960.0,
+            "y": 0.0,
+            "width": 960.0,
+            "height": 448.0,
+            "type": "Camera Stream",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Intake/Linkage0/Angle Degrees",
+              "topic": "/CameraPublisher/limelight-shooter",
               "period": 0.06,
-              "data_type": "double"
-            }
-          },
-          {
-            "title": "Offset (º)",
-            "x": 768.0,
-            "y": 768.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Intake/Linkage0/Offset Degrees",
-              "period": 0.06,
-              "data_type": "double"
-            }
-          },
-          {
-            "title": "Spindexer Voltage",
-            "x": 512.0,
-            "y": 1024.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Spindexer/Voltage Goal",
-              "period": 0.06,
-              "data_type": "double"
-            }
-          },
-          {
-            "title": "Offset (V)",
-            "x": 768.0,
-            "y": 1024.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Large Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Spindexer/Voltage Offset",
-              "period": 0.06,
-              "data_type": "double"
+              "rotation_turns": 0,
+              "compression": 98
             }
           }
         ]
@@ -287,7 +301,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 768.0,
+            "height": 512.0,
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/Autonomous Modes",
@@ -300,7 +314,7 @@
             "x": 384.0,
             "y": 0.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 192.0,
             "type": "Match Time",
             "properties": {
               "topic": "/AdvantageKit/DriverStation/MatchTime",
@@ -314,9 +328,9 @@
           {
             "title": "Battery Voltage",
             "x": 384.0,
-            "y": 256.0,
+            "y": 192.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 128.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
@@ -332,9 +346,9 @@
           {
             "title": "FMS Info",
             "x": 384.0,
-            "y": 512.0,
+            "y": 320.0,
             "width": 384.0,
-            "height": 256.0,
+            "height": 192.0,
             "type": "FMSInfo",
             "properties": {
               "topic": "/FMSInfo",
@@ -345,8 +359,8 @@
             "title": "Field",
             "x": 768.0,
             "y": 0.0,
-            "width": 1280.0,
-            "height": 768.0,
+            "width": 1152.0,
+            "height": 512.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -360,6 +374,45 @@
               "robot_color": 4294198070,
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": false
+            }
+          },
+          {
+            "title": "limelight-right",
+            "x": 1280.0,
+            "y": 512.0,
+            "width": 640.0,
+            "height": 448.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-right",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "limelight-shooter",
+            "x": 640.0,
+            "y": 512.0,
+            "width": 640.0,
+            "height": 448.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-shooter",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "limelight-shooter",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 640.0,
+            "height": 448.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-shooter",
+              "period": 0.06,
+              "rotation_turns": 0
             }
           }
         ]
