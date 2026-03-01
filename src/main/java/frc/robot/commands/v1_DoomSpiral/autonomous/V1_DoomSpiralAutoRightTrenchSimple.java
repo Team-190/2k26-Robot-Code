@@ -6,28 +6,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
+import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 
-/** Autonomous Routine for gathering fuel from the neutral zone, scoring, then climbing */
-public class V1_DoomSpiralTrenchAutoLeft {
-
-  private static final double SHOOT_TIME = 13.4;
-
-  /**
-   * @param drive The Swerve Drive subsystem
-   * @param intake The Intake subsystem
-   * @param shooter The Shooter subsystem
-   * @param spindexer The Spindexer subsystem
-   * @param climber The Climber subsystem
-   * @return Routine that returns the Autonomous Routine for gathering fuel from the neutral zone
-   *     (from the left trench), going to the tower, scoring the fuel, then climbing to level 1
-   */
-  public static final AutoRoutine V1_DoomSpiralTrenchLeft(
+public class V1_DoomSpiralAutoRightTrenchSimple {
+  public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
       V1_DoomSpiralShooter shooter,
@@ -36,9 +23,10 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("trenchAutoLeft");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE");
 
-    AutoTrajectory LEFT_TRENCH = routine.trajectory("LEFT_TRENCH");
+    AutoTrajectory RIGHT_TRENCH_SIMPLE =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE);
 
     routine
         .active()
@@ -47,15 +35,18 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 // Set the inital pose
 
-                LEFT_TRENCH.resetOdometry(),
+                RIGHT_TRENCH_SIMPLE.resetOdometry(),
 
                 // Deploy the intake
 
-                intake.deploy().alongWith(intake.setRollerVoltage(8.0)),
+                intake
+                    .deploy()
+                    .alongWith(
+                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
-                LEFT_TRENCH.cmd(),
+                RIGHT_TRENCH_SIMPLE.cmd(),
 
                 // Stop drive
 
@@ -65,12 +56,12 @@ public class V1_DoomSpiralTrenchAutoLeft {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
-                    .withTimeout(SHOOT_TIME),
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))));
 
-                // Stop the spindexer, stow the hood, and align to tower in parallel
-
-                Commands.parallel(spindexer.stopSpindexer(), shooter.setGoal(HoodGoal.STOW, 0))));
+    routine
+        .active()
+        .negate()
+        .onTrue(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     return routine;
   }

@@ -33,7 +33,13 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
-import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralTrenchAutoLeft;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoDepotAndBackHub;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoLeftBlueShell;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoLeftTrench2Cycle;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoLeftTrenchSimple;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoRightBlueShell;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoRightTrench2Cycle;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoRightTrenchSimple;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -441,9 +447,39 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private void configureAutos() {
     autoChooser.addRoutine(
-        "Left Trench",
+        "Left Trench Simple",
         () ->
-            V1_DoomSpiralTrenchAutoLeft.V1_DoomSpiralTrenchLeft(
+            V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Right Trench Simple",
+        () ->
+            V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Depot And Back Hub",
+        () ->
+            V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Right Trench 2 Cycle",
+        () ->
+            V1_DoomSpiralAutoRightTrench2Cycle.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Left Trench 2 Cycle",
+        () ->
+            V1_DoomSpiralAutoLeftTrench2Cycle.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Left Blueshell",
+        () ->
+            V1_DoomSpiralAutoLeftBlueShell.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+                autoChooser.addRoutine(
+        "Right Blueshell",
+        () ->
+            V1_DoomSpiralAutoRightBlueShell.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
   }
@@ -465,6 +501,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return shooter.flywheelSysId();
+    return autoChooser.selectedCommand();
   }
 }
