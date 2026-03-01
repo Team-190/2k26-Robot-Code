@@ -3,6 +3,10 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -10,12 +14,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.Offset;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import frc.robot.subsystems.shared.hood.GenericHoodState.HoodState;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood {
@@ -27,10 +33,12 @@ public class Hood {
 
   private HoodState currentState;
 
-  private HoodGoal positionGoal;
+  @Getter private HoodGoal positionGoal;
   private double voltageGoal;
 
   @Getter @Setter private Rotation2d overridePosition;
+
+  private final Offset<AngleUnit> angleOffset;
 
   private final Supplier<Rotation2d> scoreRotationSupplier;
   private final Supplier<Rotation2d> feedRotationSupplier;
@@ -43,28 +51,29 @@ public class Hood {
    *
    * @param io the IO implementation
    * @param subsystem the parent subsystem
-   * @param index the index of the hood in the subsystem
+   * @param name the name of the hood (for logging purposes)
    */
   public Hood(
       HoodIO io,
       HoodConstants constants,
       Subsystem subsystem,
-      int index,
+      String name,
       Supplier<Rotation2d> scoreRotationSupplier,
       Supplier<Rotation2d> feedRotationSupplier) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
     this.currentState = HoodState.IDLE;
+    this.positionGoal = HoodGoal.STOW;
 
-    aKitTopic = subsystem.getName() + "/Hood" + index;
+    aKitTopic = subsystem.getName() + "/Hood" + name;
 
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(0.75).per(Seconds),
+                Volts.of(4.5),
+                Seconds.of(4),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
@@ -72,34 +81,59 @@ public class Hood {
     this.scoreRotationSupplier = scoreRotationSupplier;
     this.feedRotationSupplier = feedRotationSupplier;
 
+    angleOffset =
+        new Offset<>(
+            Rotation2d.kZero.getMeasure(),
+            constants.offsetStep,
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure());
+
     this.constants = constants;
   }
 
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
   @Trace
   public void periodic() {
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          io.setPID(constants.gains.kP().get(), 0, constants.gains.kD().get());
+
+          io.setFeedforward(
+              constants.gains.kS().get(), constants.gains.kV().get(), constants.gains.kA().get());
+        },
+        constants.gains.kP(),
+        constants.gains.kD(),
+        constants.gains.kS(),
+        constants.gains.kV(),
+        constants.gains.kA());
+
+    LoggedTunableMeasure.ifChanged(
+        hashCode(),
+        () ->
+            io.setProfile(
+                constants.constraints.maxVelocity().get(),
+                constants.constraints.maxAcceleration().get(),
+                constants.constraints.goalTolerance().get()),
+        constants.constraints.maxVelocity(),
+        constants.constraints.maxAcceleration(),
+        constants.constraints.goalTolerance());
+
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
-    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
+
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
-        Rotation2d position;
-        switch (positionGoal) {
-          case SCORE:
-            position = scoreRotationSupplier.get();
-            break;
-          case FEED:
-            position = feedRotationSupplier.get();
-            break;
-          case OVERRIDE:
-            position = overridePosition;
-            break;
-          case STOW:
-          default:
-            position = Rotation2d.kZero;
-            break;
-        }
-        io.setPosition(position);
+        Rotation2d position =
+            switch (positionGoal) {
+              case SCORE -> scoreRotationSupplier.get();
+              case FEED -> feedRotationSupplier.get();
+              case OVERRIDE -> overridePosition;
+              default -> Rotation2d.kZero;
+            };
+        angleOffset.setSetpoint(position.getMeasure());
+        io.setPosition(new Rotation2d(angleOffset.getNewSetpoint().in(Radians)));
         break;
       case OPEN_LOOP_VOLTAGE_CONTROL:
         io.setVoltage(voltageGoal);
@@ -107,6 +141,12 @@ public class Hood {
       case IDLE:
         break;
     }
+
+    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
+    Logger.recordOutput(aKitTopic + "/At Goal", io.atGoal());
+    Logger.recordOutput(aKitTopic + "/State", currentState);
+    Logger.recordOutput(aKitTopic + "/Goal", positionGoal);
+    Logger.recordOutput(aKitTopic + "/Hood Offset Degrees", angleOffset.getOffset().in(Degrees));
   }
 
   /**
@@ -142,7 +182,6 @@ public class Hood {
    *
    * @return If the hood is within tolerance of the goal (true) or not (false).
    */
-  @AutoLogOutput(key = "Hood/At Goal")
   public boolean atGoal() {
     return io.atGoal();
   }
@@ -208,16 +247,15 @@ public class Hood {
   /**
    * Updates the profile constraints.
    *
-   * @param maxVelocityRadiansPerSecond Maximum velocity (rad/sec)
-   * @param maxAccelerationRadiansPerSecondSquared Maximum acceleration (rad/sec^2)
-   * @param goalToleranceRadians Tolerance (rad)
+   * @param maxVelocity Maximum velocity (rad/sec)
+   * @param maxAcceleration Maximum acceleration (rad/sec^2)
+   * @param goalTolerance Tolerance (rad)
    */
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    io.setProfile(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
+    io.setProfile(maxVelocity, maxAcceleration, goalTolerance);
   }
 
   /**
@@ -235,5 +273,17 @@ public class Hood {
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kReverse));
+  }
+
+  public Command incrementOffset() {
+    return Commands.runOnce(angleOffset::increment);
+  }
+
+  public Command decrementOffset() {
+    return Commands.runOnce(angleOffset::decrement);
+  }
+
+  public Command resetOffset() {
+    return Commands.runOnce(angleOffset::reset);
   }
 }

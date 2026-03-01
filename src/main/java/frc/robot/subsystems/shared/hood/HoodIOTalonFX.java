@@ -1,5 +1,9 @@
 package frc.robot.subsystems.shared.hood;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -8,13 +12,17 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
   protected final TalonFX hoodMotor;
@@ -45,21 +53,22 @@ public class HoodIOTalonFX implements HoodIO {
     config.CurrentLimits.SupplyCurrentLimit = constants.currentLimits;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.MotorOutput.Inverted = constants.invertedValue;
     config.Feedback.SensorToMechanismRatio = constants.gearRatio;
-    config.HardwareLimitSwitch.ForwardLimitAutosetPositionValue = constants.minAngle.getRotations();
-    config.Slot0.kP = constants.gains.kp().get();
-    config.Slot0.kD = constants.gains.kd().get();
-    config.Slot0.kS = constants.gains.ks().get();
-    config.Slot0.kV = constants.gains.kv().get();
-    config.Slot0.kA = constants.gains.ka().get();
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle.getRotations();
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle.getRotations();
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
+    config.Slot0.kP = constants.gains.kP().get();
+    config.Slot0.kD = constants.gains.kD().get();
+    config.Slot0.kS = constants.gains.kS().get();
+    config.Slot0.kV = constants.gains.kV().get();
+    config.Slot0.kA = constants.gains.kA().get();
     config.MotionMagic.MotionMagicCruiseVelocity =
-        constants.constraints.maxVelocityRadiansPerSecond().get();
+        constants.constraints.maxVelocity().get().in(RotationsPerSecond);
     config.MotionMagic.MotionMagicAcceleration =
-        constants.constraints.maxAccelerationRadiansPerSecondSqaured().get();
-    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(constants.minAngle.getRotations())
-        .withForwardSoftLimitEnable(true)
-        .withReverseSoftLimitThreshold(constants.minAngle.getRotations())
-        .withReverseSoftLimitEnable(true);
+        constants.constraints.maxAcceleration().get().in(RotationsPerSecondPerSecond);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
 
     positionRotations = hoodMotor.getPosition();
@@ -93,6 +102,8 @@ public class HoodIOTalonFX implements HoodIO {
         temperature,
         positionSetpointRotations,
         positionErrorRotations);
+
+    hoodMotor.setPosition(0);
 
     voltageControlRequest = new VoltageOut(0.0);
     positionControlRequest = new MotionMagicVoltage(0.0);
@@ -143,17 +154,17 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocityRadiansPerSecond;
-    config.MotionMagic.MotionMagicAcceleration = maxAccelerationRadiansPerSecondSquared;
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
+    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity.in(RotationsPerSecond);
+    config.MotionMagic.MotionMagicAcceleration = maxAcceleration.in(RotationsPerSecondPerSecond);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
   }
 
   @Override
   public boolean atGoal() {
     return Math.abs(positionGoal.getRotations() - positionRotations.getValueAsDouble())
-        <= constants.constraints.goalToleranceRadians().get();
+        <= constants.constraints.goalTolerance().get().in(Rotations);
   }
 }

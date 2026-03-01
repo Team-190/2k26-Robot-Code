@@ -1,5 +1,8 @@
 package frc.robot.subsystems.shared.turret;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -14,7 +17,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -78,16 +82,16 @@ public class Turret {
         constants.gains.kV(),
         constants.gains.kA());
 
-    LoggedTunableNumber.ifChanged(
+    LoggedTunableMeasure.ifChanged(
         hashCode(),
         () ->
             io.updateConstraints(
-                constants.constraints.maxAccelerationRadiansPerSecondSquared().get(),
-                constants.constraints.cruisingVelocityRadiansPerSecond().get(),
-                constants.constraints.goalToleranceRadians().get()),
-        constants.constraints.maxAccelerationRadiansPerSecondSquared(),
-        constants.constraints.cruisingVelocityRadiansPerSecond(),
-        constants.constraints.goalToleranceRadians());
+                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond),
+                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
+                constants.constraints.goalTolerance().get().in(Radians)),
+        constants.constraints.maxAcceleration(),
+        constants.constraints.maxVelocity(),
+        constants.constraints.goalTolerance());
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);

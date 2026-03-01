@@ -319,4 +319,6 @@ public class FieldConstants {
       return layout;
     }
   }
+
+  public static final Translation2d FEED_TRANSLATION = new Translation2d(0, 0);
 }

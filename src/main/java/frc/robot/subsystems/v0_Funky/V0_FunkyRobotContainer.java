@@ -35,7 +35,7 @@ import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
 import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
-import frc.robot.util.XKeysInput;
+import frc.robot.util.input.XKeysInput;
 import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {

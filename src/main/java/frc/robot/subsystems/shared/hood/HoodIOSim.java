@@ -9,6 +9,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
@@ -36,15 +40,15 @@ public class HoodIOSim implements HoodIO {
 
     feedback =
         new ProfiledPIDController(
-            constants.gains.kp().get(),
+            constants.gains.kP().get(),
             0.0,
-            constants.gains.kd().get(),
+            constants.gains.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.constraints.maxVelocityRadiansPerSecond().get(),
-                constants.constraints.maxAccelerationRadiansPerSecondSqaured().get()));
-    feedback.setTolerance(constants.constraints.goalToleranceRadians().get());
+                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
+                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constants.constraints.goalTolerance().get().in(Radians));
     feedforward =
-        new SimpleMotorFeedforward(constants.gains.ks().get(), constants.gains.kv().get());
+        new SimpleMotorFeedforward(constants.gains.kS().get(), constants.gains.kV().get());
   }
 
   @Override
@@ -88,12 +92,13 @@ public class HoodIOSim implements HoodIO {
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {
     feedback.setConstraints(
-        new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedback.setTolerance(goalToleranceRadians);
+        new Constraints(
+            maxVelocity.in(RadiansPerSecond), maxAcceleration.in(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(goalTolerance.in(Radians));
   }
 
   @Override

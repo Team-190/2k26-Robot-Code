@@ -39,7 +39,7 @@ public interface FourBarLinkageIO {
   default void setPID(double kp, double ki, double kd) {}
 
   /** Sets feedforward gains */
-  default void setFeedforward(double ks, double kv, double ka) {}
+  default void setFeedforward(double ks, double kv, double kg, double ka) {}
 
   /** Sets motor profile. */
   default void setProfile(
