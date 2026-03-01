@@ -476,7 +476,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () ->
             V1_DoomSpiralAutoLeftBlueShell.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
-                autoChooser.addRoutine(
+    autoChooser.addRoutine(
         "Right Blueshell",
         () ->
             V1_DoomSpiralAutoRightBlueShell.getAutoRoutine(
