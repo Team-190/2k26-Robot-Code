@@ -465,6 +465,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return shooter.flywheelSysId();
+    return autoChooser.selectedCommand();
   }
 }
