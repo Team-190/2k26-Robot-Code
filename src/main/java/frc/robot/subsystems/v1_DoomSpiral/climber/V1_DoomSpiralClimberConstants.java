@@ -34,7 +34,7 @@ public class V1_DoomSpiralClimberConstants {
 
   public static final Gains SLOT_1_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 210.0))
+          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 450.0))
           .withKD(new LoggedTunableNumber("Climber/Slot1/kD", 0.0))
           .withKS(new LoggedTunableNumber("Climber/Slot1/kS", .1))
           .withKG(new LoggedTunableNumber("Climber/Slot1/kG", 0.034689))
