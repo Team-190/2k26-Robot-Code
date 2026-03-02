@@ -34,9 +34,9 @@ public class V1_DoomSpiralClimberConstants {
 
   public static final Gains SLOT_1_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 25.0))
+          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 210.0))
           .withKD(new LoggedTunableNumber("Climber/Slot1/kD", 0.0))
-          .withKS(new LoggedTunableNumber("Climber/Slot1/kS", 0.061752))
+          .withKS(new LoggedTunableNumber("Climber/Slot1/kS", .1))
           .withKG(new LoggedTunableNumber("Climber/Slot1/kG", 0.034689))
           .withKV(new LoggedTunableNumber("Climber/Slot1/kV", 26.487))
           .withKA(new LoggedTunableNumber("Climber/Slot1/kA", 0.36032))
@@ -77,7 +77,7 @@ public class V1_DoomSpiralClimberConstants {
     L1_POSITION_GOAL(Rotation2d.fromDegrees(115.927734)),
     L1_AUTO_POSITION_GOAL(new Rotation2d(-Math.PI / 2)),
     L2_POSITION_GOAL(new Rotation2d(3 * Math.PI / 2)),
-    L2_FLIP_GOAL(Rotation2d.fromDegrees(452.197266)),
+    L2_FLIP_GOAL(Rotation2d.fromDegrees(455.009766)),
     DEFAULT(new Rotation2d(0));
 
     @Getter private final Rotation2d position;
