@@ -462,21 +462,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () ->
             V1_DoomSpiralAutoRightTrench2Cycle.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
-    autoChooser.addRoutine(
-        "Left Trench 2 Cycle",
-        () ->
-            V1_DoomSpiralAutoLeftTrench2Cycle.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber));
-    autoChooser.addRoutine(
-        "Left Blueshell",
-        () ->
-            V1_DoomSpiralAutoLeftBlueShell.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber));
-    autoChooser.addRoutine(
-        "Right Blueshell",
-        () ->
-            V1_DoomSpiralAutoRightBlueShell.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber));
 
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
