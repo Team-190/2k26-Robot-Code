@@ -101,6 +101,8 @@ public class HubActivePeriod {
   }
 
   public static double getShiftTimeRemaining() {
-    return getCurrentShift().ordinal() != Shift.values().length - 1 ? (getCurrentShift().getDuration() - (shiftTimer.get() - getCurrentShift().startTime)) : 0.0;
+    return getCurrentShift().ordinal() != Shift.values().length - 1
+        ? (getCurrentShift().getDuration() - (shiftTimer.get() - getCurrentShift().startTime))
+        : 0.0;
   }
 }
