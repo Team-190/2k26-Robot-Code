@@ -9,7 +9,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -25,22 +24,32 @@ public class V1_DoomSpiralClimberConstants {
   public static final double SLOW_VOLTAGE = 1.0;
   public static final Gains SLOT_0_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 0.0))
+          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 25.0))
           .withKD(new LoggedTunableNumber("Climber/Slot0/kD", 0.0))
-          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0.0))
-          .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0.0))
-          .withKV(new LoggedTunableNumber("Climber/Slot0/kV", 0.0))
-          .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0.0))
+          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0.061752))
+          .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0.034689))
+          .withKV(new LoggedTunableNumber("Climber/Slot0/kV", 26.487))
+          .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0.36032))
+          .build();
+
+  public static final Gains SLOT_1_GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 450.0))
+          .withKD(new LoggedTunableNumber("Climber/Slot1/kD", 0.0))
+          .withKS(new LoggedTunableNumber("Climber/Slot1/kS", .1))
+          .withKG(new LoggedTunableNumber("Climber/Slot1/kG", 0.034689))
+          .withKV(new LoggedTunableNumber("Climber/Slot1/kV", 26.487))
+          .withKA(new LoggedTunableNumber("Climber/Slot1/kA", 0.36032))
           .build();
 
   public static final AngularConstraints CONSTRAINTS =
       AngularConstraints.builder()
           .withMaxVelocity(
-              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(4)))
+              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(18)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Climber/MaxAcceleration", RadiansPerSecondPerSecond.of(6)))
-          .withGoalTolerance(new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.05)))
+                  "Climber/MaxAcceleration", RadiansPerSecondPerSecond.of(100)))
+          .withGoalTolerance(new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.01)))
           .build();
 
   public static final CurrentLimits CURRENT_LIMITS =
@@ -65,10 +74,10 @@ public class V1_DoomSpiralClimberConstants {
 
   @AllArgsConstructor
   public enum ClimberGoal {
-    L1_POSITION_GOAL(Rotation2d.fromDegrees(115.576172 - 8)),
+    L1_POSITION_GOAL(Rotation2d.fromDegrees(115.927734)),
     L1_AUTO_POSITION_GOAL(Rotation2d.fromDegrees(100.898438)),
     L2_POSITION_GOAL(new Rotation2d(3 * Math.PI / 2)),
-    L2_FLIP_GOAL(new Rotation2d((5 * Math.PI / 2) + Units.degreesToRadians(7.64))),
+    L2_FLIP_GOAL(Rotation2d.fromDegrees(455.009766)),
     DEFAULT(new Rotation2d(0));
 
     @Getter private final Rotation2d position;
@@ -79,7 +88,7 @@ public class V1_DoomSpiralClimberConstants {
           .withArmCANID(60)
           .withArmParameters(ARM_PARAMETERS)
           .withSlot0Gains(SLOT_0_GAINS)
-          .withSlot1Gains(SLOT_0_GAINS)
+          .withSlot1Gains(SLOT_1_GAINS)
           .withSlot2Gains(SLOT_0_GAINS)
           .withConstraints(CONSTRAINTS)
           .withCurrentLimits(CURRENT_LIMITS)

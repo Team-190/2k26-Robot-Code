@@ -9,10 +9,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFXSim;
@@ -303,7 +305,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
-    driver.x().onTrue(climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition()));
+    driver
+        .x()
+        .onTrue(climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO));
 
     driver.y().whileTrue(climber.climbSequenceL3()).onFalse(climber.stop());
 
