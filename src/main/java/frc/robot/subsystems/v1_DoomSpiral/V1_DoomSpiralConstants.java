@@ -76,7 +76,7 @@ public class V1_DoomSpiralConstants {
 
   public static final Gains TRANSLATION_AUTO_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 5.0))
+          .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 10.0))
           .withKD(new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0))
           .build();
 
@@ -119,7 +119,7 @@ public class V1_DoomSpiralConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/Y/Max Acceleration", MetersPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/Y/Max Velocity", Meters.of(0.03)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Y/Goal Tolerance", Meters.of(0.05)))
           .build();
 
   public static final Gains AUTO_ALIGN_THETA_GAINS =
@@ -137,7 +137,7 @@ public class V1_DoomSpiralConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/Theta/Max Acceleration", RadiansPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Max Velocity", Degrees.of(0.25)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Max Velocity", Degrees.of(0.5)))
           .build();
 
   public static final SwerveDriveConstants.AutoAlignConstants AUTO_ALIGN_CONSTANTS =

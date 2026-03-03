@@ -134,7 +134,7 @@ public class AutoAlignCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    drive.runVelocity(new ChassisSpeeds());
+    drive.stop();
     alignHeadingController.reset(robotPose.get().getRotation().getRadians());
     alignXController.reset(robotPose.get().getX());
     alignYController.reset(robotPose.get().getY());
