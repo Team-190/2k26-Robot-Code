@@ -14,9 +14,10 @@ public class HubActivePeriod {
     TRANSITION(0.0, new ActiveSchedule(true, true)),
     SHIFT1(10.0, new ActiveSchedule(false, true)),
     SHIFT2(35.0, new ActiveSchedule(false, false)),
-    SHIFT3(50.0, new ActiveSchedule(false, true)),
+    SHIFT3(60.0, new ActiveSchedule(false, true)),
     SHIFT4(85.0, new ActiveSchedule(false, false)),
-    ENDGAME(110.0, new ActiveSchedule(true, true));
+    ENDGAME(110.0, new ActiveSchedule(true, true)),
+    END(140.0, new ActiveSchedule(false, false));
 
     @Getter private final double startTime;
     private final ActiveSchedule schedule;
@@ -53,7 +54,7 @@ public class HubActivePeriod {
   private static final Shift[] shifts = Shift.values();
 
   public static Alliance getFirstActiveAlliance() {
-    var alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+    // var alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
 
     String message = DriverStation.getGameSpecificMessage();
     if (!message.isEmpty()) {
@@ -65,7 +66,7 @@ public class HubActivePeriod {
       }
     }
 
-    return alliance == Alliance.Blue ? Alliance.Red : Alliance.Blue;
+    return Alliance.Blue; // Per Marcus's request
   }
 
   /** Call at start of teleop */
@@ -100,6 +101,6 @@ public class HubActivePeriod {
   }
 
   public static double getShiftTimeRemaining() {
-    return (getCurrentShift().getDuration() - shiftTimer.get());
+    return getCurrentShift().ordinal() != Shift.values().length - 1 ? (getCurrentShift().getDuration() - (shiftTimer.get() - getCurrentShift().startTime)) : 0.0;
   }
 }

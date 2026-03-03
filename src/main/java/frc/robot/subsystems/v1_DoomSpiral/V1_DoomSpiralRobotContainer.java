@@ -491,6 +491,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber).cmd();
+    return autoChooser.selectedCommand();
   }
 }
