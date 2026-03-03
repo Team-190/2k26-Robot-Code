@@ -66,7 +66,7 @@ public class V1_DoomSpiralClimberConstants {
   @AllArgsConstructor
   public enum ClimberGoal {
     L1_POSITION_GOAL(Rotation2d.fromDegrees(115.576172 - 8)),
-    L1_AUTO_POSITION_GOAL(new Rotation2d(-Math.PI / 2)),
+    L1_AUTO_POSITION_GOAL(Rotation2d.fromDegrees(100.898438)),
     L2_POSITION_GOAL(new Rotation2d(3 * Math.PI / 2)),
     L2_FLIP_GOAL(new Rotation2d((5 * Math.PI / 2) + Units.degreesToRadians(7.64))),
     DEFAULT(new Rotation2d(0));

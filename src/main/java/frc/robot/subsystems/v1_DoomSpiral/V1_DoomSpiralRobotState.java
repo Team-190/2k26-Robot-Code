@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
@@ -23,7 +24,6 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
-import frc.robot.util.InternalLoggedTracer;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
@@ -197,14 +197,12 @@ public class V1_DoomSpiralRobotState {
     SmartDashboard.putData("Field", field);
   }
 
+  @Trace
   public static void periodic(
       Rotation2d robotHeading,
       long latestRobotHeadingTimestamp,
       double robotYawVelocity,
       SwerveModulePosition[] modulePositions) {
-    InternalLoggedTracer.reset();
-    InternalLoggedTracer.record("Reset Instance Variables", "RobotState/Periodic");
-
     V1_DoomSpiralRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);

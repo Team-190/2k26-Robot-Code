@@ -462,6 +462,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () ->
             V1_DoomSpiralAutoRightTrench2Cycle.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Climb",
+        () -> V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber));
 
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
@@ -485,6 +488,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber).cmd();
   }
 }

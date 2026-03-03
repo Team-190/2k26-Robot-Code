@@ -76,7 +76,7 @@ public class V1_DoomSpiralConstants {
 
   public static final Gains TRANSLATION_AUTO_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 10.0))
+          .withKP(new LoggedTunableNumber("Drive/Auto/Translation Kp", 5.0))
           .withKD(new LoggedTunableNumber("Drive/Auto/Translation Kd", 0.0))
           .build();
 
