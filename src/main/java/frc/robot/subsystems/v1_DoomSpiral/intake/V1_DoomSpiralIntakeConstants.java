@@ -67,7 +67,7 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final Rotation2d ZERO_OFFSET = Rotation2d.kPi;
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
-  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(169.8);
+  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(190);
   // points A and D on the intake.
 
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
@@ -139,7 +139,7 @@ public class V1_DoomSpiralIntakeConstants {
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(149.326172)),
+    INTAKE(Rotation2d.fromDegrees(173.408203)),
     BUMP(Rotation2d.fromDegrees(145));
 
     private final Rotation2d angle;

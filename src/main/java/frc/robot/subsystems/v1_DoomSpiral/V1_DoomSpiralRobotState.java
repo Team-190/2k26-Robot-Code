@@ -142,8 +142,8 @@ public class V1_DoomSpiralRobotState {
 
     shootAngleTree.put(Meters.of(1.08169), Rotation2d.fromDegrees(5.0));
     shootAngleTree.put(Meters.of(1.34257), Rotation2d.fromDegrees(6.5));
-    shootAngleTree.put(Meters.of(1.676884), Rotation2d.fromDegrees(9.5));
-    shootAngleTree.put(Meters.of(2.013799), Rotation2d.fromDegrees(13));
+    shootAngleTree.put(Meters.of(1.676884), Rotation2d.fromRadians(0.231631));
+    shootAngleTree.put(Meters.of(2.013799), Rotation2d.fromRadians(0.262311));
     shootAngleTree.put(Meters.of(2.26935), Rotation2d.fromDegrees(13.5));
     shootAngleTree.put(Meters.of(2.539004), Rotation2d.fromDegrees(16.5));
     shootAngleTree.put(Meters.of(2.748745), Rotation2d.fromDegrees(18.5));
@@ -155,11 +155,11 @@ public class V1_DoomSpiralRobotState {
     shootSpeedTree.put(Meters.of(1.34257), RadiansPerSecond.of(350));
     shootSpeedTree.put(Meters.of(1.676884), RadiansPerSecond.of(350));
     shootSpeedTree.put(Meters.of(2.013799), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.26935), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.539004), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.748745), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(3.039446), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(3.280458), RadiansPerSecond.of(380));
+    shootSpeedTree.put(Meters.of(2.26935), RadiansPerSecond.of(370));
+    shootSpeedTree.put(Meters.of(2.539004), RadiansPerSecond.of(370));
+    shootSpeedTree.put(Meters.of(2.748745), RadiansPerSecond.of(380));
+    shootSpeedTree.put(Meters.of(3.039446), RadiansPerSecond.of(402));
+    shootSpeedTree.put(Meters.of(3.280458), RadiansPerSecond.of(409));
     shootSpeedTree.put(Meters.of(3.527742), RadiansPerSecond.of(420));
 
     feedAngleTree.put(
