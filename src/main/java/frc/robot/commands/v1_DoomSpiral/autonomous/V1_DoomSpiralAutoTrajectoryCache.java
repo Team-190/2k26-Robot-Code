@@ -12,8 +12,6 @@ public class V1_DoomSpiralAutoTrajectoryCache {
       Choreo.loadTrajectory("DEPOT_AND_SIDE_WALL_PATH_2").get();
   public static final Trajectory<?> DEPOT_AND_XXX_PATH_1 =
       Choreo.loadTrajectory("DEPOT_AND_XXX_PATH_1").get();
-  //   public static final Trajectory<?> DEPOT_AND_HUB_PATH_2 =
-  //       Choreo.loadTrajectory("DEPOT_AND_HUB_PATH_2").get();
   public static final Trajectory<?> LEFT_BLUESHELL = Choreo.loadTrajectory("LEFT_BLUESHELL").get();
   public static final Trajectory<?> LEFT_TRENCH_2_CYCLE_PATH_1 =
       Choreo.loadTrajectory("LEFT_TRENCH_2_CYCLE_PATH_1").get();
