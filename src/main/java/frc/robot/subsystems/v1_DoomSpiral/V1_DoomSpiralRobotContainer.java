@@ -298,6 +298,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //             .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
     //             .onlyWhile(() -> !intake.atGoal() || driver.leftBumper().getAsBoolean())
     //             .andThen(intake.stopRoller()));
+    driver.rightBumper().whileTrue(intake.agitate());
 
     driver
         .b()

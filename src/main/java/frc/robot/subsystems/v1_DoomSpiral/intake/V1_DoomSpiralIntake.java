@@ -13,7 +13,6 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants.IntakeState;
-import frc.robot.util.command.ContinuousConditionalCommand;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -117,35 +116,54 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command agitate() {
+    // return Commands.parallel(
+    //     Commands.sequence(
+    //         Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(150)),
+    //         Commands.sequence(
+    //                 linkage.setPositionGoal(
+    //                     () -> agitationAngle,
+    //                     (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
+    //                 waitUntilIntakeAtGoal(),
+    //                 Commands.runOnce(
+    //                     () -> agitationAngle = agitationAngle.minus(agitationDelta.times(2))),
+    //                 linkage.setPositionGoal(
+    //                     () -> agitationAngle,
+    //                     (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
+    //                 waitUntilIntakeAtGoal(),
+    //                 Commands.runOnce(() -> agitationAngle = agitationAngle.plus(agitationDelta)))
+    //             .repeatedly()
+    //             .until(() -> agitationAngle.getRadians() <=
+    // agitationDelta.times(4).getRadians())),
+    //     new ContinuousConditionalCommand(
+    //             setRollerVoltage(6),
+    //             setRollerVoltage(-2),
+    //             () -> linkage.getPosition().getDegrees() > 60)
+    //         .repeatedly());
     return Commands.parallel(
         Commands.sequence(
-            Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(150)),
-            Commands.sequence(
-                    linkage.setPositionGoal(
-                        () -> agitationAngle,
-                        (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
-                    waitUntilIntakeAtGoal(),
-                    Commands.runOnce(
-                        () -> agitationAngle = agitationAngle.minus(agitationDelta.times(2))),
-                    linkage.setPositionGoal(
-                        () -> agitationAngle,
-                        (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
-                    waitUntilIntakeAtGoal(),
-                    Commands.runOnce(() -> agitationAngle = agitationAngle.plus(agitationDelta)))
-                .repeatedly()
-                .until(() -> agitationAngle.getRadians() <= agitationDelta.times(4).getRadians())),
-        new ContinuousConditionalCommand(
-                setRollerVoltage(6),
-                setRollerVoltage(-2),
-                () -> linkage.getPosition().getDegrees() > 60)
-            .repeatedly());
+                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170)),
+                linkage.setPositionGoal(
+                    () -> agitationAngle,
+                    () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
+                linkage.waitUntilLinkageAtGoal(),
+                linkage.setPositionGoal(
+                    () -> Rotation2d.fromDegrees(90),
+                    () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
+                linkage.waitUntilLinkageAtGoal())
+            .repeatedly(),
+        setRollerVoltage(3.0));
   }
 
   public Command toggleIntake() {
     return Commands.either(
-        Commands.sequence(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
         Commands.sequence(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
-        () -> intakeState.equals(IntakeState.STOW));
+        Commands.sequence(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+        () ->
+            (intakeState.equals(IntakeState.INTAKE)
+                && linkage.atGoal(
+                    IntakeState.INTAKE
+                        .getAngle()
+                        .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))));
   }
 
   public Command collect() {
