@@ -13,7 +13,6 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
-import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFXSim;
@@ -43,7 +42,6 @@ import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.leds.V1_DoomSpiralCANdle;
@@ -279,7 +277,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             () ->
                 Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
                     * (Math.PI / 2.0),
-            driver.x()));
+            driver.x(),
+            () ->
+                Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                    * (Math.PI / 2.0)));
 
     driver
         .povDown()
@@ -305,9 +306,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
-    driver
-        .x()
-        .onTrue(climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO));
+    driver.x().onTrue(V1_DoomSpiralCompositeCommands.deployClimber(intake, climber));
 
     driver.y().whileTrue(climber.climbSequenceL3()).onFalse(climber.stop());
 

@@ -66,6 +66,14 @@ public class V1_DoomSpiralCompositeCommands {
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
 
+  public static Command deployClimber(V1_DoomSpiralIntake intake, V1_DoomSpiralClimber climber) {
+    return Commands.sequence(
+        intake.stow(),
+        Commands.parallel(
+            Commands.sequence(intake.setRollerVoltage(-12.0), intake.waitUntilIntakeAtGoal()),
+            climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO)));
+  }
+
   public static Command unClimbPostAuto(V1_DoomSpiralIntake intake, V1_DoomSpiralClimber climber) {
     return Commands.parallel(
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
