@@ -155,7 +155,8 @@ public final class DriveCommands {
       DoubleSupplier hubSetpoint,
       BooleanSupplier cardinalDirectionAlign,
       DoubleSupplier cardinalDirectionSetpoint,
-      BooleanSupplier slowMode) {
+      BooleanSupplier climbSlowMode,
+      DoubleSupplier climbSlowModeSetpoint) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.rotationGains().kP().get(),
@@ -200,14 +201,14 @@ public final class DriveCommands {
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
             Pair.of(
-                slowMode,
+                climbSlowMode,
                 () ->
                     AutoAlignCommand.calculate(
                         omegaController,
-                        AllianceFlipUtil.apply(Rotation2d.kCCW_90deg).getRadians(),
+                        climbSlowModeSetpoint.getAsDouble(),
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-        slowMode);
+        climbSlowMode);
   }
 
   public static Command rotateToAngle(
