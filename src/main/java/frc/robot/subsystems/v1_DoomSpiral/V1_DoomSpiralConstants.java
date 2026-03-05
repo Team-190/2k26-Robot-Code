@@ -191,9 +191,9 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(-90.000))))
           .build();
 
-  public static final LimelightConfig LIMELIGHT_LEFT_CONFIG =
+  public static final LimelightConfig LIMELIGHT_CLIMBER_CONFIG =
       LimelightConfig.builder()
-          .key("left")
+          .key("climber")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
@@ -202,13 +202,13 @@ public class V1_DoomSpiralConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  -0.239,
-                  -0.387,
+                  -0.060142,
+                  -0.398769,
                   0.305,
                   new Rotation3d(
                       Units.degreesToRadians(0),
-                      Units.degreesToRadians(6.7),
-                      Units.degreesToRadians(106))))
+                      Units.degreesToRadians(0),
+                      Units.degreesToRadians(90.409532))))
           .build();
 
   public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =

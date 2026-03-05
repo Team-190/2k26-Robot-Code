@@ -23,7 +23,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   @Getter private IntakeState intakeState;
 
   private Rotation2d agitationAngle;
-  private final Rotation2d agitationDelta;
 
   public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
@@ -36,7 +35,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     intakeState = IntakeState.STOW;
 
     agitationAngle = Rotation2d.fromDegrees(150);
-    agitationDelta = Rotation2d.fromDegrees(15);
 
     setDefaultCommand(defaultCommand());
   }

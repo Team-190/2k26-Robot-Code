@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
 
-  public static final double INTAKE_VOLTAGE = 12.0;
+  public static final double INTAKE_VOLTAGE = 11.0;
   public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);

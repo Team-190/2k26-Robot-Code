@@ -133,14 +133,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeading,
                       NetworkTablesJNI::now,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
-          //   new CameraLimelight(
-          //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG),
-          //       V1_DoomSpiralConstants.LIMELIGHT_LEFT_CONFIG,
-          //       V1_DoomSpiralRobotState::getHeading,
-          //       NetworkTablesJNI::now,
-          //       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-          //       List.of()),
           //   new CameraLimelight(
           //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
           //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
@@ -460,11 +460,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         "Depot And Back Hub",
         () ->
             V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber));
-    autoChooser.addRoutine(
-        "Right Trench 2 Cycle",
-        () ->
-            V1_DoomSpiralAutoRightTrench2Cycle.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
     autoChooser.addRoutine(
         "Climb",
