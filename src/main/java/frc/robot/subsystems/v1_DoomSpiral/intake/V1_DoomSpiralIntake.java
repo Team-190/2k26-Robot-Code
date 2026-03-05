@@ -1,5 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -161,7 +163,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                 && linkage.atGoal(
                     IntakeState.INTAKE
                         .getAngle()
-                        .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))));
+                        .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))
+                && roller.atGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
   }
 
   public Command collect() {
