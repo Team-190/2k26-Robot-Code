@@ -1,134 +1,18 @@
 {
-  "version": 1.0,
-  "grid_size": 64,
+  "version": 1.1,
+  "grid_size": 32,
   "tabs": [
     {
       "name": "Teleoperated",
       "grid_layout": {
-        "layouts": [
-          {
-            "title": "Intake Rollers",
-            "x": 512.0,
-            "y": 448.0,
-            "width": 448.0,
-            "height": 256.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "HIDDEN"
-            },
-            "children": [
-              {
-                "title": "Intake Roller Voltage",
-                "x": 896.0,
-                "y": 256.0,
-                "width": 256.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Intake/Roller1/Voltage Magnitude",
-                  "period": 0.06,
-                  "data_type": "double"
-                }
-              },
-              {
-                "title": "Voltage Offset",
-                "x": 896.0,
-                "y": 256.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Intake/Roller1/Voltage Offset",
-                  "period": 0.06,
-                  "data_type": "double"
-                }
-              },
-              {
-                "title": "AppliedVolts",
-                "x": 896.0,
-                "y": 256.0,
-                "width": 384.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/Intake/Roller1/AppliedVolts",
-                  "period": 0.06,
-                  "data_type": "double[]"
-                }
-              }
-            ]
-          },
-          {
-            "title": "Shooter",
-            "x": 0.0,
-            "y": 576.0,
-            "width": 512.0,
-            "height": 384.0,
-            "type": "List Layout",
-            "properties": {
-              "label_position": "TOP"
-            },
-            "children": [
-              {
-                "title": "Flywheel Velocity (rad/s)",
-                "x": 256.0,
-                "y": 896.0,
-                "width": 384.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/Flywheel Velocity Magnitude",
-                  "period": 0.06,
-                  "data_type": "double"
-                }
-              },
-              {
-                "title": "Flywheel Offset (rad/s)",
-                "x": 256.0,
-                "y": 896.0,
-                "width": 384.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/Velocity Offset",
-                  "period": 0.06,
-                  "data_type": "double"
-                }
-              },
-              {
-                "title": "Hood Angle (º)",
-                "x": 256.0,
-                "y": 896.0,
-                "width": 384.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/Goal Degrees",
-                  "period": 0.06
-                }
-              },
-              {
-                "title": "Hood Offset (º)",
-                "x": 0.0,
-                "y": 768.0,
-                "width": 384.0,
-                "height": 128.0,
-                "type": "Large Text Display",
-                "properties": {
-                  "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/Offset Degrees",
-                  "period": 0.06
-                }
-              }
-            ]
-          }
-        ],
+        "layouts": [],
         "containers": [
           {
             "title": "Hub Active?",
-            "x": 0.0,
+            "x": 416.0,
             "y": 0.0,
-            "width": 512.0,
-            "height": 192.0,
+            "width": 256.0,
+            "height": 288.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/RobotState/Shift Period/Active",
@@ -144,20 +28,20 @@
             "title": "Seconds Until Shift Change",
             "x": 0.0,
             "y": 192.0,
-            "width": 512.0,
-            "height": 384.0,
+            "width": 416.0,
+            "height": 352.0,
             "type": "Large Text Display",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/RobotState/Shift Period/Time Remaining",
               "period": 0.06,
-              "data_type": "string"
+              "data_type": "double"
             }
           },
           {
             "title": "Match Time",
-            "x": 512.0,
+            "x": 0.0,
             "y": 0.0,
-            "width": 448.0,
+            "width": 416.0,
             "height": 192.0,
             "type": "Match Time",
             "properties": {
@@ -171,10 +55,10 @@
           },
           {
             "title": "Battery Voltage",
-            "x": 512.0,
-            "y": 192.0,
-            "width": 448.0,
-            "height": 128.0,
+            "x": 672.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 160.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
@@ -189,9 +73,9 @@
           },
           {
             "title": "FMS Info",
-            "x": 512.0,
-            "y": 320.0,
-            "width": 448.0,
+            "x": 672.0,
+            "y": 160.0,
+            "width": 384.0,
             "height": 128.0,
             "type": "FMSInfo",
             "properties": {
@@ -201,8 +85,8 @@
           },
           {
             "title": "Intake Angle (º)",
-            "x": 512.0,
-            "y": 704.0,
+            "x": 416.0,
+            "y": 416.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Large Text Display",
@@ -214,9 +98,9 @@
           },
           {
             "title": "Offset (º)",
-            "x": 768.0,
-            "y": 704.0,
-            "width": 192.0,
+            "x": 672.0,
+            "y": 416.0,
+            "width": 160.0,
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
@@ -227,8 +111,8 @@
           },
           {
             "title": "Spindexer Voltage",
-            "x": 512.0,
-            "y": 832.0,
+            "x": 416.0,
+            "y": 544.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Large Text Display",
@@ -240,9 +124,9 @@
           },
           {
             "title": "Offset (V)",
-            "x": 768.0,
-            "y": 832.0,
-            "width": 192.0,
+            "x": 672.0,
+            "y": 544.0,
+            "width": 160.0,
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
@@ -253,10 +137,10 @@
           },
           {
             "title": "Field",
-            "x": 960.0,
-            "y": 448.0,
-            "width": 960.0,
-            "height": 512.0,
+            "x": 832.0,
+            "y": 416.0,
+            "width": 1056.0,
+            "height": 384.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -273,17 +157,131 @@
             }
           },
           {
-            "title": "Shooter Cam",
-            "x": 960.0,
+            "title": "limelight-shooter",
+            "x": 1056.0,
             "y": 0.0,
-            "width": 960.0,
-            "height": 448.0,
+            "width": 832.0,
+            "height": 416.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/limelight-shooter",
               "period": 0.06,
-              "rotation_turns": 0,
-              "compression": 98
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "AppliedVolts",
+            "x": 832.0,
+            "y": 288.0,
+            "width": 224.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/Intake/Roller1/AppliedVolts",
+              "period": 0.06,
+              "data_type": "double[]"
+            }
+          },
+          {
+            "title": "Voltage Offset",
+            "x": 672.0,
+            "y": 288.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/Roller1/Voltage Offset",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Intake Roller Voltage",
+            "x": 416.0,
+            "y": 288.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/Roller1/Voltage Magnitude",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Flywheel Velocity (rad/s)",
+            "x": 0.0,
+            "y": 544.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/Velocity Magnitude",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Hood Angle (º)",
+            "x": 0.0,
+            "y": 672.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/Angle Degrees",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Hood Offset (º)",
+            "x": 256.0,
+            "y": 672.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Hood/Offset Degrees",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Flywheel Offset (rad/s)",
+            "x": 256.0,
+            "y": 544.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Shooter/Flywheel/Velocity Offset",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Feeder Voltage",
+            "x": 416.0,
+            "y": 672.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Spindexer/RollerFeeder/Voltage Magnitude",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Feeder Offset",
+            "x": 672.0,
+            "y": 672.0,
+            "width": 160.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Spindexer/RollerFeeder/Voltage Offset",
+              "period": 0.06,
+              "data_type": "double"
             }
           }
         ]
@@ -295,10 +293,10 @@
         "layouts": [],
         "containers": [
           {
-            "title": "Autonomous Mode",
+            "title": "Autonomous Modes",
             "x": 0.0,
             "y": 0.0,
-            "width": 384.0,
+            "width": 416.0,
             "height": 512.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -309,9 +307,9 @@
           },
           {
             "title": "Match Time",
-            "x": 384.0,
+            "x": 416.0,
             "y": 0.0,
-            "width": 384.0,
+            "width": 416.0,
             "height": 192.0,
             "type": "Match Time",
             "properties": {
@@ -325,10 +323,10 @@
           },
           {
             "title": "Battery Voltage",
-            "x": 384.0,
+            "x": 416.0,
             "y": 192.0,
-            "width": 384.0,
-            "height": 128.0,
+            "width": 416.0,
+            "height": 160.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/AdvantageKit/SystemStats/BatteryVoltage",
@@ -343,10 +341,10 @@
           },
           {
             "title": "FMS Info",
-            "x": 384.0,
-            "y": 320.0,
-            "width": 384.0,
-            "height": 192.0,
+            "x": 416.0,
+            "y": 352.0,
+            "width": 416.0,
+            "height": 160.0,
             "type": "FMSInfo",
             "properties": {
               "topic": "/FMSInfo",
@@ -355,9 +353,9 @@
           },
           {
             "title": "Field",
-            "x": 768.0,
+            "x": 832.0,
             "y": 0.0,
-            "width": 1152.0,
+            "width": 1056.0,
             "height": 512.0,
             "type": "Field",
             "properties": {
@@ -375,8 +373,8 @@
             }
           },
           {
-            "title": "Right",
-            "x": 1280.0,
+            "title": "limelight-right",
+            "x": 1312.0,
             "y": 512.0,
             "width": 640.0,
             "height": 448.0,
@@ -388,7 +386,7 @@
             }
           },
           {
-            "title": "Shooter",
+            "title": "limelight-shooter",
             "x": 640.0,
             "y": 512.0,
             "width": 640.0,
@@ -401,7 +399,7 @@
             }
           },
           {
-            "title": "Left",
+            "title": "limelight-shooter",
             "x": 0.0,
             "y": 512.0,
             "width": 640.0,
