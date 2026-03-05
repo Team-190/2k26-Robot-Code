@@ -316,7 +316,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer).withName("right-trigger"))
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
+                .withName("right-trigger"))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     driver
@@ -373,7 +375,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.e8().whileTrue(climber.counterClockwiseSlow()).onFalse(climber.setVoltage(0));
 
-    xkeys.e10().onTrue(V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber).withName("e10"));
+    xkeys
+        .e10()
+        .onTrue(V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber).withName("e10"));
 
     // Spindexer button board commands
     xkeys
@@ -423,21 +427,29 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.d2().onTrue(intake.incrementCollectOffset().withName("d2"));
     xkeys
         .e1()
-        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE).withName("e1"))
+        .whileTrue(
+            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE).withName("e1"))
         .onFalse(intake.stopRoller().withName("e1-false"));
     xkeys
         .e2()
-        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
+        .whileTrue(
+            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
         .onFalse(intake.stopRoller().withName("e2"));
     xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("f1"));
     xkeys.f2().onTrue(intake.decreaseSpeedOffset().withName("f2"));
     xkeys
         .g1()
-        .whileTrue(intake.setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE).withName("g1"))
+        .whileTrue(
+            intake
+                .setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("g1"))
         .onFalse(intake.setLinkageVoltage(0).withName("g1-FALSE"));
     xkeys
         .g2()
-        .whileTrue(intake.setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE).withName("g2"))
+        .whileTrue(
+            intake
+                .setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("g2"))
         .onFalse(intake.setLinkageVoltage(0).withName("g2-FALSE"));
     xkeys.h1().or(xkeys.h2().or(xkeys.h3())).whileTrue(intake.agitate().withName("h1-h2-h3"));
   }
