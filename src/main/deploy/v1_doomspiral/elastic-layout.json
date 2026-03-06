@@ -399,14 +399,14 @@
             }
           },
           {
-            "title": "limelight-shooter",
+            "title": "limelight-climber",
             "x": 0.0,
             "y": 512.0,
             "width": 640.0,
             "height": 448.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/limelight-shooter",
+              "topic": "/CameraPublisher/limelight-climber",
               "period": 0.06,
               "rotation_turns": 0
             }
