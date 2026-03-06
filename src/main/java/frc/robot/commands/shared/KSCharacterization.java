@@ -3,7 +3,7 @@ package frc.robot.commands.shared;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;

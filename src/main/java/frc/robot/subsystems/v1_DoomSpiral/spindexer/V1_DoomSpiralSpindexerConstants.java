@@ -1,11 +1,16 @@
 package frc.robot.subsystems.v1_DoomSpiral.spindexer;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 
 public class V1_DoomSpiralSpindexerConstants {
@@ -22,11 +27,11 @@ public class V1_DoomSpiralSpindexerConstants {
 
   public static final double SPINDEXER_VOLTAGE;
   public static final double SPINDEXER_SLOW_VOLTAGE;
-  public static final double SPINDEXER_INCREMENT_VOLTAGE;
+  public static final Voltage SPINDEXER_INCREMENT_VOLTAGE;
 
   static {
     SPINDEXER_MOTOR_CAN_ID = 40;
-    SPINDEXER_GEAR_RATIO = 117.0 / 10.0;
+    SPINDEXER_GEAR_RATIO = (117.0 / 10.0) * 2.5;
     SPINDEXER_STATOR_CURRENT_LIMIT = 40.0;
     SPINDEXER_SUPPLY_CURRENT_LIMIT = 40.0;
     SPINDEXER_MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
@@ -38,28 +43,40 @@ public class V1_DoomSpiralSpindexerConstants {
 
     SPINDEXER_VOLTAGE = 12.0;
     SPINDEXER_SLOW_VOLTAGE = 2.0;
-    SPINDEXER_INCREMENT_VOLTAGE = 0.25;
+    SPINDEXER_INCREMENT_VOLTAGE = Volts.of(0.25);
   }
 
   public static final GenericRollerConstants KICKER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(41)
-          .withSupplyCurrentLimit(30.0)
+          .withLeaderCANID(41)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(30.0))
+                  .withStatorCurrentLimit(Amps.of(30.0))
+                  .build())
           .withRollerGearbox(DCMotor.getKrakenX44(1))
           .withRollerMotorGearRatio(24.0 / 16.0)
+          .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
           .withNeutralMode(NeutralModeValue.Coast)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0000559571))
           .withCanBus(CANBus.roboRIO())
+          .withVoltageOffsetStep(SPINDEXER_INCREMENT_VOLTAGE)
           .build();
 
   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
       GenericRollerConstants.builder()
-          .withRollerCANID(42)
-          .withSupplyCurrentLimit(30.0)
+          .withLeaderCANID(42)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(30.0))
+                  .withStatorCurrentLimit(Amps.of(30.0))
+                  .build())
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(1.0)
           .withNeutralMode(NeutralModeValue.Brake)
+          .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001710116))
           .withCanBus(CANBus.roboRIO())
+          .withVoltageOffsetStep(SPINDEXER_INCREMENT_VOLTAGE)
           .build();
 }

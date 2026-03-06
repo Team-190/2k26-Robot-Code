@@ -1,18 +1,20 @@
 package frc.robot.subsystems.v0_Funky.shooter;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.CurrentLimits;
 import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
-import frc.robot.subsystems.shared.turret.TurretConstants.TurretConstraints;
-import frc.robot.subsystems.shared.turret.TurretConstants.TurretGains;
 
 public class ShooterConstants {
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
@@ -20,25 +22,47 @@ public class ShooterConstants {
           .withLeaderCANID(30)
           .withCanBus(CANBus.roboRIO())
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
-          .withCurrentLimit(new CurrentLimits(60.0, 40.0))
+          .withCurrentLimit(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(40.0))
+                  .withStatorCurrentLimit(Amps.of(80))
+                  .build())
           .withMomentOfInertia(0.05)
           .withGearRatio(1.0)
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
-          .withGains(
-              new GenericFlywheelConstants.Gains(
-                  new LoggedTunableNumber("Shooter/Flywheel/Ks", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kv", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Ka", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kp", 0),
-                  new LoggedTunableNumber("Shooter/Flywheel/Kd", 0)))
+          .withVoltageGains(
+              Gains.builder()
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kp"))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kd"))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Ks"))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Kv"))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/Voltage/Ka"))
+                  .build())
+          .withTorqueGains(
+              Gains.fromDoubles()
+                  .withPrefix("Shooter/Flywheel/Torque")
+                  .withKP(0.1)
+                  .withKI(0.0)
+                  .withKD(0.0)
+                  .withKS(0.2)
+                  .withKV(0.12)
+                  .withKA(0.0)
+                  .withKG(0.0)
+                  .build())
           .withConstraints(
-              new GenericFlywheelConstants.Constraints(
-                  new LoggedTunableNumber(
-                      "Shooter/Flywheel/MaxAccelerationRotationsPerSecondSquared", 6),
-                  new LoggedTunableNumber(
-                      "Shooter/Flywheel/CruisingVelocityRotationsPerSecondSquared", 4),
-                  new LoggedTunableNumber("Shooter/Flywheel/GoalToleranceRadians", 0.05)))
+              AngularConstraints.builder()
+                  .withMaxAcceleration(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(6)))
+                  .withMaxVelocity(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(4)))
+                  .withGoalTolerance(
+                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
+                  .build())
           .withOpposedFollowerCANID(31)
+          .withVelocityOffsetStep(RadiansPerSecond.of(5))
+          .withVoltageOffsetStep(Volts.of(1))
           .withEnableFOC(false)
           .build();
 
@@ -63,7 +87,7 @@ public class ShooterConstants {
           .withE2Offset(
               Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
           .withGains(
-              TurretGains.builder()
+              Gains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 28.624920))
                   .withKD(new LoggedTunableNumber("Turret/Kd", 0.5))
                   .withKS(new LoggedTunableNumber("Turret/Ks", 0.158040))
@@ -71,15 +95,16 @@ public class ShooterConstants {
                   .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
                   .build())
           .withConstraints(
-              TurretConstraints.builder()
-                  .withCruisingVelocityRadiansPerSecond(
-                      new LoggedTunableNumber("Turret/CruisingVelocityRadiansPerSecond", 35.566371))
-                  .withMaxAccelerationRadiansPerSecondSquared(
-                      new LoggedTunableNumber(
-                          "Turret/MaxAccelerationRadiansPerSecondSquared", 89.566371))
-                  .withGoalToleranceRadians(
-                      new LoggedTunableNumber(
-                          "Turret/GoalToleranceRadians", Units.degreesToRadians(3)))
+              AngularConstraints.builder()
+                  .withMaxAcceleration(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/MaxAcceleration",
+                          RadiansPerSecondPerSecond.of(35.566371)))
+                  .withMaxVelocity(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(89.566371)))
+                  .withGoalTolerance(
+                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()

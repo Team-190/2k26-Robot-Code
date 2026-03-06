@@ -1,11 +1,14 @@
 package frc.robot.subsystems.shared.hood;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -17,6 +20,7 @@ public class HoodConstants {
   @NonNull public final Double gearRatio;
   @NonNull public final Double currentLimits;
   @NonNull public final Double momentOfInertia;
+  @NonNull public final InvertedValue invertedValue;
   @NonNull public final DCMotor motorConfig;
   @NonNull public final Double lengthMeters;
   @NonNull public final Rotation2d minAngle;
@@ -27,7 +31,9 @@ public class HoodConstants {
   @NonNull public final Current zeroCurrentEpsilon;
 
   @NonNull public final Gains gains;
-  @NonNull public final Constraints constraints;
+  @NonNull public final AngularConstraints constraints;
+
+  @NonNull public final Angle offsetStep;
 
   public enum HoodGoal {
     SCORE,
@@ -35,18 +41,4 @@ public class HoodConstants {
     STOW,
     OVERRIDE
   }
-
-  @Builder(setterPrefix = "with")
-  public record Gains(
-      @NonNull LoggedTunableNumber kp,
-      @NonNull LoggedTunableNumber kd,
-      @NonNull LoggedTunableNumber ks,
-      @NonNull LoggedTunableNumber kv,
-      @NonNull LoggedTunableNumber ka) {}
-
-  @Builder(setterPrefix = "with")
-  public record Constraints(
-      @NonNull LoggedTunableNumber maxVelocityRadiansPerSecond,
-      @NonNull LoggedTunableNumber maxAccelerationRadiansPerSecondSqaured,
-      @NonNull LoggedTunableNumber goalToleranceRadians) {}
 }

@@ -1,16 +1,14 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
@@ -23,7 +21,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
@@ -36,19 +33,18 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
-import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralIntakeTest;
+import frc.robot.commands.v1_DoomSpiral.autonomous.*;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
+import frc.robot.subsystems.v1_DoomSpiral.leds.V1_DoomSpiralCANdle;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
@@ -58,7 +54,8 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalo
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.XKeysInput;
+import frc.robot.util.input.XKeysInput;
+import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
@@ -70,9 +67,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
+  private V1_DoomSpiralCANdle leds;
   private V1_DoomSpiralShooter shooter;
 
-  private final CommandXboxController driver = new CommandXboxController(0);
+  private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
@@ -100,7 +98,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
+          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new V1_DoomSpiralClimber(
                   new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
@@ -109,8 +107,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFX(
                       V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new GenericRollerIOTalonFX(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_BOTTOM),
                   new FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -126,17 +122,30 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-
           vision =
               new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark),
                   new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_CONFIG,
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      NetworkTablesJNI::now,
+                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
                       NetworkTablesJNI::now,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
+          //   new CameraLimelight(
+          //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+          //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+          //       V1_DoomSpiralRobotState::getHeading,
+          //       NetworkTablesJNI::now,
+          //       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+          //       List.of()));
           break;
 
         case V1_DOOMSPIRAL_SIM:
@@ -156,9 +165,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new SwerveModuleIOSim(
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-                  () -> Pose2d.kZero,
+                  V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
+          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
               new V1_DoomSpiralClimber(
                   new ArmIOTalonFXSim(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
@@ -167,8 +176,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralIntake(
                   new GenericRollerIOTalonFXSim(
                       V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new GenericRollerIOTalonFXSim(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_BOTTOM),
                   new FourBarLinkageIOSim(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -186,6 +193,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+          leds = new V1_DoomSpiralCANdle();
 
           break;
 
@@ -217,9 +225,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (intake == null) {
-      intake =
-          new V1_DoomSpiralIntake(
-              new GenericRollerIO() {}, new GenericRollerIO() {}, new FourBarLinkageIO() {});
+      intake = new V1_DoomSpiralIntake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
     }
 
     if (spindexer == null) {
@@ -237,7 +243,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (vision == null) {
-      new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+      vision =
+          new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+    }
+
+    if (leds == null) {
+      leds = new V1_DoomSpiralCANdle();
     }
 
     configureButtonBindings();
@@ -246,19 +257,30 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private void configureButtonBindings() {
     drive.setDefaultCommand(
-        DriveCommands.joystickDriveAlignToHub(
+        DriveCommands.joystickDriveRotationLock(
             drive,
             V1_DoomSpiralConstants.DRIVE_CONSTANTS,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX(),
-            () -> driver.getRightX(),
+            () -> -driver.getRightX(),
             V1_DoomSpiralRobotState::getHeading,
             driver.rightTrigger(),
             () ->
-                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                (AllianceFlipUtil.shouldFlip()
+                        ? FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()
+                        : FieldConstants.Hub.topCenterPoint.toTranslation2d())
                     .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
                     .getAngle()
-                    .getRadians()));
+                    .minus(Rotation2d.kCW_Pi_2)
+                    .getRadians(),
+            driver.leftTrigger(),
+            () ->
+                Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                    * (Math.PI / 2.0),
+            driver.x(),
+            () ->
+                Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                    * (Math.PI / 2.0)));
 
     driver
         .povDown()
@@ -268,55 +290,70 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    driver.leftBumper().onTrue(intake.toggleIntake());
-
-    driver.b().whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer));
-
-    driver
-        .x()
-        .onTrue(
-            Commands.either(
-                climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL),
-                climber.setPositionGoal(ClimberGoal.DEFAULT),
-                () ->
-                    climber
-                        .getArmPosition()
-                        .getMeasure()
-                        .isNear(
-                            ClimberGoal.DEFAULT.getPosition().getMeasure(),
-                            Radians.of(
-                                V1_DoomSpiralClimberConstants.CONSTRAINTS
-                                    .goalToleranceRadians()
-                                    .get()))))
-        .whileTrue(
-            climber
-                .waitUntilPosition()
-                .andThen(
-                    DriveCommands.autoAlignTowerCommand(
-                        drive,
-                        V1_DoomSpiralRobotState::getGlobalPose,
-                        V1_DoomSpiralConstants.AUTO_ALIGN_NEAR_CONSTANTS)));
-    driver.y().whileTrue(climber.climbSequenceL3());
+    driver.leftBumper().onTrue(intake.toggleIntake().withName("left-bumper"));
+    // driver
+    //     .leftBumper()
+    //     .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
+    //     .onTrue(
+    //         intake
+    //             .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
+    //             .onlyWhile(() -> !intake.atGoal() || driver.leftBumper().getAsBoolean())
+    //             .andThen(intake.stopRoller()));
+    driver.rightBumper().whileTrue(intake.agitate().withName("right-bumper"));
 
     driver
-        .rightBumper()
-        .onTrue(
-            shooter.setGoal(
-                HoodGoal.SCORE,
-                V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-                    .get(V1_DoomSpiralRobotState.getDistanceToHub())
-                    .in(RadiansPerSecond)));
+        .b()
+        .whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+
+    driver.x().onTrue(V1_DoomSpiralCompositeCommands.deployClimber(intake, climber).withName("x"));
+
+    driver.y().whileTrue(climber.climbSequenceL3()).onFalse(climber.stop());
+
+    //    driver
+    //        .rightBumper()
+    //        .onTrue(shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity));
 
     driver
         .rightTrigger()
         .whileTrue(
-            Commands.parallel(
-                shooter.setGoal(
-                    HoodGoal.SCORE,
-                    (V1_DoomSpiralRobotState.getFlywheelSpeedTree()
-                            .get(V1_DoomSpiralRobotState.getDistanceToHub()))
-                        .in(RadiansPerSecond)),
-                spindexer.setSpindexerVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+            V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
+                .withName("right-trigger"))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+
+    driver
+        .topLeftPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive,
+                shooter,
+                spindexer,
+                V1_DoomSpiralRobotState.FixedShots.LEFT_TRENCH.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+    driver
+        .topRightPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive,
+                shooter,
+                spindexer,
+                V1_DoomSpiralRobotState.FixedShots.RIGHT_TRENCH.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+    driver
+        .bottomLeftPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive, shooter, spindexer, V1_DoomSpiralRobotState.FixedShots.HUB.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+    driver
+        .bottomRightPaddle()
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.fixedShotCommand(
+                drive,
+                shooter,
+                spindexer,
+                V1_DoomSpiralRobotState.FixedShots.TOWER.getParameters()))
+        .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     // Shooter button board commands
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity());
@@ -334,19 +371,23 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.d10().onTrue(climber.climbSequenceL3());
 
-    xkeys.e8().whileTrue(climber.clockwiseSlow());
+    xkeys.e9().whileTrue(climber.clockwiseSlow()).onFalse(climber.setVoltage(0));
 
-    xkeys.e9().whileTrue(climber.counterClockwiseSlow());
+    xkeys.e8().whileTrue(climber.counterClockwiseSlow()).onFalse(climber.setVoltage(0));
 
-    xkeys.e10().onTrue(climber.runZeroSequence());
+    xkeys
+        .e10()
+        .onTrue(V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber).withName("e10"));
 
     // Spindexer button board commands
     xkeys
         .b5()
-        .whileTrue(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE));
+        .whileTrue(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE))
+        .onFalse(spindexer.setVoltage(0));
     xkeys
         .b6()
-        .whileTrue(spindexer.setVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE));
+        .whileTrue(spindexer.setVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE))
+        .onFalse(spindexer.setVoltage(0));
     xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage());
     xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage());
     xkeys.d5().onTrue(spindexer.increaseFeederVoltage());
@@ -355,7 +396,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     // Zero button board commands
 
     xkeys.h8().onTrue(climber.resetClimberZero());
-    xkeys.h9().onTrue(intake.resetIntakeZero());
+    xkeys.h9().onTrue(intake.resetIntakeZero().withName("h9"));
     xkeys.h10().whileTrue(shooter.zeroHood());
 
     // Chassis button board commands
@@ -375,66 +416,69 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     // Intake button board commands
 
-    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
-    xkeys.b2().onTrue(intake.decrementStowOffset());
-    xkeys.b3().onTrue(intake.incrementStowOffset());
-    xkeys
-        .c1()
-        .onTrue(
-            intake
-                .setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)
-                .alongWith(intake.bump()));
-    xkeys.c2().onTrue(intake.decrementBumpOffset());
-    xkeys.c3().onTrue(intake.incrementBumpOffset());
-    xkeys.d1().onTrue(intake.collect());
-    xkeys.d2().onTrue(intake.decrementCollectOffset());
-    xkeys.d3().onTrue(intake.incrementCollectOffset());
+    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("b1"));
+    xkeys.b3().onTrue(intake.decrementStowOffset().withName("b3"));
+    xkeys.b2().onTrue(intake.incrementStowOffset().withName("b2"));
+    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()).withName("c1"));
+    xkeys.c3().onTrue(intake.decrementBumpOffset().withName("c3"));
+    xkeys.c2().onTrue(intake.incrementBumpOffset().withName("c2"));
+    xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("d1"));
+    xkeys.d3().onTrue(intake.decrementCollectOffset().withName("d3"));
+    xkeys.d2().onTrue(intake.incrementCollectOffset().withName("d2"));
     xkeys
         .e1()
-        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))
-        .onFalse(intake.stopRoller());
+        .whileTrue(
+            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE).withName("e1"))
+        .onFalse(intake.stopRoller().withName("e1-false"));
     xkeys
         .e2()
-        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE))
-        .onFalse(intake.stopRoller());
-    xkeys.f1().onTrue(intake.increaseSpeedOffset());
-    xkeys.f2().onTrue(intake.decreaseSpeedOffset());
+        .whileTrue(
+            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
+        .onFalse(intake.stopRoller().withName("e2"));
+    xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("f1"));
+    xkeys.f2().onTrue(intake.decreaseSpeedOffset().withName("f2"));
     xkeys
         .g1()
         .whileTrue(
             intake
-                .getLinkage()
-                .setVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .onlyWhile(
-                    () ->
-                        intake.getLinkage().getPosition().getRadians()
-                            > V1_DoomSpiralIntakeConstants.IntakeState.STOW.getAngle().getRadians())
-                .andThen(intake.getLinkage().setVoltage(0)));
+                .setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("g1"))
+        .onFalse(intake.setLinkageVoltage(0).withName("g1-FALSE"));
     xkeys
-        .g1()
+        .g2()
         .whileTrue(
             intake
-                .getLinkage()
-                .setVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .onlyWhile(
-                    () ->
-                        intake.getLinkage().getPosition().getRadians()
-                            < V1_DoomSpiralIntakeConstants.IntakeState.INTAKE
-                                .getAngle()
-                                .getRadians())
-                .andThen(intake.getLinkage().setVoltage(0)));
-    xkeys
-        .h1()
-        .or(xkeys.h2().or(xkeys.h3()))
-        .whileTrue(
-            intake
-                .toggleIntake()
-                .andThen(intake.waitUntilIntakeAtGoal(), Commands.waitSeconds(0.25))
-                .repeatedly());
+                .setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("g2"))
+        .onFalse(intake.setLinkageVoltage(0).withName("g2-FALSE"));
+    xkeys.h1().or(xkeys.h2().or(xkeys.h3())).whileTrue(intake.agitate().withName("h1-h2-h3"));
   }
 
   private void configureAutos() {
-    // Autos here
+    new V1_DoomSpiralAutoTrajectoryCache();
+
+    autoChooser.addRoutine(
+        "Left Trench Simple",
+        () ->
+            V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Right Trench Simple",
+        () ->
+            V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Depot And Back Hub",
+        () ->
+            V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Climb",
+        () -> V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber));
+
+    SmartDashboard.putData("Autonomous Modes", autoChooser);
+
+    autoChooser.select("Right Trench Simple");
   }
 
   @Override
@@ -454,6 +498,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return V1_DoomSpiralIntakeTest.testIntake(intake);
+    return autoChooser.selectedCommand();
   }
 }

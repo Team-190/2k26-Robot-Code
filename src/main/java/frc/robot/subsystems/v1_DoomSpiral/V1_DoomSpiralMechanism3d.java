@@ -32,7 +32,7 @@ public class V1_DoomSpiralMechanism3d {
 
     Pose3d spindexerPose = new Pose3d(spindexerTranslation, new Rotation3d(spindexerPosition));
     Pose3d climberPose =
-        new Pose3d(climberTranslation, new Rotation3d(climberPosition.getRadians(), 0.0, 0.0));
+        new Pose3d(climberTranslation, new Rotation3d(-climberPosition.getRadians(), 0.0, 0.0));
     Pose3d staticIntakePose = new Pose3d(staticIntakeTranslation, new Rotation3d());
     Pose3d crankPose =
         new Pose3d(

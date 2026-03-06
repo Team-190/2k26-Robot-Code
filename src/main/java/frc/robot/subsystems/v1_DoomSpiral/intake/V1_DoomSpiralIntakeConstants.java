@@ -1,17 +1,22 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Constraints;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Gains;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
@@ -20,32 +25,27 @@ import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
 
-  public static final double INTAKE_VOLTAGE = 12.0;
-  public static final double EXTAKE_VOLTAGE = -12.0;
+  public static final double INTAKE_VOLTAGE = 11.0;
+  public static final double EXTAKE_VOLTAGE = -4.0;
 
-  public static final double ROLLER_VOLTAGE_INCREMENT = 0.25;
-  public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(0.5);
-  public static final double LINKAGE_SLOW_VOLTAGE = 0.5;
+  public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
+  public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
-          .withRollerCANID(20)
-          .withSupplyCurrentLimit(40.0)
+          .withLeaderCANID(20)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(40.0))
+                  .withStatorCurrentLimit(Amps.of(40.0))
+                  .build())
           .withNeutralMode(NeutralModeValue.Coast)
           .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
           .withRollerMotorGearRatio(8.0 / 3.0)
+          .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+          .withOpposedFollowerCANID(21)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-          .withCanBus(CANBus.roboRIO())
-          .build();
-
-  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_BOTTOM =
-      GenericRollerConstants.builder()
-          .withRollerCANID(21)
-          .withSupplyCurrentLimit(40.0)
-          .withNeutralMode(NeutralModeValue.Coast)
-          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-          .withRollerMotorGearRatio(8.0 / 3.0)
-          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
+          .withVoltageOffsetStep(Volts.of(0.25))
           .withCanBus(CANBus.roboRIO())
           .build();
 
@@ -53,10 +53,11 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final int MOTOR_CAN_ID = 22;
   public static final int CAN_CODER_CAN_ID = 23;
+  public static final Rotation2d CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
 
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
-      SensorDirectionValue.CounterClockwise_Positive; // TODO: set correct direction
-  public static final int GEAR_RATIO = 1;
+      SensorDirectionValue.Clockwise_Positive;
+  public static final double GEAR_RATIO = 50.79235079;
   public static final int SUPPLY_CURRENT_LIMIT = 40;
   public static final int STATOR_CURRENT_LIMIT = 40;
 
@@ -66,24 +67,29 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final Rotation2d ZERO_OFFSET = Rotation2d.kPi;
   public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
-  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(170);
+  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(190);
   // points A and D on the intake.
 
   public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
   public static final Gains GAINS =
-      new Gains(
-          new LoggedTunableNumber("Linkage/KP", 1.0),
-          new LoggedTunableNumber("Linkage/KD", 0.1),
-          new LoggedTunableNumber("Linkage/KS", 0.0),
-          new LoggedTunableNumber("Linkage/KV", 0.0),
-          new LoggedTunableNumber("Linkage/KA", 0.0));
-  public static final Constraints CONSTRAINTS =
-      new Constraints(
-          new LoggedTunableNumber("Linkage/Max Velocity", 1.0),
-          new LoggedTunableNumber("Linkage/Max Acceleration", 1.0),
-          new LoggedTunableNumber(
-              "Linkage/Goal Tolerance", Rotation2d.fromDegrees(1.0).getRadians()));
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
+          .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
+          .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+          .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
+          .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+          .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
+          .build();
+  public static final AngularConstraints CONSTRAINTS =
+      AngularConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+          .withGoalTolerance(new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+          .build();
 
   public static final LinkLengths LINK_LENGTHS =
       new LinkLengths(
@@ -126,14 +132,15 @@ public class V1_DoomSpiralIntakeConstants {
           .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
           .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
           .ZERO_OFFSET(ZERO_OFFSET)
+          .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
           .build();
 
   @RequiredArgsConstructor
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(170)),
-    BUMP(Rotation2d.fromDegrees(150));
+    INTAKE(Rotation2d.fromDegrees(168.134766)),
+    BUMP(Rotation2d.fromDegrees(145));
 
     private final Rotation2d angle;
   }
