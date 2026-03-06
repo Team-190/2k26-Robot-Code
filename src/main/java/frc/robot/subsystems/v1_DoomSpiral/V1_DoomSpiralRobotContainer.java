@@ -290,7 +290,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    driver.leftBumper().onTrue(intake.toggleIntake());
+    driver.leftBumper().onTrue(intake.toggleIntake().withName("left-bumper"));
     // driver
     //     .leftBumper()
     //     .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
@@ -299,14 +299,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     //             .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
     //             .onlyWhile(() -> !intake.atGoal() || driver.leftBumper().getAsBoolean())
     //             .andThen(intake.stopRoller()));
-    driver.rightBumper().whileTrue(intake.agitate());
+    driver.rightBumper().whileTrue(intake.agitate().withName("right-bumper"));
 
     driver
         .b()
         .whileTrue(V1_DoomSpiralCompositeCommands.feedCommand(shooter, spindexer))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
-    driver.x().onTrue(V1_DoomSpiralCompositeCommands.deployClimber(intake, climber));
+    driver.x().onTrue(V1_DoomSpiralCompositeCommands.deployClimber(intake, climber).withName("x"));
 
     driver.y().whileTrue(climber.climbSequenceL3()).onFalse(climber.stop());
 
@@ -316,7 +316,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver
         .rightTrigger()
-        .whileTrue(V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer))
+        .whileTrue(
+            V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
+                .withName("right-trigger"))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
     driver
@@ -373,7 +375,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.e8().whileTrue(climber.counterClockwiseSlow()).onFalse(climber.setVoltage(0));
 
-    xkeys.e10().onTrue(V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber));
+    xkeys
+        .e10()
+        .onTrue(V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber).withName("e10"));
 
     // Spindexer button board commands
     xkeys
@@ -392,7 +396,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     // Zero button board commands
 
     xkeys.h8().onTrue(climber.resetClimberZero());
-    xkeys.h9().onTrue(intake.resetIntakeZero());
+    xkeys.h9().onTrue(intake.resetIntakeZero().withName("h9"));
     xkeys.h10().whileTrue(shooter.zeroHood());
 
     // Chassis button board commands
@@ -412,34 +416,42 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     // Intake button board commands
 
-    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()));
-    xkeys.b3().onTrue(intake.decrementStowOffset());
-    xkeys.b2().onTrue(intake.incrementStowOffset());
-    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()));
-    xkeys.c3().onTrue(intake.decrementBumpOffset());
-    xkeys.c2().onTrue(intake.incrementBumpOffset());
-    xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()));
-    xkeys.d3().onTrue(intake.decrementCollectOffset());
-    xkeys.d2().onTrue(intake.incrementCollectOffset());
+    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("b1"));
+    xkeys.b3().onTrue(intake.decrementStowOffset().withName("b3"));
+    xkeys.b2().onTrue(intake.incrementStowOffset().withName("b2"));
+    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()).withName("c1"));
+    xkeys.c3().onTrue(intake.decrementBumpOffset().withName("c3"));
+    xkeys.c2().onTrue(intake.incrementBumpOffset().withName("c2"));
+    xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("d1"));
+    xkeys.d3().onTrue(intake.decrementCollectOffset().withName("d3"));
+    xkeys.d2().onTrue(intake.incrementCollectOffset().withName("d2"));
     xkeys
         .e1()
-        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))
-        .onFalse(intake.stopRoller());
+        .whileTrue(
+            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE).withName("e1"))
+        .onFalse(intake.stopRoller().withName("e1-false"));
     xkeys
         .e2()
-        .whileTrue(intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE))
-        .onFalse(intake.stopRoller());
-    xkeys.f1().onTrue(intake.increaseSpeedOffset());
-    xkeys.f2().onTrue(intake.decreaseSpeedOffset());
+        .whileTrue(
+            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
+        .onFalse(intake.stopRoller().withName("e2"));
+    xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("f1"));
+    xkeys.f2().onTrue(intake.decreaseSpeedOffset().withName("f2"));
     xkeys
         .g1()
-        .whileTrue(intake.setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE))
-        .onFalse(intake.setLinkageVoltage(0));
+        .whileTrue(
+            intake
+                .setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("g1"))
+        .onFalse(intake.setLinkageVoltage(0).withName("g1-FALSE"));
     xkeys
         .g2()
-        .whileTrue(intake.setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE))
-        .onFalse(intake.setLinkageVoltage(0));
-    xkeys.h1().or(xkeys.h2().or(xkeys.h3())).whileTrue(intake.agitate());
+        .whileTrue(
+            intake
+                .setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("g2"))
+        .onFalse(intake.setLinkageVoltage(0).withName("g2-FALSE"));
+    xkeys.h1().or(xkeys.h2().or(xkeys.h3())).whileTrue(intake.agitate().withName("h1-h2-h3"));
   }
 
   private void configureAutos() {
