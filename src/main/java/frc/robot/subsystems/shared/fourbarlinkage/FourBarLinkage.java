@@ -1,5 +1,8 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -12,8 +15,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -26,6 +32,9 @@ public class FourBarLinkage {
 
   private FourBarLinkageState currentState;
   private FourBarLinkageState.Output currentOutput;
+
+  private Supplier<Rotation2d> positionOffset;
+
   private final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
@@ -80,19 +89,57 @@ public class FourBarLinkage {
 
     currentState = FourBarLinkageState.IDLE;
     currentOutput = currentState.set(Volts.of(0));
+    positionOffset = () -> Rotation2d.kZero;
   }
 
   public void periodic() {
     io.updateInputs(inputs);
+
     Logger.processInputs(aKitTopic, inputs);
 
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          io.setPID(constants.GAINS.kP().get(), 0, constants.GAINS.kD().get());
+
+          io.setFeedforward(
+              constants.GAINS.kS().get(),
+              constants.GAINS.kV().get(),
+              constants.GAINS.kG().get(),
+              constants.GAINS.kA().get());
+        },
+        constants.GAINS.kP(),
+        constants.GAINS.kD(),
+        constants.GAINS.kS(),
+        constants.GAINS.kG(),
+        constants.GAINS.kV(),
+        constants.GAINS.kA());
+
+    LoggedTunableMeasure.ifChanged(
+        hashCode(),
+        () ->
+            io.setProfile(
+                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond),
+                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
+                constants.CONSTRAINTS.goalTolerance().get().in(Radians)),
+        constants.CONSTRAINTS.maxAcceleration(),
+        constants.CONSTRAINTS.maxVelocity(),
+        constants.CONSTRAINTS.goalTolerance());
+
+    Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
+    Logger.recordOutput(aKitTopic + "/State", currentState);
+    Logger.recordOutput(
+        aKitTopic + "/Offset Degrees", String.format("%.1f", positionOffset.get().getDegrees()));
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
         io.setVoltage(currentOutput.volts().in(Volts));
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
+        Logger.recordOutput(
+            aKitTopic + "/Angle Degrees",
+            String.format("%.1f", Math.abs(currentOutput.position().getDegrees())));
         io.setPositionGoal(currentOutput.position());
       }
       default -> {}
@@ -150,11 +197,28 @@ public class FourBarLinkage {
    * @param position the goal
    * @return A command to set the goal to the specified value.
    */
-  public Command setPositionGoal(Rotation2d position) {
+  public Command setPositionGoal(Rotation2d position, Supplier<Rotation2d> positionOffset) {
     return Commands.runOnce(
         () -> {
           currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
-          currentOutput = currentState.set(position);
+          currentOutput = currentState.set(position.plus(positionOffset.get()));
+          this.positionOffset = positionOffset;
+        });
+  }
+
+  /**
+   * Set the goal for the linkage.
+   *
+   * @param position the goal
+   * @return A command to set the goal to the specified value.
+   */
+  public Command setPositionGoal(
+      Supplier<Rotation2d> position, Supplier<Rotation2d> positionOffset) {
+    return Commands.runOnce(
+        () -> {
+          currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
+          currentOutput = currentState.set(position.get().plus(positionOffset.get()));
+          this.positionOffset = positionOffset;
         });
   }
 
@@ -179,7 +243,7 @@ public class FourBarLinkage {
    */
   public boolean atGoal(Rotation2d position) {
     return Math.abs(inputs.position.minus(position).getRadians())
-        <= constants.CONSTRAINTS.goalToleranceRadians().get();
+        <= constants.CONSTRAINTS.goalTolerance().get().in(Radians);
   }
 
   /**
@@ -289,6 +353,7 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
+        Commands.print("Sys Id being run"),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> atGoal(constants.MAX_ANGLE)),

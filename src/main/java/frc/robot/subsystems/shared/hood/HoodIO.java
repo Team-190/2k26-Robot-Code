@@ -3,6 +3,10 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
@@ -43,9 +47,9 @@ public interface HoodIO {
   public default void setFeedforward(double ks, double kv, double ka) {}
 
   public default void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {}
+      Measure<AngularVelocityUnit> maxVelocity,
+      Measure<AngularAccelerationUnit> maxAcceleration,
+      Measure<AngleUnit> goalTolerance) {}
 
   /** Checks if the hood is within tolerance */
   public default boolean atGoal() {

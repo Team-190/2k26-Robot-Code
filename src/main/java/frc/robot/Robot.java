@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
-import edu.wpi.team190.gompeilib.core.utility.PhoenixUtil;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
 import frc.robot.util.*;
@@ -120,18 +120,6 @@ public class Robot extends LoggedRobot {
 
     // Start timers
     disabledTimer.restart();
-
-    RobotController.setBrownoutVoltage(6);
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our autonomous chooser on the dashboard.
-    robotContainer =
-        switch (RobotConfig.ROBOT) {
-          case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
-          case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
-          default -> new RobotContainer() {};
-        };
-
-    Elastic.selectTab("Autonomous");
     DriverStation.silenceJoystickConnectionWarning(true);
 
     try {
@@ -169,6 +157,7 @@ public class Robot extends LoggedRobot {
 
     String DEPLOY_DIR =
         Filesystem.getDeployDirectory().getPath()
+            + "/"
             + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
     try {
       var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
@@ -196,6 +185,18 @@ public class Robot extends LoggedRobot {
         .onCommandInterrupt((Command command) -> logCommandFunction.accept(command, false));
 
     WebServer.start(5800, DEPLOY_DIR);
+
+    RobotController.setBrownoutVoltage(6);
+    // Instantiate our RobotContainer. This will perform all our button bindings,
+    // and put our autonomous chooser on the dashboard.
+    robotContainer =
+        switch (RobotConfig.ROBOT) {
+          case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
+          case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
+          default -> new RobotContainer() {};
+        };
+
+    Elastic.selectTab("Autonomous");
 
     startupTimestamp = Timer.getFPGATimestamp();
   }
@@ -259,6 +260,7 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    HubActivePeriod.initialize();
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().cancel(autonomousCommand);
     }

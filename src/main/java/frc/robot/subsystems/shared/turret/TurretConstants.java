@@ -5,7 +5,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -20,8 +21,8 @@ public class TurretConstants {
   @NonNull public final Rotation2d maxAngle;
   @NonNull public final Rotation2d minAngle;
   @NonNull public final Double gearRatio;
-  @NonNull public final TurretGains gains;
-  @NonNull public final TurretConstraints constraints;
+  @NonNull public final Gains gains;
+  @NonNull public final AngularConstraints constraints;
 
   @NonNull public final Rotation2d e1Offset;
   @NonNull public final Rotation2d e2Offset;
@@ -33,20 +34,6 @@ public class TurretConstants {
   @NonNull public final TurretAngleCalculation turretAngleCalculation;
 
   @NonNull public final CANBus canBus;
-
-  @Builder(setterPrefix = "with")
-  public record TurretGains(
-      @NonNull LoggedTunableNumber kP,
-      @NonNull LoggedTunableNumber kD,
-      @NonNull LoggedTunableNumber kV,
-      @NonNull LoggedTunableNumber kA,
-      @NonNull LoggedTunableNumber kS) {}
-
-  @Builder(setterPrefix = "with")
-  public record TurretConstraints(
-      @NonNull LoggedTunableNumber maxAccelerationRadiansPerSecondSquared,
-      @NonNull LoggedTunableNumber cruisingVelocityRadiansPerSecond,
-      @NonNull LoggedTunableNumber goalToleranceRadians) {}
 
   @Builder(setterPrefix = "with")
   public record TurretAngleCalculation(

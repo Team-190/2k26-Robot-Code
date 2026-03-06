@@ -1,12 +1,17 @@
 package frc.robot.commands.shared;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
-import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignNearConstants;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignConstants;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -16,15 +21,12 @@ public class AutoAlignCommand extends Command {
   private final Pose2d targetPose;
   private final BooleanSupplier valid;
   private final Supplier<Pose2d> robotPose;
-  private final AutoAlignNearConstants constants;
 
   private ChassisSpeeds speeds;
 
   private final ProfiledPIDController alignXController;
   private final ProfiledPIDController alignYController;
   private final ProfiledPIDController alignHeadingController;
-
-  private final double maxAccelerationMetersPerSecond;
 
   /**
    * Creates a new AutoAlignCommand.
@@ -41,7 +43,7 @@ public class AutoAlignCommand extends Command {
       Pose2d targetPose,
       BooleanSupplier valid,
       Supplier<Pose2d> robotPose,
-      AutoAlignNearConstants constants,
+      AutoAlignConstants constants,
       double maxAccelerationMetersPerSecond) {
     this.addRequirements(drive);
 
@@ -49,36 +51,38 @@ public class AutoAlignCommand extends Command {
     this.targetPose = targetPose;
     this.valid = valid;
     this.robotPose = robotPose;
-    this.constants = constants;
-    this.maxAccelerationMetersPerSecond = maxAccelerationMetersPerSecond;
 
     alignXController =
         new ProfiledPIDController(
-            constants.xPIDConstants().kP().get(),
+            constants.xGains().kP().get(),
             0.0,
-            constants.xPIDConstants().kD().get(),
+            constants.xGains().kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.xPIDConstants().maxVelocity().get(), maxAccelerationMetersPerSecond));
+                constants.xConstraints().maxVelocity().get().in(MetersPerSecond),
+                maxAccelerationMetersPerSecond));
     alignYController =
         new ProfiledPIDController(
-            constants.yPIDConstants().kP().get(),
+            constants.yGains().kP().get(),
             0.0,
-            constants.yPIDConstants().kD().get(),
+            constants.yGains().kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.yPIDConstants().maxVelocity().get(), maxAccelerationMetersPerSecond));
+                constants.yConstraints().maxVelocity().get().in(MetersPerSecond),
+                maxAccelerationMetersPerSecond));
     alignHeadingController =
         new ProfiledPIDController(
-            constants.omegaPIDConstants().kP().get(),
+            constants.rotationGains().kP().get(),
             0.0,
-            constants.omegaPIDConstants().kD().get(),
+            constants.rotationGains().kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.omegaPIDConstants().maxVelocity().get(), Double.POSITIVE_INFINITY));
+                constants.rotationConstraints().maxVelocity().get().in(RadiansPerSecond),
+                Double.POSITIVE_INFINITY));
 
-    alignXController.setTolerance(constants.xPIDConstants().tolerance().get(), 0);
-    alignYController.setTolerance(constants.yPIDConstants().tolerance().get(), 0);
+    alignXController.setTolerance(constants.xConstraints().goalTolerance().get().in(Meters), 0);
+    alignYController.setTolerance(constants.xConstraints().goalTolerance().get().in(Meters), 0);
 
     alignHeadingController.enableContinuousInput(-Math.PI, Math.PI);
-    alignHeadingController.setTolerance(constants.omegaPIDConstants().tolerance().get(), 0);
+    alignHeadingController.setTolerance(
+        constants.rotationConstraints().goalTolerance().get().in(Radians), 0);
     speeds = new ChassisSpeeds();
   }
 
@@ -130,7 +134,7 @@ public class AutoAlignCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    drive.runVelocity(new ChassisSpeeds());
+    drive.stop();
     alignHeadingController.reset(robotPose.get().getRotation().getRadians());
     alignXController.reset(robotPose.get().getX());
     alignYController.reset(robotPose.get().getY());
