@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
@@ -38,7 +39,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
 
     agitationAngle = Rotation2d.fromDegrees(150);
 
-    setDefaultCommand(defaultCommand());
+    // setDefaultCommand(defaultCommand());
   }
 
   @Override
@@ -155,20 +156,20 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command toggleIntake() {
-    return Commands.parallel(
-        Commands.either(
-            Commands.sequence(
-                stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
-            Commands.sequence(
-                deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
-            () ->
-                (intakeState.equals(IntakeState.INTAKE)
-                    && linkage.atGoal(
-                        IntakeState.INTAKE
-                            .getAngle()
-                            .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))
-                    && roller.atGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)))),
-        waitUntilIntakeAtGoal());
+    return Commands.either(
+        Commands.parallel(
+                Commands.sequence(
+                    stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
+                waitUntilIntakeAtGoal())
+            .andThen(stopRoller()),
+        Commands.sequence(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+        () ->
+            (intakeState.equals(IntakeState.INTAKE)
+                && linkage.atGoal(
+                    IntakeState.INTAKE
+                        .getAngle()
+                        .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))
+                && roller.atGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
   }
 
   public Command collect() {
@@ -228,7 +229,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command waitUntilIntakeAtGoal() {
-    return linkage.waitUntilLinkageAtGoal();
+    return Commands.waitSeconds(GompeiLib.getLoopPeriod())
+        .andThen(linkage.waitUntilLinkageAtGoal());
   }
 
   public Command incrementStowOffset() {
