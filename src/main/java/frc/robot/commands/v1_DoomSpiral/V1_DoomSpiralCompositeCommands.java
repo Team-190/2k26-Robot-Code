@@ -70,7 +70,10 @@ public class V1_DoomSpiralCompositeCommands {
     return Commands.sequence(
         intake.stow(),
         Commands.parallel(
-            Commands.sequence(intake.setRollerVoltage(-12.0), intake.waitUntilIntakeAtGoal()),
+            Commands.sequence(
+                intake.setRollerVoltage(-12.0),
+                intake.waitUntilIntakeAtGoal(),
+                intake.stopRoller()),
             climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO)));
   }
 
