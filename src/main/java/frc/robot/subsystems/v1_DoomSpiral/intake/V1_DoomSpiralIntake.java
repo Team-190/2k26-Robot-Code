@@ -306,11 +306,11 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command increaseSpeedOffset() {
-    return Commands.runOnce(roller::incrementVoltageOffset);
+    return roller.incrementVoltageOffset();
   }
 
   public Command decreaseSpeedOffset() {
-    return Commands.runOnce(roller::decrementVoltageOffset);
+    return roller.decrementVoltageOffset();
   }
 
   public Command defaultCommand() {
