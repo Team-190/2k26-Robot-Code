@@ -142,13 +142,13 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     //         .repeatedly());
     return Commands.parallel(
         Commands.sequence(
-                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170)),
+                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170 + 8)),
                 linkage.setPositionGoal(
                     () -> agitationAngle,
                     () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
                 linkage.waitUntilLinkageAtGoal(),
                 linkage.setPositionGoal(
-                    () -> Rotation2d.fromDegrees(90),
+                    () -> Rotation2d.fromDegrees(90 + 8.0),
                     () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
                 linkage.waitUntilLinkageAtGoal())
             .repeatedly(),
