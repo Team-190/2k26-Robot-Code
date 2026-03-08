@@ -54,11 +54,14 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalo
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.input.TriggerUtil;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.Logger;
 
+@ExtensionMethod({TriggerUtil.class})
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private SwerveDrive drive;
   private GyroIO gyroIO;
@@ -290,7 +293,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    driver.leftBumper().onTrue(intake.toggleIntake().withName("left-bumper"));
+    driver
+        .leftBumper()
+        .toggleBetweenCommandsOnTrue(
+            intake.toggleIntakeDeploy().withName("left-bumper_deploy"),
+            intake.toggleIntake().withName("left-bumper_stow"));
     // driver
     //     .leftBumper()
     //     .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
