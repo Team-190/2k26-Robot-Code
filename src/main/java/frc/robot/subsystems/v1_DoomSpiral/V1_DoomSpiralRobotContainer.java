@@ -470,6 +470,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
     autoChooser.addRoutine(
+        "Left Trench Anti Bucks",
+        () ->
+            V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
         "Right Trench Simple",
         () ->
             V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
