@@ -9,17 +9,16 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import frc.robot.util.InternalLoggedTracer;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
+import frc.robot.util.InternalLoggedTracer;
 
 public class V2_DeltaIntakeIOTalonFX implements V2_DeltaIntakeIO {
-private final TalonFX extensionTalonFX;
+  private final TalonFX extensionTalonFX;
   private final TalonFX rollerTalonFX;
 
   private final TalonFXConfiguration extensionConfig;
@@ -77,7 +76,8 @@ private final TalonFX extensionTalonFX;
     extensionConfig.MotionMagic.MotionMagicCruiseVelocity =
         V2_DeltaIntakeConstants.EXTENSION_MOTOR_CONSTRAINTS.MAX_VELOCITY().get();
 
-    PhoenixUtil.tryUntilOk(5, () -> extensionTalonFX.getConfigurator().apply(extensionConfig, 0.25));
+    PhoenixUtil.tryUntilOk(
+        5, () -> extensionTalonFX.getConfigurator().apply(extensionConfig, 0.25));
 
     rollerConfig = new TalonFXConfiguration();
     rollerConfig.CurrentLimits.withSupplyCurrentLimit(
@@ -86,8 +86,7 @@ private final TalonFX extensionTalonFX;
         V2_DeltaIntakeConstants.CURRENT_LIMITS.ROLLER_STATOR_CURRENT_LIMIT());
     rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    rollerConfig.Feedback.SensorToMechanismRatio =
-        V2_DeltaIntakeConstants.ROLLER_MOTOR_GEAR_RATIO;
+    rollerConfig.Feedback.SensorToMechanismRatio = V2_DeltaIntakeConstants.ROLLER_MOTOR_GEAR_RATIO;
 
     PhoenixUtil.tryUntilOk(5, () -> rollerTalonFX.getConfigurator().apply(rollerConfig, 0.25));
 
@@ -146,8 +145,9 @@ private final TalonFX extensionTalonFX;
 
     extensionTalonFX.setPosition(
         V2_DeltaIntakeConstants.ANGLE_THRESHOLDS.MIN_EXTENSION_ROTATIONS());
-}
-@Override
+  }
+
+  @Override
   public void setExtensionVoltage(double volts) {
     InternalLoggedTracer.reset();
     extensionTalonFX.setControl(voltageRequest.withOutput(volts).withEnableFOC(true));
@@ -196,7 +196,8 @@ private final TalonFX extensionTalonFX;
     extensionConfig.Slot0.kS = kS;
     extensionConfig.Slot0.kV = kV;
     extensionConfig.Slot0.kA = kA;
-    PhoenixUtil.tryUntilOk(5, () -> extensionTalonFX.getConfigurator().apply(extensionConfig, 0.25));
+    PhoenixUtil.tryUntilOk(
+        5, () -> extensionTalonFX.getConfigurator().apply(extensionConfig, 0.25));
     InternalLoggedTracer.record("Update Gains", "Intake/TalonFX");
   }
 
@@ -205,7 +206,8 @@ private final TalonFX extensionTalonFX;
     InternalLoggedTracer.reset();
     extensionConfig.MotionMagic.MotionMagicAcceleration = maxAcceleration;
     extensionConfig.MotionMagic.MotionMagicCruiseVelocity = maxVelocity;
-    PhoenixUtil.tryUntilOk(5, () -> extensionTalonFX.getConfigurator().apply(extensionConfig, 0.25));
+    PhoenixUtil.tryUntilOk(
+        5, () -> extensionTalonFX.getConfigurator().apply(extensionConfig, 0.25));
     InternalLoggedTracer.record("Update Constraints", "Intake/TalonFX");
   }
 

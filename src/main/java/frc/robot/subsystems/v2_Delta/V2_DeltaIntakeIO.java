@@ -3,9 +3,8 @@ package frc.robot.subsystems.v2_Delta;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
-
 public interface V2_DeltaIntakeIO {
-    
+
   @AutoLog
   public static class V2_DeltaIntakeIOInputs {
     public double extensionPositionMeters = 0.0;

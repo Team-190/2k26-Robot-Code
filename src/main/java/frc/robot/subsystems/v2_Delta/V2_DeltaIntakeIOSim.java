@@ -1,6 +1,5 @@
 package frc.robot.subsystems.v2_Delta;
 
-import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -9,20 +8,21 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.robot.Constants;
 
 public class V2_DeltaIntakeIOSim implements V2_DeltaIntakeIO {
-    public final ElevatorSim extensionSim;
-    public final DCMotorSim rollerSim;
-    
-    private final ProfiledPIDController extensionController;
-    private SimpleMotorFeedforward extensionFeedforward;
+  public final ElevatorSim extensionSim;
+  public final DCMotorSim rollerSim;
 
-    private double extensionAppliedVolts;
-    private double rollerAppliedVolts;
-    private boolean extensionClosedLoop;
+  private final ProfiledPIDController extensionController;
+  private SimpleMotorFeedforward extensionFeedforward;
 
-    public V2_DeltaIntakeIOSim() {
-        extensionSim =
+  private double extensionAppliedVolts;
+  private double rollerAppliedVolts;
+  private boolean extensionClosedLoop;
+
+  public V2_DeltaIntakeIOSim() {
+    extensionSim =
         new ElevatorSim(
             LinearSystemId.createElevatorSystem(
                 V2_DeltaIntakeConstants.EXTENSION_PARAMS.MOTOR(),
@@ -61,11 +61,10 @@ public class V2_DeltaIntakeIOSim implements V2_DeltaIntakeIO {
     extensionClosedLoop = true;
 
     extensionController.enableContinuousInput(-Math.PI, Math.PI);
+  }
 
-    }
-
-    @Override
-    public void updateInputs(V2_DeltaIntakeIOInputs inputs) {
+  @Override
+  public void updateInputs(V2_DeltaIntakeIOInputs inputs) {
     if (extensionClosedLoop) {
       extensionAppliedVolts =
           extensionController.calculate(extensionSim.getPositionMeters())

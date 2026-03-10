@@ -1,7 +1,5 @@
 package frc.robot.subsystems.v2_Delta;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,6 +7,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.util.InternalLoggedTracer;
+import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaIntake extends SubsystemBase {
   private final V2_DeltaIntakeIO io;
@@ -50,7 +49,7 @@ public class V2_DeltaIntake extends SubsystemBase {
   }
 
   public void updateGains(double kP, double kD, double kS, double kA, double kV) {
-     io.updateGains(kP, kD, kS, kV, kA);
+    io.updateGains(kP, kD, kS, kV, kA);
   }
 
   public void updateConstraints(double maxAcceleration, double maxVelocity) {
@@ -62,8 +61,8 @@ public class V2_DeltaIntake extends SubsystemBase {
   }
 
   public Command setRollerVoltage(double volts) {
-    return Commands.runOnce(() -> io.setRollerVoltage(volts));  
-}
+    return Commands.runOnce(() -> io.setRollerVoltage(volts));
+  }
 
   public Command homingSequence() {
     return Commands.sequence(

@@ -2,8 +2,8 @@ package frc.robot.subsystems.v2_Delta;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
+import frc.robot.Constants;
 import lombok.RequiredArgsConstructor;
 
 public class V2_DeltaIntakeConstants {
