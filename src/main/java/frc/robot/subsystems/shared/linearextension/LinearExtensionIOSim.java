@@ -89,10 +89,10 @@ public class LinearExtensionIOSim implements LinearExtensionIO {
   }
 
   @Override
-  public void setProfile(
-      LinearConstraints constraints) {
+  public void setProfile(LinearConstraints constraints) {
     feedback.setConstraints(
-        new Constraints(constraints.maxVelocity().getRawValue(), constraints.maxAcceleration().getRawValue()));
+        new Constraints(
+            constraints.maxVelocity().getRawValue(), constraints.maxAcceleration().getRawValue()));
     feedback.setTolerance(constraints.goalTolerance().getRawValue());
   }
 

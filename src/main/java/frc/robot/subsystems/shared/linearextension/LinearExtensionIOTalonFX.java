@@ -141,7 +141,8 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
     inputs.appliedVolts = appliedVolts.getValue();
     inputs.temperature = temperature.getValue();
     inputs.positionGoal = Distance.ofBaseUnits(positionGoalRotations.getRotations(), Meters);
-    inputs.positionSetpoint = Distance.ofBaseUnits(positionSetpointRotations.getValueAsDouble(), Meters);
+    inputs.positionSetpoint =
+        Distance.ofBaseUnits(positionSetpointRotations.getValueAsDouble(), Meters);
     inputs.positionError = Distance.ofBaseUnits(positionErrorRotations.getValueAsDouble(), Meters);
 
     inputs.canCoderAbsolutePosition =
@@ -170,8 +171,7 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
   }
 
   @Override
-  public void setProfile(
-      LinearConstraints constraints) {
+  public void setProfile(LinearConstraints constraints) {
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
         Units.radiansToRotations(constraints.maxVelocity().getRawValue());
     talonFXConfig.MotionMagic.MotionMagicAcceleration =
@@ -181,7 +181,10 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
 
   @Override
   public boolean atGoal() {
-    return Rotations.of(positionRotations.getValue().baseUnitMagnitude() - positionGoalRotations.getRotations()).baseUnitMagnitude()
+    return Rotations.of(
+                positionRotations.getValue().baseUnitMagnitude()
+                    - positionGoalRotations.getRotations())
+            .baseUnitMagnitude()
         <= Rotations.of(constants.CONSTRAINTS.goalTolerance().getRawValue()).baseUnitMagnitude();
   }
 }

@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface LinearExtensionIO {
@@ -42,8 +41,7 @@ public interface LinearExtensionIO {
   default void setPID(Gains gains) {}
 
   /** Sets motor profile. */
-  default void setProfile(
-      LinearConstraints constraints) {}
+  default void setProfile(LinearConstraints constraints) {}
 
   default void resetExtension() {}
 

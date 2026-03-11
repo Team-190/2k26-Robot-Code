@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
-
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -59,8 +58,7 @@ public class LinearExtension {
                 Volts.of(3.5),
                 Seconds.of(10),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> io.setVoltage(Volts.of(6)), null, subsystem));
+            new SysIdRoutine.Mechanism((voltage) -> io.setVoltage(Volts.of(6)), null, subsystem));
 
     currentState = LinearExtensionState.CLOSED_LOOP_POSITION_CONTROL;
   }
@@ -84,14 +82,13 @@ public class LinearExtension {
 
     LoggedTunableMeasure.ifChanged(
         hashCode(),
-        () ->
-            io.setProfile(
-                constants.CONSTRAINTS),
+        () -> io.setProfile(constants.CONSTRAINTS),
         constants.CONSTRAINTS.maxAcceleration(),
         constants.CONSTRAINTS.maxVelocity(),
         constants.CONSTRAINTS.goalTolerance());
 
-    Logger.recordOutput(aKitTopic + "/velocityRotationsPerSec", inputs.velocity.in(MetersPerSecond));
+    Logger.recordOutput(
+        aKitTopic + "/velocityRotationsPerSec", inputs.velocity.in(MetersPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
 
     switch (currentState) {
@@ -201,14 +198,15 @@ public class LinearExtension {
    * @param kd the derivative gain
    */
   public void setPID(double kp, double kd) {
-    Gains gains = new Gains(
-      new LoggedTunableNumber(aKitTopic, kp), 
-      new LoggedTunableNumber(aKitTopic, 0), 
-      new LoggedTunableNumber(aKitTopic, kd),
-      new LoggedTunableNumber(aKitTopic, 0), 
-      new LoggedTunableNumber(aKitTopic, 0), 
-      new LoggedTunableNumber(aKitTopic, 0), 
-      new LoggedTunableNumber(aKitTopic, 0));
+    Gains gains =
+        new Gains(
+            new LoggedTunableNumber(aKitTopic, kp),
+            new LoggedTunableNumber(aKitTopic, 0),
+            new LoggedTunableNumber(aKitTopic, kd),
+            new LoggedTunableNumber(aKitTopic, 0),
+            new LoggedTunableNumber(aKitTopic, 0),
+            new LoggedTunableNumber(aKitTopic, 0),
+            new LoggedTunableNumber(aKitTopic, 0));
     io.setPID(gains);
   }
 
@@ -223,8 +221,7 @@ public class LinearExtension {
       double maxVelocityRadiansPerSecond,
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
-    io.setProfile(
-        constants.CONSTRAINTS);
+    io.setProfile(constants.CONSTRAINTS);
   }
 
   /**
