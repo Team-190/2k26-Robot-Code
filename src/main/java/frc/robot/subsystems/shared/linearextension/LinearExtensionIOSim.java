@@ -5,13 +5,15 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
 
 public class LinearExtensionIOSim implements LinearExtensionIO {
 
@@ -44,6 +46,7 @@ public class LinearExtensionIOSim implements LinearExtensionIO {
         new SimpleMotorFeedforward(constants.GAINS.kS().get(), constants.GAINS.kV().get());
   }
 
+  @Override
   public void updateInputs(LinearExtensionIOInputs inputs) {
     appliedVolts = MathUtil.clamp(appliedVolts, -12.0, 12.0);
 
@@ -60,42 +63,40 @@ public class LinearExtensionIOSim implements LinearExtensionIO {
     inputs.positionError = Distance.ofBaseUnits(feedback.getPositionError(), Meters);
   }
 
+  @Override
   /** Set voltage. */
-  public void setVoltage(double volts) {
-    appliedVolts = volts;
+  public void setVoltage(Voltage volts) {
+    appliedVolts = volts.baseUnitMagnitude();
   }
 
+  @Override
   /** Set closed loop position setpoint. */
-  public void setPositionGoal(Rotation2d position) {
+  public void setPositionGoal(Distance position) {
     appliedVolts =
-        feedback.calculate(motorSim.getAngularPositionRad(), position.getRadians())
+        feedback.calculate(motorSim.getAngularPositionRad(), position.baseUnitMagnitude())
             + feedforward.calculate(feedback.getSetpoint().velocity);
   }
 
-  public void setPosition(Rotation2d position) {
-    motorSim.setState(position.getRadians(), motorSim.getAngularVelocityRadPerSec());
-    feedback.reset(position.getRadians(), motorSim.getAngularVelocityRadPerSec());
+  @Override
+  public void setPosition(Distance position) {
+    motorSim.setState(position.baseUnitMagnitude(), motorSim.getAngularVelocityRadPerSec());
+    feedback.reset(position.baseUnitMagnitude(), motorSim.getAngularVelocityRadPerSec());
   }
 
-  public void setPID(double kp, double ki, double kd) {
-    feedback.setPID(kp, ki, kd);
+  @Override
+  public void setPID(Gains gains) {
+    feedback.setPID(gains.kP().getAsDouble(), gains.kI().getAsDouble(), gains.kD().getAsDouble());
   }
 
-  public void setFeedforward(double ks, double kv, double kg, double ka) {
-    feedforward.setKs(ks);
-    feedforward.setKv(kv);
-    feedforward.setKa(ka);
-  }
-
+  @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      LinearConstraints constraints) {
     feedback.setConstraints(
-        new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedback.setTolerance(goalToleranceRadians);
+        new Constraints(constraints.maxVelocity().getRawValue(), constraints.maxAcceleration().getRawValue()));
+    feedback.setTolerance(constraints.goalTolerance().getRawValue());
   }
 
+  @Override
   /** Check if the linkage is within tolerance */
   public boolean atGoal() {
     return feedback.atGoal();

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
@@ -60,19 +60,12 @@ public class V2_DeltaIntake extends SubsystemBase {
     return extensionInputs.position.baseUnitMagnitude();
   }
 
-  public void updateGains(double kP, double kD, double kS, double kA, double kV) {
-    extensionIO.updateGains(new Gains(
-      new LoggedTunableNumber(getName(), kP), 
-      new LoggedTunableNumber(getName(), 0), 
-      new LoggedTunableNumber(getName(), kD), 
-      new LoggedTunableNumber(getName(), kS), 
-      new LoggedTunableNumber(getName(), kV), 
-      new LoggedTunableNumber(getName(), kA), 
-      new LoggedTunableNumber(getName(), 0)));
+  public void updateGains(Gains gains) {
+    extensionIO.setPID(gains);
   }
 
-  public void updateConstraints(double maxAcceleration, double maxVelocity) {
-    extensionIO.updateConstraints(maxAcceleration, maxVelocity);
+  public void updateConstraints(LinearConstraints constraints) {
+    extensionIO.setProfile(constraints);
   }
 
   public Command setIntakeVoltage(double volts) {

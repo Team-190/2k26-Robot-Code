@@ -45,10 +45,6 @@ public interface LinearExtensionIO {
   default void setProfile(
       LinearConstraints constraints) {}
 
-  default void updateGains(Gains gains) {}
-
-  default void updateConstraints(double maxAcceleration, double maxVelocity) {}
-
   default void resetExtension() {}
 
   /** Checks if the linkage is at the goal position. */
