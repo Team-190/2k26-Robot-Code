@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
@@ -35,10 +36,10 @@ public class LinearExtensionIOSim implements LinearExtensionIO {
             0.0,
             constants.GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
-                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
+                constants.CONSTRAINTS.maxVelocity().get().in(MetersPerSecond),
+                constants.CONSTRAINTS.maxAcceleration().get().in(MetersPerSecondPerSecond)));
 
-    feedback.setTolerance(constants.CONSTRAINTS.goalTolerance().get().in(Radians));
+    feedback.setTolerance(constants.CONSTRAINTS.goalTolerance().get().in(Meters));
     feedforward =
         new SimpleMotorFeedforward(constants.GAINS.kS().get(), constants.GAINS.kV().get());
   }
@@ -50,13 +51,13 @@ public class LinearExtensionIOSim implements LinearExtensionIO {
 
     motorSim.update(GompeiLib.getLoopPeriod());
 
-    inputs.position = motorSim.getAngularPositionRad();
-    inputs.velocity = RadiansPerSecond.of(motorSim.getAngularVelocityRadPerSec());
+    inputs.position = Distance.ofBaseUnits(motorSim.getAngularPositionRad(), Meters);
+    inputs.velocity = MetersPerSecond.of(motorSim.getAngularVelocityRadPerSec());
     inputs.supplyCurrent = Amps.of(motorSim.getCurrentDrawAmps());
     inputs.appliedVolts = Volts.of(appliedVolts);
-    inputs.positionGoal = feedback.getGoal().position;
-    inputs.positionSetpoint = feedback.getSetpoint().position;
-    inputs.positionError = feedback.getPositionError();
+    inputs.positionGoal = Distance.ofBaseUnits(feedback.getGoal().position, Meters);
+    inputs.positionSetpoint = Distance.ofBaseUnits(feedback.getGoal().position, Meters);
+    inputs.positionError = Distance.ofBaseUnits(feedback.getPositionError(), Meters);
   }
 
   /** Set voltage. */

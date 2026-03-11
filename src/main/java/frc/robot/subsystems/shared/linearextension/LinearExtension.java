@@ -1,19 +1,22 @@
 package frc.robot.subsystems.shared.linearextension;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
+
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,7 +25,7 @@ public class LinearExtension {
   private final String aKitTopic;
   private final LinearExtensionIOInputsAutoLogged inputs;
 
-  private double voltageGoal;
+  private Voltage voltageGoal;
 
   private final LinearExtensionConstants constants;
 
@@ -57,7 +60,7 @@ public class LinearExtension {
                 Seconds.of(10),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
+                (voltage) -> io.setVoltage(Volts.of(6)), null, subsystem));
 
     currentState = LinearExtensionState.CLOSED_LOOP_POSITION_CONTROL;
   }
@@ -70,13 +73,7 @@ public class LinearExtension {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          io.setPID(constants.GAINS.kP().get(), 0, constants.GAINS.kD().get());
-
-          io.setFeedforward(
-              constants.GAINS.kS().get(),
-              constants.GAINS.kV().get(),
-              constants.GAINS.kG().get(),
-              constants.GAINS.kA().get());
+          io.setPID(constants.GAINS);
         },
         constants.GAINS.kP(),
         constants.GAINS.kD(),
@@ -89,14 +86,12 @@ public class LinearExtension {
         hashCode(),
         () ->
             io.setProfile(
-                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond),
-                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
-                constants.CONSTRAINTS.goalTolerance().get().in(Radians)),
+                constants.CONSTRAINTS),
         constants.CONSTRAINTS.maxAcceleration(),
         constants.CONSTRAINTS.maxVelocity(),
         constants.CONSTRAINTS.goalTolerance());
 
-    Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
+    Logger.recordOutput(aKitTopic + "/velocityRotationsPerSec", inputs.velocity.in(MetersPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
 
     switch (currentState) {
@@ -115,7 +110,7 @@ public class LinearExtension {
    *
    * @return The current position of the linear extension as a Rotation2d.
    */
-  public double getPosition() {
+  public Distance getPosition() {
     return inputs.position;
   }
 
@@ -166,7 +161,7 @@ public class LinearExtension {
         });
   }
 
-  public Command setPosition(double position) {
+  public Command setPosition(Distance position) {
     return Commands.runOnce(() -> io.setPosition(position));
   }
 
@@ -186,8 +181,8 @@ public class LinearExtension {
    * @return If the linear extension is within tolerance of the goal (true) or not (false).
    */
   public boolean atGoal(double position) {
-    return Math.abs(inputs.position - position)
-        <= constants.CONSTRAINTS.goalTolerance().get().in(Radians);
+    return Math.abs(inputs.position.baseUnitMagnitude() - position)
+        <= constants.CONSTRAINTS.goalTolerance().get().in(Meters);
   }
 
   /**
@@ -206,7 +201,15 @@ public class LinearExtension {
    * @param kd the derivative gain
    */
   public void setPID(double kp, double kd) {
-    io.setPID(kp, 0.0, kd);
+    Gains gains = new Gains(
+      new LoggedTunableNumber(aKitTopic, kp), 
+      new LoggedTunableNumber(aKitTopic, 0), 
+      new LoggedTunableNumber(aKitTopic, kd),
+      new LoggedTunableNumber(aKitTopic, 0), 
+      new LoggedTunableNumber(aKitTopic, 0), 
+      new LoggedTunableNumber(aKitTopic, 0), 
+      new LoggedTunableNumber(aKitTopic, 0));
+    io.setPID(gains);
   }
 
   /**
@@ -221,7 +224,7 @@ public class LinearExtension {
       double maxAccelerationRadiansPerSecondSquared,
       double goalToleranceRadians) {
     io.setProfile(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
+        constants.CONSTRAINTS);
   }
 
   /**

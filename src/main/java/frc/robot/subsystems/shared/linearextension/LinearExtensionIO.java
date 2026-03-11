@@ -4,21 +4,24 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
+
 import org.littletonrobotics.junction.AutoLog;
 
 public interface LinearExtensionIO {
   @AutoLog
   class LinearExtensionIOInputs {
 
-    public double position = 0.0;
-    public AngularVelocity velocity = RadiansPerSecond.zero();
+    public Distance position;
+    public LinearVelocity velocity = MetersPerSecond.zero();
     public Voltage appliedVolts = Volts.zero();
     public Current supplyCurrent = Amps.zero();
     public Current torqueCurrent = Amps.zero();
     public Temperature temperature = Celsius.zero();
-    public double positionGoal = 0.0;
-    public double positionSetpoint = 0.0;
-    public double positionError = 0.0;
+    public Distance positionGoal;
+    public Distance positionSetpoint;
+    public Distance positionError;
 
     public Rotation2d canCoderAbsolutePosition = new Rotation2d();
   }
@@ -27,25 +30,26 @@ public interface LinearExtensionIO {
   default void updateInputs(LinearExtensionIOInputs inputs) {}
 
   /** Sets motor voltage. */
-  default void setVoltage(double volts) {}
+  default void setVoltage(Voltage volts) {}
 
   /** Sets motor closed loop position. */
-  default void setPosition(double position) {}
+  default void setPosition(Distance position) {}
 
   /** Sets motor closed loop position setpoint. */
-  default void setPositionGoal(double position) {}
+  default void setPositionGoal(Distance position) {}
 
   /** Sets motor PID gains. */
-  default void setPID(double kp, double ki, double kd) {}
-
-  /** Sets feedforward gains */
-  default void setFeedforward(double ks, double kv, double kg, double ka) {}
+  default void setPID(Gains gains) {}
 
   /** Sets motor profile. */
   default void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {}
+      LinearConstraints constraints) {}
+
+  default void updateGains(Gains gains) {}
+
+  default void updateConstraints(double maxAcceleration, double maxVelocity) {}
+
+  default void resetExtension() {}
 
   /** Checks if the linkage is at the goal position. */
   default boolean atGoal() {

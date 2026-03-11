@@ -4,8 +4,8 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
 import lombok.Builder;
 
 @Builder
@@ -26,7 +26,7 @@ public class LinearExtensionConstants {
   public final DCMotor MOTOR_CONFIG;
 
   public final Gains GAINS;
-  public final AngularConstraints CONSTRAINTS;
+  public final LinearConstraints CONSTRAINTS;
 
   @Builder.Default public final boolean ENABLE_FOC = false;
 }

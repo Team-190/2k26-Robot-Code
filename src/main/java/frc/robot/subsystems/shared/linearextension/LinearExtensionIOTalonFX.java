@@ -1,8 +1,10 @@
 package frc.robot.subsystems.shared.linearextension;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -18,6 +20,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class LinearExtensionIOTalonFX implements LinearExtensionIO {
@@ -64,9 +68,9 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
     talonFXConfig.Slot0.kA = constants.GAINS.kA().get();
     talonFXConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
-        constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond);
+        constants.CONSTRAINTS.maxVelocity().get(RotationsPerSecond);
     talonFXConfig.MotionMagic.MotionMagicAcceleration =
-        constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond);
+        constants.CONSTRAINTS.maxAcceleration().get(RotationsPerSecondPerSecond);
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
 
@@ -130,15 +134,15 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
   @Override
   public void updateInputs(LinearExtensionIOInputs inputs) {
 
-    inputs.position = positionRotations.getValueAsDouble();
-    inputs.velocity = RadiansPerSecond.of(velocity.getValueAsDouble());
+    inputs.position = Distance.ofBaseUnits(positionRotations.getValueAsDouble(), Meters);
+    inputs.velocity = MetersPerSecond.of(velocity.getValueAsDouble());
     inputs.supplyCurrent = supplyCurrent.getValue();
     inputs.torqueCurrent = torqueCurrent.getValue();
     inputs.appliedVolts = appliedVolts.getValue();
     inputs.temperature = temperature.getValue();
-    inputs.positionGoal = positionGoalRotations.getRotations();
-    inputs.positionSetpoint = positionSetpointRotations.getValueAsDouble();
-    inputs.positionError = positionErrorRotations.getValueAsDouble();
+    inputs.positionGoal = Distance.ofBaseUnits(positionGoalRotations.getRotations(), Meters);
+    inputs.positionSetpoint = Distance.ofBaseUnits(positionSetpointRotations.getValueAsDouble(), Meters);
+    inputs.positionError = Distance.ofBaseUnits(positionErrorRotations.getValueAsDouble(), Meters);
 
     inputs.canCoderAbsolutePosition =
         Rotation2d.fromRotations(absolutePositionRotations.getValueAsDouble() / 2.0);
@@ -158,38 +162,26 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
   }
 
   @Override
-  public void setPID(double kp, double ki, double kd) {
-    talonFXConfig.Slot0.kP = kp;
-    talonFXConfig.Slot0.kI = ki;
-    talonFXConfig.Slot0.kD = kd;
-    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
-  }
-
-  @Override
-  public void setFeedforward(double ks, double kv, double kg, double ka) {
-    talonFXConfig.Slot0.kS = ks;
-    talonFXConfig.Slot0.kV = kv;
-    talonFXConfig.Slot0.kA = ka;
-    talonFXConfig.Slot0.kG = kg;
+  public void setPID(Gains gains) {
+    talonFXConfig.Slot0.kP = gains.kP().getAsDouble();
+    talonFXConfig.Slot0.kI = gains.kI().getAsDouble();
+    talonFXConfig.Slot0.kD = gains.kD().getAsDouble();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
   }
 
   @Override
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+      LinearConstraints constraints) {
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
-        Units.radiansToRotations(maxVelocityRadiansPerSecond);
+        Units.radiansToRotations(constraints.maxVelocity().getRawValue());
     talonFXConfig.MotionMagic.MotionMagicAcceleration =
-        Units.radiansToRotations(maxAccelerationRadiansPerSecondSquared);
+        Units.radiansToRotations(constraints.maxAcceleration().getRawValue());
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
   }
 
   @Override
   public boolean atGoal() {
-    return Math.abs(
-            positionRotations.getValue().minus(positionGoalRotations.getMeasure()).in(Rotations))
-        <= constants.CONSTRAINTS.goalTolerance().get().in(Rotations);
+    return Rotations.of(positionRotations.getValue().baseUnitMagnitude() - positionGoalRotations.getRotations()).baseUnitMagnitude()
+        <= Rotations.of(constants.CONSTRAINTS.goalTolerance().getRawValue()).baseUnitMagnitude();
   }
 }
