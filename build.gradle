@@ -105,7 +105,25 @@ deploy {
     }
 }
 
-def GLibRepoPath = "edu.wpi.team190:gompeilib:2026.+"
+def getGompeiVersionFromSource() {
+    def configFile = file("src/main/java/frc/robot/RobotConfig.java")
+    if (!configFile.exists()) return "0.0.0-SNAPSHOT" // Fallback if file is missing
+
+    def content = configFile.text
+
+    def robotMatcher = content =~ /ROBOT\s*=\s*RobotType\.(\w+);/
+    if (robotMatcher.find()) {
+        def activeRobot = robotMatcher.group(1)
+
+        def versionMatcher = content =~ /${activeRobot}\("([^"]+)"\)/
+        if (versionMatcher.find()) {
+            return versionMatcher.group(1)
+        }
+    }
+    return "0.0.0-SNAPSHOT"
+}
+
+def GLibRepoPath = ""
 
 repositories {
 
@@ -129,6 +147,8 @@ repositories {
                 includeGroup "edu.wpi.team190"
             }
         }
+        def gompeiLibVersion = getGompeiVersionFromSource()
+        GLibRepoPath = "edu.wpi.team190:gompeilib:${gompeiLibVersion}"
     } else {
         println "Using local GompeiLib build."
 
