@@ -19,7 +19,7 @@ public class Shooter extends SubsystemBase {
         new Turret(
             turretIO,
             this,
-            0,
+            "",
             V0_FunkyRobotState::getGlobalPose,
             ShooterConstants.TURRET_CONSTANTS);
   }
@@ -39,11 +39,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command setTurretGoal(Rotation2d goal) {
-    return turret.setTurretGoal(goal);
+    return turret.setGoal(goal);
   }
 
   public Command waitUntilAtGoal() {
-    return turret.waitUntilTurretAtGoal().alongWith(flywheel.waitUntilAtGoal());
+    return turret.waitUntilAtGoal().alongWith(flywheel.waitUntilAtGoal());
   }
 
   public Command runTurretSysID() {

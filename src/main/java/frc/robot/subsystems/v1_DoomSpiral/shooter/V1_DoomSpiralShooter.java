@@ -1,8 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -109,8 +107,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     hood.periodic();
     flywheel.periodic();
 
-    if (hood.getPositionGoal().equals(HoodGoal.SCORE)
-        || hood.getPositionGoal().equals(HoodGoal.FEED)) {
+    if (hood.getHoodGoal().equals(HoodGoal.SCORE) || hood.getHoodGoal().equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
       V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
     } else {
@@ -120,28 +117,20 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setHoodGoal(HoodGoal goal) {
-    return hood.setGoal(goal);
+    return Commands.runOnce(() -> hood.setGoal(goal));
   }
 
   public Command setOverrideHoodGoal(Rotation2d position) {
     return Commands.runOnce(() -> hood.setOverridePosition(position))
-        .andThen(hood.setGoal(HoodGoal.OVERRIDE));
-  }
-
-  public Command incrementHoodAngle() {
-    return hood.incrementOffset();
-  }
-
-  public Command decrementHoodAngle() {
-    return hood.decrementOffset();
+        .andThen(Commands.runOnce(() -> hood.setGoal(HoodGoal.OVERRIDE)));
   }
 
   public Command setHoodVoltage(double volts) {
-    return hood.setVoltage(volts);
+    return Commands.runOnce(() -> hood.setVoltage(Volts.of(volts)));
   }
 
   public Command stopHood() {
-    return hood.setVoltage(0);
+    return Commands.runOnce(() -> hood.setVoltage(Volts.zero()));
   }
 
   public Command zeroHood() {
@@ -193,11 +182,11 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atGoal() && flywheel.atGoal();
+    return hood.atPositionGoal() && flywheel.atGoal();
   }
 
   public Command waitUntilAtGoal() {
-    return hood.waitUntilHoodAtGoal().alongWith(flywheel.waitUntilAtGoal());
+    return hood.waitUntilAtGoal().alongWith(flywheel.waitUntilAtGoal());
   }
 
   public Command waitUntilFlywheelAtGoal() {

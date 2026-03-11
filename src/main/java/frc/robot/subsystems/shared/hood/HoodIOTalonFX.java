@@ -1,8 +1,6 @@
 package frc.robot.subsystems.shared.hood;
 
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -125,15 +123,19 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setVoltage(double volts) {
+  public void setVoltage(Voltage volts) {
     hoodMotor.setControl(voltageControlRequest.withOutput(volts).withEnableFOC(true));
   }
 
   @Override
-  public void setPosition(Rotation2d position) {
+  public void setPositionGoal(Rotation2d position) {
     positionGoal = position;
     hoodMotor.setControl(
         positionControlRequest.withPosition(positionGoal.getRotations()).withEnableFOC(true));
+  }
+
+  public void setPosition(Rotation2d position) {
+    hoodMotor.setPosition(position.getRotations());
   }
 
   @Override
@@ -163,8 +165,13 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public boolean atGoal() {
-    return Math.abs(positionGoal.getRotations() - positionRotations.getValueAsDouble())
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return Math.abs(positionReference.getRotations() - positionRotations.getValueAsDouble())
         <= constants.constraints.goalTolerance().get().in(Rotations);
+  }
+
+  @Override
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return voltageReference.isNear(appliedVolts.getValue(), Millivolts.of(500));
   }
 }

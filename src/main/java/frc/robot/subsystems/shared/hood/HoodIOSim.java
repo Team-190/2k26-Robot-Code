@@ -13,6 +13,7 @@ import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 
@@ -24,6 +25,8 @@ public class HoodIOSim implements HoodIO {
 
   private Rotation2d positionGoal = new Rotation2d();
   private double appliedVolts = 0.0;
+
+  private final HoodConstants constants;
 
   public HoodIOSim(HoodConstants constants) {
     motorSim =
@@ -49,6 +52,8 @@ public class HoodIOSim implements HoodIO {
     feedback.setTolerance(constants.constraints.goalTolerance().get().in(Radians));
     feedforward =
         new SimpleMotorFeedforward(constants.gains.kS().get(), constants.gains.kV().get());
+
+    this.constants = constants;
   }
 
   @Override
@@ -66,16 +71,22 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void setVoltage(double volts) {
-    appliedVolts = volts;
+  public void setVoltage(Voltage volts) {
+    appliedVolts = volts.in(Volts);
   }
 
   @Override
-  public void setPosition(Rotation2d position) {
+  public void setPositionGoal(Rotation2d position) {
     positionGoal = position;
+    feedback.setGoal(position.getRadians());
     appliedVolts =
         feedback.calculate(position.getRadians())
             + feedforward.calculate(feedback.getSetpoint().velocity);
+  }
+
+  public void setPosition(Rotation2d position) {
+    motorSim.setState(position.getRadians(), motorSim.getVelocityRadPerSec());
+    feedback.reset(position.getRadians(), motorSim.getVelocityRadPerSec());
   }
 
   @Override
@@ -102,7 +113,13 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public boolean atGoal() {
-    return feedback.atGoal();
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return Math.abs(positionReference.getRadians() - motorSim.getAngleRads())
+        <= constants.constraints.goalTolerance().get(Radians);
+  }
+
+  @Override
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return voltageReference.isNear(Volts.of(appliedVolts), Millivolts.of(500));
   }
 }

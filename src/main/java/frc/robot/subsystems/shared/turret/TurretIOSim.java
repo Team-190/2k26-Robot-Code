@@ -1,10 +1,6 @@
 package frc.robot.subsystems.shared.turret;
 
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Radian;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -13,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
@@ -89,10 +86,10 @@ public class TurretIOSim implements TurretIO {
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));
 
-    inputs.turretAngle = Rotation2d.fromRadians(realAngle.in(Radian));
-    inputs.turretVelocityRadiansPerSecond = sim.getAngularVelocityRadPerSec();
-    inputs.turretAppliedVolts = appliedVolts;
-    inputs.turretSupplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.angle = Rotation2d.fromRadians(realAngle.in(Radian));
+    inputs.velocity = sim.getAngularVelocity();
+    inputs.appliedVoltage = Volts.of(appliedVolts);
+    inputs.supplyCurrent = Amp.of(sim.getCurrentDrawAmps());
     inputs.turretGoal = new Rotation2d(positionGoal.getMeasure());
     inputs.turretPositionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
     inputs.turretPositionError = Rotation2d.fromRadians(feedback.getPositionError());
@@ -102,13 +99,14 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void setTurretVoltage(double volts) {
-    appliedVolts = volts;
+  public void setVoltage(Voltage volts) {
+    appliedVolts = volts.in(Volt);
   }
 
   @Override
-  public void setTurretGoal(Rotation2d goal) {
+  public void setGoal(Rotation2d goal) {
     double targetGoal = goal.getRadians();
+    feedback.setGoal(targetGoal);
     appliedVolts =
         feedback.calculate(sim.getAngularPositionRad(), targetGoal)
             + feedforward.calculate(feedback.getSetpoint().velocity);
@@ -116,8 +114,9 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public boolean atTurretPositionGoal() {
-    return feedback.atGoal();
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return sim.getAngularPositionRad() - positionReference.getRadians()
+        <= constants.constraints.goalTolerance().get(Radians);
   }
 
   @Override
