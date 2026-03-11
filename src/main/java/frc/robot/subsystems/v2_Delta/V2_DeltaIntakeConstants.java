@@ -1,140 +1,147 @@
 package frc.robot.subsystems.v2_Delta;
 
+import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Units;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
-import frc.robot.Constants;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBounds;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 public class V2_DeltaIntakeConstants {
-  public static final int EXTENSION_MOTOR_ID;
-  public static final int ROLLER_MOTOR_ID;
-  public static final double EXTENSION_MOTOR_GEAR_RATIO;
-  public static final double EXTENSION_MOTOR_METERS_PER_REV;
-  public static final double ROLLER_MOTOR_GEAR_RATIO;
 
-  public static final CurrentLimits CURRENT_LIMITS;
-  public static final Gains EXTENSION_MOTOR_GAINS;
-  public static final Thresholds ANGLE_THRESHOLDS;
-  public static final Constraints EXTENSION_MOTOR_CONSTRAINTS;
-  public static final ExtensionParameters EXTENSION_PARAMS;
-  public static final RollerParameters ROLLER_PARAMS;
+  public static final double INTAKE_VOLTAGE = 11.0;
+  public static final double EXTAKE_VOLTAGE = -4.0;
 
-  static {
-    EXTENSION_MOTOR_ID = 60;
-    ROLLER_MOTOR_ID = 45; // BS number. Fix.
-    EXTENSION_MOTOR_GEAR_RATIO = 3;
-    EXTENSION_MOTOR_METERS_PER_REV = .0266 * EXTENSION_MOTOR_GEAR_RATIO;
-    ROLLER_MOTOR_GEAR_RATIO = 2.5;
+  public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
+  public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
 
-    switch (Constants.getMode()) {
-      case REAL:
-      case REPLAY:
-      default:
-        CURRENT_LIMITS = new CurrentLimits(40.0, 40.0, 40.0, 40.0);
-        EXTENSION_MOTOR_GAINS =
-            new Gains(
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kP", 100.0),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kD", 0.0),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kS", 0.5),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kV", 0.0),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kA", 0.0));
-        ANGLE_THRESHOLDS = new Thresholds(4.4, 0.0);
-        EXTENSION_MOTOR_CONSTRAINTS =
-            new Constraints(
-                new LoggedTunableNumber("Intake/Extension Motor/Max Acceleration", 500.0),
-                new LoggedTunableNumber("Intake/Extension Motor/Max Velocity", 500.0),
-                new LoggedTunableNumber("Intake/Goal Tolerance", 0.01));
-        EXTENSION_PARAMS =
-            new ExtensionParameters(
-                DCMotor.getKrakenX60(1),
-                0.0042,
-                Units.inchesToMeters(1.0),
-                IntakeExtensionState.STOW.getDistance(),
-                IntakeExtensionState.INTAKE.getDistance());
-        ROLLER_PARAMS = new RollerParameters(DCMotor.getKrakenX60(1), 0.0042);
-        break;
+  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
+      GenericRollerConstants.builder()
+          .withLeaderCANID(20)
+          .withCurrentLimits(
+              CurrentLimits.builder()
+                  .withSupplyCurrentLimit(Amps.of(40.0))
+                  .withStatorCurrentLimit(Amps.of(40.0))
+                  .build())
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+          .withRollerMotorGearRatio(8.0 / 3.0)
+          .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+          .withOpposedFollowerCANID(21)
+          .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
+          .withVoltageOffsetStep(Volts.of(0.25))
+          .withCanBus(CANBus.roboRIO())
+          .build();
 
-      case SIM:
-        CURRENT_LIMITS = new CurrentLimits(40.0, 40.0, 40.0, 40.0);
-        EXTENSION_MOTOR_GAINS =
-            new Gains(
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kP", 40),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kD", 0.0),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kS", 0.0),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kV", 0.0),
-                new LoggedTunableNumber("Intake/Extension Motor Gains/kA", 0.0));
-        ANGLE_THRESHOLDS = new Thresholds(Units.degreesToRadians(90.0), 0.0);
-        EXTENSION_MOTOR_CONSTRAINTS =
-            new Constraints(
-                new LoggedTunableNumber("Intake/Extension Motor/Max Acceleration", 100.0),
-                new LoggedTunableNumber("Intake/Extension Motor/Max Velocity", 100.0),
-                new LoggedTunableNumber("Intake/Goal Tolerance", 0.0));
-        EXTENSION_PARAMS =
-            new ExtensionParameters(
-                DCMotor.getKrakenX60(1),
-                0.0042,
-                Units.inchesToMeters(1.0),
-                IntakeExtensionState.STOW.getDistance(),
-                IntakeExtensionState.INTAKE.getDistance());
-        ROLLER_PARAMS = new RollerParameters(DCMotor.getKrakenX60(1), 0.0042);
-        break;
-    }
-  }
+  public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
 
-  public static final record CurrentLimits(
-      double EXTENSION_SUPPLY_CURRENT_LIMIT,
-      double ROLLER_SUPPLY_CURRENT_LIMIT,
-      double EXTENSION_STATOR_CURRENT_LIMIT,
-      double ROLLER_STATOR_CURRENT_LIMIT) {}
+  public static final int MOTOR_CAN_ID = 22;
+  public static final int CAN_CODER_CAN_ID = 23;
+  public static final Rotation2d CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
 
-  public static final record Gains(
-      LoggedTunableNumber kP,
-      LoggedTunableNumber kD,
-      LoggedTunableNumber kS,
-      LoggedTunableNumber kV,
-      LoggedTunableNumber kA) {}
+  public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
+      SensorDirectionValue.Clockwise_Positive;
+  public static final double GEAR_RATIO = 50.79235079;
+  public static final int SUPPLY_CURRENT_LIMIT = 40;
+  public static final int STATOR_CURRENT_LIMIT = 40;
 
-  public static final record Thresholds(
-      double MAX_EXTENSION_ROTATIONS, double MIN_EXTENSION_ROTATIONS) {}
+  public static final double MOMENT_OF_INERTIA = 0.004;
+  public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+  public static final Rotation2d INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
 
-  public static final record Constraints(
-      LoggedTunableNumber MAX_ACCELERATION,
-      LoggedTunableNumber MAX_VELOCITY,
-      LoggedTunableNumber GOAL_TOLERANCE) {}
+  public static final Rotation2d ZERO_OFFSET = Rotation2d.kPi;
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
+  public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(190);
+  // points A and D on the intake.
 
-  public static final record ExtensionParameters(
-      DCMotor MOTOR,
-      double MASS_KG,
-      double PITCH_DIAMETER,
-      double MIN_EXTENSION,
-      double MAX_EXTENSION) {}
+  public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
-  public static final record RollerParameters(DCMotor MOTOR, double MOMENT_OF_INERTIA) {}
+  public static final Gains GAINS =
+      Gains.builder()
+          .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
+          .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
+          .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+          .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
+          .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+          .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
+          .build();
+  public static final AngularConstraints CONSTRAINTS =
+      AngularConstraints.builder()
+          .withMaxVelocity(
+              new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+          .withMaxAcceleration(
+              new LoggedTunableMeasure<>(
+                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+          .withGoalTolerance(new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+          .build();
 
-  @RequiredArgsConstructor
-  public enum IntakeExtensionState {
-    STOW(0),
-    INTAKE(0.3496120605);
+  public static final LinkLengths LINK_LENGTHS =
+      new LinkLengths(
+          Units.Inches.of(6.943050).in(Units.Meters),
+          Units.Inches.of(8.809879).in(Units.Meters),
+          Units.Inches.of(8.284456).in(Units.Meters),
+          Units.Inches.of(6.4213032).in(Units.Meters));
 
-    private final double distanceMeters;
+  public static final LinkBounds LINK_BOUNDS =
+      new LinkBounds(
+          Units.Inches.of(0.810921).in(Units.Meters),
+          Units.Inches.of(2.86545).in(Units.Meters),
+          Units.Inches.of(4.752162).in(Units.Meters),
+          Units.Inches.of(6.46545).in(Units.Meters));
 
-    public double getDistance() {
-      return distanceMeters;
-    }
-  }
+  public static final LinkConstants LINK_CONST =
+      new LinkConstants(
+          Units.Inches.of(6.092560).in(Units.Meters),
+          Units.Inches.of(2.446682).in(Units.Meters),
+          Units.Inches.of(5.376661).in(Units.Meters));
+
+  public static final FourBarLinkageConstants LINKAGE_CONSTANTS =
+      FourBarLinkageConstants.builder()
+          .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
+          .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
+          .CONSTRAINTS(CONSTRAINTS)
+          .GAINS(GAINS)
+          .GEAR_RATIO(GEAR_RATIO)
+          .INTAKE_ANGLE_OFFSET(INTAKE_ANGLE_OFFSET)
+          .LINKAGE_OFFSET(LINKAGE_OFFSET)
+          .LINK_BOUNDS(LINK_BOUNDS)
+          .LINK_CONST(LINK_CONST)
+          .LINK_LENGTHS(LINK_LENGTHS)
+          .MAX_ANGLE(MAX_ANGLE)
+          .MIN_ANGLE(MIN_ANGLE)
+          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA)
+          .MOTOR_CAN_ID(MOTOR_CAN_ID)
+          .MOTOR_CONFIG(MOTOR_CONFIG)
+          .PIN_LENGTH(PIN_LENGTH)
+          .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
+          .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
+          .ZERO_OFFSET(ZERO_OFFSET)
+          .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
+          .build();
 
   @RequiredArgsConstructor
-  public enum IntakeRollerState {
-    STOP(0.0),
-    INTAKE(6.0),
-    RETRACT(-2.0),
-    OUTTAKE(-6.0);
+  @Getter
+  public enum IntakeState {
+    STOW(Rotation2d.fromDegrees(9)),
+    INTAKE(Rotation2d.fromDegrees(168.134766)),
+    BUMP(Rotation2d.fromDegrees(145));
 
-    private final double voltage;
-
-    public double getVoltage() {
-      return voltage;
-    }
+    private final Rotation2d angle;
   }
 }
