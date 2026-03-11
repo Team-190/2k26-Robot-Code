@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import java.util.function.Supplier;
@@ -218,10 +219,8 @@ public class LinearExtension {
    * @param goalToleranceRadians Tolerance (rad)
    */
   public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    io.setProfile(constants.CONSTRAINTS);
+      LinearConstraints constraints) {
+    io.setProfile(constraints);
   }
 
   /**
