@@ -2,9 +2,7 @@ package frc.robot.subsystems.shared.linearextension;
 
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-
 import static edu.wpi.first.units.Units.Rotations;
-
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -139,14 +137,12 @@ public class LinearExtensionIOTalonFX implements LinearExtensionIO {
     inputs.appliedVolts = appliedVolts.getValue();
     inputs.temperature = temperature.getValue();
     inputs.positionGoal = positionGoalRotations.getRotations();
-    inputs.positionSetpoint =
-        positionSetpointRotations.getValueAsDouble();
+    inputs.positionSetpoint = positionSetpointRotations.getValueAsDouble();
     inputs.positionError = positionErrorRotations.getValueAsDouble();
 
     inputs.canCoderAbsolutePosition =
         Rotation2d.fromRotations(absolutePositionRotations.getValueAsDouble() / 2.0);
   }
-
 
   public void setVoltage(double volts) {
     talonFX.setControl(voltageControlRequest.withOutput(volts));
