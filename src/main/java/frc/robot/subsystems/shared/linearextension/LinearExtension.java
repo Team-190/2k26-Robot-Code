@@ -218,8 +218,7 @@ public class LinearExtension {
    * @param maxAccelerationRadiansPerSecondSquared Maximum acceleration (rad/sec^2)
    * @param goalToleranceRadians Tolerance (rad)
    */
-  public void setProfile(
-      LinearConstraints constraints) {
+  public void setProfile(LinearConstraints constraints) {
     io.setProfile(constraints);
   }
 
