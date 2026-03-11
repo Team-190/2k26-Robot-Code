@@ -172,32 +172,14 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                 && roller.atGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
   }
 
-  public Command toggleIntakeDeploy() {
-    return Commands.sequence(
-        deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
-  }
-
-  public Command toggleStowIntake() {
-    return Commands.sequence(
-            Commands.parallel(
-                Commands.sequence(
-                    stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
-                waitUntilIntakeAtGoal()),
-            stopRoller())
-        .onlyIf(
-            () ->
-                (intakeState.equals(IntakeState.INTAKE)
-                    //                    && linkage.atGoal(
-                    //                        IntakeState.INTAKE
-                    //                            .getAngle()
-                    //
-                    // .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))
-                    && roller.atGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
-  }
-
   public Command collect() {
     return Commands.parallel(
         deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
+  }
+
+  public Command stopCollect() {
+    return Commands.parallel(
+        deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE));
   }
 
   public Command resetIntakeZero() {

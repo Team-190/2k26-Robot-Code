@@ -1,12 +1,10 @@
 package frc.robot;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public final class RobotConfig {
   public static final RobotType ROBOT = RobotType.V1_DOOMSPIRAL;
 
-  @RequiredArgsConstructor
   public enum RobotType {
     V0_FUNKY("2026.+"),
     V0_FUNKY_SIM("2026.+"),

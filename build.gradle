@@ -23,7 +23,7 @@ def ROBOT_MAIN_CLASS = "frc.robot.Main"
 gradle.projectsEvaluated {
     def buildDir = new File("${project.buildDir}/classes/java/main")
     if (!buildDir.exists()) {
-        println "⚠️ Warning: compiled classes not found. Make sure compileJava runs first."
+        logger.warn("⚠️ WARNING: compiled classes not found. Make sure compileJava runs first")
         project.ext.deploySrcDir = "src/main/deploy"
         return
     }
@@ -35,7 +35,7 @@ gradle.projectsEvaluated {
         robotField.setAccessible(true)
         def robotEnumValue = robotField.get(null)  // static field
 
-        println "Detected RobotType: ${robotEnumValue}"
+        logger.info("Detected RobotType: ${robotEnumValue}")
 
         def baseName = robotEnumValue.toString().toLowerCase().replaceAll(/_sim$/, "")
         def candidateDir = "src/main/deploy/${baseName}"
@@ -44,12 +44,12 @@ gradle.projectsEvaluated {
             project.ext.deploySrcDir = candidateDir
             project.ext.deployRobotDir = "/home/lvuser/deploy/${baseName}"
         } else {
-            println "Folder '${candidateDir}' does not exist. Using default deploy folder."
+            logger.warn("WARNING: Folder '${candidateDir}' does not exist. Using default deploy folder.")
         }
 
-        println "deploySrcDir set to: ${project.ext.deploySrcDir}"
+        logger.info("deploySrcDir set to: ${project.ext.deploySrcDir}")
     } catch (Throwable e) {
-        println "Could not read RobotType: ${e.message}"
+        logger.warn("WARNING: Could not read RobotType: ${e.message}")
         project.ext.deploySrcDir = "src/main/deploy"
     }
 }
@@ -107,7 +107,12 @@ deploy {
 
 def getGompeiVersionFromSource() {
     def configFile = file("src/main/java/frc/robot/RobotConfig.java")
-    if (!configFile.exists()) return "0.0.0-SNAPSHOT" // Fallback if file is missing
+    if (!configFile.exists()) {
+        logger.warn("WARNING: No RobotConfig.java class found, falling back to latest GompeiLib package");
+        return "2026+";
+    } else {
+        logger.info("INFO: RobotConfig.java class found");
+    }
 
     def content = configFile.text
 
@@ -150,7 +155,7 @@ repositories {
         def gompeiLibVersion = getGompeiVersionFromSource()
         GLibRepoPath = "edu.wpi.team190:gompeilib:${gompeiLibVersion}"
     } else {
-        println "Using local GompeiLib build."
+        logger.warn("WARNING: Using local GompeiLib build.")
 
         mavenLocal()
         GLibRepoPath = "edu.wpi.team190:gompeilib:0.0.0-SNAPSHOT"
