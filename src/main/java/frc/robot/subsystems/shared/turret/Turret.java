@@ -58,7 +58,7 @@ public class Turret {
                 Volts.of(2),
                 Seconds.of(5),
                 (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
-            new SysIdRoutine.Mechanism(io::setVoltage, null, subsystem));
+            new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
     this.robotPoseSupplier = robotPoseSupplier;
 
@@ -95,7 +95,7 @@ public class Turret {
           io.setPositionGoal(
               wrapRotationWithinBounds(
                   new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle));
-      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltage((Voltage) voltageGoal.getNewSetpoint());
+      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
         positionGoal.setSetpoint(
             translationGoal

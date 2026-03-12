@@ -153,7 +153,7 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setVoltage(Voltage volts) {
+  public void setVoltageGoal(Voltage volts) {
     talonFX.setControl(voltageControlRequest.withOutput(volts));
   }
 

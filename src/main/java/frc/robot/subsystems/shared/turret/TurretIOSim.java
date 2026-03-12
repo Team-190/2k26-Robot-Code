@@ -101,7 +101,7 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void setVoltage(Voltage volts) {
+  public void setVoltageGoal(Voltage volts) {
     appliedVolts = volts.in(Volt);
   }
 

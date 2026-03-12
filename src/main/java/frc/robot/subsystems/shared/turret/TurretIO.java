@@ -40,7 +40,7 @@ public interface TurretIO {
    *
    * @param volts The voltage to set the turret motor to.
    */
-  default void setVoltage(Voltage volts) {}
+  default void setVoltageGoal(Voltage volts) {}
 
   /**
    * Sets the turret goal.
