@@ -3,6 +3,9 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,12 +14,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
-import java.util.function.Supplier;
 import lombok.Getter;
-import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public class Hood {
@@ -28,14 +29,8 @@ public class Hood {
 
   private HoodState currentState;
 
-  @Getter private HoodGoal hoodGoal;
-  private Rotation2d positionGoal;
-  private Voltage voltageGoal;
-
-  @Getter @Setter private Rotation2d overridePosition;
-
-  private final Supplier<Rotation2d> scoreRotationSupplier;
-  private final Supplier<Rotation2d> feedRotationSupplier;
+  @Getter private Setpoint<AngleUnit> positionGoal;
+  @Getter private Setpoint<VoltageUnit> voltageGoal;
 
   private final HoodConstants constants;
 
@@ -47,18 +42,11 @@ public class Hood {
    * @param subsystem the parent subsystem
    * @param name the name of the hood (for logging purposes)
    */
-  public Hood(
-      HoodIO io,
-      HoodConstants constants,
-      Subsystem subsystem,
-      String name,
-      Supplier<Rotation2d> scoreRotationSupplier,
-      Supplier<Rotation2d> feedRotationSupplier) {
+  public Hood(HoodIO io, HoodConstants constants, Subsystem subsystem, String name) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
     this.currentState = HoodState.IDLE;
-    this.hoodGoal = HoodGoal.STOW;
 
     aKitTopic = subsystem.getName() + "/Hood" + name;
 
@@ -71,10 +59,13 @@ public class Hood {
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltage, null, subsystem));
 
-    this.scoreRotationSupplier = scoreRotationSupplier;
-    this.feedRotationSupplier = feedRotationSupplier;
-
-    positionGoal = Rotation2d.kZero;
+    positionGoal =
+        new Setpoint<>(
+            Radians.zero(),
+            constants.offsetStep,
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure());
+    voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
 
     this.constants = constants;
   }
@@ -88,51 +79,49 @@ public class Hood {
 
     switch (currentState) {
       case CLOSED_LOOP_POSITION_CONTROL:
-        Rotation2d position =
-            switch (hoodGoal) {
-              case SCORE -> scoreRotationSupplier.get();
-              case FEED -> feedRotationSupplier.get();
-              case OVERRIDE -> overridePosition;
-              default -> Rotation2d.kZero;
-            };
-        positionGoal = position;
-        io.setPositionGoal(position);
+        io.setPositionGoal(new Rotation2d(positionGoal.getNewSetpoint().baseUnitMagnitude()));
         break;
       case OPEN_LOOP_VOLTAGE_CONTROL:
-        io.setVoltage(voltageGoal);
+        io.setVoltage((Voltage) voltageGoal.getNewSetpoint());
         break;
       case IDLE:
         break;
     }
 
-    Logger.recordOutput(aKitTopic + "/Override Position", overridePosition);
     Logger.recordOutput(aKitTopic + "/At Position Goal", atPositionGoal());
     Logger.recordOutput(aKitTopic + "/At Voltage Goal", atVoltageGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
-    Logger.recordOutput(aKitTopic + "/Position Goal", hoodGoal);
-    Logger.recordOutput(aKitTopic + "/Voltage Goal", voltageGoal);
-  }
-
-  /**
-   * Tells the hood what position it should be in.
-   *
-   * @param goal The position that the robot should be in.
-   * @return The command that moves the robot towards the goal state.
-   */
-  public void setGoal(HoodGoal goal) {
-    currentState = HoodState.CLOSED_LOOP_POSITION_CONTROL;
-    this.hoodGoal = goal;
+    Logger.recordOutput(aKitTopic + "/Voltage Goal", voltageGoal.getSetpoint());
+    Logger.recordOutput(aKitTopic + "Voltage Offset", voltageGoal.getOffset());
+    Logger.recordOutput(
+        aKitTopic + "/Position Goal", new Rotation2d((Angle) positionGoal.getSetpoint()));
+    Logger.recordOutput(aKitTopic + "/Position Offset", positionGoal.getOffset());
   }
 
   /**
    * Sets the voltage being passed into the hood subsystem.
    *
-   * @param volts the voltage passed into the hood.
+   * @param voltageGoal the voltage passed into the hood.
    * @return A command that sets the specified voltage.
    */
-  public void setVoltage(Voltage volts) {
+  public void setVoltageGoal(Voltage voltageGoal) {
     currentState = HoodState.OPEN_LOOP_VOLTAGE_CONTROL;
-    this.voltageGoal = volts;
+    this.voltageGoal.setSetpoint(voltageGoal);
+  }
+
+  public void setVoltageGoal(Setpoint<VoltageUnit> voltageGoal) {
+    currentState = HoodState.OPEN_LOOP_VOLTAGE_CONTROL;
+    this.voltageGoal = voltageGoal;
+  }
+
+  public void setPositionGoal(Rotation2d positionGoal) {
+    currentState = HoodState.CLOSED_LOOP_POSITION_CONTROL;
+    this.positionGoal.setSetpoint(positionGoal.getMeasure());
+  }
+
+  public void setPositionGoal(Setpoint<AngleUnit> positionGoal) {
+    currentState = HoodState.CLOSED_LOOP_POSITION_CONTROL;
+    this.positionGoal = positionGoal;
   }
 
   /**
@@ -141,7 +130,7 @@ public class Hood {
    * @return If the hood is within tolerance of the goal (true) or not (false).
    */
   public boolean atPositionGoal() {
-    return io.atPositionGoal(positionGoal);
+    return io.atPositionGoal(new Rotation2d(positionGoal.getNewSetpoint().baseUnitMagnitude()));
   }
 
   public boolean atPositionGoal(Rotation2d position) {
@@ -149,7 +138,7 @@ public class Hood {
   }
 
   public boolean atVoltageGoal() {
-    return io.atVoltageGoal(voltageGoal);
+    return io.atVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
   }
 
   public boolean atVoltageGoal(Voltage voltage) {

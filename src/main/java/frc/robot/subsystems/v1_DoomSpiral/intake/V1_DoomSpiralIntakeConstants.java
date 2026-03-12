@@ -9,7 +9,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Units;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
@@ -21,7 +23,6 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBo
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public class V1_DoomSpiralIntakeConstants {
 
@@ -113,29 +114,28 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final FourBarLinkageConstants LINKAGE_CONSTANTS =
       FourBarLinkageConstants.builder()
-          .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
-          .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-          .CONSTRAINTS(CONSTRAINTS)
-          .GAINS(GAINS)
-          .GEAR_RATIO(GEAR_RATIO)
-          .INTAKE_ANGLE_OFFSET(INTAKE_ANGLE_OFFSET)
-          .LINKAGE_OFFSET(LINKAGE_OFFSET)
-          .LINK_BOUNDS(LINK_BOUNDS)
-          .LINK_CONST(LINK_CONST)
-          .LINK_LENGTHS(LINK_LENGTHS)
-          .MAX_ANGLE(MAX_ANGLE)
-          .MIN_ANGLE(MIN_ANGLE)
-          .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA)
-          .MOTOR_CAN_ID(MOTOR_CAN_ID)
-          .MOTOR_CONFIG(MOTOR_CONFIG)
-          .PIN_LENGTH(PIN_LENGTH)
-          .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
-          .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
-          .ZERO_OFFSET(ZERO_OFFSET)
-          .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
+          .cancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+          .canCoderCanId(CAN_CODER_CAN_ID)
+          .constraints(CONSTRAINTS)
+          .gains(GAINS)
+          .gearRatio(GEAR_RATIO)
+          .intakeAngleOffset(INTAKE_ANGLE_OFFSET)
+          .linkageOffset(LINKAGE_OFFSET)
+          .linkBounds(LINK_BOUNDS)
+          .linkConstants(LINK_CONST)
+          .linkLengths(LINK_LENGTHS)
+          .maxAngle(MAX_ANGLE)
+          .minAngle(MIN_ANGLE)
+          .momentOfInertia(MOMENT_OF_INERTIA)
+          .motorCanId(MOTOR_CAN_ID)
+          .motorConfig(MOTOR_CONFIG)
+          .pinLength(PIN_LENGTH)
+          .statorCurrentLimit(STATOR_CURRENT_LIMIT)
+          .supplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+          .zeroOffset(ZERO_OFFSET)
+          .canCoderOffset(CAN_CODER_OFFSET)
           .build();
 
-  @RequiredArgsConstructor
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
@@ -143,5 +143,17 @@ public class V1_DoomSpiralIntakeConstants {
     BUMP(Rotation2d.fromDegrees(145));
 
     private final Rotation2d angle;
+
+    IntakeState(Rotation2d angle) {
+      this.angle = angle;
+      setpoint =
+          new Setpoint<>(
+              angle.getMeasure(),
+              LINKAGE_ANGLE_INCREMENT.getMeasure(),
+              MAX_ANGLE.getMeasure(),
+              MIN_ANGLE.getMeasure());
+    }
+
+    @Getter private final Setpoint<AngleUnit> setpoint;
   }
 }

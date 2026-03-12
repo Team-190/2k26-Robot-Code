@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
@@ -13,50 +14,47 @@ import lombok.Builder;
 @Builder
 public class FourBarLinkageConstants {
 
-  @Builder.Default public final CANBus CAN_LOOP = CANBus.roboRIO();
+  @Builder.Default public final CANBus canBus = CANBus.roboRIO();
 
-  public final int MOTOR_CAN_ID;
+  public final int motorCanId;
 
-  public final int CAN_CODER_CAN_ID;
-  public final Rotation2d CAN_CODER_OFFSET;
-  public final SensorDirectionValue CANCODER_SENSOR_DIRECTION;
+  public final int canCoderCanId;
+  public final Rotation2d canCoderOffset;
+  public final SensorDirectionValue cancoderSensorDirection;
 
-  public final Rotation2d INTAKE_ANGLE_OFFSET;
-  public final Rotation2d ZERO_OFFSET;
+  public final Rotation2d intakeAngleOffset;
+  public final Rotation2d zeroOffset;
 
-  public final double GEAR_RATIO;
-  public final double SUPPLY_CURRENT_LIMIT;
-  public final double STATOR_CURRENT_LIMIT;
-  public final double MOMENT_OF_INERTIA;
-  public final DCMotor MOTOR_CONFIG;
+  public final double gearRatio;
+  public final double supplyCurrentLimit;
+  public final double statorCurrentLimit;
+  public final double momentOfInertia;
+  public final DCMotor motorConfig;
 
-  public final Rotation2d MIN_ANGLE;
-  public final Rotation2d MAX_ANGLE;
+  public final Rotation2d minAngle;
+  public final Rotation2d maxAngle;
 
-  public final Gains GAINS;
-  public final AngularPositionConstraints CONSTRAINTS;
+  public final Gains gains;
+  public final AngularPositionConstraints constraints;
 
-  public final LinkLengths LINK_LENGTHS;
-  public final LinkBounds LINK_BOUNDS;
+  public final LinkLengths linkLengths;
+  public final LinkBounds linkBounds;
 
-  public final LinkConstants LINK_CONST;
+  public final LinkConstants linkConstants;
 
-  public final double PIN_LENGTH;
-  public final Translation3d LINKAGE_OFFSET;
+  public final double pinLength;
+  public final Translation3d linkageOffset;
 
-  @Builder.Default public final boolean ENABLE_FOC = false;
+  @Builder.Default public final boolean enableFoc = false;
+
+  public final Rotation2d positionOffsetStep;
+  public final Voltage voltageOffsetStep;
 
   public record LinkLengths(double AB, double BC, double CD, double DA) {}
 
   public record LinkBounds(double MIN, double PHASE_1, double PHASE_2, double MAX) {}
 
   public record LinkConstants(double RADIUS_1, double RADIUS_2, double CENTER_OFFSET) {}
-
-  public enum LinkageGoal {
-    SCORE,
-    FEED,
-    STOW
-  }
 
   public record LinkageState(Pose3d pose, Rotation2d rotation) {}
 }

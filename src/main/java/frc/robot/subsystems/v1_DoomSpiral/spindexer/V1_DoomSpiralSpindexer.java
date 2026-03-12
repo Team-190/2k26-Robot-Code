@@ -140,4 +140,20 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
           feeder.setVoltageGoal(Volts.zero());
         });
   }
+
+  public Command increaseSpindexerVoltage() {
+    return Commands.runOnce(voltageGoal::increment);
+  }
+
+  public Command decreaseSpindexerVoltage() {
+    return Commands.runOnce(voltageGoal::decrement);
+  }
+
+  public Command increaseFeederVoltage() {
+    return Commands.runOnce(feeder.getVoltageGoal()::increment);
+  }
+
+  public Command decreaseFeederVoltage() {
+    return Commands.runOnce(feeder.getVoltageGoal()::decrement);
+  }
 }

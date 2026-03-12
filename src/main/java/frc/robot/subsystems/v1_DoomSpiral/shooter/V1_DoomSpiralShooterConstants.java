@@ -116,4 +116,11 @@ public class V1_DoomSpiralShooterConstants {
                   .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .build())
           .build();
+
+  public enum HoodGoal {
+    SCORE,
+    FEED,
+    STOW,
+    OVERRIDE
+  }
 }

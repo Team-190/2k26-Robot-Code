@@ -11,14 +11,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import java.util.function.DoubleSupplier;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
   private final Hood hood;
+
+  private HoodGoal hoodGoal;
 
   private final GenericFlywheel flywheel;
 
@@ -27,14 +29,9 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     flywheel =
         new GenericFlywheel(flywheelIO, this, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS, "");
-    hood =
-        new Hood(
-            hoodIO,
-            V1_DoomSpiralShooterConstants.HOOD_CONSTANTS,
-            this,
-            "",
-            V1_DoomSpiralRobotState::getScoreAngle,
-            V1_DoomSpiralRobotState::getFeedAngle);
+    hood = new Hood(hoodIO, V1_DoomSpiralShooterConstants.HOOD_CONSTANTS, this, "");
+
+    hoodGoal = HoodGoal.STOW;
   }
 
   @Override
@@ -42,7 +39,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     hood.periodic();
     flywheel.periodic();
 
-    if (hood.getHoodGoal().equals(HoodGoal.SCORE) || hood.getHoodGoal().equals(HoodGoal.FEED)) {
+    if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
       V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
     } else {
@@ -52,20 +49,33 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setHoodGoal(HoodGoal goal) {
-    return Commands.runOnce(() -> hood.setGoal(goal));
+    return Commands.runEnd(
+        () -> {
+          hood.setPositionGoal(getHoodGoal(goal));
+          hoodGoal = goal;
+        },
+        () -> hood.setPositionGoal(Rotation2d.kZero));
+  }
+
+  private Rotation2d getHoodGoal(HoodGoal goal) {
+    return switch (hoodGoal) {
+      case SCORE -> V1_DoomSpiralRobotState.getScoreAngle();
+      case FEED -> V1_DoomSpiralRobotState.getFeedAngle();
+      default -> Rotation2d.kZero;
+    };
   }
 
   public Command setOverrideHoodGoal(Rotation2d position) {
-    return Commands.runOnce(() -> hood.setOverridePosition(position))
-        .andThen(Commands.runOnce(() -> hood.setGoal(HoodGoal.OVERRIDE)));
+    return Commands.runOnce(() -> hood.setPositionGoal(position))
+        .andThen(Commands.runOnce(() -> hoodGoal = HoodGoal.OVERRIDE));
   }
 
   public Command setHoodVoltage(double volts) {
-    return Commands.runOnce(() -> hood.setVoltage(Volts.of(volts)));
+    return Commands.runOnce(() -> hood.setVoltageGoal(Volts.of(volts)));
   }
 
   public Command stopHood() {
-    return Commands.runOnce(() -> hood.setVoltage(Volts.zero()));
+    return Commands.runOnce(() -> hood.setVoltageGoal(Volts.zero()));
   }
 
   public Command zeroHood() {
@@ -120,5 +130,21 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public Command flywheelSysId() {
     return flywheel.sysIdRoutineTorque();
+  }
+
+  public Command incrementFlywheelVelocity() {
+    return Commands.runOnce(flywheel.getVelocityGoal()::increment);
+  }
+
+  public Command decrementFlywheelVelocity() {
+    return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
+  }
+
+  public Command incrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::increment);
+  }
+
+  public Command decrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::decrement);
   }
 }
