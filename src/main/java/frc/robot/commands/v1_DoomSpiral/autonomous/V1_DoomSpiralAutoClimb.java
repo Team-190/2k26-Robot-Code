@@ -8,13 +8,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.subsystems.shared.climber.Climber;
+import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
+import frc.robot.util.AllianceFlipUtil;
 
 public class V1_DoomSpiralAutoClimb {
   public static final AutoRoutine getAutoRoutine(
@@ -22,8 +23,7 @@ public class V1_DoomSpiralAutoClimb {
       V1_DoomSpiralIntake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
-      V1_DoomSpiralClimber climber) {
-
+      Climber climber) {
     // Create the routine and the trajectory
 
     AutoRoutine routine = drive.getAutoFactory().newRoutine("CLIMB");
@@ -49,7 +49,8 @@ public class V1_DoomSpiralAutoClimb {
                 DriveCommands.autoAlignPoseCommand(
                         drive,
                         V1_DoomSpiralRobotState::getGlobalPose,
-                        new Pose2d(15.463, 4.454, Rotation2d.fromDegrees(-90.0)),
+                        AllianceFlipUtil.apply(
+                            new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0))),
                         V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
                     .withTimeout(5.0),
                 intake.deploy(),

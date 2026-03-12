@@ -1,6 +1,8 @@
-package frc.robot.subsystems.v1_DoomSpiral.climber;
+package frc.robot.subsystems.shared.climber;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,13 +17,12 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
+import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class V1_DoomSpiralClimber extends SubsystemBase {
+public class Climber extends SubsystemBase {
   private final Arm arm;
   private final Supplier<Angle> rollSupplier;
 
@@ -33,7 +34,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   @AutoLogOutput(key = "Climber/isClimbed")
   private boolean isClimbed; // TODO: Update this
 
-  public V1_DoomSpiralClimber(ArmIO io, Supplier<Angle> rollSupplier) {
+  public Climber(ArmIO io, Supplier<Angle> rollSupplier) {
     setName("Climber");
     arm = new Arm(io, this, 1);
     this.rollSupplier = rollSupplier;
@@ -43,12 +44,12 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     state = ClimberGoal.DEFAULT;
     controller =
         new ProfiledPIDController(
-            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kP(),
+            ClimberConstants.SLOT_2_GAINS.kP().get(),
             0,
-            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kD(),
+            ClimberConstants.SLOT_2_GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
-                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
+                ClimberConstants.CONSTRAINTS.maxVelocity().get(RadiansPerSecond),
+                ClimberConstants.CONSTRAINTS.maxAcceleration().get(RadiansPerSecondPerSecond)));
     CommandScheduler.getInstance().schedule(arm.setPosition(Rotation2d.kZero));
   }
 
@@ -60,50 +61,48 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
         hashCode(),
         () ->
             arm.updateGains(
-                V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kP().get(),
-                V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kD().get(),
-                V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kS().get(),
-                V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kV().get(),
-                V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kA().get(),
-                V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kG().get(),
+                ClimberConstants.SLOT_0_GAINS.kP().get(),
+                ClimberConstants.SLOT_0_GAINS.kD().get(),
+                ClimberConstants.SLOT_0_GAINS.kS().get(),
+                ClimberConstants.SLOT_0_GAINS.kV().get(),
+                ClimberConstants.SLOT_0_GAINS.kA().get(),
+                ClimberConstants.SLOT_0_GAINS.kG().get(),
                 GainSlot.ZERO),
-        V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kP(),
-        V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kD(),
-        V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kS(),
-        V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kV(),
-        V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kA(),
-        V1_DoomSpiralClimberConstants.SLOT_0_GAINS.kG());
+        ClimberConstants.SLOT_0_GAINS.kP(),
+        ClimberConstants.SLOT_0_GAINS.kD(),
+        ClimberConstants.SLOT_0_GAINS.kS(),
+        ClimberConstants.SLOT_0_GAINS.kV(),
+        ClimberConstants.SLOT_0_GAINS.kA(),
+        ClimberConstants.SLOT_0_GAINS.kG());
 
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () ->
             arm.updateGains(
-                V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kP().get(),
-                V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kD().get(),
-                V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kS().get(),
-                V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kV().get(),
-                V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kA().get(),
-                V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kG().get(),
+                ClimberConstants.SLOT_1_GAINS.kP().get(),
+                ClimberConstants.SLOT_1_GAINS.kD().get(),
+                ClimberConstants.SLOT_1_GAINS.kS().get(),
+                ClimberConstants.SLOT_1_GAINS.kV().get(),
+                ClimberConstants.SLOT_1_GAINS.kA().get(),
+                ClimberConstants.SLOT_1_GAINS.kG().get(),
                 GainSlot.ONE),
-        V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kP(),
-        V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kD(),
-        V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kS(),
-        V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kV(),
-        V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kA(),
-        V1_DoomSpiralClimberConstants.SLOT_1_GAINS.kG());
+        ClimberConstants.SLOT_1_GAINS.kP(),
+        ClimberConstants.SLOT_1_GAINS.kD(),
+        ClimberConstants.SLOT_1_GAINS.kS(),
+        ClimberConstants.SLOT_1_GAINS.kV(),
+        ClimberConstants.SLOT_1_GAINS.kA(),
+        ClimberConstants.SLOT_1_GAINS.kG());
 
     LoggedTunableMeasure.ifChanged(
         hashCode(),
         () ->
             arm.updateConstraints(
-                V1_DoomSpiralClimberConstants.CONSTRAINTS
-                    .maxAcceleration()
-                    .get(RotationsPerSecondPerSecond),
-                V1_DoomSpiralClimberConstants.CONSTRAINTS.maxVelocity().get(RotationsPerSecond),
-                V1_DoomSpiralClimberConstants.CONSTRAINTS.goalTolerance().get(Radians)),
-        V1_DoomSpiralClimberConstants.CONSTRAINTS.maxAcceleration(),
-        V1_DoomSpiralClimberConstants.CONSTRAINTS.maxVelocity(),
-        V1_DoomSpiralClimberConstants.CONSTRAINTS.goalTolerance());
+                ClimberConstants.CONSTRAINTS.maxAcceleration().get(RadiansPerSecondPerSecond),
+                ClimberConstants.CONSTRAINTS.maxVelocity().get(RadiansPerSecond),
+                ClimberConstants.CONSTRAINTS.goalTolerance().get(Radians)),
+        ClimberConstants.CONSTRAINTS.maxAcceleration(),
+        ClimberConstants.CONSTRAINTS.maxVelocity(),
+        ClimberConstants.CONSTRAINTS.goalTolerance());
 
     Logger.recordOutput(getName() + "/Goal", goal);
     Logger.recordOutput(getName() + "/At Goal Real", atGoal());
@@ -181,7 +180,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
   public boolean atGoal() {
     return Math.abs(arm.getArmPosition().getRadians() - goal.getRadians())
-        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalTolerance().get().in(Radians);
+        < ClimberConstants.CONSTRAINTS.goalTolerance().get().in(Radians);
   }
 
   public Command stop() {
@@ -237,13 +236,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    */
   public Command climbAutoSequence() {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> {
-                  state = ClimberGoal.L1_AUTO_POSITION_GOAL;
-                  V1_DoomSpiralRobotState.getLedStates().setAutoClimbing(true);
-                }),
-            waitUntilPosition())
-        .finallyDo(() -> V1_DoomSpiralRobotState.getLedStates().setAutoClimbing(false));
+        Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());
   }
 
   public Command runZeroSequence() { // add actual zeroing later
@@ -256,21 +249,20 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command clockwiseSlow() {
-    return setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE);
+    return setVoltage(-ClimberConstants.SLOW_VOLTAGE);
   }
 
   public Command counterClockwiseSlow() {
-    return setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE);
+    return setVoltage(ClimberConstants.SLOW_VOLTAGE);
   }
 
   public Command setPositionDefault() {
-    return setPositionGoal(
-        V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition(), GainSlot.ZERO);
+    return setPositionGoal(ClimberConstants.ClimberGoal.DEFAULT.getPosition(), GainSlot.ZERO);
   }
 
   public Command setPositionL1() {
     return setPositionGoal(
-        V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ONE);
+        ClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ONE);
   }
 
   public Command runSysId() {

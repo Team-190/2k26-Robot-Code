@@ -12,7 +12,7 @@ import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 
-public class V1_DoomSpiralAutoRightBlueShell {
+public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
@@ -21,10 +21,10 @@ public class V1_DoomSpiralAutoRightBlueShell {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_BLUESHELL");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_TRENCH_ANTI_BUCKS");
 
-    AutoTrajectory RIGHT_BLUESHELL =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_BLUESHELL);
+    AutoTrajectory LEFT_TRENCH_ANTI_BUCKS =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS);
 
     routine
         .active()
@@ -33,7 +33,7 @@ public class V1_DoomSpiralAutoRightBlueShell {
 
                 // Set the inital pose
 
-                RIGHT_BLUESHELL.resetOdometry(),
+                LEFT_TRENCH_ANTI_BUCKS.resetOdometry(),
 
                 // Deploy the intake
 
@@ -44,7 +44,7 @@ public class V1_DoomSpiralAutoRightBlueShell {
 
                 // Follow the path
 
-                RIGHT_BLUESHELL.cmd(),
+                LEFT_TRENCH_ANTI_BUCKS.cmd(),
 
                 // Stop drive
 
@@ -54,7 +54,8 @@ public class V1_DoomSpiralAutoRightBlueShell {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))));
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                        intake.agitate())));
 
     routine
         .active()
