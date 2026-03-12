@@ -88,6 +88,8 @@ public class AutoAlignCommand extends Command {
 
   @Override
   public void initialize() {
+    Logger.recordOutput("Drive/Auto Align/Goal", targetPose);
+
     alignHeadingController.reset(
         robotPose.get().getRotation().getRadians(),
         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond);

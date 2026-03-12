@@ -3,12 +3,12 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.FieldConstants;
 
 public class AllianceFlipUtil {
-  public static double fieldWidth = Units.feetToMeters(26.0) + Units.inchesToMeters(5.0);
-  public static double fieldLength = Units.feetToMeters(57.0) + Units.inchesToMeters(6.875);
+  public static double fieldWidth = FieldConstants.fieldWidth;
+  public static double fieldLength = FieldConstants.fieldLength;
 
   public static double applyX(double x) {
     return shouldFlip() ? fieldLength - x : x;
