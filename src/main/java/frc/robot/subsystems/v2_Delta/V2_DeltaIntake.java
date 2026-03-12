@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -27,17 +28,16 @@ public class V2_DeltaIntake extends SubsystemBase {
 
   private Rotation2d agitationAngle;
 
-  public V2_DeltaIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, 
-  GenericRollerConstants rollerConstants, 
-  FourBarLinkageConstants linkageConstants) {
+  public V2_DeltaIntake(
+      GenericRollerIO rollerIO,
+      FourBarLinkageIO linkageIO,
+      GenericRollerConstants rollerConstants,
+      FourBarLinkageConstants linkageConstants) {
     this.rollerConstants = rollerConstants;
     this.linkageConstants = linkageConstants;
     setName("Intake");
-    roller =
-        new GenericRoller(
-            rollerIO, this, rollerConstants, "1");
-    linkage =
-        new FourBarLinkage(linkageIO, linkageConstants, this, 0);
+    roller = new GenericRoller(rollerIO, this, rollerConstants, "1");
+    linkage = new FourBarLinkage(linkageIO, linkageConstants, this, 0);
 
     intakeState = IntakeState.STOW;
 
@@ -53,22 +53,6 @@ public class V2_DeltaIntake extends SubsystemBase {
 
     Logger.recordOutput("Intake/Intake State", intakeState);
     Logger.recordOutput("Intake/Agitation Angle", agitationAngle);
-
-    V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
-    if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
-      V1_DoomSpiralRobotState.getLedStates()
-          .setIntakeCollecting(
-              roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
-                  == V2_DeltaIntakeConstants.INTAKE_VOLTAGE);
-      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
-    } else {
-      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
-      V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
-    }
-    V1_DoomSpiralRobotState.getLedStates()
-        .setSpitting(
-            roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
-                == V2_DeltaIntakeConstants.EXTAKE_VOLTAGE);
   }
 
   /**
@@ -162,8 +146,7 @@ public class V2_DeltaIntake extends SubsystemBase {
   public Command toggleIntake() {
     return Commands.either(
         Commands.parallel(
-                Commands.sequence(
-                    stow(), setRollerVoltage(V2_DeltaIntakeConstants.EXTAKE_VOLTAGE)),
+                Commands.sequence(stow(), setRollerVoltage(V2_DeltaIntakeConstants.EXTAKE_VOLTAGE)),
                 waitUntilIntakeAtGoal())
             .andThen(stopRoller()),
         Commands.sequence(deploy(), setRollerVoltage(V2_DeltaIntakeConstants.INTAKE_VOLTAGE)),
@@ -177,8 +160,7 @@ public class V2_DeltaIntake extends SubsystemBase {
   }
 
   public Command collect() {
-    return Commands.parallel(
-        deploy(), setRollerVoltage(V2_DeltaIntakeConstants.INTAKE_VOLTAGE));
+    return Commands.parallel(deploy(), setRollerVoltage(V2_DeltaIntakeConstants.INTAKE_VOLTAGE));
   }
 
   public Command resetIntakeZero() {
