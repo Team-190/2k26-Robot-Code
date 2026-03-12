@@ -6,8 +6,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
 
 @Builder
@@ -34,7 +34,7 @@ public class FourBarLinkageConstants {
   public final Rotation2d MAX_ANGLE;
 
   public final Gains GAINS;
-  public final AngularConstraints CONSTRAINTS;
+  public final AngularPositionConstraints CONSTRAINTS;
 
   public final LinkLengths LINK_LENGTHS;
   public final LinkBounds LINK_BOUNDS;

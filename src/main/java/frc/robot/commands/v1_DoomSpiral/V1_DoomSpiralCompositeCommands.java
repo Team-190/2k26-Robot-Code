@@ -1,7 +1,5 @@
 package frc.robot.commands.v1_DoomSpiral;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
@@ -60,7 +58,7 @@ public class V1_DoomSpiralCompositeCommands {
                     V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                     V1_DoomSpiralRobotState::getHeading,
                     shotParameters.robotAngle()),
-                shooter.setFlywheelVelocity(shotParameters.flywheelSpeed().in(RadiansPerSecond)),
+                shooter.setFlywheelGoal(shotParameters.flywheelSpeed()),
                 shooter.setOverrideHoodGoal(shotParameters.hoodAngle()))
             .until(shooter::atGoal),
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));

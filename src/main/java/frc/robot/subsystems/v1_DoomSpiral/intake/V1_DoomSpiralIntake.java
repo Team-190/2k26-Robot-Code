@@ -54,7 +54,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
       V1_DoomSpiralRobotState.getLedStates()
           .setIntakeCollecting(
-              roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+              roller.getVoltageGoal().baseUnitMagnitude()
                   == V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE);
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     } else {
@@ -63,7 +63,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     }
     V1_DoomSpiralRobotState.getLedStates()
         .setSpitting(
-            roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+            roller.getVoltageGoal().baseUnitMagnitude()
                 == V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE);
   }
 
@@ -75,7 +75,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
    * @return a command that sets the voltage of the top and bottom rollers
    */
   public Command setRollerVoltage(double voltage) {
-    return roller.setVoltage(voltage);
+    return Commands.runOnce(() -> roller.setVoltageGoal(Volts.of(voltage)));
   }
 
   /**
@@ -89,7 +89,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command stopRoller() {
-    return roller.setVoltage(0);
+    return setRollerVoltage(0);
   }
 
   public Command deploy() {
@@ -169,7 +169,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                     IntakeState.INTAKE
                         .getAngle()
                         .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))
-                && roller.atGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
+                && roller.atVoltageGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
   }
 
   public Command collect() {
@@ -303,14 +303,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                             .getCollectOffset()
                             .minus(V1_DoomSpiralIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         deploy());
-  }
-
-  public Command increaseSpeedOffset() {
-    return roller.incrementVoltageOffset();
-  }
-
-  public Command decreaseSpeedOffset() {
-    return roller.decrementVoltageOffset();
   }
 
   public Command defaultCommand() {

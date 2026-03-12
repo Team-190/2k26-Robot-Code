@@ -7,8 +7,8 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -31,7 +31,7 @@ public class HoodConstants {
   @NonNull public final Current zeroCurrentEpsilon;
 
   @NonNull public final Gains gains;
-  @NonNull public final AngularConstraints constraints;
+  @NonNull public final AngularPositionConstraints constraints;
 
   @NonNull public final Angle offsetStep;
 

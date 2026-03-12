@@ -10,9 +10,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
@@ -81,8 +81,8 @@ public class V1_DoomSpiralIntakeConstants {
           .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
           .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
           .build();
-  public static final AngularConstraints CONSTRAINTS =
-      AngularConstraints.builder()
+  public static final AngularPositionConstraints CONSTRAINTS =
+      AngularPositionConstraints.builder()
           .withMaxVelocity(
               new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
           .withMaxAcceleration(

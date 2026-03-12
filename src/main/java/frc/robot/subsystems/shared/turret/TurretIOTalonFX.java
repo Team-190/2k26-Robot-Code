@@ -19,6 +19,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class TurretIOTalonFX implements TurretIO {
@@ -30,7 +32,6 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Temperature> temperature;
   private final StatusSignal<Double> positionSetpoint;
   private final StatusSignal<Double> positionError;
-  private final StatusSignal<Double> positionGoal;
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Voltage> appliedVolts;
@@ -108,9 +109,8 @@ public class TurretIOTalonFX implements TurretIO {
     position = talonFX.getPosition();
     velocity = talonFX.getVelocity();
     temperature = talonFX.getDeviceTemp();
-    positionSetpoint = talonFX.getClosedLoopOutput();
+    positionSetpoint = talonFX.getClosedLoopReference();
     positionError = talonFX.getClosedLoopError();
-    positionGoal = talonFX.getClosedLoopReference();
     supplyCurrent = talonFX.getSupplyCurrent();
     torqueCurrent = talonFX.getTorqueCurrent();
     appliedVolts = talonFX.getMotorVoltage();
@@ -125,7 +125,6 @@ public class TurretIOTalonFX implements TurretIO {
         temperature,
         positionSetpoint,
         positionError,
-        positionGoal,
         supplyCurrent,
         torqueCurrent,
         appliedVolts,
@@ -142,7 +141,6 @@ public class TurretIOTalonFX implements TurretIO {
         temperature,
         positionSetpoint,
         positionError,
-        positionGoal,
         supplyCurrent,
         torqueCurrent,
         appliedVolts,
@@ -177,9 +175,9 @@ public class TurretIOTalonFX implements TurretIO {
     inputs.turretSupplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.turretTorqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.turretTemperatureCelsius = temperature.getValueAsDouble();
-    inputs.turretPositionSetpoint = Rotation2d.fromRotations(positionSetpoint.getValueAsDouble());
-    inputs.turretPositionError = Rotation2d.fromRotations(positionError.getValueAsDouble());
-    inputs.turretGoal = Rotation2d.fromRotations(positionGoal.getValueAsDouble());
+    inputs.positionSetpoint = Rotation2d.fromRotations(positionSetpoint.getValueAsDouble());
+    inputs.positionError = Rotation2d.fromRotations(positionError.getValueAsDouble());
+    inputs.positionGoal = Rotation2d.fromRotations(positionControlRequest.Position);
 
     inputs.encoder1Position = new Rotation2d(e1.getValue());
     inputs.encoder2Position = new Rotation2d(e2.getValue());
@@ -193,19 +191,22 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void updateGains(double kP, double kD, double kS, double kV, double kA) {
-    config.Slot0.kP = kP;
-    config.Slot0.kD = kD;
-    config.Slot0.kS = kS;
-    config.Slot0.kV = kV;
-    config.Slot0.kA = kA;
+  public void updateGains(Gains gains) {
+    config.Slot0.kP = gains.getKP();
+    config.Slot0.kI = gains.getKI();
+    config.Slot0.kD = gains.getKD();
+    config.Slot0.kS = gains.getKS();
+    config.Slot0.kV = gains.getKV();
+    config.Slot0.kA = gains.getKA();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
   }
 
   @Override
-  public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
-    config.MotionMagic.MotionMagicAcceleration = maxAcceleration;
-    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity;
+  public void updateConstraints(AngularPositionConstraints constraints) {
+    config.MotionMagic.MotionMagicCruiseVelocity =
+        constraints.maxVelocity().get(RotationsPerSecond);
+    config.MotionMagic.MotionMagicAcceleration =
+        constraints.maxAcceleration().get(RotationsPerSecondPerSecond);
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
   }
 

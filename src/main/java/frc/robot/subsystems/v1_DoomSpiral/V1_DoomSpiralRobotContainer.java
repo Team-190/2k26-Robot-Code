@@ -477,8 +477,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () -> V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber));
 
     SmartDashboard.putData("Autonomous Modes", autoChooser);
-
-    autoChooser.select("Right Trench Simple");
   }
 
   @Override

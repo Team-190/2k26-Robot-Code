@@ -5,8 +5,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
 import lombok.NonNull;
 
@@ -22,7 +22,7 @@ public class TurretConstants {
   @NonNull public final Rotation2d minAngle;
   @NonNull public final Double gearRatio;
   @NonNull public final Gains gains;
-  @NonNull public final AngularConstraints constraints;
+  @NonNull public final AngularPositionConstraints constraints;
 
   @NonNull public final Rotation2d e1Offset;
   @NonNull public final Rotation2d e2Offset;
