@@ -57,7 +57,7 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
-                        intake.agitate())));
+                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
     routine
         .active()
