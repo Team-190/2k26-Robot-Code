@@ -50,8 +50,7 @@ public class V1_DoomSpiralAutoClimb {
                         drive,
                         V1_DoomSpiralRobotState::getGlobalPose,
                         AllianceFlipUtil.apply(
-                            AllianceFlipUtil.overrideApply(
-                                new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0)))),
+                            new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0))),
                         V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
                     .withTimeout(5.0),
                 intake.deploy(),
