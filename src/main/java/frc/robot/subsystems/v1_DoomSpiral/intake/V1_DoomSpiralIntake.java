@@ -94,26 +94,27 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
 
   public Command deploy() {
     return Commands.sequence(
-        Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        linkage.setPositionGoal(
-            IntakeState.INTAKE.getAngle(),
-            (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset())));
+        Commands.runOnce(
+            () -> {
+              intakeState = IntakeState.INTAKE;
+              linkage.setPositionGoal(IntakeState.INTAKE.getSetpoint());
+            }));
   }
 
   public Command stow() {
-    return Commands.sequence(
-        Commands.runOnce(() -> intakeState = IntakeState.STOW),
-        linkage.setPositionGoal(
-            IntakeState.STOW.getAngle(),
-            (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())));
+    return Commands.runOnce(
+        () -> {
+          intakeState = IntakeState.STOW;
+          linkage.setPositionGoal(IntakeState.STOW.getSetpoint());
+        });
   }
 
   public Command bump() {
-    return Commands.sequence(
-        Commands.runOnce(() -> intakeState = IntakeState.BUMP),
-        linkage.setPositionGoal(
-            IntakeState.BUMP.getAngle(),
-            (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getBumpOffset())));
+    return Commands.runOnce(
+        () -> {
+          intakeState = IntakeState.BUMP;
+          linkage.setPositionGoal(IntakeState.BUMP.getSetpoint());
+        });
   }
 
   public Command agitate() {
@@ -143,29 +144,12 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     return Commands.parallel(
         Commands.sequence(
                 Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170 + 8)),
-                linkage.setPositionGoal(
-                    () -> agitationAngle,
-                    () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
+                Commands.runOnce(() -> linkage.setPositionGoal(agitationAngle)),
                 linkage.waitUntilLinkageAtGoal(),
-                linkage.setPositionGoal(
-                    () -> Rotation2d.fromDegrees(90 + 8.0),
-                    () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
+                Commands.runOnce(() -> linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0))),
                 linkage.waitUntilLinkageAtGoal())
             .repeatedly(),
         setRollerVoltage(3.0));
-            Commands.sequence(
-                    Commands.runOnce(
-                        () -> {
-                          agitationAngle = Rotation2d.fromDegrees(170);
-                          intakeState = IntakeState.INTAKE;
-                          linkage.setPositionGoal(agitationAngle);
-                        }),
-                    linkage.waitUntilLinkageAtGoal(),
-                    Commands.runOnce(() -> linkage.setPositionGoal(Rotation2d.fromDegrees(90))),
-                    linkage.waitUntilLinkageAtGoal())
-                .repeatedly(),
-            setRollerVoltage(3.0))
-        .finallyDo(() -> linkage.setPositionGoal(intakeState.getAngle()));
   }
 
   public Command toggleIntake() {

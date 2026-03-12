@@ -86,10 +86,10 @@ public class V1_DoomSpiralIntakeConstants {
   public static final AngularPositionConstraints CONSTRAINTS =
       AngularPositionConstraints.builder()
           .withMaxVelocity(
-              new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+              new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(50.0)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(10.0)))
           .withGoalTolerance(new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
           .build();
 
