@@ -54,7 +54,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
       V1_DoomSpiralRobotState.getLedStates()
           .setIntakeCollecting(
-              roller.getVoltageGoal().baseUnitMagnitude()
+              roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                   == V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE);
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     } else {
@@ -63,7 +63,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     }
     V1_DoomSpiralRobotState.getLedStates()
         .setSpitting(
-            roller.getVoltageGoal().baseUnitMagnitude()
+            roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE);
   }
 

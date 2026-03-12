@@ -1,8 +1,5 @@
 package frc.robot.subsystems.shared.turret;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -10,15 +7,17 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -28,6 +27,11 @@ public class Turret {
   private final TurretIOInputsAutoLogged inputs;
 
   private final Rotation2d previousPosition;
+
+  private final Setpoint<VoltageUnit> voltageGoal;
+  private final Setpoint<AngleUnit> positionGoal;
+
+  private Translation2d translationGoal;
 
   private final SysIdRoutine characterizationRoutine;
 
@@ -40,13 +44,13 @@ public class Turret {
   public Turret(
       TurretIO io,
       Subsystem subsystem,
-      int index,
+      String name,
       Supplier<Pose2d> robotPoseSupplier,
       TurretConstants constants) {
     this.io = io;
     inputs = new TurretIOInputsAutoLogged();
-    previousPosition = inputs.turretAngle;
-    aKitTopic = subsystem.getName() + "/Turret" + index;
+    previousPosition = inputs.angle;
+    aKitTopic = subsystem.getName() + "/Turret" + name;
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -54,44 +58,28 @@ public class Turret {
                 Volts.of(2),
                 Seconds.of(5),
                 (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (volts) -> io.setTurretVoltage(volts.in(Volts)), null, subsystem));
+            new SysIdRoutine.Mechanism(io::setVoltage, null, subsystem));
 
     this.robotPoseSupplier = robotPoseSupplier;
+
+    translationGoal = new Translation2d();
 
     state = TurretState.IDLE;
 
     this.constants = constants;
 
+    voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
+    positionGoal =
+        new Setpoint<>(
+            calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()).getMeasure(),
+            constants.angleStep.getMeasure(),
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure());
+
     io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
   public void periodic() {
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () ->
-            io.updateGains(
-                constants.gains.kP().get(),
-                constants.gains.kD().get(),
-                constants.gains.kS().get(),
-                constants.gains.kV().get(),
-                constants.gains.kA().get()),
-        constants.gains.kP(),
-        constants.gains.kD(),
-        constants.gains.kS(),
-        constants.gains.kV(),
-        constants.gains.kA());
-
-    LoggedTunableMeasure.ifChanged(
-        hashCode(),
-        () ->
-            io.updateConstraints(
-                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond),
-                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
-                constants.constraints.goalTolerance().get().in(Radians)),
-        constants.constraints.maxAcceleration(),
-        constants.constraints.maxVelocity(),
-        constants.constraints.goalTolerance());
 
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
@@ -99,22 +87,26 @@ public class Turret {
         aKitTopic + "/CRT Angle",
         calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
 
-    Logger.recordOutput(aKitTopic + "/At Goal", atTurretPositionGoal());
+    Logger.recordOutput(aKitTopic + "/At Goal", atPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
 
     switch (state) {
       case CLOSED_LOOP_POSITION_CONTROL ->
-          io.setTurretGoal(wrapRotationWithinBounds(state.getRotation(), inputs.turretAngle));
-      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setTurretVoltage(state.getVoltage());
-      case CLOSED_LOOP_AUTO_AIM_CONTROL ->
-          io.setTurretGoal(
+          io.setPositionGoal(
               wrapRotationWithinBounds(
-                  state
-                      .getTranslation()
-                      .minus(robotPoseSupplier.get().getTranslation())
-                      .getAngle()
-                      .minus(robotPoseSupplier.get().getRotation()),
-                  inputs.turretAngle));
+                  new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle));
+      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltage((Voltage) voltageGoal.getNewSetpoint());
+      case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
+        positionGoal.setSetpoint(
+            translationGoal
+                .minus(robotPoseSupplier.get().getTranslation())
+                .getAngle()
+                .minus(robotPoseSupplier.get().getRotation())
+                .getMeasure());
+        io.setPositionGoal(
+            wrapRotationWithinBounds(
+                new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle));
+      }
       default -> {}
     }
   }
@@ -125,51 +117,58 @@ public class Turret {
             >= constants.minAngle.getDegrees()));
   }
 
-  public Command setTurretVoltage(double volts) {
-    return Commands.runOnce(
-        () -> {
-          state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
-          state.setVoltage(volts);
-        });
+  public void setVoltageGoal(Voltage volts) {
+    state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
+    voltageGoal.setSetpoint(volts);
   }
 
-  public Command setTurretGoal(Rotation2d goal) {
-    return Commands.runOnce(
-        () -> {
-          state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
-          state.setRotation(goal);
-        });
+  public void setPositionGoal(Rotation2d goal) {
+    state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
+    positionGoal.setSetpoint(goal.getMeasure());
+  }
+
+  public void setPosition(Rotation2d position) {
+    io.setPosition(position);
   }
 
   public Command stopTurret() {
-    return setTurretVoltage(0);
+    return Commands.runOnce(() -> setVoltageGoal(Volts.zero()));
   }
 
-  public boolean atTurretPositionGoal() {
-    return io.atTurretPositionGoal();
+  public boolean atPositionGoal() {
+    return io.atPositionGoal(new Rotation2d((Angle) positionGoal.getNewSetpoint()));
   }
 
-  public Command waitUntilTurretAtGoal() {
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return io.atPositionGoal(positionReference);
+  }
+
+  public boolean atVoltageGoal() {
+    return io.atVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
+  }
+
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return io.atVoltageGoal(voltageReference);
+  }
+
+  public Command waitUntilAtGoal() {
     return Commands.waitSeconds(GompeiLib.getLoopPeriod())
-        .andThen(Commands.waitUntil(this::atTurretPositionGoal));
+        .andThen(Commands.waitUntil(this::atPositionGoal));
   }
 
-  public Command incrementTurret(Rotation2d increment) {
-    return setTurretGoal(inputs.turretAngle.plus(increment));
+  public void incrementTurret(Rotation2d increment) {
+    setPositionGoal(inputs.angle.plus(increment));
   }
 
-  public Command resetTurret() {
-    return setTurretGoal(new Rotation2d())
+  public Command reset() {
+    return Commands.runOnce(() -> setPositionGoal(new Rotation2d()))
         .andThen(stopTurret())
         .finallyDo(() -> io.setPosition(new Rotation2d()));
   }
 
-  public Command setFieldRelativeGoal(Translation2d goal) {
-    return Commands.runOnce(
-        () -> {
-          state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
-          state.setTranslation(goal);
-        });
+  public void setFieldRelativeGoal(Translation2d goal) {
+    state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
+    translationGoal = goal;
   }
 
   public Command runSysId() {

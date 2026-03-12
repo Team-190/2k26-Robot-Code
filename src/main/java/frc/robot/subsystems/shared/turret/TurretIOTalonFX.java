@@ -1,9 +1,6 @@
 package frc.robot.subsystems.shared.turret;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -16,7 +13,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -157,24 +153,24 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setTurretVoltage(double volts) {
+  public void setVoltage(Voltage volts) {
     talonFX.setControl(voltageControlRequest.withOutput(volts));
   }
 
   @Override
-  public void setTurretGoal(Rotation2d goal) {
+  public void setPositionGoal(Rotation2d goal) {
     talonFX.setControl(positionControlRequest.withPosition(goal.getRotations()));
   }
 
   @Override
   public void updateInputs(TurretIOInputs inputs) {
 
-    inputs.turretAngle = new Rotation2d(position.getValue());
-    inputs.turretVelocityRadiansPerSecond = velocity.getValue().in(Units.RadiansPerSecond);
-    inputs.turretAppliedVolts = appliedVolts.getValueAsDouble();
-    inputs.turretSupplyCurrentAmps = supplyCurrent.getValueAsDouble();
-    inputs.turretTorqueCurrentAmps = torqueCurrent.getValueAsDouble();
-    inputs.turretTemperatureCelsius = temperature.getValueAsDouble();
+    inputs.angle = new Rotation2d(position.getValue());
+    inputs.velocity = velocity.getValue();
+    inputs.appliedVoltage = appliedVolts.getValue();
+    inputs.supplyCurrent = supplyCurrent.getValue();
+    inputs.torqueCurrent = torqueCurrent.getValue();
+    inputs.temperature = temperature.getValue();
     inputs.positionSetpoint = Rotation2d.fromRotations(positionSetpoint.getValueAsDouble());
     inputs.positionError = Rotation2d.fromRotations(positionError.getValueAsDouble());
     inputs.positionGoal = Rotation2d.fromRotations(positionControlRequest.Position);
@@ -184,10 +180,14 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public boolean atTurretPositionGoal() {
-    double positionRotations = position.getValueAsDouble();
-    return Math.abs(positionGoal.getValue() - positionRotations)
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return Math.abs(positionReference.getRotations() - position.getValueAsDouble())
         <= constants.constraints.goalTolerance().get().in(Rotations);
+  }
+
+  @Override
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return voltageReference.isNear(appliedVolts.getValue(), Millivolts.of(500));
   }
 
   @Override

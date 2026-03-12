@@ -39,11 +39,11 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command setTurretVoltage(Voltage volts) {
-    return Commands.runOnce(() -> turret.setVoltage(volts));
+    return Commands.runOnce(() -> turret.setVoltageGoal(volts));
   }
 
   public Command setTurretGoal(Rotation2d goal) {
-    return Commands.runOnce(() -> turret.setGoal(goal));
+    return Commands.runOnce(() -> turret.setPositionGoal(goal));
   }
 
   public Command waitUntilAtGoal() {

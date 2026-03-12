@@ -47,7 +47,7 @@ public interface TurretIO {
    *
    * @param goal The turret goal as a Pose3d type.
    */
-  default void setGoal(Rotation2d goal) {}
+  default void setPositionGoal(Rotation2d goal) {}
 
   /** Checks whether the turret is within the tolerance of its goal and returns a boolean. */
   default boolean atPositionGoal(Rotation2d positionReference) {

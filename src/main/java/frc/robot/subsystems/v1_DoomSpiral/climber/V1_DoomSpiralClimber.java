@@ -32,7 +32,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
   public V1_DoomSpiralClimber(ArmIO io, Supplier<Angle> rollSupplier) {
     setName("Climber");
-    arm = new Arm(io, this, 1);
+    arm = new Arm(io, this, 1, V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS);
     this.rollSupplier = rollSupplier;
 
     goal = Rotation2d.kZero;
