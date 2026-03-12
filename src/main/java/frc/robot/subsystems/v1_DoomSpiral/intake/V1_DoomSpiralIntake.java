@@ -173,14 +173,14 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command collect() {
-    return Commands.sequence(
+    return Commands.parallel(
         deploy(),
-        waitUntilIntakeAtGoal(),
+        // waitUntilIntakeAtGoal(),
         setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
   }
 
   public Command stopCollect() {
-    return Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE));
+    return Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE).until(this::atGoal));
   }
 
   public Command resetIntakeZero() {
