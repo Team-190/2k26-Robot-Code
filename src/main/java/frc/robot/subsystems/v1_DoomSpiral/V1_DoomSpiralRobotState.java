@@ -208,14 +208,11 @@ public class V1_DoomSpiralRobotState {
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
 
-    Translation3d hubTranslation =
-        AllianceFlipUtil.shouldFlip()
-            ? FieldConstants.Hub.oppTopCenterPoint
-            : FieldConstants.Hub.topCenterPoint;
+    Translation2d hubTranslation =
+        AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose().getTranslation().minus(hubTranslation.toTranslation2d()).getNorm(),
-            Meters);
+            getGlobalPose().getTranslation().minus(hubTranslation).getNorm(), Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(

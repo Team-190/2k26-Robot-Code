@@ -290,15 +290,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 V1_DoomSpiralRobotState::resetPose,
                 () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation()));
 
-    driver.leftBumper().onTrue(intake.toggleIntake().withName("left-bumper"));
-    // driver
-    //     .leftBumper()
-    //     .and(new Trigger(() -> intake.getIntakeState().equals(IntakeState.STOW)))
-    //     .onTrue(
-    //         intake
-    //             .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
-    //             .onlyWhile(() -> !intake.atGoal() || driver.leftBumper().getAsBoolean())
-    //             .andThen(intake.stopRoller()));
+    driver.leftBumper().onTrue(intake.collect());
+    driver.a().onTrue(intake.stopCollect());
+
     driver.rightBumper().whileTrue(intake.agitate().withName("right-bumper"));
 
     driver
@@ -461,6 +455,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         "Left Trench Simple",
         () ->
             V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Left Trench Anti Bucks",
+        () ->
+            V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
     autoChooser.addRoutine(
         "Right Trench Simple",
