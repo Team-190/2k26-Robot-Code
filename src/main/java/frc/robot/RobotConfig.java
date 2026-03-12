@@ -9,7 +9,9 @@ public final class RobotConfig {
     V0_FUNKY("2026.+"),
     V0_FUNKY_SIM("2026.+"),
     V1_DOOMSPIRAL("2026.5.0"),
-    V1_DOOMSPIRAL_SIM("2026.5.0");
+    V1_DOOMSPIRAL_SIM("2026.5.0"),
+    V2_DELTA("2026.+"),
+    V2_DELTA_SIM("2026.+");
 
     @Getter private String gompeiLibVersion;
 
