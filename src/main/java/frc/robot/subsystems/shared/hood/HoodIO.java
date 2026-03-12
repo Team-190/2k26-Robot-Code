@@ -3,14 +3,12 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for Funky's hood subsystem. */
@@ -21,7 +19,7 @@ public interface HoodIO {
    * motor shaft.
    */
   @AutoLog
-  public static class HoodIOInputs {
+  class HoodIOInputs {
     public Rotation2d position = new Rotation2d();
     public AngularVelocity velocity = RadiansPerSecond.zero();
     public Voltage appliedVolts = Volts.zero();
@@ -34,25 +32,26 @@ public interface HoodIO {
   }
 
   /** Updates AdvantageKit inputs. */
-  public default void updateInputs(HoodIOInputs inputs) {}
+  default void updateInputs(HoodIOInputs inputs) {}
 
   /** Sets motor voltage. */
-  public default void setVoltage(double volts) {}
+  default void setVoltage(Voltage volts) {}
 
   /** Sets motor closed loop position setpoint. */
-  public default void setPosition(Rotation2d position) {}
+  default void setPositionGoal(Rotation2d position) {}
 
-  public default void setPID(double kp, double ki, double kd) {}
+  default void setPosition(Rotation2d position) {}
 
-  public default void setFeedforward(double ks, double kv, double ka) {}
+  default void setGains(Gains gains) {}
 
-  public default void setProfile(
-      Measure<AngularVelocityUnit> maxVelocity,
-      Measure<AngularAccelerationUnit> maxAcceleration,
-      Measure<AngleUnit> goalTolerance) {}
+  default void setProfile(AngularPositionConstraints constraints) {}
 
   /** Checks if the hood is within tolerance */
-  public default boolean atGoal() {
+  default boolean atPositionGoal(Rotation2d positionReference) {
+    return false;
+  }
+
+  default boolean atVoltageGoal(Voltage voltageReference) {
     return false;
   }
 }

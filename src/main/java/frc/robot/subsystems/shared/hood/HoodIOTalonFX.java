@@ -1,8 +1,6 @@
 package frc.robot.subsystems.shared.hood;
 
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -12,16 +10,14 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
@@ -107,7 +103,6 @@ public class HoodIOTalonFX implements HoodIO {
 
     voltageControlRequest = new VoltageOut(0.0);
     positionControlRequest = new MotionMagicVoltage(0.0);
-    positionGoal = Rotation2d.kZero;
   }
 
   @Override
@@ -118,53 +113,55 @@ public class HoodIOTalonFX implements HoodIO {
     inputs.torqueCurrent = torqueCurrent.getValue();
     inputs.appliedVolts = appliedVolts.getValue();
     inputs.temperature = temperature.getValue();
-    inputs.positionGoal = positionGoal;
+    inputs.positionGoal = new Rotation2d(positionControlRequest.getPositionMeasure());
     inputs.positionSetpoint =
         Rotation2d.fromRotations(positionSetpointRotations.getValueAsDouble());
     inputs.positionError = Rotation2d.fromRotations(positionErrorRotations.getValueAsDouble());
   }
 
   @Override
-  public void setVoltage(double volts) {
+  public void setVoltage(Voltage volts) {
     hoodMotor.setControl(voltageControlRequest.withOutput(volts).withEnableFOC(true));
   }
 
   @Override
-  public void setPosition(Rotation2d position) {
-    positionGoal = position;
+  public void setPositionGoal(Rotation2d position) {
     hoodMotor.setControl(
         positionControlRequest.withPosition(positionGoal.getRotations()).withEnableFOC(true));
   }
 
+  public void setPosition(Rotation2d position) {
+    hoodMotor.setPosition(position.getRotations());
+  }
+
   @Override
-  public void setPID(double kp, double ki, double kd) {
-    config.Slot0.kP = kp;
-    config.Slot0.kI = ki;
-    config.Slot0.kD = kd;
+  public void setGains(Gains gains) {
+    config.Slot0.kP = gains.getKP();
+    config.Slot0.kI = gains.getKI();
+    config.Slot0.kD = gains.getKD();
+    config.Slot0.kS = gains.getKS();
+    config.Slot0.kV = gains.getKV();
+    config.Slot0.kA = gains.getKA();
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
   }
 
   @Override
-  public void setFeedforward(double ks, double kv, double ka) {
-    config.Slot0.kS = ks;
-    config.Slot0.kV = kv;
-    config.Slot0.kA = ka;
+  public void setProfile(AngularPositionConstraints constraints) {
+    config.MotionMagic.MotionMagicCruiseVelocity =
+        constraints.maxVelocity().get(RotationsPerSecond);
+    config.MotionMagic.MotionMagicAcceleration =
+        constraints.maxAcceleration().get(RotationsPerSecondPerSecond);
     PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
   }
 
   @Override
-  public void setProfile(
-      Measure<AngularVelocityUnit> maxVelocity,
-      Measure<AngularAccelerationUnit> maxAcceleration,
-      Measure<AngleUnit> goalTolerance) {
-    config.MotionMagic.MotionMagicCruiseVelocity = maxVelocity.in(RotationsPerSecond);
-    config.MotionMagic.MotionMagicAcceleration = maxAcceleration.in(RotationsPerSecondPerSecond);
-    PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config, 0.25));
-  }
-
-  @Override
-  public boolean atGoal() {
-    return Math.abs(positionGoal.getRotations() - positionRotations.getValueAsDouble())
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return Math.abs(positionReference.getRotations() - positionRotations.getValueAsDouble())
         <= constants.constraints.goalTolerance().get().in(Rotations);
+  }
+
+  @Override
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return voltageReference.isNear(appliedVolts.getValue(), Millivolts.of(500));
   }
 }

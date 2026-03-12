@@ -33,6 +33,7 @@ public class HoodConstants {
   @NonNull public final Gains gains;
   @NonNull public final AngularPositionConstraints constraints;
 
+  @NonNull public final Voltage voltageStep;
   @NonNull public final Angle offsetStep;
 
   public enum HoodGoal {

@@ -1,10 +1,6 @@
 package frc.robot.subsystems.shared.turret;
 
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Radian;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -13,9 +9,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import java.util.Random;
 
 public class TurretIOSim implements TurretIO {
@@ -89,35 +88,35 @@ public class TurretIOSim implements TurretIO {
                 // Add some noise
                 Degree.of(random.nextDouble() * 0.04 - 0.5));
 
-    inputs.turretAngle = Rotation2d.fromRadians(realAngle.in(Radian));
-    inputs.turretVelocityRadiansPerSecond = sim.getAngularVelocityRadPerSec();
-    inputs.turretAppliedVolts = appliedVolts;
-    inputs.turretSupplyCurrentAmps = sim.getCurrentDrawAmps();
-    inputs.turretGoal = new Rotation2d(positionGoal.getMeasure());
-    inputs.turretPositionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
-    inputs.turretPositionError = Rotation2d.fromRadians(feedback.getPositionError());
+    inputs.angle = Rotation2d.fromRadians(realAngle.in(Radian));
+    inputs.velocity = sim.getAngularVelocity();
+    inputs.appliedVoltage = Volts.of(appliedVolts);
+    inputs.supplyCurrent = Amp.of(sim.getCurrentDrawAmps());
+    inputs.positionGoal = positionGoal;
+    inputs.positionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
+    inputs.positionError = Rotation2d.fromRadians(feedback.getPositionError());
 
     inputs.encoder1Position = new Rotation2d(encoderValue1);
     inputs.encoder2Position = new Rotation2d(encoderValue2);
   }
 
   @Override
-  public void setTurretVoltage(double volts) {
-    appliedVolts = volts;
+  public void setVoltage(Voltage volts) {
+    appliedVolts = volts.in(Volt);
   }
 
   @Override
-  public void setTurretGoal(Rotation2d goal) {
-    double targetGoal = goal.getRadians();
+  public void setGoal(Rotation2d goal) {
     appliedVolts =
-        feedback.calculate(sim.getAngularPositionRad(), targetGoal)
+        feedback.calculate(sim.getAngularPositionRad(), goal.getRadians())
             + feedforward.calculate(feedback.getSetpoint().velocity);
-    positionGoal = Rotation2d.fromRadians(targetGoal);
+    positionGoal = goal;
   }
 
   @Override
-  public boolean atTurretPositionGoal() {
-    return feedback.atGoal();
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return sim.getAngularPositionRad() - positionReference.getRadians()
+        <= constants.constraints.goalTolerance().get(Radians);
   }
 
   @Override
@@ -127,17 +126,20 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void updateGains(double kP, double kD, double kS, double kV, double kA) {
-    feedback.setPID(kP, 0.0, kD);
-    feedforward.setKs(kS);
-    feedforward.setKv(kV);
-    feedforward.setKa(kA);
+  public void updateGains(Gains gains) {
+    feedback.setPID(gains.getKP(), 0.0, gains.getKD());
+    feedforward.setKs(gains.getKS());
+    feedforward.setKv(gains.getKV());
+    feedforward.setKa(gains.getKA());
   }
 
   @Override
-  public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
-    feedback.setConstraints(new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
-    feedback.setTolerance(goalTolerance);
+  public void updateConstraints(AngularPositionConstraints constraints) {
+    feedback.setConstraints(
+        new TrapezoidProfile.Constraints(
+            constraints.maxVelocity().get(RadiansPerSecond),
+            constraints.maxAcceleration().get(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constraints.goalTolerance().get(Radian));
   }
 
   @Override
