@@ -100,13 +100,13 @@ public class ShooterConstants {
               AngularPositionConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxAcceleration",
+                          "Shooter/Turret/MaxAcceleration",
                           RadiansPerSecondPerSecond.of(35.566371)))
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(89.566371)))
+                          "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Degrees.of(3)))
+                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
@@ -114,5 +114,7 @@ public class ShooterConstants {
                   .withGear1ToothCount(16)
                   .withGear2ToothCount(17)
                   .build())
+          .withVoltageStep(Volts.of(0.5))
+          .withAngleStep(Rotation2d.fromDegrees(1.0))
           .build();
 }

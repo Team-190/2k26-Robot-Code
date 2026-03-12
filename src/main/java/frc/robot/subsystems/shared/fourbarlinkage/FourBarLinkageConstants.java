@@ -11,7 +11,7 @@ import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
 
-@Builder
+@Builder(setterPrefix = "with")
 public class FourBarLinkageConstants {
 
   @Builder.Default public final CANBus canBus = CANBus.roboRIO();

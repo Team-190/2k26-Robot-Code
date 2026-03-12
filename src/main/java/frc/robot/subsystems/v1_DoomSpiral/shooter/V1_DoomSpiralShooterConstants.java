@@ -115,6 +115,7 @@ public class V1_DoomSpiralShooterConstants {
                   .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
                   .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .build())
+          .withVoltageStep(Volts.of(0.5))
           .build();
 
   public enum HoodGoal {

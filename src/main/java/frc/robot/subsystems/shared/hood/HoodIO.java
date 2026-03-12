@@ -38,7 +38,7 @@ public interface HoodIO {
   default void setVoltage(Voltage volts) {}
 
   /** Sets motor closed loop position setpoint. */
-  default void setPositionGoal(Rotation2d position) {}
+  default void setPositionGoal(Rotation2d positionGoal) {}
 
   default void setPosition(Rotation2d position) {}
 

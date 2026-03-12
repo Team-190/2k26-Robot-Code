@@ -2,6 +2,7 @@ package frc.robot.subsystems.v0_Funky.feeder;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -13,6 +14,7 @@ public class FeederConstants {
   public static final GenericRollerConstants FEEDER_CONSTANTS =
       GenericRollerConstants.builder()
           .withLeaderCANID(20)
+          .withCanBus(CANBus.roboRIO())
           .withCurrentLimits(
               CurrentLimits.builder()
                   .withSupplyCurrentLimit(Amps.of(20.0))

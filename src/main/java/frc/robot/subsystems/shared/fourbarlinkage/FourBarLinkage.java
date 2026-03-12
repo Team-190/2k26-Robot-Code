@@ -132,7 +132,12 @@ public class FourBarLinkage {
 
     Logger.processInputs(aKitTopic, inputs);
 
-    Logger.recordOutput(aKitTopic + "/At Goal", atPositionGoal());
+    Logger.recordOutput(aKitTopic + "/Position Goal", positionGoal.getSetpoint());
+    Logger.recordOutput(aKitTopic + "/Voltage Goal", voltageGoal.getSetpoint());
+    Logger.recordOutput(aKitTopic + "/Position Offset", positionGoal.getOffset());
+    Logger.recordOutput(aKitTopic + "/Voltage Offset", voltageGoal.getOffset());
+    Logger.recordOutput(aKitTopic + "/At Position Goal", atPositionGoal());
+    Logger.recordOutput(aKitTopic + "/At Voltage Goal", atVoltageGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
 
     switch (currentState) {

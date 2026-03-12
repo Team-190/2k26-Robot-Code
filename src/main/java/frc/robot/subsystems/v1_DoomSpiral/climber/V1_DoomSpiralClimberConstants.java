@@ -1,9 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.climber;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -97,6 +94,8 @@ public class V1_DoomSpiralClimberConstants {
           .withEnableFOC(ENABLE_FOC)
           .withInvertedValue(InvertedValue.Clockwise_Positive)
           .withCanBus(CANBus.roboRIO())
+          .withVoltageOffsetStep(Millivolt.of(250))
+          .withPositionOffsetStep(Rotation2d.fromDegrees(1))
           .build();
 
   public record RollPIDConstants(

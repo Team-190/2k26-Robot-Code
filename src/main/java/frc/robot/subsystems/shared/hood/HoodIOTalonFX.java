@@ -28,7 +28,6 @@ public class HoodIOTalonFX implements HoodIO {
   private final StatusSignal<Angle> positionRotations;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Temperature> temperature;
-  private Rotation2d positionGoal;
   private final StatusSignal<Double> positionSetpointRotations;
   private final StatusSignal<Double> positionErrorRotations;
   private final StatusSignal<Current> supplyCurrent;
@@ -125,7 +124,7 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setPositionGoal(Rotation2d position) {
+  public void setPositionGoal(Rotation2d positionGoal) {
     hoodMotor.setControl(
         positionControlRequest.withPosition(positionGoal.getRotations()).withEnableFOC(true));
   }

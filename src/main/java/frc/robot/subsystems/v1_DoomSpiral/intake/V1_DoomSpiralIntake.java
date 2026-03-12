@@ -44,8 +44,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    linkage.setPositionGoal(intakeState.getSetpoint());
-
     roller.periodic();
     linkage.periodic();
 
@@ -95,15 +93,23 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command deploy() {
-    return Commands.sequence(Commands.runOnce(() -> intakeState = IntakeState.INTAKE));
+    return setLinkagePositionGoal(IntakeState.INTAKE);
   }
 
   public Command stow() {
-    return Commands.sequence(Commands.runOnce(() -> intakeState = IntakeState.STOW));
+    return setLinkagePositionGoal(IntakeState.STOW);
   }
 
   public Command bump() {
-    return Commands.sequence(Commands.runOnce(() -> intakeState = IntakeState.BUMP));
+    return setLinkagePositionGoal(IntakeState.BUMP);
+  }
+
+  private Command setLinkagePositionGoal(IntakeState state) {
+    return Commands.runOnce(
+        () -> {
+          linkage.setPositionGoal(intakeState.getSetpoint());
+          intakeState = state;
+        });
   }
 
   public Command agitate() {
@@ -143,8 +149,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                     linkage.waitUntilLinkageAtGoal())
                 .repeatedly(),
             setRollerVoltage(3.0))
-        .finallyDo(
-            () -> intakeState.getSetpoint().setSetpoint(intakeState.getAngle().getMeasure()));
+        .finallyDo(() -> linkage.setPositionGoal(intakeState.getAngle()));
   }
 
   public Command toggleIntake() {
