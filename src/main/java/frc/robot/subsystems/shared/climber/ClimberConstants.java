@@ -113,6 +113,8 @@ public class ClimberConstants {
                 .build();
         break;
 
+      case V2_DELTA:
+      case V2_DELTA_SIM:
       default:
         SLOW_VOLTAGE = 1.0;
         SLOT_0_GAINS =
