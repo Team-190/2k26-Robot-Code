@@ -92,7 +92,7 @@ public class Hood {
     Logger.recordOutput(aKitTopic + "/At Voltage Goal", atVoltageGoal());
     Logger.recordOutput(aKitTopic + "/State", currentState);
     Logger.recordOutput(aKitTopic + "/Voltage Goal", voltageGoal.getSetpoint());
-    Logger.recordOutput(aKitTopic + "Voltage Offset", voltageGoal.getOffset());
+    Logger.recordOutput(aKitTopic + "/Voltage Offset", voltageGoal.getOffset());
     Logger.recordOutput(
         aKitTopic + "/Position Goal", new Rotation2d((Angle) positionGoal.getSetpoint()));
     Logger.recordOutput(aKitTopic + "/Position Offset", positionGoal.getOffset());

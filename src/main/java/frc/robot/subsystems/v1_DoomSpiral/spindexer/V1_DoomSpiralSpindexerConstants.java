@@ -61,6 +61,7 @@ public class V1_DoomSpiralSpindexerConstants {
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0000559571))
           .withCanBus(CANBus.roboRIO())
           .withVoltageOffsetStep(SPINDEXER_INCREMENT_VOLTAGE)
+          .withEnableFOC(false)
           .build();
 
   public static final GenericRollerConstants FEEDER_ROLLER_CONSTANTS =
@@ -77,6 +78,7 @@ public class V1_DoomSpiralSpindexerConstants {
           .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001710116))
           .withCanBus(CANBus.roboRIO())
+          .withEnableFOC(false)
           .withVoltageOffsetStep(SPINDEXER_INCREMENT_VOLTAGE)
           .build();
 }

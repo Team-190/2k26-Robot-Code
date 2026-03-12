@@ -15,6 +15,7 @@ import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
@@ -39,6 +40,8 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     hood.periodic();
     flywheel.periodic();
 
+    Logger.recordOutput("Shooter/Hood/Goal", hoodGoal);
+
     if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
       V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
@@ -49,20 +52,23 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command setHoodGoal(HoodGoal goal) {
-    return Commands.runEnd(
+    return Commands.runOnce(
         () -> {
-          hood.setPositionGoal(getHoodGoal(goal));
           hoodGoal = goal;
-        },
-        () -> hood.setPositionGoal(Rotation2d.kZero));
+          hood.setPositionGoal(getHoodGoal(goal));
+        });
   }
 
   private Rotation2d getHoodGoal(HoodGoal goal) {
-    return switch (hoodGoal) {
-      case SCORE -> V1_DoomSpiralRobotState.getScoreAngle();
-      case FEED -> V1_DoomSpiralRobotState.getFeedAngle();
-      default -> Rotation2d.kZero;
-    };
+    Rotation2d rotation =
+        switch (goal) {
+          case SCORE -> V1_DoomSpiralRobotState.getScoreAngle();
+          case FEED -> V1_DoomSpiralRobotState.getFeedAngle();
+          default -> Rotation2d.kZero;
+        };
+    Logger.recordOutput("Shooter/Hood/DebugGoal", rotation);
+    Logger.recordOutput("Shooter/Hood/debugGoal1", goal);
+    return rotation;
   }
 
   public Command setOverrideHoodGoal(Rotation2d position) {

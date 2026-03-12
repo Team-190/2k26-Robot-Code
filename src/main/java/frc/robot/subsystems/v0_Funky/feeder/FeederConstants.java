@@ -26,5 +26,6 @@ public class FeederConstants {
           .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withMomentOfInertia(MomentOfInertia.ofBaseUnits(0.004, KilogramSquareMeters))
           .withVoltageOffsetStep(Volts.of(1))
+          .withEnableFOC(false)
           .build();
 }
