@@ -43,12 +43,12 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     state = ClimberGoal.DEFAULT;
     controller =
         new ProfiledPIDController(
-            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kP(),
+            V1_DoomSpiralClimberConstants.SLOT_2_GAINS.kP().get(),
             0,
-            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kD(),
+            V1_DoomSpiralClimberConstants.SLOT_2_GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
-                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
+                V1_DoomSpiralClimberConstants.CONSTRAINTS.maxVelocity().get(RadiansPerSecond),
+                V1_DoomSpiralClimberConstants.CONSTRAINTS.maxAcceleration().get(RadiansPerSecondPerSecond)));
     CommandScheduler.getInstance().schedule(arm.setPosition(Rotation2d.kZero));
   }
 
