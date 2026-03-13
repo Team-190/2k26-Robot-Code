@@ -95,7 +95,7 @@ public class V1_DoomSpiralClimberConstants {
           .withConstraints(CONSTRAINTS)
           .withCurrentLimits(CURRENT_LIMITS)
           .withEnableFOC(ENABLE_FOC)
-          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
+          .withInvertedValue(InvertedValue.Clockwise_Positive)
           .withCanBus(CANBus.roboRIO())
           .build();
 
