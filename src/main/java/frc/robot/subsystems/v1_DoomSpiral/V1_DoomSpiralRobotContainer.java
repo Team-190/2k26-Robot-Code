@@ -125,7 +125,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
           vision =
               new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark),
+                  () -> FieldConstants.tagLayoutType.getLayout(),
                   new CameraLimelight(
                       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
