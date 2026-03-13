@@ -23,11 +23,11 @@ import frc.robot.subsystems.shared.hood.HoodConstants;
 
 public class V1_DoomSpiralShooterConstants {
 
-  public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
-  public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(19.0);
+  public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(420.0);
+  public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(20.0);
 
-  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(300);
-  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(0.0);
+  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(350);
+  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(5.0);
 
   public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(402.00);
   public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(18.5);
