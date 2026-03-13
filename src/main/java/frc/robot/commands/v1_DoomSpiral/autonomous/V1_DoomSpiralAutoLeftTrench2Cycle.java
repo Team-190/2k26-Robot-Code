@@ -6,16 +6,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.subsystems.shared.intake.Intake;
+import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 
 public class V1_DoomSpiralAutoLeftTrench2Cycle {
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
-      V1_DoomSpiralIntake intake,
+      Intake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer) {
 
@@ -39,10 +39,7 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
 
                 // Deploy the intake
 
-                intake
-                    .deploy()
-                    .alongWith(
-                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                intake.deploy().alongWith(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
@@ -58,10 +55,7 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
                     .withTimeout(5.0),
-                intake
-                    .deploy()
-                    .alongWith(
-                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                intake.deploy().alongWith(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
                 LEFT_TRENCH_2_CYCLE_PATH_2.cmd(),
                 Commands.runOnce(() -> drive.stop()),
 

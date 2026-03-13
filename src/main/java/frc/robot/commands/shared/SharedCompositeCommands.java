@@ -9,7 +9,7 @@ import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
+import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.util.AllianceFlipUtil;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -37,7 +37,7 @@ public class SharedCompositeCommands {
         .ignoringDisable(true);
   }
 
-  public static Command deployClimber(V1_DoomSpiralIntake intake, Climber climber) {
+  public static Command deployClimber(Intake intake, Climber climber) {
     return Commands.sequence(
         intake.stow(),
         Commands.parallel(
@@ -48,7 +48,7 @@ public class SharedCompositeCommands {
             climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO)));
   }
 
-  public static Command unClimbPostAuto(V1_DoomSpiralIntake intake, Climber climber) {
+  public static Command unClimbPostAuto(Intake intake, Climber climber) {
     return Commands.parallel(
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
   }

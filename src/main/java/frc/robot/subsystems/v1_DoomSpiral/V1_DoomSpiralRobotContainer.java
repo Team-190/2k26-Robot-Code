@@ -42,8 +42,8 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
+import frc.robot.subsystems.shared.intake.Intake;
+import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.leds.V1_DoomSpiralCANdle;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
@@ -64,7 +64,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
   private V1_DoomSpiralSwank swank;
   private Climber climber;
-  private V1_DoomSpiralIntake intake;
+  private Intake intake;
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
   private V1_DoomSpiralCANdle leds;
@@ -104,10 +104,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
                   gyroIO.getRoll().asSupplier());
           intake =
-              new V1_DoomSpiralIntake(
-                  new GenericRollerIOTalonFX(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
+              new Intake(
+                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFX(),
@@ -171,10 +170,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           climber =
               new Climber(new ArmIOTalonFXSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
-              new V1_DoomSpiralIntake(
-                  new GenericRollerIOTalonFXSim(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new FourBarLinkageIOSim(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
+              new Intake(
+                  new GenericRollerIOTalonFXSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFXSim(),
@@ -223,7 +221,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (intake == null) {
-      intake = new V1_DoomSpiralIntake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
+      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
     }
 
     if (spindexer == null) {
@@ -417,29 +415,21 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.d2().onTrue(intake.incrementCollectOffset().withName("d2"));
     xkeys
         .e1()
-        .whileTrue(
-            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE).withName("e1"))
+        .whileTrue(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE).withName("e1"))
         .onFalse(intake.stopRoller().withName("e1-false"));
     xkeys
         .e2()
-        .whileTrue(
-            intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
+        .whileTrue(intake.setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
         .onFalse(intake.stopRoller().withName("e2"));
     xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("f1"));
     xkeys.f2().onTrue(intake.decreaseSpeedOffset().withName("f2"));
     xkeys
         .g1()
-        .whileTrue(
-            intake
-                .setLinkageVoltage(-V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .withName("g1"))
+        .whileTrue(intake.setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE).withName("g1"))
         .onFalse(intake.setLinkageVoltage(0).withName("g1-FALSE"));
     xkeys
         .g2()
-        .whileTrue(
-            intake
-                .setLinkageVoltage(V1_DoomSpiralIntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .withName("g2"))
+        .whileTrue(intake.setLinkageVoltage(IntakeConstants.LINKAGE_SLOW_VOLTAGE).withName("g2"))
         .onFalse(intake.setLinkageVoltage(0).withName("g2-FALSE"));
     xkeys.h1().or(xkeys.h2().or(xkeys.h3())).whileTrue(intake.agitate().withName("h1-h2-h3"));
   }

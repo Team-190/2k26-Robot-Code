@@ -10,9 +10,9 @@ import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
+import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.AllianceFlipUtil;
@@ -20,7 +20,7 @@ import frc.robot.util.AllianceFlipUtil;
 public class V1_DoomSpiralAutoClimb {
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
-      V1_DoomSpiralIntake intake,
+      Intake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
       Climber climber) {
