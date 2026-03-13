@@ -1,8 +1,6 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -15,8 +13,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import java.util.function.Supplier;
@@ -26,16 +22,15 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class FourBarLinkage {
-  private final FourBarLinkageIO io;
-  private final String aKitTopic;
+  public final FourBarLinkageIO io;
+  public final String aKitTopic;
   private final FourBarLinkageIOInputsAutoLogged inputs;
-
-  private FourBarLinkageState currentState;
-  private FourBarLinkageState.Output currentOutput;
 
   private Supplier<Rotation2d> positionOffset;
 
-  private final FourBarLinkageConstants constants;
+  private FourBarLinkageState currentState;
+  private FourBarLinkageState.Output currentOutput;
+  public final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
@@ -62,8 +57,7 @@ public class FourBarLinkage {
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
     this.constants = constants;
-    this.mechanism2d =
-        new LoggedMechanism2d(constants.LINKAGE_OFFSET.getX(), constants.LINKAGE_OFFSET.getZ());
+    this.mechanism2d = new LoggedMechanism2d(1, 1);
     aKitTopic = subsystem.getName() + "/Linkage" + index;
 
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
@@ -94,52 +88,15 @@ public class FourBarLinkage {
 
   public void periodic() {
     io.updateInputs(inputs);
-
     Logger.processInputs(aKitTopic, inputs);
 
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> {
-          io.setPID(constants.GAINS.kP().get(), 0, constants.GAINS.kD().get());
-
-          io.setFeedforward(
-              constants.GAINS.kS().get(),
-              constants.GAINS.kV().get(),
-              constants.GAINS.kG().get(),
-              constants.GAINS.kA().get());
-        },
-        constants.GAINS.kP(),
-        constants.GAINS.kD(),
-        constants.GAINS.kS(),
-        constants.GAINS.kG(),
-        constants.GAINS.kV(),
-        constants.GAINS.kA());
-
-    LoggedTunableMeasure.ifChanged(
-        hashCode(),
-        () ->
-            io.setProfile(
-                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond),
-                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
-                constants.CONSTRAINTS.goalTolerance().get().in(Radians)),
-        constants.CONSTRAINTS.maxAcceleration(),
-        constants.CONSTRAINTS.maxVelocity(),
-        constants.CONSTRAINTS.goalTolerance());
-
-    Logger.recordOutput(aKitTopic + "/velocityRadiansPerSec", inputs.velocity.in(RadiansPerSecond));
     Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
-    Logger.recordOutput(aKitTopic + "/State", currentState);
-    Logger.recordOutput(
-        aKitTopic + "/Offset Degrees", String.format("%.1f", positionOffset.get().getDegrees()));
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
         io.setVoltage(currentOutput.volts().in(Volts));
       }
       case CLOSED_LOOP_POSITION_CONTROL -> {
-        Logger.recordOutput(
-            aKitTopic + "/Angle Degrees",
-            String.format("%.1f", Math.abs(currentOutput.position().getDegrees())));
         io.setPositionGoal(currentOutput.position());
       }
       default -> {}
@@ -153,12 +110,14 @@ public class FourBarLinkage {
     Rotation2d followerAngle = currentPoses.get(2);
     Rotation2d groundAngle = currentPoses.get(3);
 
-    crank.setAngle(crankAngle.unaryMinus());
-    coupler.setAngle(couplerAngle.minus(crankAngle).unaryMinus());
-    follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
-    ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
+    crank.setAngle(crankAngle);
+    coupler.setAngle(couplerAngle.minus(crankAngle));
+    follower.setAngle(followerAngle.minus(couplerAngle));
+    ground.setAngle(groundAngle.minus(followerAngle));
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
+    Logger.recordOutput(
+        aKitTopic + "/Offset Degrees", String.format("%.1f", positionOffset.get().getDegrees()));
   }
 
   /**
@@ -168,13 +127,6 @@ public class FourBarLinkage {
    */
   public Rotation2d getPosition() {
     return inputs.position;
-  }
-
-  public Command setIdle() {
-    return Commands.runOnce(
-        () -> {
-          currentState = FourBarLinkageState.IDLE;
-        });
   }
 
   /**
@@ -238,12 +190,12 @@ public class FourBarLinkage {
   /**
    * Checks if the linkage is at the goal position.
    *
-   * @param position The state to check goal against.
+   * @param state The state to check goal against.
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
   public boolean atGoal(Rotation2d position) {
     return Math.abs(inputs.position.minus(position).getRadians())
-        <= constants.CONSTRAINTS.goalTolerance().get().in(Radians);
+        <= constants.CONSTRAINTS.goalTolerance().get(Radians);
   }
 
   /**
@@ -292,7 +244,7 @@ public class FourBarLinkage {
     double groundLength = constants.LINK_LENGTHS.DA();
 
     double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
-    double theta2 = -inputs.position.minus(constants.ZERO_OFFSET).getRadians() - theta1;
+    double theta2 = -inputs.position.minus(Rotation2d.kPi).getRadians() - theta1;
 
     double k1 = groundLength / crankLength;
     double k4 = groundLength / couplerLength;
@@ -327,15 +279,15 @@ public class FourBarLinkage {
 
     double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
-    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
-    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
-    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
+    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, (theta2 + theta1), 0));
+    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, (theta3 + theta1), 0));
+    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, theta5, 0));
+    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, (Math.PI + theta1), 0));
 
-    Rotation2d crankAngle = Rotation2d.fromRadians(-(theta2 + theta1));
-    Rotation2d couplerAngle = Rotation2d.fromRadians(-(theta3 + theta1));
-    Rotation2d followerAngle = Rotation2d.fromRadians(-theta5);
-    Rotation2d groundAngle = Rotation2d.fromRadians(-(Math.PI + theta1));
+    Rotation2d crankAngle = Rotation2d.fromRadians((theta2 + theta1));
+    Rotation2d couplerAngle = Rotation2d.fromRadians((theta3 + theta1));
+    Rotation2d followerAngle = Rotation2d.fromRadians(theta5);
+    Rotation2d groundAngle = Rotation2d.fromRadians((Math.PI + theta1));
 
     LinkageState link1 = new LinkageState(crankPose, crankAngle);
     LinkageState link2 = new LinkageState(couplerPose, couplerAngle);
@@ -353,7 +305,6 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
-        Commands.print("Sys Id being run"),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> atGoal(constants.MAX_ANGLE)),

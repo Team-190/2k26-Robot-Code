@@ -1,43 +1,36 @@
-package frc.robot.subsystems.v2_Delta;
+package frc.robot.subsystems.shared.intake;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
+import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v2_Delta.V2_DeltaIntakeConstants.IntakeState;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
-public class V2_DeltaIntake extends SubsystemBase {
+public class Intake extends SubsystemBase {
   private final GenericRoller roller;
-  private final GenericRollerConstants rollerConstants;
-  private final FourBarLinkageConstants linkageConstants;
   @Getter private final FourBarLinkage linkage;
 
   @Getter private IntakeState intakeState;
 
   private Rotation2d agitationAngle;
 
-  public V2_DeltaIntake(
-      GenericRollerIO rollerIO,
-      FourBarLinkageIO linkageIO,
-      GenericRollerConstants rollerConstants,
-      FourBarLinkageConstants linkageConstants) {
-    this.rollerConstants = rollerConstants;
-    this.linkageConstants = linkageConstants;
+  public Intake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
-    roller = new GenericRoller(rollerIO, this, rollerConstants, "1");
-    linkage = new FourBarLinkage(linkageIO, linkageConstants, this, 0);
+    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "1");
+    linkage = new FourBarLinkage(linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, 0);
 
     intakeState = IntakeState.STOW;
 
@@ -53,6 +46,22 @@ public class V2_DeltaIntake extends SubsystemBase {
 
     Logger.recordOutput("Intake/Intake State", intakeState);
     Logger.recordOutput("Intake/Agitation Angle", agitationAngle);
+
+    V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
+      V1_DoomSpiralRobotState.getLedStates()
+          .setIntakeCollecting(
+              roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+                  == IntakeConstants.INTAKE_VOLTAGE);
+      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    } else {
+      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
+      V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
+    }
+    V1_DoomSpiralRobotState.getLedStates()
+        .setSpitting(
+            roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+                == IntakeConstants.EXTAKE_VOLTAGE);
   }
 
   /**
@@ -130,13 +139,13 @@ public class V2_DeltaIntake extends SubsystemBase {
     //         .repeatedly());
     return Commands.parallel(
         Commands.sequence(
-                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170)),
+                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170 + 8)),
                 linkage.setPositionGoal(
                     () -> agitationAngle,
                     () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
                 linkage.waitUntilLinkageAtGoal(),
                 linkage.setPositionGoal(
-                    () -> Rotation2d.fromDegrees(90),
+                    () -> Rotation2d.fromDegrees(90 + 8.0),
                     () -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset()),
                 linkage.waitUntilLinkageAtGoal())
             .repeatedly(),
@@ -146,39 +155,64 @@ public class V2_DeltaIntake extends SubsystemBase {
   public Command toggleIntake() {
     return Commands.either(
         Commands.parallel(
-                Commands.sequence(stow(), setRollerVoltage(V2_DeltaIntakeConstants.EXTAKE_VOLTAGE)),
+                Commands.sequence(stow(), setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)),
                 waitUntilIntakeAtGoal())
             .andThen(stopRoller()),
-        Commands.sequence(deploy(), setRollerVoltage(V2_DeltaIntakeConstants.INTAKE_VOLTAGE)),
+        Commands.sequence(deploy(), setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
         () ->
             (intakeState.equals(IntakeState.INTAKE)
                 && linkage.atGoal(
                     IntakeState.INTAKE
                         .getAngle()
                         .plus(V1_DoomSpiralRobotState.getIntakeOffsets().getCollectOffset()))
-                && roller.atGoal(Volts.of(V2_DeltaIntakeConstants.INTAKE_VOLTAGE))));
+                && roller.atGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE))));
   }
 
   public Command collect() {
-    return Commands.parallel(deploy(), setRollerVoltage(V2_DeltaIntakeConstants.INTAKE_VOLTAGE));
+    return Commands.parallel(deploy(), setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE));
+  }
+
+  public Command stopCollect() {
+    return Commands.sequence(
+        Commands.parallel(stow(), setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)),
+        waitUntilIntakeAtGoal(),
+        stopRoller());
   }
 
   public Command resetIntakeZero() {
     return Commands.sequence(
-        linkage.setPosition(V2_DeltaIntakeConstants.MIN_ANGLE),
-        linkage.setPositionGoal(V2_DeltaIntakeConstants.MIN_ANGLE, Rotation2d::new));
+        linkage.setPosition(IntakeConstants.MIN_ANGLE),
+        linkage.setPositionGoal(IntakeConstants.MIN_ANGLE, Rotation2d::new));
+  }
+
+  public Transform3d getHopperWallTransform() {
+    // 1. Calculate Current Pose
+    final double currentY = linkage.getPosition().getSin() * IntakeConstants.PIN_LENGTH;
+    final double currentX0 = linkage.getPosition().getCos() * IntakeConstants.PIN_LENGTH;
+    final double currentXOff = calculateXOffset(currentY);
+    Pose3d currentPose = new Pose3d(-(currentX0 + currentXOff), 0, 0, new Rotation3d(0, 0, 0));
+
+    // 2. Calculate "Zero" Pose (at Y_MIN)
+    final double zeroY = IntakeConstants.LINK_BOUNDS.MIN();
+    final double zeroAngle = Math.asin(zeroY / IntakeConstants.PIN_LENGTH);
+    final double zeroX0 = Math.cos(zeroAngle) * IntakeConstants.PIN_LENGTH;
+    final double zeroXOff = calculateXOffset(zeroY);
+    Pose3d zeroPose = new Pose3d(-(zeroX0 + zeroXOff), 0, 0, new Rotation3d(0, 0, 0));
+
+    // 3. Return the Transform (Zero -> Current)
+    return currentPose.minus(zeroPose);
   }
 
   /** Piecewise logic for the linkage offset */
   private double calculateXOffset(double yPos) {
-    final double Y_MIN = V2_DeltaIntakeConstants.LINK_BOUNDS.MIN();
-    final double Y_PHASE_1 = V2_DeltaIntakeConstants.LINK_BOUNDS.PHASE_1();
-    final double Y_PHASE_2 = V2_DeltaIntakeConstants.LINK_BOUNDS.PHASE_2();
-    final double Y_MAX = V2_DeltaIntakeConstants.LINK_BOUNDS.MAX();
+    final double Y_MIN = IntakeConstants.LINK_BOUNDS.MIN();
+    final double Y_PHASE_1 = IntakeConstants.LINK_BOUNDS.PHASE_1();
+    final double Y_PHASE_2 = IntakeConstants.LINK_BOUNDS.PHASE_2();
+    final double Y_MAX = IntakeConstants.LINK_BOUNDS.MAX();
 
-    final double RADIUS_1 = V2_DeltaIntakeConstants.LINK_CONST.RADIUS_1();
-    final double RADIUS_2 = V2_DeltaIntakeConstants.LINK_CONST.RADIUS_2();
-    final double CENTER_OFFSET = V2_DeltaIntakeConstants.LINK_CONST.CENTER_OFFSET();
+    final double RADIUS_1 = IntakeConstants.LINK_CONST.RADIUS_1();
+    final double RADIUS_2 = IntakeConstants.LINK_CONST.RADIUS_2();
+    final double CENTER_OFFSET = IntakeConstants.LINK_CONST.CENTER_OFFSET();
 
     if (yPos <= Y_PHASE_1 && yPos >= Y_MIN) {
       return Math.sqrt(Math.pow(RADIUS_1, 2) - Math.pow(yPos, 2)) - CENTER_OFFSET;
@@ -207,7 +241,7 @@ public class V2_DeltaIntake extends SubsystemBase {
                     .setStowOffset(
                         V1_DoomSpiralRobotState.getIntakeOffsets()
                             .getStowOffset()
-                            .plus(V2_DeltaIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+                            .plus(IntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         stow());
   }
 
@@ -219,7 +253,7 @@ public class V2_DeltaIntake extends SubsystemBase {
                     .setStowOffset(
                         V1_DoomSpiralRobotState.getIntakeOffsets()
                             .getStowOffset()
-                            .minus(V2_DeltaIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+                            .minus(IntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         stow());
   }
 
@@ -231,7 +265,7 @@ public class V2_DeltaIntake extends SubsystemBase {
                     .setBumpOffset(
                         V1_DoomSpiralRobotState.getIntakeOffsets()
                             .getBumpOffset()
-                            .plus(V2_DeltaIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+                            .plus(IntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         bump());
   }
 
@@ -243,7 +277,7 @@ public class V2_DeltaIntake extends SubsystemBase {
                     .setBumpOffset(
                         V1_DoomSpiralRobotState.getIntakeOffsets()
                             .getBumpOffset()
-                            .minus(V2_DeltaIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+                            .minus(IntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         bump());
   }
 
@@ -255,7 +289,7 @@ public class V2_DeltaIntake extends SubsystemBase {
                     .setCollectOffset(
                         V1_DoomSpiralRobotState.getIntakeOffsets()
                             .getCollectOffset()
-                            .plus(V2_DeltaIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+                            .plus(IntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         deploy());
   }
 
@@ -267,7 +301,7 @@ public class V2_DeltaIntake extends SubsystemBase {
                     .setCollectOffset(
                         V1_DoomSpiralRobotState.getIntakeOffsets()
                             .getCollectOffset()
-                            .minus(V2_DeltaIntakeConstants.LINKAGE_ANGLE_INCREMENT))),
+                            .minus(IntakeConstants.LINKAGE_ANGLE_INCREMENT))),
         deploy());
   }
 
