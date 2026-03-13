@@ -22,6 +22,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
@@ -174,8 +175,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   Radians::zero);
           intake =
               new V1_DoomSpiralIntake(
-                  new GenericRollerIOTalonFXSim(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOSim(V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
                   new FourBarLinkageIOSim(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -476,8 +476,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () -> V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber));
 
     SmartDashboard.putData("Autonomous Modes", autoChooser);
-
-    autoChooser.select("Right Trench Simple");
   }
 
   @Override
