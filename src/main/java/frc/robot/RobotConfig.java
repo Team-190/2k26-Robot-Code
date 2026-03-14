@@ -3,7 +3,7 @@ package frc.robot;
 import lombok.Getter;
 
 public final class RobotConfig {
-  public static final RobotType ROBOT = RobotType.V1_DOOMSPIRAL;
+  public static final RobotType ROBOT = RobotType.V2_DELTA_SIM;
 
   public enum RobotType {
     V0_FUNKY("2026.+"),
