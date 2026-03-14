@@ -28,6 +28,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     flywheel =
         new GenericFlywheel(flywheelIO, this, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS, "");
+    flywheel.getVelocityGoalRadiansPerSecond().increment(RadiansPerSecond.of(60.0));
     hood =
         new Hood(
             hoodIO,
@@ -114,8 +115,6 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(false);
       V1_DoomSpiralRobotState.getLedStates().setShooterShooting(false);
     }
-
-    flywheel.getVelocityGoalRadiansPerSecond().increment(RadiansPerSecond.of(60.0));
   }
 
   public Command setHoodGoal(HoodGoal goal) {
