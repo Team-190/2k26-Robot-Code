@@ -32,10 +32,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS));
           break;
         default:
-          if (hopper == null) {
-            hopper = new V2_DeltaHopper(new GenericRollerIO() {}, new GenericRollerIO() {});
-          }
       }
+    }
+    if (hopper == null) {
+      hopper = new V2_DeltaHopper(new GenericRollerIO() {}, new GenericRollerIO() {});
     }
   }
 
