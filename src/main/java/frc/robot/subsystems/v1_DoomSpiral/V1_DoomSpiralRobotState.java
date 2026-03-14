@@ -287,22 +287,22 @@ public class V1_DoomSpiralRobotState {
   public enum FixedShots {
     LEFT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(350.0),
+            Rotation2d.fromDegrees(-170.0 + 180),
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
     RIGHT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-170.0),
+            Rotation2d.fromDegrees(350.0 + 180),
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
     HUB(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0),
+            Rotation2d.fromDegrees(-90.0 + 180),
             V1_DoomSpiralShooterConstants.HUB_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
     TOWER(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0),
+            Rotation2d.fromDegrees(-90.0 + 180),
             V1_DoomSpiralShooterConstants.TOWER_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
