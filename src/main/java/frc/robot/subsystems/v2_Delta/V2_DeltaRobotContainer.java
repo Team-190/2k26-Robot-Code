@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import frc.robot.Constants;
@@ -30,6 +31,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS),
                   new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS));
           break;
+        default:
+          if (hopper == null) {
+            hopper = new V2_DeltaHopper(new GenericRollerIO() {}, new GenericRollerIO() {});
+          }
       }
     }
   }
