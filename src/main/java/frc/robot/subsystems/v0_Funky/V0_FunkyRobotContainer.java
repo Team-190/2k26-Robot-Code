@@ -33,14 +33,14 @@ import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
-import frc.robot.subsystems.v0_Funky.shooter.Shooter;
-import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
+import frc.robot.subsystems.v0_Funky.shooter.V0_FunkyShooter;
+import frc.robot.subsystems.v0_Funky.shooter.V0_FunkyShooterConstants;
 import frc.robot.util.input.XKeysInput;
 import java.util.List;
 
 public class V0_FunkyRobotContainer implements RobotContainer {
   private SwerveDrive drive;
-  private Shooter shooter;
+  private V0_FunkyShooter shooter;
   private Feeder feeder;
   private Vision vision;
 
@@ -73,9 +73,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   V0_FunkyRobotState::getGlobalPose,
                   V0_FunkyRobotState::resetPose);
           shooter =
-              new Shooter(
-                  new GenericFlywheelIOTalonFX(ShooterConstants.SHOOT_CONSTANTS),
-                  new TurretIOTalonFX(ShooterConstants.TURRET_CONSTANTS));
+              new V0_FunkyShooter(
+                  new GenericFlywheelIOTalonFX(V0_FunkyShooterConstants.SHOOT_CONSTANTS),
+                  new TurretIOTalonFX(V0_FunkyShooterConstants.TURRET_CONSTANTS));
           // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
@@ -109,9 +109,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   () -> Pose2d.kZero,
                   V0_FunkyRobotState::resetPose);
           shooter =
-              new Shooter(
-                  new GenericFlywheelIOSim(ShooterConstants.SHOOT_CONSTANTS),
-                  new TurretIOSim(ShooterConstants.TURRET_CONSTANTS));
+              new V0_FunkyShooter(
+                  new GenericFlywheelIOSim(V0_FunkyShooterConstants.SHOOT_CONSTANTS),
+                  new TurretIOSim(V0_FunkyShooterConstants.TURRET_CONSTANTS));
           feeder = new Feeder(new GenericRollerIOSim(FeederConstants.FEEDER_CONSTANTS));
           vision =
               new Vision(
@@ -137,7 +137,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
     }
 
     if (shooter == null) {
-      shooter = new Shooter(new GenericFlywheelIO() {}, new TurretIO() {});
+      shooter = new V0_FunkyShooter(new GenericFlywheelIO() {}, new TurretIO() {});
     }
 
     if (feeder == null) {
@@ -170,15 +170,15 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
 
-    driver
-        .rightTrigger(V0_FunkyConstants.TRIGGER_DEADBAND)
-        .whileTrue(
-            Commands.run(
-                () -> {
-                  System.out.println("Speed: " + driver.getRightTriggerAxis());
-                  shooter.setVoltage(12 * driver.getRightTriggerAxis());
-                }))
-        .whileFalse(Commands.runOnce(() -> shooter.setVoltage(0)));
+    // driver
+    //     .rightTrigger(V0_FunkyConstants.TRIGGER_DEADBAND)
+    //     .whileTrue(
+    //         Commands.run(
+    //             () -> {
+    //               System.out.println("Speed: " + driver.getRightTriggerAxis());
+    //               shooter.setVoltage(12 * driver.getRightTriggerAxis());
+    //             }))
+    //     .whileFalse(Commands.runOnce(() -> shooter.setVoltage(0)));
 
     driver
         .leftBumper()
@@ -196,12 +196,12 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
 
-    xkeys
-        .a5()
-        .or(xkeys.a6())
-        .or(xkeys.a7())
-        .whileTrue(Commands.run(() -> shooter.setVoltage(V0_FunkyConstants.SHOOTER_VOLTAGE)))
-        .whileFalse(Commands.run(() -> shooter.setVoltage(0)));
+    // xkeys
+    //     .a5()
+    //     .or(xkeys.a6())
+    //     .or(xkeys.a7())
+    //     .whileTrue(Commands.run(() -> shooter.setVoltage(V0_FunkyConstants.SHOOTER_VOLTAGE)))
+    //     .whileFalse(Commands.run(() -> shooter.setVoltage(0)));
 
     xkeys
         .c8()

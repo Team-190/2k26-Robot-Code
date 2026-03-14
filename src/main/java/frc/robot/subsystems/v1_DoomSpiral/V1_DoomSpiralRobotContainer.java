@@ -350,9 +350,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.f6().onTrue(shooter.decrementFlywheelVelocity());
 
-    xkeys.g5().onTrue(shooter.incrementHoodAngle());
+    // xkeys.g5().onTrue(shooter.incrementHoodAngle());
 
-    xkeys.g6().onTrue(shooter.decrementHoodAngle());
+    // xkeys.g6().onTrue(shooter.decrementHoodAngle());
 
     // Climber button board commands
     xkeys.d8().onTrue(climber.setPositionDefault());

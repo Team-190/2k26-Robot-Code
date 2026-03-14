@@ -96,6 +96,7 @@ public class Turret {
       }
 
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltage(state.getVoltage());
+      case IDLE -> {}
     }
   }
 

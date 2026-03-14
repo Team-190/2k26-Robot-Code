@@ -16,7 +16,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
 
-public class ShooterConstants {
+public class V0_FunkyShooterConstants {
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(30)
