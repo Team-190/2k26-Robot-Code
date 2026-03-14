@@ -12,7 +12,7 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 
-public class V1_DoomSpiralAutoRightTrenchSimple {
+public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
       Intake intake,
@@ -21,10 +21,10 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_TRENCH_ANTI_BUCKS");
 
-    AutoTrajectory RIGHT_TRENCH_SIMPLE =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE);
+    AutoTrajectory LEFT_TRENCH_ANTI_BUCKS =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS);
 
     routine
         .active()
@@ -33,7 +33,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
 
                 // Set the inital pose
 
-                RIGHT_TRENCH_SIMPLE.resetOdometry(),
+                LEFT_TRENCH_ANTI_BUCKS.resetOdometry(),
 
                 // Deploy the intake
 
@@ -41,7 +41,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
 
                 // Follow the path
 
-                RIGHT_TRENCH_SIMPLE.cmd(),
+                LEFT_TRENCH_ANTI_BUCKS.cmd(),
 
                 // Stop drive
 
@@ -52,7 +52,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
-                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
+                        intake.agitate())));
 
     routine
         .active()
