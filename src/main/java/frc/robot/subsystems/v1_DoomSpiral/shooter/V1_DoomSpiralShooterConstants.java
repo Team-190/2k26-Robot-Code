@@ -75,7 +75,7 @@ public class V1_DoomSpiralShooterConstants {
                       new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
-          .withVelocityOffsetStep(RadiansPerSecond.of(5))
+          .withVelocityOffsetStep(RadiansPerSecond.of(10))
           .withVoltageOffsetStep(Volts.of(1))
           .build();
 
