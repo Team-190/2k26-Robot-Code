@@ -26,7 +26,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import java.util.function.Function;
-
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({GeometryUtil.class})
@@ -89,21 +88,22 @@ public class PotentialShotCalculator {
                 + robotVelocityMetersPerSecond.omegaRadiansPerSecond
                     * (robotToTurretTransform.getX() * Math.cos(robotRotation.getRadians())
                         - robotToTurretTransform.getY() * Math.sin(robotRotation.getRadians())));
-    
+
     // Account for velocity imparted by robot
     Time timeOfFlight;
     Pose2d lookaheadPose = turretPosition;
     Distance lookaheadTurretToTargetDistance = turretToTargetDistance;
 
     for (int i = 0; i < 20; i++) {
-        timeOfFlight = distanceToTimeFunction.apply(lookaheadTurretToTargetDistance);
-        Distance offsetX = turretVelocityX.times(timeOfFlight);
-        Distance offsetY = turretVelocityY.times(timeOfFlight);
-        lookaheadPose = new Pose2d(
-            turretPosition.getTranslation().plus(new Translation2d(offsetX, offsetY)),
-            turretPosition.getRotation()
-        );
-        lookaheadTurretToTargetDistance = Meters.of(targetPose.getDistance(lookaheadPose.getTranslation()));
+      timeOfFlight = distanceToTimeFunction.apply(lookaheadTurretToTargetDistance);
+      Distance offsetX = turretVelocityX.times(timeOfFlight);
+      Distance offsetY = turretVelocityY.times(timeOfFlight);
+      lookaheadPose =
+          new Pose2d(
+              turretPosition.getTranslation().plus(new Translation2d(offsetX, offsetY)),
+              turretPosition.getRotation());
+      lookaheadTurretToTargetDistance =
+          Meters.of(targetPose.getDistance(lookaheadPose.getTranslation()));
     }
 
     // Calculate parameters accounted for imparted velocity
@@ -111,22 +111,25 @@ public class PotentialShotCalculator {
     currentHoodAngle = distanceToHoodFunction.apply(lookaheadTurretToTargetDistance);
     if (lastTurretAngle == null) lastTurretAngle = currentTurretAngle;
     if (lastHoodAngle == null) lastHoodAngle = currentHoodAngle;
-    turretVelocity = RadiansPerSecond.of(turretAngleFilter.calculate(
-        currentTurretAngle.minus(lastTurretAngle).getRadians() / GompeiLib.getLoopPeriod()
-    ));
-    hoodVelocity = RadiansPerSecond.of(hoodAngleFilter.calculate(
-        (currentHoodAngle.minus(lastHoodAngle)).getRadians() / GompeiLib.getLoopPeriod()
-    ));
+    turretVelocity =
+        RadiansPerSecond.of(
+            turretAngleFilter.calculate(
+                currentTurretAngle.minus(lastTurretAngle).getRadians()
+                    / GompeiLib.getLoopPeriod()));
+    hoodVelocity =
+        RadiansPerSecond.of(
+            hoodAngleFilter.calculate(
+                (currentHoodAngle.minus(lastHoodAngle)).getRadians() / GompeiLib.getLoopPeriod()));
     lastTurretAngle = currentTurretAngle;
     lastHoodAngle = currentHoodAngle;
-    latestShotParameters = new ShotParameters(
-        true,
-        currentTurretAngle,
-        currentHoodAngle,
-        turretVelocity,
-        hoodVelocity,
-        distanceToFlywheelFunction.apply(lookaheadTurretToTargetDistance)
-    );
+    latestShotParameters =
+        new ShotParameters(
+            true,
+            currentTurretAngle,
+            currentHoodAngle,
+            turretVelocity,
+            hoodVelocity,
+            distanceToFlywheelFunction.apply(lookaheadTurretToTargetDistance));
 
     return latestShotParameters;
   }
