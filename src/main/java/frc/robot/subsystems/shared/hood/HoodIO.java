@@ -44,6 +44,10 @@ public interface HoodIO {
 
   default void setPosition(Rotation2d position) {}
 
+  default Rotation2d getPosition() {
+    return new Rotation2d();
+  }
+
   default void setPID(double kp, double ki, double kd) {}
 
   default void setFeedforward(double ks, double kv, double ka) {}
