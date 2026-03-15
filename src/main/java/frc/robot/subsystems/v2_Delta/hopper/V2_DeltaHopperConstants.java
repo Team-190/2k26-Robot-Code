@@ -8,13 +8,15 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.RobotConfig;
 
 public class V2_DeltaHopperConstants {
-  public static final double SHOOT_FEED_VOLTAGE;
-  public static final double OUTTAKE_VOLTAGE;
+  public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE;
+  public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
+  public static final Voltage OUTTAKE_VOLTAGE;
 
   public static final GenericRollerConstants ROLLERFLOOR_CONSTANTS;
   public static final GenericRollerConstants BALLTUNNEL_CONSTANTS;
@@ -24,8 +26,9 @@ public class V2_DeltaHopperConstants {
       case V2_DELTA:
       case V2_DELTA_SIM:
       default:
-        SHOOT_FEED_VOLTAGE = 10.0;
-        OUTTAKE_VOLTAGE = -10.0;
+        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(11.0);
+        BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
+        OUTTAKE_VOLTAGE = Volts.of(-11.0);
 
         ROLLERFLOOR_CONSTANTS =
             GenericRollerConstants.builder()

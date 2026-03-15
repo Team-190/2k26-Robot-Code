@@ -1,10 +1,14 @@
 package frc.robot.subsystems.v2_Delta.hopper;
 
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+
+import static edu.wpi.first.units.Units.Volts;
+
 import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaHopper extends SubsystemBase {
@@ -28,17 +32,17 @@ public class V2_DeltaHopper extends SubsystemBase {
     ballTunnel.periodic();
 
     Logger.recordOutput(
-        "Hopper/BallTunnel/Velocity", ballTunnel.getVoltageGoalVolts().getSetpoint());
+        "Hopper/BallTunnel/Voltage", ballTunnel.getVoltageGoalVolts().getSetpoint());
     Logger.recordOutput(
-        "Hopper/RollerFloor/Velocity", rollerFloor.getVoltageGoalVolts().getSetpoint());
+        "Hopper/RollerFloor/Voltage", rollerFloor.getVoltageGoalVolts().getSetpoint());
   }
 
-  public Command setRollerFloorVoltage(double voltage) {
+  public Command setRollerFloorVoltage(Voltage voltage) {
     return rollerFloor.setVoltage(voltage);
   }
 
   public Command feedShooterRollerFloor() {
-    return setRollerFloorVoltage(V2_DeltaHopperConstants.SHOOT_FEED_VOLTAGE);
+    return setRollerFloorVoltage(V2_DeltaHopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
   }
 
   public Command outtakeRollerFloor() {
@@ -46,15 +50,15 @@ public class V2_DeltaHopper extends SubsystemBase {
   }
 
   public Command stopRollerFloor() {
-    return setRollerFloorVoltage(0);
+    return setRollerFloorVoltage(Volts.of(0.0));
   }
 
-  public Command setBallTunnelVoltage(double voltage) {
+  public Command setBallTunnelVoltage(Voltage voltage) {
     return ballTunnel.setVoltage(voltage);
   }
 
   public Command feedShooterBallTunnel() {
-    return setBallTunnelVoltage(V2_DeltaHopperConstants.SHOOT_FEED_VOLTAGE);
+    return setBallTunnelVoltage(V2_DeltaHopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
   }
 
   public Command outtakeBallTunnel() {
@@ -62,7 +66,7 @@ public class V2_DeltaHopper extends SubsystemBase {
   }
 
   public Command stopBallTunnel() {
-    return setBallTunnelVoltage(0);
+    return setBallTunnelVoltage(Volts.of(0.0));
   }
 
   public Command intake() {
