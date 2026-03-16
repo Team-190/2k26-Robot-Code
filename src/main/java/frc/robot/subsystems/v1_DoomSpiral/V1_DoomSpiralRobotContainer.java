@@ -497,9 +497,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return Commands.sequence(
-        Commands.runOnce(
-            () -> V1_DoomSpiralRobotState.resetPose(new Pose2d(3.0, 7.0, new Rotation2d(0))))),
-        
+    return autoChooser.selectedCommand();        
   }
 }
