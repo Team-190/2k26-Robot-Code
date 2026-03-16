@@ -12,6 +12,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,6 +28,7 @@ import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -57,7 +60,7 @@ public class V1_DoomSpiralRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
-  @Getter private static Rotation2d robotAngle;
+  @Getter private static Rotation2d robotToHubAngle;
   @Getter private static Rotation2d scoreAngle;
   @Getter private static double scoreVelocity;
   @Getter private static Rotation2d feedAngle;
@@ -80,7 +83,7 @@ public class V1_DoomSpiralRobotState {
 
     localization =
         new Localization(
-            List.of(globalZone),
+            List.of(globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone),
             V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
             2);
 
@@ -88,7 +91,7 @@ public class V1_DoomSpiralRobotState {
 
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose()
+            getHubZonePose()
                 .getTranslation()
                 .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
                 .getNorm(),
@@ -210,12 +213,14 @@ public class V1_DoomSpiralRobotState {
     V1_DoomSpiralRobotState.robotHeading = robotHeading;
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", getHubZonePose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
 
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose().getTranslation().minus(hubTranslation).getNorm(), Meters);
+            getHubZonePose().getTranslation().minus(hubTranslation).getNorm(), Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
@@ -225,10 +230,10 @@ public class V1_DoomSpiralRobotState {
                 .getNorm(),
             Meters);
 
-    double xDiff = getGlobalPose().getX() - hubTranslation.getX();
-    double yDiff = getGlobalPose().getY() - hubTranslation.getY();
+    double xDiff = getHubZonePose().getX() - hubTranslation.getX();
+    double yDiff = getHubZonePose().getY() - hubTranslation.getY();
 
-    robotAngle = new Rotation2d(xDiff, yDiff).minus(Rotation2d.kCCW_90deg);
+    robotToHubAngle = new Rotation2d(xDiff, yDiff).minus(Rotation2d.kCCW_90deg);
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
@@ -240,7 +245,7 @@ public class V1_DoomSpiralRobotState {
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Rotation to Hub",
-        new Pose2d(getGlobalPose().getX(), getGlobalPose().getY(), robotAngle));
+        new Pose2d(getHubZonePose().getX(), getHubZonePose().getY(), robotToHubAngle));
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
@@ -270,6 +275,48 @@ public class V1_DoomSpiralRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
+  }
+
+  public static Pose2d getHubZonePose() {
+    Pose2d hubZonePose;
+
+    // use alliance pose if alliance is known, else fallback to global pose
+
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+
+    if (alliance.isPresent()) {
+      if (alliance.get() == Alliance.Red) {
+        hubZonePose = localization.getEstimatedPose(redHubZone);
+      } else {
+        hubZonePose = localization.getEstimatedPose(blueHubZone);
+      }
+    } else {
+      // fall back to global pose if no alliance
+      hubZonePose = getGlobalPose();
+    }
+
+    return hubZonePose;
+  }
+
+  public static Pose2d getTowerZonePose() {
+    Pose2d towerZonePose;
+
+    // use alliance pose if alliance is known, else fallback to global pose
+
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+
+    if (alliance.isPresent()) {
+      if (alliance.get() == Alliance.Red) {
+        towerZonePose = localization.getEstimatedPose(redTowerZone);
+      } else {
+        towerZonePose = localization.getEstimatedPose(blueTowerZone);
+      }
+    } else {
+      // fall back to global pose if no alliance
+      towerZonePose = getGlobalPose();
+    }
+
+    return towerZonePose;
   }
 
   @Data
