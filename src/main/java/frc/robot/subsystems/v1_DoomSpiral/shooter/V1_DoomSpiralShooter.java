@@ -30,7 +30,6 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     flywheel =
         new GenericFlywheel(flywheelIO, this, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS, "");
-    flywheel.getVelocityGoalRadiansPerSecond().increment(RadiansPerSecond.of(20.0));
     hood =
         new Hood(
             hoodIO,
