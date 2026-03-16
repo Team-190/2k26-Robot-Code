@@ -19,10 +19,10 @@ public class V2_DeltaHopper extends SubsystemBase {
 
     rollerFloor =
         new GenericRoller(
-            rollerFloorIO, this, V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS, "rollerFloor");
+            rollerFloorIO, this, V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS, " Floor");
     ballTunnel =
         new GenericRoller(
-            ballTunnelIO, this, V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS, "ballTunnel");
+            ballTunnelIO, this, V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS, " Tunnel");
   }
 
   @Override

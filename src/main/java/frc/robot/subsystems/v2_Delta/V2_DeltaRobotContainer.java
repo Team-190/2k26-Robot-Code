@@ -3,7 +3,6 @@ package frc.robot.subsystems.v2_Delta;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.*;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
@@ -11,7 +10,6 @@ import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopper;
 import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopperConstants;
-import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private V2_DeltaHopper hopper;
@@ -48,9 +46,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   }
 
   @Override
-  public void robotPeriodic() {
-    Logger.recordOutput("Hopper/Alive", true);
-  }
+  public void robotPeriodic() {}
 
   @Override
   public Command getAutonomousCommand() {
