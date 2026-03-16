@@ -125,7 +125,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
           vision =
               new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark),
+                  () -> FieldConstants.tagLayoutType.getLayout(),
                   new CameraLimelight(
                       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
@@ -465,6 +465,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         "Right Trench Simple",
         () ->
             V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Right Trench Anti Bucks",
+        () ->
+            V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
     autoChooser.addRoutine(
         "Depot And Back Hub",
