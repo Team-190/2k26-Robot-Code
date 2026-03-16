@@ -5,10 +5,12 @@ import static edu.wpi.first.units.Units.Radians;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
@@ -495,6 +497,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return Commands.sequence(
+        Commands.runOnce(
+            () -> V1_DoomSpiralRobotState.resetPose(new Pose2d(3.0, 7.0, new Rotation2d(0))))),
+        
   }
 }
