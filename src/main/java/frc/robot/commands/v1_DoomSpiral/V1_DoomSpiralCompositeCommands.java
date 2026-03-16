@@ -39,7 +39,8 @@ public class V1_DoomSpiralCompositeCommands {
                 () ->
                     (shooter.atGoal()
                         && DriveCommands.atAngle(V1_DoomSpiralRobotState.getRobotAngle())))
-            .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+            .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)),
+        spindexer.agitateSpindexer());
   }
 
   public static Command stopShooterCommand(
