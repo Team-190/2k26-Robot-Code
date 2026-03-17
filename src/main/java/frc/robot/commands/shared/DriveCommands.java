@@ -54,6 +54,8 @@ public final class DriveCommands {
    *     one in the list will take precedence.
    * @return A command that drives the SwerveDrive.
    */
+  private static DoubleSupplier keepCardinalDirection;
+
   @Trace
   public static Command joystickDrive(
       SwerveDrive drive,
@@ -157,6 +159,7 @@ public final class DriveCommands {
       DoubleSupplier cardinalDirectionSetpoint,
       BooleanSupplier climbSlowMode,
       DoubleSupplier climbSlowModeSetpoint) {
+
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.rotationGains().kP().get(),
@@ -174,6 +177,17 @@ public final class DriveCommands {
     omegaController.setTolerance(
         driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
         0);
+
+    if (cardinalDirectionAlign.getAsBoolean()) {
+      keepCardinalDirection =
+          () ->
+              AutoAlignCommand.calculate(
+                  omegaController,
+                  cardinalDirectionSetpoint.getAsDouble(),
+                  rotationSupplier.get().getRadians(),
+                  drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond);
+    }
+
     return joystickDrive(
         drive,
         driveConstants,
@@ -192,14 +206,7 @@ public final class DriveCommands {
                         hubSetpoint.getAsDouble(),
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
-            Pair.of(
-                cardinalDirectionAlign,
-                () ->
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        cardinalDirectionSetpoint.getAsDouble(),
-                        rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
+            Pair.of(cardinalDirectionAlign, keepCardinalDirection),
             Pair.of(
                 climbSlowMode,
                 () ->
