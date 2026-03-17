@@ -7,7 +7,6 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOIn
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOInputsAutoLogged;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.shared.hood.HoodIOInputsAutoLogged;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +17,8 @@ public class FuelSimulator {
   public int shotsMade = 0;
   public int shotsMissed = 0;
 
-  private static final GenericFlywheelIOInputsAutoLogged flywheelInputs = new GenericFlywheelIOInputsAutoLogged();
+  private static final GenericFlywheelIOInputsAutoLogged flywheelInputs =
+      new GenericFlywheelIOInputsAutoLogged();
   private static final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private static GenericRollerIOInputsAutoLogged feederInputs;
 
@@ -27,10 +27,11 @@ public class FuelSimulator {
   private static final double HUB_RADIUS = 0.6;
 
   private static final double TURRET_X_OFFSET = 0.0; // TODO: get actual values for these
-  private static final double TURRET_Z_HEIGHT = 0.6; 
+  private static final double TURRET_Z_HEIGHT = 0.6; // TODO: get actual values for these
 
   private static final double FLYWHEEL_MASS = 0.27;
-  private static final double FLYWHEEL_RADIUS = Units.inchesToMeters(2); // TODO: Account for the metal rod in code
+  private static final double FLYWHEEL_RADIUS =
+      Units.inchesToMeters(2); // TODO: Account for the metal rod in code
   private static double FLYWHEEL_VELOCITY = flywheelInputs.velocityRadiansPerSecond;
 
   private static final double FEEDER_MASS = 0.23; // Check value
@@ -92,16 +93,19 @@ public class FuelSimulator {
   }
 
   private boolean checkHubCollision(SimulatedFuel fuel, Rotation2d hoodPitch) {
-    double collisionTime = (getInitialVelocityZ() + Math.sqrt(Math.pow(getInitialVelocityZ(), 2))) / 9.8;
-    double FUEL_X_FINAL = TURRET_X_OFFSET
-        + getInitialVelocityX()
-            * Math.cos(hoodPitch.getRadians())
-            * Math.sqrt(
-                Math.pow(getInitialVelocityX() * Math.sin(hoodPitch.getRadians()), 2)
-                    + 19.6 * (ROBOT_HEIGHT - FieldConstants.Hub.innerHeight))
-            / 9.8;
+    double collisionTime =
+        (getInitialVelocityZ() + Math.sqrt(Math.pow(getInitialVelocityZ(), 2))) / 9.8;
+    double FUEL_X_FINAL =
+        TURRET_X_OFFSET
+            + getInitialVelocityX()
+                * Math.cos(hoodPitch.getRadians())
+                * Math.sqrt(
+                    Math.pow(getInitialVelocityX() * Math.sin(hoodPitch.getRadians()), 2)
+                        + 19.6 * (ROBOT_HEIGHT - FieldConstants.Hub.innerHeight))
+                / 9.8;
     boolean atRimHeight = Math.abs(fuel.position.getZ() - HUB_HEIGHT_Z) < 0.1;
-    double distanceToHub = new Translation2d(FUEL_X_FINAL, fuel.position.getY()).getDistance(HUB_CENTER);
+    double distanceToHub =
+        new Translation2d(FUEL_X_FINAL, fuel.position.getY()).getDistance(HUB_CENTER);
     return atRimHeight && (distanceToHub < HUB_RADIUS);
   }
 
@@ -117,14 +121,24 @@ public class FuelSimulator {
   }
 
   private static double getInitialVelocity() {
-    return Math.sqrt((FEEER_MOMENT_OF_INTERTIA * Math.pow(FEEDER_VELOCITY / FEEDER_RADIUS, 2) + FLYWHEEL_MASS * Math.pow(FLYWHEEL_VELOCITY, 2)) / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2))));
+    return Math.sqrt(
+        (FEEER_MOMENT_OF_INTERTIA * Math.pow(FEEDER_VELOCITY / FEEDER_RADIUS, 2)
+                + FLYWHEEL_MASS * Math.pow(FLYWHEEL_VELOCITY, 2))
+            / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2))));
   }
-  private static double getInitialVelocityX(){
-    return getInitialVelocity() * Math.cos(hoodInputs.position.getDegrees()); // Not accounting for friction between fuel and flywheel
+
+  private static double getInitialVelocityX() {
+    return getInitialVelocity()
+        * Math.cos(
+            hoodInputs.position
+                .getDegrees()); // Not accounting for friction between fuel and flywheel
   }
 
   private static double getInitialVelocityY() {
-    return getInitialVelocity() * Math.sin(hoodInputs.position.getDegrees()); // Not accounting for friction between fuel and flywheel
+    return getInitialVelocity()
+        * Math.sin(
+            hoodInputs.position
+                .getDegrees()); // Not accounting for friction between fuel and flywheel
   }
 
   private static double getInitialVelocityZ() {
