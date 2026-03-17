@@ -9,9 +9,9 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants;
@@ -27,7 +27,7 @@ public class ClimberConstants {
   public static final Gains SLOT_0_GAINS;
   public static final Gains SLOT_1_GAINS;
   public static final Gains SLOT_2_GAINS;
-  public static final AngularConstraints CONSTRAINTS;
+  public static final AngularPositionConstraints CONSTRAINTS;
   public static final CurrentLimits CURRENT_LIMITS;
   public static final ArmParameters ARM_PARAMETERS;
   public static final ArmConstants CLIMBER_CONSTANTS;
@@ -68,7 +68,7 @@ public class ClimberConstants {
                 .build();
 
         CONSTRAINTS =
-            AngularConstraints.builder()
+            AngularPositionConstraints.builder()
                 .withMaxVelocity(
                     new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(18)))
                 .withMaxAcceleration(
@@ -148,7 +148,7 @@ public class ClimberConstants {
                 .build();
 
         CONSTRAINTS =
-            AngularConstraints.builder()
+            AngularPositionConstraints.builder()
                 .withMaxVelocity(
                     new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(18)))
                 .withMaxAcceleration(
