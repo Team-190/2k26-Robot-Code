@@ -38,4 +38,8 @@ public class V1_DoomSpiralAutoTrajectoryCache {
   public static final Trajectory<?> TO_TEST_EFFECTIVENESS =
       Choreo.loadTrajectory("TO_TEST_EFFECTIVENESS").get();
   public static final Trajectory<?> CLIMB = Choreo.loadTrajectory("CLIMB").get();
+  public static final Trajectory<?> LEFT_TRENCH_ANTI_BUCKS =
+      Choreo.loadTrajectory("LEFT_TRENCH_ANTI_BUCKS").get();
+  public static final Trajectory<?> RIGHT_TRENCH_ANTI_BUCKS =
+      Choreo.loadTrajectory("RIGHT_TRENCH_ANTI_BUCKS").get();
 }
