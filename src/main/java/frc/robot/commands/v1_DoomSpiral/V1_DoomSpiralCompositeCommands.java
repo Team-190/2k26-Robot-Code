@@ -15,6 +15,7 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
+import frc.robot.util.AllianceFlipUtil;
 
 public class V1_DoomSpiralCompositeCommands {
 
@@ -57,7 +58,7 @@ public class V1_DoomSpiralCompositeCommands {
                     drive,
                     V1_DoomSpiralConstants.DRIVE_CONSTANTS,
                     V1_DoomSpiralRobotState::getHeading,
-                    shotParameters.robotAngle()),
+                    () -> AllianceFlipUtil.apply(shotParameters.robotAngle())),
                 shooter.setFlywheelGoal(shotParameters.flywheelSpeed()),
                 shooter.setOverrideHoodGoal(shotParameters.hoodAngle()))
             .until(shooter::atGoal),

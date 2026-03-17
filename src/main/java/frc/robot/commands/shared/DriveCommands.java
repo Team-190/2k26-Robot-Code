@@ -215,7 +215,7 @@ public final class DriveCommands {
       SwerveDrive drive,
       SwerveDriveConstants driveConstants,
       Supplier<Rotation2d> currentRotation,
-      Rotation2d targetRotation) {
+      Supplier<Rotation2d> targetRotation) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.rotationGains().kP().get(),
@@ -242,7 +242,7 @@ public final class DriveCommands {
                     0.0,
                     AutoAlignCommand.calculate(
                         omegaController,
-                        targetRotation.getRadians(),
+                        targetRotation.get().getRadians(),
                         currentRotation.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
                     AllianceFlipUtil.apply(currentRotation.get()))));
