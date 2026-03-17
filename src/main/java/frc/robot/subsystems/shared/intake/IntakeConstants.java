@@ -9,7 +9,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Units;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
@@ -410,10 +412,10 @@ public class IntakeConstants {
   @RequiredArgsConstructor
   @Getter
   public enum IntakeState {
-    STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(168.134766 + 8.0)),
-    BUMP(Rotation2d.fromDegrees(145));
+    STOW(new Setpoint<AngleUnit>(Degrees.of(9), Degrees.of(1))),
+    INTAKE(new Setpoint<AngleUnit>(Degrees.of(168.134766 + 8.0), Degrees.of(1))),
+    BUMP(new Setpoint<AngleUnit>(Degrees.of(145), Degrees.of(1)));
 
-    private final Rotation2d angle;
+    private final Setpoint<AngleUnit> angle;
   }
 }
