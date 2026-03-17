@@ -19,13 +19,10 @@ public class SimulatedFuel {
 
   public void updatePhysics(double deltaTime) {
     Translation3d gravityForce = new Translation3d(0, 0, -9.81 * MASS_KG);
-
     Translation3d netForce = gravityForce;
 
-    // newtons laws type shi
     Translation3d acceleration = netForce.div(MASS_KG);
 
-    // euler was on ts as a kid fr
     velocity = velocity.plus(acceleration.times(deltaTime));
     position = position.plus(velocity.times(deltaTime));
   }
