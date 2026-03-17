@@ -63,8 +63,6 @@ public class V1_DoomSpiralRobotState {
   @Getter private static Rotation2d feedAngle;
   @Getter private static double feedVelocity;
 
-  @Getter private static final IntakeOffsets intakeOffsets;
-
   @Getter private static final LEDStates ledStates;
 
   static {
@@ -101,8 +99,6 @@ public class V1_DoomSpiralRobotState {
                 .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
                 .getNorm(),
             Meters);
-
-    intakeOffsets = new IntakeOffsets(new Rotation2d(), new Rotation2d(), new Rotation2d());
 
     ledStates = new LEDStates(false, false, false, false, false, false);
 
@@ -270,14 +266,6 @@ public class V1_DoomSpiralRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
-  }
-
-  @Data
-  @AllArgsConstructor
-  public static class IntakeOffsets {
-    private Rotation2d stowOffset;
-    private Rotation2d bumpOffset;
-    private Rotation2d collectOffset;
   }
 
   public record FixedShotParameters(
