@@ -8,6 +8,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
@@ -35,7 +36,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     hoodGoal = HoodGoal.STOW;
   }
 
-  @Override
+  @Trace
   public void periodic() {
     hood.periodic();
     flywheel.periodic();

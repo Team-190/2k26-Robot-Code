@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -79,6 +80,7 @@ public class Turret {
     io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
   }
 
+  @Trace
   public void periodic() {
 
     io.updateInputs(inputs);

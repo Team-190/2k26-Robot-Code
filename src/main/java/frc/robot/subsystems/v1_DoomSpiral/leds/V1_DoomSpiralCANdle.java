@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import frc.robot.Robot;
@@ -199,6 +200,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
   }
 
   @Override
+  @Trace
   public synchronized void periodic() {
 
     Logger.recordOutput("Leds/Animation Type", lightType);
