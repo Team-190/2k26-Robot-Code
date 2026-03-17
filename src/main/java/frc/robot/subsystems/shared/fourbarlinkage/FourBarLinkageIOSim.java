@@ -9,8 +9,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 
 public class FourBarLinkageIOSim implements FourBarLinkageIO {
 
@@ -20,33 +23,38 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
 
   private final SimpleMotorFeedforward feedforward;
 
-  private double appliedVolts = 0.0;
+  private double appliedVolts;
+
+  private final FourBarLinkageConstants constants;
 
   public FourBarLinkageIOSim(FourBarLinkageConstants constants) {
     motorSim =
         new SingleJointedArmSim(
             LinearSystemId.createDCMotorSystem(
-                constants.MOTOR_CONFIG, constants.MOMENT_OF_INERTIA, constants.GEAR_RATIO),
-            constants.MOTOR_CONFIG,
-            constants.GEAR_RATIO,
-            constants.PIN_LENGTH,
-            constants.MIN_ANGLE.getRadians(),
-            constants.MAX_ANGLE.getRadians(),
+                constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
+            constants.motorConfig,
+            constants.gearRatio,
+            constants.pinLength,
+            constants.minAngle.getRadians(),
+            constants.maxAngle.getRadians(),
             false,
             0.0);
 
     feedback =
         new ProfiledPIDController(
-            constants.GAINS.kP().get(),
+            constants.gains.kP().get(),
             0.0,
-            constants.GAINS.kD().get(),
+            constants.gains.kD().get(),
             new TrapezoidProfile.Constraints(
-                constants.CONSTRAINTS.maxVelocity().get().in(RadiansPerSecond),
-                constants.CONSTRAINTS.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
+                constants.constraints.maxVelocity().get().in(RadiansPerSecond),
+                constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond)));
 
-    feedback.setTolerance(constants.CONSTRAINTS.goalTolerance().get().in(Radians));
+    feedback.setTolerance(constants.constraints.goalTolerance().get().in(Radians));
     feedforward =
-        new SimpleMotorFeedforward(constants.GAINS.kS().get(), constants.GAINS.kV().get());
+        new SimpleMotorFeedforward(constants.gains.kS().get(), constants.gains.kV().get());
+    appliedVolts = 0.0;
+
+    this.constants = constants;
   }
 
   public void updateInputs(FourBarLinkageIOInputs inputs) {
@@ -66,8 +74,8 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
   }
 
   /** Set voltage. */
-  public void setVoltage(double volts) {
-    appliedVolts = volts;
+  public void setVoltageGoal(Voltage volts) {
+    appliedVolts = volts.in(Volts);
   }
 
   /** Set closed loop position setpoint. */
@@ -82,27 +90,30 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
     feedback.reset(position.getRadians(), motorSim.getVelocityRadPerSec());
   }
 
-  public void setPID(double kp, double ki, double kd) {
-    feedback.setPID(kp, ki, kd);
+  @Override
+  public void setGains(Gains gains) {
+    feedback.setPID(gains.kP().get(), 0.0, gains.kD().get());
+    feedforward.setKa(gains.kA().get());
+    feedforward.setKv(gains.kV().get());
+    feedforward.setKs(gains.kS().get());
   }
 
-  public void setFeedforward(double ks, double kv, double kg, double ka) {
-    feedforward.setKs(ks);
-    feedforward.setKv(kv);
-    feedforward.setKa(ka);
-  }
-
-  public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
+  @Override
+  public void setProfile(AngularPositionConstraints constraints) {
     feedback.setConstraints(
-        new Constraints(maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared));
-    feedback.setTolerance(goalToleranceRadians);
+        new Constraints(
+            constraints.maxVelocity().get(RadiansPerSecond),
+            constraints.maxAcceleration().get(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constraints.goalTolerance().get(Radians));
   }
 
   /** Check if the linkage is within tolerance */
-  public boolean atGoal() {
-    return feedback.atGoal();
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return Math.abs(positionReference.getRadians() - motorSim.getAngleRads())
+        <= constants.constraints.goalTolerance().get(Radians);
+  }
+
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return voltageReference.isNear(Volts.of(appliedVolts), Millivolts.of(500));
   }
 }

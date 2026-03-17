@@ -3,7 +3,6 @@ package frc.robot.subsystems.v1_DoomSpiral.shooter;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -13,9 +12,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
@@ -23,11 +23,11 @@ import frc.robot.subsystems.shared.hood.HoodConstants;
 
 public class V1_DoomSpiralShooterConstants {
 
-  public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(400);
-  public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(19.0);
+  public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(420.0);
+  public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(20.0);
 
-  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(300);
-  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(0.0);
+  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(350);
+  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(5.0);
 
   public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(402.00);
   public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(18.5);
@@ -64,7 +64,7 @@ public class V1_DoomSpiralShooterConstants {
                   .build())
           .withConstraints( // Currently using positional angular constraints, should switch to
               // velocity angular constraints later.
-              AngularConstraints.builder()
+              AngularVelocityConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(1000)))
@@ -72,10 +72,11 @@ public class V1_DoomSpiralShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
-          .withVelocityOffsetStep(RadiansPerSecond.of(5))
+          .withVelocityOffsetStep(RadiansPerSecond.of(10))
           .withVoltageOffsetStep(Volts.of(1))
           .build();
 
@@ -96,7 +97,7 @@ public class V1_DoomSpiralShooterConstants {
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
-              AngularConstraints.builder()
+              AngularPositionConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))
@@ -114,5 +115,13 @@ public class V1_DoomSpiralShooterConstants {
                   .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
                   .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .build())
+          .withVoltageStep(Volts.of(0.5))
           .build();
+
+  public enum HoodGoal {
+    SCORE,
+    FEED,
+    STOW,
+    OVERRIDE
+  }
 }

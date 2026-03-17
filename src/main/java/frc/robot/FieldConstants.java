@@ -24,30 +24,31 @@ import java.util.List;
  */
 public class FieldConstants {
 
+  public static AprilTagLayoutType tagLayoutType = AprilTagLayoutType.WELDED;
+
   // AprilTag related constants
-  public static final int aprilTagCount = AprilTagLayoutType.ANDYMARK.getLayout().getTags().size();
+  public static final int aprilTagCount = tagLayoutType.getLayout().getTags().size();
   public static final double aprilTagWidth = Units.inchesToMeters(6.5);
 
   // Field dimensions
-  public static final double fieldLength = AprilTagLayoutType.ANDYMARK.getLayout().getFieldLength();
-  public static final double fieldWidth = AprilTagLayoutType.ANDYMARK.getLayout().getFieldWidth();
+  public static final double fieldLength = tagLayoutType.getLayout().getFieldLength();
+  public static final double fieldWidth = tagLayoutType.getLayout().getFieldWidth();
 
   /**
    * Officially defined and relevant vertical lines found on the field (defined by X-axis offset)
    */
   public static class LinesVertical {
     public static final double center = fieldLength / 2.0;
-    public static final double starting =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(26).get().getX();
+    public static final double starting = tagLayoutType.getLayout().getTagPose(26).get().getX();
     public static final double allianceZone = starting;
     public static final double hubCenter =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(26).get().getX() + Hub.width / 2.0;
+        tagLayoutType.getLayout().getTagPose(26).get().getX() + Hub.width / 2.0;
     public static final double neutralZoneNear = center - Units.inchesToMeters(120);
     public static final double neutralZoneFar = center + Units.inchesToMeters(120);
     public static final double oppHubCenter =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(4).get().getX() + Hub.width / 2.0;
+        tagLayoutType.getLayout().getTagPose(4).get().getX() + Hub.width / 2.0;
     public static final double oppAllianceZone =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(10).get().getX();
+        tagLayoutType.getLayout().getTagPose(10).get().getX();
   }
 
   /**
@@ -86,12 +87,12 @@ public class FieldConstants {
     // Relevant reference points on alliance side
     public static final Translation3d topCenterPoint =
         new Translation3d(
-            AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(26).get().getX() + width / 2.0,
+            tagLayoutType.getLayout().getTagPose(26).get().getX() + width / 2.0,
             fieldWidth / 2.0,
             height);
     public static final Translation3d innerCenterPoint =
         new Translation3d(
-            AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(26).get().getX() + width / 2.0,
+            tagLayoutType.getLayout().getTagPose(26).get().getX() + width / 2.0,
             fieldWidth / 2.0,
             innerHeight);
 
@@ -107,7 +108,7 @@ public class FieldConstants {
     // Relevant reference points on the opposite side
     public static final Translation3d oppTopCenterPoint =
         new Translation3d(
-            AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(4).get().getX() + width / 2.0,
+            tagLayoutType.getLayout().getTagPose(4).get().getX() + width / 2.0,
             fieldWidth / 2.0,
             height);
     public static final Translation2d oppNearLeftCorner =
@@ -120,14 +121,11 @@ public class FieldConstants {
         new Translation2d(oppTopCenterPoint.getX() + width / 2.0, fieldWidth / 2.0 - width / 2.0);
 
     // Hub faces
-    public static final Pose2d nearFace =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(26).get().toPose2d();
-    public static final Pose2d farFace =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(20).get().toPose2d();
+    public static final Pose2d nearFace = tagLayoutType.getLayout().getTagPose(26).get().toPose2d();
+    public static final Pose2d farFace = tagLayoutType.getLayout().getTagPose(20).get().toPose2d();
     public static final Pose2d rightFace =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(18).get().toPose2d();
-    public static final Pose2d leftFace =
-        AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(21).get().toPose2d();
+        tagLayoutType.getLayout().getTagPose(18).get().toPose2d();
+    public static final Pose2d leftFace = tagLayoutType.getLayout().getTagPose(21).get().toPose2d();
   }
 
   /** Left Bump related constants */
@@ -241,36 +239,34 @@ public class FieldConstants {
 
     // Relevant reference points on alliance side
     public static final Translation2d centerPoint =
-        new Translation2d(
-            frontFaceX, AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(31).get().getY());
+        new Translation2d(frontFaceX, tagLayoutType.getLayout().getTagPose(31).get().getY());
     public static final Translation2d leftUpright =
         new Translation2d(
             frontFaceX,
-            (AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(31).get().getY())
+            (tagLayoutType.getLayout().getTagPose(31).get().getY())
                 + innerOpeningWidth / 2
                 + Units.inchesToMeters(0.75));
     public static final Translation2d rightUpright =
         new Translation2d(
             frontFaceX,
-            (AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(31).get().getY())
+            (tagLayoutType.getLayout().getTagPose(31).get().getY())
                 - innerOpeningWidth / 2
                 - Units.inchesToMeters(0.75));
 
     // Relevant reference points on opposing side
     public static final Translation2d oppCenterPoint =
         new Translation2d(
-            fieldLength - frontFaceX,
-            AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(15).get().getY());
+            fieldLength - frontFaceX, tagLayoutType.getLayout().getTagPose(15).get().getY());
     public static final Translation2d oppLeftUpright =
         new Translation2d(
             fieldLength - frontFaceX,
-            (AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(15).get().getY())
+            (tagLayoutType.getLayout().getTagPose(15).get().getY())
                 + innerOpeningWidth / 2
                 + Units.inchesToMeters(0.75));
     public static final Translation2d oppRightUpright =
         new Translation2d(
             fieldLength - frontFaceX,
-            (AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(15).get().getY())
+            (tagLayoutType.getLayout().getTagPose(15).get().getY())
                 - innerOpeningWidth / 2
                 - Units.inchesToMeters(0.75));
   }
@@ -299,7 +295,7 @@ public class FieldConstants {
 
     // Relevant reference points on alliance side
     public static final Translation2d centerPoint =
-        new Translation2d(0, AprilTagLayoutType.ANDYMARK.getLayout().getTagPose(29).get().getY());
+        new Translation2d(0, tagLayoutType.getLayout().getTagPose(29).get().getY());
 
     public static final Translation2d FEED_TRANSLATION = new Translation2d(0, 0);
   }
@@ -326,21 +322,21 @@ public class FieldConstants {
 
   public static class AprilTags {
     public static final List<AprilTag> globalTags =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags();
+        FieldConstants.tagLayoutType.getLayout().getTags();
     public static final List<AprilTag> blueHubTags =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+        FieldConstants.tagLayoutType.getLayout().getTags().stream()
             .filter((AprilTag tag) -> List.of(18, 19, 20, 21, 24, 25, 26, 27).contains(tag.ID))
             .toList();
     public static final List<AprilTag> redHubTags =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+        FieldConstants.tagLayoutType.getLayout().getTags().stream()
             .filter((AprilTag tag) -> List.of(2, 3, 4, 5, 8, 9, 10, 11).contains(tag.ID))
             .toList();
     public static final List<AprilTag> blueTowerTags =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+        FieldConstants.tagLayoutType.getLayout().getTags().stream()
             .filter((AprilTag tag) -> List.of(31, 32).contains(tag.ID))
             .toList();
     public static final List<AprilTag> redTowerTags =
-        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark).getTags().stream()
+        FieldConstants.tagLayoutType.getLayout().getTags().stream()
             .filter((AprilTag tag) -> List.of(15, 16).contains(tag.ID))
             .toList();
   }
