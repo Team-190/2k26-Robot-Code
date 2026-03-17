@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
@@ -69,7 +68,7 @@ public class V1_DoomSpiralRobotState {
   @Getter private static final LEDStates ledStates;
 
   static {
-    fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+    fieldLayout = FieldConstants.tagLayoutType.getLayout();
 
     field = new Field2d();
 
@@ -212,14 +211,11 @@ public class V1_DoomSpiralRobotState {
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
 
-    Translation3d hubTranslation =
-        AllianceFlipUtil.shouldFlip()
-            ? FieldConstants.Hub.oppTopCenterPoint
-            : FieldConstants.Hub.topCenterPoint;
+    Translation2d hubTranslation =
+        AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose().getTranslation().minus(hubTranslation.toTranslation2d()).getNorm(),
-            Meters);
+            getGlobalPose().getTranslation().minus(hubTranslation).getNorm(), Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
@@ -291,22 +287,22 @@ public class V1_DoomSpiralRobotState {
   public enum FixedShots {
     LEFT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(350.0),
+            Rotation2d.fromDegrees(-170.0 + 180),
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
     RIGHT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-170.0),
+            Rotation2d.fromDegrees(350.0 + 180),
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
     HUB(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0),
+            Rotation2d.fromDegrees(-90.0 + 180),
             V1_DoomSpiralShooterConstants.HUB_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
     TOWER(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0),
+            Rotation2d.fromDegrees(-90.0 + 180),
             V1_DoomSpiralShooterConstants.TOWER_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
