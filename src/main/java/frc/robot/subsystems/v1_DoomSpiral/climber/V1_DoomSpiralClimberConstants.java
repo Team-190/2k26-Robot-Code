@@ -1,17 +1,14 @@
 package frc.robot.subsystems.v1_DoomSpiral.climber;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmConstants;
@@ -42,8 +39,8 @@ public class V1_DoomSpiralClimberConstants {
           .withKA(new LoggedTunableNumber("Climber/Slot1/kA", 0.36032))
           .build();
 
-  public static final AngularConstraints CONSTRAINTS =
-      AngularConstraints.builder()
+  public static final AngularPositionConstraints CONSTRAINTS =
+      AngularPositionConstraints.builder()
           .withMaxVelocity(
               new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(18)))
           .withMaxAcceleration(
@@ -95,8 +92,10 @@ public class V1_DoomSpiralClimberConstants {
           .withConstraints(CONSTRAINTS)
           .withCurrentLimits(CURRENT_LIMITS)
           .withEnableFOC(ENABLE_FOC)
-          .withInvertedValue(InvertedValue.Clockwise_Positive)
+          .withInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withCanBus(CANBus.roboRIO())
+          .withVoltageOffsetStep(Millivolt.of(250))
+          .withPositionOffsetStep(Rotation2d.fromDegrees(1))
           .build();
 
   public record RollPIDConstants(
