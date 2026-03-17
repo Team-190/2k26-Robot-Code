@@ -208,15 +208,16 @@ public class V1_DoomSpiralRobotState {
 
     V1_DoomSpiralRobotState.robotHeading = robotHeading;
 
+    Pose2d hubPose = getHubZonePose();
+
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", getHubZonePose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", hubPose);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
 
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     distanceToHub =
-        Distance.ofBaseUnits(
-            getHubZonePose().getTranslation().minus(hubTranslation).getNorm(), Meters);
+        Distance.ofBaseUnits(hubPose.getTranslation().minus(hubTranslation).getNorm(), Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
@@ -226,10 +227,8 @@ public class V1_DoomSpiralRobotState {
                 .getNorm(),
             Meters);
 
-    double xDiff = getHubZonePose().getX() - hubTranslation.getX();
-    double yDiff = getHubZonePose().getY() - hubTranslation.getY();
-
-    robotToHubAngle = new Rotation2d(xDiff, yDiff).minus(Rotation2d.kCCW_90deg);
+    robotToHubAngle =
+        hubPose.getTranslation().minus(hubTranslation).getAngle().minus(Rotation2d.kCCW_90deg);
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
@@ -241,7 +240,7 @@ public class V1_DoomSpiralRobotState {
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Rotation to Hub",
-        new Pose2d(getHubZonePose().getX(), getHubZonePose().getY(), robotToHubAngle));
+        new Pose2d(hubPose.getTranslation(), robotToHubAngle));
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
@@ -290,7 +289,6 @@ public class V1_DoomSpiralRobotState {
       // fall back to global pose if no alliance
       hubZonePose = getGlobalPose();
     }
-
     return hubZonePose;
   }
 
