@@ -1,6 +1,11 @@
 package frc.robot.subsystems.v0_Funky.shooter;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
@@ -30,21 +35,21 @@ public class V0_FunkyShooter extends SubsystemBase {
     turret.periodic();
   }
 
-  // public void setVoltage(double volts) {
-  //   flywheel.setVoltage(volts);
-  // }
+  public void setVoltage(double volts) {
+    flywheel.setVoltageGoal(Volts.of(volts));
+  }
 
-  // public Command setTurretVoltage(double volts) {
-  //   return turret.setTurretVoltage(volts);
-  // }
+  public Command setTurretVoltage(Voltage volts) {
+    return Commands.runOnce(() -> turret.setVoltageGoal(volts));
+  }
 
-  // public Command setTurretGoal(Rotation2d goal) {
-  //   return turret.setGoal(goal);
-  // }
+  public Command setTurretGoal(Rotation2d goal) {
+    return Commands.runOnce(() -> turret.setPositionGoal(goal));
+  }
 
-  // public Command waitUntilAtGoal() {
-  //   return turret.waitUntilAtGoal().alongWith(flywheel.waitUntilAtGoal());
-  // }
+  public Command waitUntilAtGoal() {
+    return turret.waitUntilAtGoal().alongWith(flywheel.waitUntilAtGoal());
+  }
 
   public Command runTurretSysID() {
     return turret.runSysId();

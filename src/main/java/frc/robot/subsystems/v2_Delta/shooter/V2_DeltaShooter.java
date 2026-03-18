@@ -1,23 +1,31 @@
 package frc.robot.subsystems.v2_Delta.shooter;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.turret.Turret;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.HoodGoal;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaShooter extends SubsystemBase {
 
   private final Hood hood;
+
+  private HoodGoal hoodGoal;
 
   private final GenericFlywheel flywheel;
 
@@ -27,108 +35,106 @@ public class V2_DeltaShooter extends SubsystemBase {
     setName("Shooter");
 
     flywheel = new GenericFlywheel(flywheelIO, this, V2_DeltaShooterConstants.SHOOT_CONSTANTS, "");
-    hood =
-        new Hood(
-            hoodIO,
-            V2_DeltaShooterConstants.HOOD_CONSTANTS,
-            this,
-            "",
-            V1_DoomSpiralRobotState::getScoreAngle,
-            V1_DoomSpiralRobotState::getFeedAngle);
-    turret =
-        new Turret(
-            turretIO,
-            this,
-            "",
-            V1_DoomSpiralRobotState::getGlobalPose,
-            V2_DeltaShooterConstants.TURRET_CONSTANTS);
+    hood = new Hood(hoodIO, V2_DeltaShooterConstants.HOOD_CONSTANTS, this, "");
+
+    hoodGoal = HoodGoal.STOW;
+
+    turret = new Turret(turretIO, this, " ", V2_DeltaRobotState::getGlobalPose, V2_DeltaShooterConstants.TURRET_CONSTANTS);
   }
 
-  @Override
+  @Trace
   public void periodic() {
     hood.periodic();
     flywheel.periodic();
-    turret.periodic();
 
-    //    if (hood.getHoodGoal().equals(HoodGoal.SCORE) || hood.getHoodGoal().equals(HoodGoal.FEED))
-    // {
-    //      V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
-    //      V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
-    //    } else {
-    //      V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(false);
-    //      V1_DoomSpiralRobotState.getLedStates().setShooterShooting(false);
-    //    }
+    Logger.recordOutput("Shooter/Hood/Goal", hoodGoal);
+
+    // if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
+    //   V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
+    //   V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
+    // } else {
+    //   V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(false);
+    //   V1_DoomSpiralRobotState.getLedStates().setShooterShooting(false);
+    // }
   }
 
   public Command setHoodGoal(HoodGoal goal) {
-    return Commands.runOnce(() -> hood.setGoal(goal));
-  }
-
-  public Command setFlywheelGoal(double velocityRadiansPerSecond) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond);
-  }
-
-  public Command setFlywheelGoal(double velocityRadiansPerSecond, double feedforward) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward);
-  }
-
-  public Command setFlywheelGoal(DoubleSupplier velocityRadiansPerSecond) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond);
-  }
-
-  public Command setFlywheelGoal(
-      DoubleSupplier velocityRadiansPerSecond, DoubleSupplier feedforward) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward);
-  }
-
-  public Command setHoodGoal(Rotation2d goal) {
     return Commands.runOnce(
         () -> {
-          hood.setGoal(HoodGoal.OVERRIDE);
-          hood.setOverridePosition(goal);
+          hoodGoal = goal;
+          hood.setPositionGoal(getHoodGoal(goal));
         });
   }
 
-  public Command setTurretGoal(Rotation2d goal) {
-    return Commands.runOnce(() -> turret.setGoal(goal));
+  private Rotation2d getHoodGoal(HoodGoal goal) {
+    Rotation2d rotation =
+        switch (goal) {
+          case SCORE -> V1_DoomSpiralRobotState.getScoreAngle();
+          case FEED -> V1_DoomSpiralRobotState.getFeedAngle();
+          default -> Rotation2d.kZero;
+        };
+    Logger.recordOutput("Shooter/Hood/DebugGoal", rotation);
+    Logger.recordOutput("Shooter/Hood/debugGoal1", goal);
+    return rotation;
   }
 
-  public Command setTurretGoal(Translation2d goal) {
-    return Commands.runOnce(() -> turret.setFieldRelativeGoal(goal));
+  public Command setOverrideHoodGoal(Rotation2d position) {
+    return Commands.runOnce(() -> hood.setPositionGoal(position))
+        .andThen(Commands.runOnce(() -> hoodGoal = HoodGoal.OVERRIDE));
   }
 
-  public Command setShooterGoal(
-      DoubleSupplier velocityRadiansPerSecond,
-      DoubleSupplier feedforward,
-      Rotation2d hoodGoal,
-      Translation2d turretGoal) {
+  public Command setHoodVoltage(double volts) {
+    return Commands.runOnce(() -> hood.setVoltageGoal(Volts.of(volts)));
+  }
+
+  public Command stopHood() {
+    return Commands.runOnce(() -> hood.setVoltageGoal(Volts.zero()));
+  }
+
+  public Command zeroHood() {
+    return hood.resetHoodZero();
+  }
+
+  public Command setFlywheelGoal(AngularVelocity velocityGoal) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal));
+  }
+
+  public Command setFlywheelGoal(AngularVelocity velocityGoal, Current feedforward) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal, feedforward));
+  }
+
+  public Command setFlywheelVoltage(double volts) {
+    return Commands.runOnce(() -> flywheel.setVoltageGoal(Volts.of(volts)));
+  }
+
+  public Command stopFlywheel() {
+    return Commands.runOnce(flywheel::stop);
+  }
+
+  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
+    return Commands.parallel(
+        setHoodGoal(hoodGoal), setFlywheelGoal(RadiansPerSecond.of(velocityRadiansPerSecond)));
+  }
+
+  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond) {
     return Commands.parallel(
         setHoodGoal(hoodGoal),
-        setFlywheelGoal(velocityRadiansPerSecond, feedforward),
-        setTurretGoal(turretGoal));
-  }
-
-  public Command setShooterGoal(
-      DoubleSupplier velocityRadiansPerSecond,
-      DoubleSupplier feedforward,
-      HoodGoal hoodGoal,
-      Translation2d turretGoal) {
-    return Commands.parallel(
-        setHoodGoal(hoodGoal),
-        setFlywheelGoal(velocityRadiansPerSecond, feedforward),
-        setTurretGoal(turretGoal));
+        Commands.run(
+            () ->
+                flywheel.setVelocityGoal(
+                    RadiansPerSecond.of(velocityRadiansPerSecond.getAsDouble()))));
   }
 
   public boolean atGoal() {
-    return flywheel.atGoal() && hood.atPositionGoal() && turret.atPositionGoal();
+    return hood.atPositionGoal() && flywheel.atVelocityGoal();
   }
 
   public Command waitUntilAtGoal() {
-    return Commands.waitUntil(this::atGoal);
+    return hood.waitUntilAtGoal().alongWith(flywheel.waitUntilAtGoal());
   }
 
-  public Command runTurretSysId() {
-    return turret.runSysId();
+  public Command waitUntilFlywheelAtGoal() {
+    return flywheel.waitUntilAtGoal();
   }
 
   public Command hoodSysId() {
@@ -137,5 +143,21 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command flywheelSysId() {
     return flywheel.sysIdRoutineTorque();
+  }
+
+  public Command incrementFlywheelVelocity() {
+    return Commands.runOnce(flywheel.getVelocityGoal()::increment);
+  }
+
+  public Command decrementFlywheelVelocity() {
+    return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
+  }
+
+  public Command incrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::increment);
+  }
+
+  public Command decrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::decrement);
   }
 }

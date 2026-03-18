@@ -9,10 +9,12 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Units;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
@@ -55,7 +57,7 @@ public class IntakeConstants {
   public static final double PIN_LENGTH;
 
   public static final Gains GAINS;
-  public static final AngularConstraints CONSTRAINTS;
+  public static final AngularPositionConstraints CONSTRAINTS;
 
   public static final LinkLengths LINK_LENGTHS;
 
@@ -124,7 +126,7 @@ public class IntakeConstants {
                 .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
                 .build();
         CONSTRAINTS =
-            AngularConstraints.builder()
+            AngularPositionConstraints.builder()
                 .withMaxVelocity(
                     new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
                 .withMaxAcceleration(
@@ -156,26 +158,26 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
-                .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-                .CONSTRAINTS(CONSTRAINTS)
-                .GAINS(GAINS)
-                .GEAR_RATIO(GEAR_RATIO)
-                .INTAKE_ANGLE_OFFSET(INTAKE_ANGLE_OFFSET)
-                .LINKAGE_OFFSET(LINKAGE_OFFSET)
-                .LINK_BOUNDS(LINK_BOUNDS)
-                .LINK_CONST(LINK_CONST)
-                .LINK_LENGTHS(LINK_LENGTHS)
-                .MAX_ANGLE(MAX_ANGLE)
-                .MIN_ANGLE(MIN_ANGLE)
-                .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA)
-                .MOTOR_CAN_ID(MOTOR_CAN_ID)
-                .MOTOR_CONFIG(MOTOR_CONFIG)
-                .PIN_LENGTH(PIN_LENGTH)
-                .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
-                .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
-                .ZERO_OFFSET(ZERO_OFFSET)
-                .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
+                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withConstraints(CONSTRAINTS)
+                .withGains(GAINS)
+                .withGearRatio(GEAR_RATIO)
+                .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
+                .withLinkageOffset(LINKAGE_OFFSET)
+                .withLinkBounds(LINK_BOUNDS)
+                .withLinkConstants(LINK_CONST)
+                .withLinkLengths(LINK_LENGTHS)
+                .withMaxAngle(MAX_ANGLE)
+                .withMinAngle(MIN_ANGLE)
+                .withMomentOfInertia(MOMENT_OF_INERTIA)
+                .withMotorCanId(MOTOR_CAN_ID)
+                .withMotorConfig(MOTOR_CONFIG)
+                .withPinLength(PIN_LENGTH)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withZeroOffset(ZERO_OFFSET)
+                .withCanCoderOffset(CAN_CODER_OFFSET)
                 .build();
         break;
 
@@ -236,7 +238,7 @@ public class IntakeConstants {
                 .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
                 .build();
         CONSTRAINTS =
-            AngularConstraints.builder()
+            AngularPositionConstraints.builder()
                 .withMaxVelocity(
                     new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
                 .withMaxAcceleration(
@@ -268,26 +270,26 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
-                .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-                .CONSTRAINTS(CONSTRAINTS)
-                .GAINS(GAINS)
-                .GEAR_RATIO(GEAR_RATIO)
-                .INTAKE_ANGLE_OFFSET(INTAKE_ANGLE_OFFSET)
-                .LINKAGE_OFFSET(LINKAGE_OFFSET)
-                .LINK_BOUNDS(LINK_BOUNDS)
-                .LINK_CONST(LINK_CONST)
-                .LINK_LENGTHS(LINK_LENGTHS)
-                .MAX_ANGLE(MAX_ANGLE)
-                .MIN_ANGLE(MIN_ANGLE)
-                .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA)
-                .MOTOR_CAN_ID(MOTOR_CAN_ID)
-                .MOTOR_CONFIG(MOTOR_CONFIG)
-                .PIN_LENGTH(PIN_LENGTH)
-                .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
-                .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
-                .ZERO_OFFSET(ZERO_OFFSET)
-                .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
+                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withConstraints(CONSTRAINTS)
+                .withGains(GAINS)
+                .withGearRatio(GEAR_RATIO)
+                .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
+                .withLinkageOffset(LINKAGE_OFFSET)
+                .withLinkBounds(LINK_BOUNDS)
+                .withLinkConstants(LINK_CONST)
+                .withLinkLengths(LINK_LENGTHS)
+                .withMaxAngle(MAX_ANGLE)
+                .withMinAngle(MIN_ANGLE)
+                .withMomentOfInertia(MOMENT_OF_INERTIA)
+                .withMotorCanId(MOTOR_CAN_ID)
+                .withMotorConfig(MOTOR_CONFIG)
+                .withPinLength(PIN_LENGTH)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withZeroOffset(ZERO_OFFSET)
+                .withCanCoderOffset(CAN_CODER_OFFSET)
                 .build();
         break;
 
@@ -350,7 +352,7 @@ public class IntakeConstants {
                 .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
                 .build();
         CONSTRAINTS =
-            AngularConstraints.builder()
+            AngularPositionConstraints.builder()
                 .withMaxVelocity(
                     new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
                 .withMaxAcceleration(
@@ -382,26 +384,26 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .CANCODER_SENSOR_DIRECTION(CANCODER_SENSOR_DIRECTION)
-                .CAN_CODER_CAN_ID(CAN_CODER_CAN_ID)
-                .CONSTRAINTS(CONSTRAINTS)
-                .GAINS(GAINS)
-                .GEAR_RATIO(GEAR_RATIO)
-                .INTAKE_ANGLE_OFFSET(INTAKE_ANGLE_OFFSET)
-                .LINKAGE_OFFSET(LINKAGE_OFFSET)
-                .LINK_BOUNDS(LINK_BOUNDS)
-                .LINK_CONST(LINK_CONST)
-                .LINK_LENGTHS(LINK_LENGTHS)
-                .MAX_ANGLE(MAX_ANGLE)
-                .MIN_ANGLE(MIN_ANGLE)
-                .MOMENT_OF_INERTIA(MOMENT_OF_INERTIA)
-                .MOTOR_CAN_ID(MOTOR_CAN_ID)
-                .MOTOR_CONFIG(MOTOR_CONFIG)
-                .PIN_LENGTH(PIN_LENGTH)
-                .STATOR_CURRENT_LIMIT(STATOR_CURRENT_LIMIT)
-                .SUPPLY_CURRENT_LIMIT(SUPPLY_CURRENT_LIMIT)
-                .ZERO_OFFSET(ZERO_OFFSET)
-                .CAN_CODER_OFFSET(CAN_CODER_OFFSET)
+                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withConstraints(CONSTRAINTS)
+                .withGains(GAINS)
+                .withGearRatio(GEAR_RATIO)
+                .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
+                .withLinkageOffset(LINKAGE_OFFSET)
+                .withLinkBounds(LINK_BOUNDS)
+                .withLinkConstants(LINK_CONST)
+                .withLinkLengths(LINK_LENGTHS)
+                .withMaxAngle(MAX_ANGLE)
+                .withMinAngle(MIN_ANGLE)
+                .withMomentOfInertia(MOMENT_OF_INERTIA)
+                .withMotorCanId(MOTOR_CAN_ID)
+                .withMotorConfig(MOTOR_CONFIG)
+                .withPinLength(PIN_LENGTH)
+                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withZeroOffset(ZERO_OFFSET)
+                .withCanCoderOffset(CAN_CODER_OFFSET)
                 .build();
         break;
     }
@@ -410,10 +412,10 @@ public class IntakeConstants {
   @RequiredArgsConstructor
   @Getter
   public enum IntakeState {
-    STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(168.134766 + 8.0)),
-    BUMP(Rotation2d.fromDegrees(145));
+    STOW(new Setpoint<AngleUnit>(Degrees.of(9), Degrees.of(1))),
+    INTAKE(new Setpoint<AngleUnit>(Degrees.of(168.134766 + 8.0), Degrees.of(1))),
+    BUMP(new Setpoint<AngleUnit>(Degrees.of(145), Degrees.of(1)));
 
-    private final Rotation2d angle;
+    private final Setpoint<AngleUnit> angle;
   }
 }

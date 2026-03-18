@@ -1,20 +1,16 @@
 package frc.robot.subsystems.shared.climber;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
@@ -36,7 +32,7 @@ public class Climber extends SubsystemBase {
 
   public Climber(ArmIO io, Supplier<Angle> rollSupplier) {
     setName("Climber");
-    arm = new Arm(io, this, 1);
+    arm = new Arm(io, this, 1, ClimberConstants.CLIMBER_CONSTANTS);
     this.rollSupplier = rollSupplier;
 
     goal = Rotation2d.kZero;
@@ -48,61 +44,14 @@ public class Climber extends SubsystemBase {
             0,
             ClimberConstants.SLOT_2_GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                ClimberConstants.CONSTRAINTS.maxVelocity().get(RadiansPerSecond),
-                ClimberConstants.CONSTRAINTS.maxAcceleration().get(RadiansPerSecondPerSecond)));
-    CommandScheduler.getInstance().schedule(arm.setPosition(Rotation2d.kZero));
+                ClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
+                ClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
+    arm.setPosition(Rotation2d.kZero);
   }
 
   @Override
   public void periodic() {
     arm.periodic();
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () ->
-            arm.updateGains(
-                ClimberConstants.SLOT_0_GAINS.kP().get(),
-                ClimberConstants.SLOT_0_GAINS.kD().get(),
-                ClimberConstants.SLOT_0_GAINS.kS().get(),
-                ClimberConstants.SLOT_0_GAINS.kV().get(),
-                ClimberConstants.SLOT_0_GAINS.kA().get(),
-                ClimberConstants.SLOT_0_GAINS.kG().get(),
-                GainSlot.ZERO),
-        ClimberConstants.SLOT_0_GAINS.kP(),
-        ClimberConstants.SLOT_0_GAINS.kD(),
-        ClimberConstants.SLOT_0_GAINS.kS(),
-        ClimberConstants.SLOT_0_GAINS.kV(),
-        ClimberConstants.SLOT_0_GAINS.kA(),
-        ClimberConstants.SLOT_0_GAINS.kG());
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () ->
-            arm.updateGains(
-                ClimberConstants.SLOT_1_GAINS.kP().get(),
-                ClimberConstants.SLOT_1_GAINS.kD().get(),
-                ClimberConstants.SLOT_1_GAINS.kS().get(),
-                ClimberConstants.SLOT_1_GAINS.kV().get(),
-                ClimberConstants.SLOT_1_GAINS.kA().get(),
-                ClimberConstants.SLOT_1_GAINS.kG().get(),
-                GainSlot.ONE),
-        ClimberConstants.SLOT_1_GAINS.kP(),
-        ClimberConstants.SLOT_1_GAINS.kD(),
-        ClimberConstants.SLOT_1_GAINS.kS(),
-        ClimberConstants.SLOT_1_GAINS.kV(),
-        ClimberConstants.SLOT_1_GAINS.kA(),
-        ClimberConstants.SLOT_1_GAINS.kG());
-
-    LoggedTunableMeasure.ifChanged(
-        hashCode(),
-        () ->
-            arm.updateConstraints(
-                ClimberConstants.CONSTRAINTS.maxAcceleration().get(RadiansPerSecondPerSecond),
-                ClimberConstants.CONSTRAINTS.maxVelocity().get(RadiansPerSecond),
-                ClimberConstants.CONSTRAINTS.goalTolerance().get(Radians)),
-        ClimberConstants.CONSTRAINTS.maxAcceleration(),
-        ClimberConstants.CONSTRAINTS.maxVelocity(),
-        ClimberConstants.CONSTRAINTS.goalTolerance());
 
     Logger.recordOutput(getName() + "/Goal", goal);
     Logger.recordOutput(getName() + "/At Goal Real", atGoal());
@@ -120,7 +69,7 @@ public class Climber extends SubsystemBase {
    * @return A command that sets the specified voltage.
    */
   public Command setVoltage(double voltage) {
-    return arm.setVoltage(voltage);
+    return Commands.runOnce(() -> arm.setVoltageGoal(Volts.of(voltage)));
   }
 
   /**
@@ -130,7 +79,7 @@ public class Climber extends SubsystemBase {
    * @return a command that resets the arm to the given position.
    */
   public Command setPosition(Rotation2d position) {
-    return arm.setPosition(position);
+    return Commands.runOnce(() -> arm.setPosition(position));
   }
 
   /**
@@ -153,9 +102,9 @@ public class Climber extends SubsystemBase {
     return this.runOnce(
             () -> {
               goal = positionGoal;
-              arm.setSlot(gainSlot);
+              arm.setGainSlot(gainSlot);
             })
-        .andThen(arm.setPositionGoal(positionGoal), arm.waitUntilAtGoal())
+        .andThen(Commands.runOnce(() -> arm.setPositionGoal(positionGoal)), arm.waitUntilAtGoal())
         .andThen(stop());
   }
 
@@ -180,7 +129,7 @@ public class Climber extends SubsystemBase {
 
   public boolean atGoal() {
     return Math.abs(arm.getArmPosition().getRadians() - goal.getRadians())
-        < ClimberConstants.CONSTRAINTS.goalTolerance().get().in(Radians);
+        < ClimberConstants.CONSTRAINTS.goalTolerance().get(Radians);
   }
 
   public Command stop() {

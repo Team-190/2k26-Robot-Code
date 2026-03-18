@@ -7,9 +7,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
@@ -50,7 +51,7 @@ public class V0_FunkyShooterConstants {
                   .withKG(0.0)
                   .build())
           .withConstraints(
-              AngularConstraints.builder()
+              AngularVelocityConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(6)))
@@ -58,7 +59,8 @@ public class V0_FunkyShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(4)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
           .withOpposedFollowerCANID(31)
           .withVelocityOffsetStep(RadiansPerSecond.of(5))
@@ -95,16 +97,16 @@ public class V0_FunkyShooterConstants {
                   .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
                   .build())
           .withConstraints(
-              AngularConstraints.builder()
+              AngularPositionConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxAcceleration",
+                          "Shooter/Turret/MaxAcceleration",
                           RadiansPerSecondPerSecond.of(35.566371)))
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(89.566371)))
+                          "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(3)))
+                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
@@ -112,5 +114,7 @@ public class V0_FunkyShooterConstants {
                   .withGear1ToothCount(16)
                   .withGear2ToothCount(17)
                   .build())
+          .withVoltageStep(Volts.of(0.5))
+          .withAngleStep(Rotation2d.fromDegrees(1.0))
           .build();
 }

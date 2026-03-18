@@ -13,6 +13,8 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import java.util.Random;
 
 public class TurretIOSim implements TurretIO {
@@ -90,27 +92,25 @@ public class TurretIOSim implements TurretIO {
     inputs.velocity = sim.getAngularVelocity();
     inputs.appliedVoltage = Volts.of(appliedVolts);
     inputs.supplyCurrent = Amp.of(sim.getCurrentDrawAmps());
-    inputs.turretGoal = new Rotation2d(positionGoal.getMeasure());
-    inputs.turretPositionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
-    inputs.turretPositionError = Rotation2d.fromRadians(feedback.getPositionError());
+    inputs.positionGoal = positionGoal;
+    inputs.positionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
+    inputs.positionError = Rotation2d.fromRadians(feedback.getPositionError());
 
     inputs.encoder1Position = new Rotation2d(encoderValue1);
     inputs.encoder2Position = new Rotation2d(encoderValue2);
   }
 
   @Override
-  public void setVoltage(Voltage volts) {
+  public void setVoltageGoal(Voltage volts) {
     appliedVolts = volts.in(Volt);
   }
 
   @Override
-  public void setGoal(Rotation2d goal) {
-    double targetGoal = goal.getRadians();
-    feedback.setGoal(targetGoal);
+  public void setPositionGoal(Rotation2d goal) {
     appliedVolts =
-        feedback.calculate(sim.getAngularPositionRad(), targetGoal)
+        feedback.calculate(sim.getAngularPositionRad(), goal.getRadians())
             + feedforward.calculate(feedback.getSetpoint().velocity);
-    positionGoal = Rotation2d.fromRadians(targetGoal);
+    positionGoal = goal;
   }
 
   @Override
@@ -126,17 +126,20 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void updateGains(double kP, double kD, double kS, double kV, double kA) {
-    feedback.setPID(kP, 0.0, kD);
-    feedforward.setKs(kS);
-    feedforward.setKv(kV);
-    feedforward.setKa(kA);
+  public void updateGains(Gains gains) {
+    feedback.setPID(gains.getKP(), 0.0, gains.getKD());
+    feedforward.setKs(gains.getKS());
+    feedforward.setKv(gains.getKV());
+    feedforward.setKa(gains.getKA());
   }
 
   @Override
-  public void updateConstraints(double maxAcceleration, double maxVelocity, double goalTolerance) {
-    feedback.setConstraints(new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
-    feedback.setTolerance(goalTolerance);
+  public void updateConstraints(AngularPositionConstraints constraints) {
+    feedback.setConstraints(
+        new TrapezoidProfile.Constraints(
+            constraints.maxVelocity().get(RadiansPerSecond),
+            constraints.maxAcceleration().get(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constraints.goalTolerance().get(Radian));
   }
 
   @Override

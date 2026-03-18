@@ -3,14 +3,12 @@ package frc.robot.subsystems.shared.hood;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for Funky's hood subsystem. */
@@ -40,18 +38,13 @@ public interface HoodIO {
   default void setVoltage(Voltage volts) {}
 
   /** Sets motor closed loop position setpoint. */
-  default void setPositionGoal(Rotation2d position) {}
+  default void setPositionGoal(Rotation2d positionGoal) {}
 
   default void setPosition(Rotation2d position) {}
 
-  default void setPID(double kp, double ki, double kd) {}
+  default void setGains(Gains gains) {}
 
-  default void setFeedforward(double ks, double kv, double ka) {}
-
-  default void setProfile(
-      Measure<AngularVelocityUnit> maxVelocity,
-      Measure<AngularAccelerationUnit> maxAcceleration,
-      Measure<AngleUnit> goalTolerance) {}
+  default void setProfile(AngularPositionConstraints constraints) {}
 
   /** Checks if the hood is within tolerance */
   default boolean atPositionGoal(Rotation2d positionReference) {

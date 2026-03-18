@@ -3,7 +3,6 @@ package frc.robot.subsystems.v2_Delta.shooter;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -12,9 +11,10 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
@@ -53,9 +53,8 @@ public class V2_DeltaShooterConstants {
                   .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0.067114))
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0.11882))
                   .build())
-          .withConstraints( // Currently using positional angular constraints, should switch to
-              // velocity angular constraints later.
-              AngularConstraints.builder()
+          .withConstraints(
+              AngularVelocityConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(1000)))
@@ -63,7 +62,8 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", Radians.of(5)))
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
           .withVelocityOffsetStep(RadiansPerSecond.of(5))
@@ -87,7 +87,7 @@ public class V2_DeltaShooterConstants {
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
-              AngularConstraints.builder()
+              AngularPositionConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))
@@ -108,4 +108,11 @@ public class V2_DeltaShooterConstants {
           .build();
 
   public static final TurretConstants TURRET_CONSTANTS = TurretConstants.builder().build();
+
+  public enum HoodGoal {
+    SCORE,
+    FEED,
+    STOW,
+    OVERRIDE
+  }
 }
