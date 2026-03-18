@@ -39,7 +39,13 @@ public class V2_DeltaShooter extends SubsystemBase {
 
     hoodGoal = HoodGoal.STOW;
 
-    turret = new Turret(turretIO, this, " ", V2_DeltaRobotState::getGlobalPose, V2_DeltaShooterConstants.TURRET_CONSTANTS);
+    turret =
+        new Turret(
+            turretIO,
+            this,
+            " ",
+            V2_DeltaRobotState::getGlobalPose,
+            V2_DeltaShooterConstants.TURRET_CONSTANTS);
   }
 
   @Trace

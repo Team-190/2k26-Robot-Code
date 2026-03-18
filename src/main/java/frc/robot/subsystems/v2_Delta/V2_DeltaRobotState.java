@@ -78,9 +78,7 @@ public class V2_DeltaRobotState {
 
     localization =
         new Localization(
-            List.of(globalZone),
-            V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
-            2);
+            List.of(globalZone), V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.kinematics(), 2);
 
     robotHeading = Rotation2d.kZero;
 
