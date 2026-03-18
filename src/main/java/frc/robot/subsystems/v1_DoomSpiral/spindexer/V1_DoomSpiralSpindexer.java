@@ -163,9 +163,10 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
 
   public Command agitateSpindexer() {
     return Commands.sequence(
-        setSpindexerOnlyVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_AGITATION_VOLTAGE),
-        Commands.waitSeconds(0.5),
-        setSpindexerOnlyVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_AGITATION_VOLTAGE),
-        Commands.waitSeconds(0.5));
+            setSpindexerOnlyVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_AGITATION_VOLTAGE),
+            Commands.waitSeconds(0.5),
+            setSpindexerOnlyVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_AGITATION_VOLTAGE),
+            Commands.waitSeconds(0.5))
+        .repeatedly();
   }
 }
