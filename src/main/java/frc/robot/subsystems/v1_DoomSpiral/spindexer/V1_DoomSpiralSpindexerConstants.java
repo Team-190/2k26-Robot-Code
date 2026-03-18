@@ -29,6 +29,8 @@ public class V1_DoomSpiralSpindexerConstants {
   public static final double SPINDEXER_SLOW_VOLTAGE;
   public static final Voltage SPINDEXER_INCREMENT_VOLTAGE;
 
+  public static final double SPINDEXER_AGITATION_VOLTAGE = 4.0;
+
   static {
     SPINDEXER_MOTOR_CAN_ID = 40;
     SPINDEXER_GEAR_RATIO = (117.0 / 10.0) * 2.5;
