@@ -278,15 +278,22 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                         .getAngle()
                         .minus(Rotation2d.kCW_Pi_2)
                         .getRadians(),
-                driver.leftTrigger(),
-                () ->
-                    Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
-                        * (Math.PI / 2.0),
-                driver.x(),
-                () ->
-                    Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
-                        * (Math.PI / 2.0))
-            .withName("driver-default-drive"));
+                driver.leftTrigger().or(driver.x()),
+                driver.x())
+            .withName("joystickDriveRotationLock"));
+
+    driver
+        .x()
+        .or(driver.leftTrigger())
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        DriveCommands.setLastCardinalDirection(
+                            Math.round(
+                                    V1_DoomSpiralRobotState.getHeading().getRadians()
+                                        / (Math.PI / 2.0))
+                                * (Math.PI / 2.0)))
+                .withName("cardinal-direction-set"));
 
     driver
         .povDown()
