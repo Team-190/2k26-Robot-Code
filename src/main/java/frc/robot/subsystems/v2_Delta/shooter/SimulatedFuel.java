@@ -1,13 +1,12 @@
 package frc.robot.subsystems.v2_Delta.shooter;
 
-import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
-// Source for physics behind drag: http://math.libretexts.org/Bookshelves/Differential_Equations/A_First_Course_in_Differential_Equations_for_Scientists_and_Engineers_(Herman)/03%3A_Numerical_Solutions/3.05%3A_Numerical_Applications/3.5.03%3A_The_Flight_of_Sports_Balls
+// Source for physics behind drag:
+// http://math.libretexts.org/Bookshelves/Differential_Equations/A_First_Course_in_Differential_Equations_for_Scientists_and_Engineers_(Herman)/03%3A_Numerical_Solutions/3.05%3A_Numerical_Applications/3.5.03%3A_The_Flight_of_Sports_Balls
 
 public class SimulatedFuel {
   public Translation3d position;
@@ -30,10 +29,10 @@ public class SimulatedFuel {
 
   public void updatePhysics(double deltaTime) {
 
-     // Magnitude of velocity
+    // Magnitude of velocity
     double speed = velocity.getNorm();
-    
-    // Drag acceleration 
+
+    // Drag acceleration
     Translation3d dragAccel = velocity.times(-ALPHA * CD * speed);
 
     // Lift Acceleration Vector (Perpendicular to velocity and spin)
@@ -44,7 +43,7 @@ public class SimulatedFuel {
     double liftX = (spinAxis.getY() * velocity.getZ()) - (spinAxis.getZ() * velocity.getY());
     double liftY = (spinAxis.getZ() * velocity.getX()) - (spinAxis.getX() * velocity.getZ());
     double liftZ = (spinAxis.getX() * velocity.getY()) - (spinAxis.getY() * velocity.getX());
-    Translation3d liftDirection = new Translation3d(liftX, liftY, liftZ); 
+    Translation3d liftDirection = new Translation3d(liftX, liftY, liftZ);
 
     // a_lift = α * CL * v * (spinAxis × velocity)
     Translation3d liftAccel = liftDirection.times(ALPHA * CL * speed);
