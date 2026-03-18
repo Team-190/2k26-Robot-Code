@@ -3,6 +3,7 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
@@ -57,12 +58,16 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
-                        intake.agitate())));
+                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
-    routine
-        .active()
+    RobotModeTriggers.autonomous()
         .negate()
-        .onTrue(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+        .onTrue(
+            Commands.parallel(
+                    V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                    intake.stopRoller(),
+                    intake.deploy())
+                .ignoringDisable(true));
 
     return routine;
   }
