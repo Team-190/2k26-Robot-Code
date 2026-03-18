@@ -154,8 +154,8 @@ public class V1_DoomSpiralIntakeConstants {
           new Setpoint<>(
               angle.getMeasure(),
               LINKAGE_ANGLE_INCREMENT.getMeasure(),
-              MAX_ANGLE.getMeasure(),
-              MIN_ANGLE.getMeasure());
+              MIN_ANGLE.getMeasure(),
+              MAX_ANGLE.getMeasure());
     }
 
     @Getter private final Setpoint<AngleUnit> setpoint;
