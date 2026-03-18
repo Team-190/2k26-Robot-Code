@@ -37,10 +37,7 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucks {
 
                 // Deploy the intake
 
-                intake
-                    .deploy()
-                    .alongWith(
-                        intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+                intake.deploy().alongWith(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 

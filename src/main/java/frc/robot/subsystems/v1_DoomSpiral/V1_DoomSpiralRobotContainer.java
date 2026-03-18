@@ -465,17 +465,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys
         .e1()
         .whileTrue(
-            intake
-                .setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
-                .withName("xkeys-e1-while"))
+            intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE).withName("xkeys-e1-while"))
         .onFalse(intake.stopRoller().withName("xkeys-e1-false"));
 
     xkeys
         .e2()
         .whileTrue(
-            intake
-                .setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
-                .withName("xkeys-e2-while"))
+            intake.setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE).withName("xkeys-e2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-e2-false"));
 
     xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("xkeys-f1-true"));
@@ -516,6 +512,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutine(
         "Right Trench Simple",
         () -> V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(drive, intake, shooter, spindexer));
+    autoChooser.addRoutine(
+        "Right Trench Anti Bucks",
+        () ->
+            V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
+                drive, intake, shooter, spindexer));
     autoChooser.addRoutine(
         "Right Trench Anti Bucks",
         () ->
