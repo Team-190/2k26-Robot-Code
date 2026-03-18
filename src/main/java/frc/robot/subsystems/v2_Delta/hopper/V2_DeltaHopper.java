@@ -30,10 +30,8 @@ public class V2_DeltaHopper extends SubsystemBase {
     rollerFloor.periodic();
     ballTunnel.periodic();
 
-    Logger.recordOutput(
-        "Hopper/BallTunnel/Voltage", ballTunnel.getVoltageGoal().getSetpoint());
-    Logger.recordOutput(
-        "Hopper/RollerFloor/Voltage", rollerFloor.getVoltageGoal().getSetpoint());
+    Logger.recordOutput("Hopper/BallTunnel/Voltage", ballTunnel.getVoltageGoal().getSetpoint());
+    Logger.recordOutput("Hopper/RollerFloor/Voltage", rollerFloor.getVoltageGoal().getSetpoint());
   }
 
   public Command setRollerFloorVoltage(Voltage voltage) {
