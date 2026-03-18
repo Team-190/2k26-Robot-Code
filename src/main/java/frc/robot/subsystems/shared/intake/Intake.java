@@ -95,22 +95,19 @@ public class Intake extends SubsystemBase {
   public Command deploy() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        Commands.runOnce(() -> linkage.setPositionGoal(
-            IntakeState.INTAKE.getAngle())));
+        Commands.runOnce(() -> linkage.setPositionGoal(IntakeState.INTAKE.getAngle())));
   }
 
   public Command stow() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        Commands.runOnce(() -> linkage.setPositionGoal(
-            IntakeState.STOW.getAngle())));
+        Commands.runOnce(() -> linkage.setPositionGoal(IntakeState.STOW.getAngle())));
   }
 
   public Command bump() {
     return Commands.sequence(
         Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        Commands.runOnce(() -> linkage.setPositionGoal(
-            IntakeState.BUMP.getAngle())));
+        Commands.runOnce(() -> linkage.setPositionGoal(IntakeState.BUMP.getAngle())));
   }
 
   public Command agitate() {
@@ -192,50 +189,32 @@ public class Intake extends SubsystemBase {
 
   public Command incrementStowOffset() {
     return Commands.sequence(
-        Commands.runOnce(
-          () -> IntakeState.INTAKE.getAngle().increment()
-        ),
-        stow());
+        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().increment()), stow());
   }
 
   public Command decrementStowOffset() {
     return Commands.sequence(
-        Commands.runOnce(
-          () -> IntakeState.INTAKE.getAngle().decrement()
-        ),
-        stow());
+        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().decrement()), stow());
   }
 
   public Command incrementBumpOffset() {
     return Commands.sequence(
-        Commands.runOnce(
-          () -> IntakeState.BUMP.getAngle().increment()
-        ),
-        bump());
+        Commands.runOnce(() -> IntakeState.BUMP.getAngle().increment()), bump());
   }
 
   public Command decrementBumpOffset() {
     return Commands.sequence(
-        Commands.runOnce(
-          () -> IntakeState.BUMP.getAngle().decrement()
-        ),
-        bump());
+        Commands.runOnce(() -> IntakeState.BUMP.getAngle().decrement()), bump());
   }
 
   public Command incrementCollectOffset() {
     return Commands.sequence(
-        Commands.runOnce(
-          () -> IntakeState.INTAKE.getAngle().increment()
-        ),
-        deploy());
+        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().increment()), deploy());
   }
 
   public Command decrementCollectOffset() {
-        return Commands.sequence(
-        Commands.runOnce(
-          () -> IntakeState.INTAKE.getAngle().decrement()
-        ),
-        deploy());
+    return Commands.sequence(
+        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().decrement()), deploy());
   }
 
   public Command increaseSpeedOffset() {
