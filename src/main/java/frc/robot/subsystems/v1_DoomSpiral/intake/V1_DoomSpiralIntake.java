@@ -26,19 +26,23 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
 
   @Getter private IntakeState intakeState;
 
-  private Rotation2d agitationAngle;
-
   public V1_DoomSpiralIntake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
+
+    intakeState = IntakeState.STOW;
+
     roller =
         new GenericRoller(
             rollerIO, this, V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
     linkage =
-        new FourBarLinkage(linkageIO, V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS, this, "");
+        new FourBarLinkage(
+            linkageIO,
+            V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS,
+            this,
+            "",
+            IntakeState.STOW.getSetpoint());
 
     intakeState = IntakeState.STOW;
-
-    agitationAngle = Rotation2d.fromDegrees(150);
 
     // setDefaultCommand(defaultCommand());
   }
@@ -50,7 +54,6 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     linkage.periodic();
 
     Logger.recordOutput("Intake/Intake State", intakeState);
-    Logger.recordOutput("Intake/Agitation Angle", agitationAngle);
 
     V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
@@ -145,41 +148,36 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     //         .repeatedly());
     return Commands.parallel(
         Commands.sequence(
-                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170 + 8)),
-                Commands.runOnce(() -> linkage.setPositionGoal(agitationAngle)),
+                Commands.runOnce(
+                    () -> {
+                      intakeState = IntakeState.AGITATE;
+                      linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
+                      linkage.setPositionGoal(IntakeState.AGITATE.getAngle());
+                    }),
                 linkage.waitUntilLinkageAtGoal(),
-                Commands.runOnce(() -> linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0))),
+                Commands.runOnce(
+                    () -> {
+                      linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
+                      linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0));
+                    }),
                 linkage.waitUntilLinkageAtGoal())
             .repeatedly(),
+        idle(),
         setRollerVoltage(3.0));
-  }
-
-  public Command toggleIntake() {
-    return Commands.either(
-        Commands.parallel(
-                Commands.sequence(
-                    stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
-                waitUntilIntakeAtGoal())
-            .andThen(stopRoller()),
-        Commands.sequence(deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
-        () ->
-            (intakeState.equals(IntakeState.INTAKE)
-                && linkage.atPositionGoal(
-                    new Rotation2d(
-                        IntakeState.INTAKE.getSetpoint().getNewSetpoint().baseUnitMagnitude()))
-                && roller.atVoltageGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE))));
   }
 
   public Command collect() {
     return Commands.parallel(
-        deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
+        deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE), idle());
   }
 
   public Command stopCollect() {
     return Commands.sequence(
-        Commands.parallel(stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
-        waitUntilIntakeAtGoal(),
-        stopRoller());
+            Commands.parallel(
+                stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
+            waitUntilIntakeAtGoal(),
+            stopRoller())
+        .alongWith(idle());
   }
 
   public Command resetIntakeZero() {

@@ -143,7 +143,8 @@ public class V1_DoomSpiralIntakeConstants {
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
     INTAKE(Rotation2d.fromDegrees(168.134766 + 8.0)),
-    BUMP(Rotation2d.fromDegrees(145));
+    BUMP(Rotation2d.fromDegrees(145)),
+    AGITATE(Rotation2d.fromDegrees(168.134766 + 8));
 
     private final Rotation2d angle;
 
@@ -153,8 +154,8 @@ public class V1_DoomSpiralIntakeConstants {
           new Setpoint<>(
               angle.getMeasure(),
               LINKAGE_ANGLE_INCREMENT.getMeasure(),
-              MAX_ANGLE.getMeasure(),
-              MIN_ANGLE.getMeasure());
+              MIN_ANGLE.getMeasure(),
+              MAX_ANGLE.getMeasure());
     }
 
     @Getter private final Setpoint<AngleUnit> setpoint;
