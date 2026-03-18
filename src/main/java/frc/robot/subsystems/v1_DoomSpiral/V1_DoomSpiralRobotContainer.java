@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
@@ -276,15 +277,22 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                         .getAngle()
                         .minus(Rotation2d.kCW_Pi_2)
                         .getRadians(),
-                driver.leftTrigger(),
-                () ->
-                    Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
-                        * (Math.PI / 2.0),
-                driver.x(),
-                () ->
-                    Math.round(V1_DoomSpiralRobotState.getHeading().getRadians() / (Math.PI / 2.0))
-                        * (Math.PI / 2.0))
-            .withName("driver-default-drive"));
+                driver.leftTrigger().or(driver.x()),
+                driver.x())
+            .withName("joystickDriveRotationLock"));
+
+    driver
+        .x()
+        .or(driver.leftTrigger())
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        DriveCommands.setLastCardinalDirection(
+                            Math.round(
+                                    V1_DoomSpiralRobotState.getHeading().getRadians()
+                                        / (Math.PI / 2.0))
+                                * (Math.PI / 2.0)))
+                .withName("cardinal-direction-set"));
 
     driver
         .povDown()

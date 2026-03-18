@@ -27,9 +27,12 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
+
+  @Setter private static double lastCardinalDirection = 0.0;
 
   /**
    * A command that drives a SwerveDrive using joystick input.
@@ -54,8 +57,6 @@ public final class DriveCommands {
    *     one in the list will take precedence.
    * @return A command that drives the SwerveDrive.
    */
-  private static DoubleSupplier keepCardinalDirection;
-
   @Trace
   public static Command joystickDrive(
       SwerveDrive drive,
@@ -156,9 +157,7 @@ public final class DriveCommands {
       BooleanSupplier pointAtHub,
       DoubleSupplier hubSetpoint,
       BooleanSupplier cardinalDirectionAlign,
-      DoubleSupplier cardinalDirectionSetpoint,
-      BooleanSupplier climbSlowMode,
-      DoubleSupplier climbSlowModeSetpoint) {
+      BooleanSupplier climbSlowMode) {
 
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
@@ -178,16 +177,6 @@ public final class DriveCommands {
         driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
         0);
 
-    if (cardinalDirectionAlign.getAsBoolean()) {
-      keepCardinalDirection =
-          () ->
-              AutoAlignCommand.calculate(
-                  omegaController,
-                  cardinalDirectionSetpoint.getAsDouble(),
-                  rotationSupplier.get().getRadians(),
-                  drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond);
-    }
-
     return joystickDrive(
         drive,
         driveConstants,
@@ -206,13 +195,12 @@ public final class DriveCommands {
                         hubSetpoint.getAsDouble(),
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
-            Pair.of(cardinalDirectionAlign, keepCardinalDirection),
             Pair.of(
-                climbSlowMode,
+                cardinalDirectionAlign,
                 () ->
                     AutoAlignCommand.calculate(
                         omegaController,
-                        climbSlowModeSetpoint.getAsDouble(),
+                        lastCardinalDirection,
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
         climbSlowMode);
