@@ -1,7 +1,5 @@
 package frc.robot.commands.v1_DoomSpiral;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -87,9 +85,9 @@ public class V1_DoomSpiralCompositeCommands {
 
   public static Command autoAllignL3(SwerveDrive drive) {
     return DriveCommands.autoAlignPoseCommand(
-            drive,
-            V1_DoomSpiralRobotState::getGlobalPose,
-            new Pose2d(1.3, 4.67, Rotation2d.fromDegrees(90)),
-            V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS);
+        drive,
+        V1_DoomSpiralRobotState::getGlobalPose,
+        new Pose2d(1.3, 4.67, Rotation2d.fromDegrees(90)),
+        V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS);
   }
 }
