@@ -23,7 +23,7 @@ public class V1_DoomSpiralClimberConstants {
       Gains.builder()
           .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 25.0))
           .withKD(new LoggedTunableNumber("Climber/Slot0/kD", 0.0))
-          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0.061752))
+          .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0.152))
           .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0.034689))
           .withKV(new LoggedTunableNumber("Climber/Slot0/kV", 26.487))
           .withKA(new LoggedTunableNumber("Climber/Slot0/kA", 0.36032))
@@ -31,9 +31,9 @@ public class V1_DoomSpiralClimberConstants {
 
   public static final Gains SLOT_1_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 450.0))
+          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 495.0))
           .withKD(new LoggedTunableNumber("Climber/Slot1/kD", 0.0))
-          .withKS(new LoggedTunableNumber("Climber/Slot1/kS", .1))
+          .withKS(new LoggedTunableNumber("Climber/Slot1/kS", .196))
           .withKG(new LoggedTunableNumber("Climber/Slot1/kG", 0.034689))
           .withKV(new LoggedTunableNumber("Climber/Slot1/kV", 26.487))
           .withKA(new LoggedTunableNumber("Climber/Slot1/kA", 0.36032))
@@ -42,10 +42,10 @@ public class V1_DoomSpiralClimberConstants {
   public static final AngularPositionConstraints CONSTRAINTS =
       AngularPositionConstraints.builder()
           .withMaxVelocity(
-              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(18)))
+              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(60 * Math.PI)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Climber/MaxAcceleration", RadiansPerSecondPerSecond.of(100)))
+                  "Climber/MaxAcceleration", RotationsPerSecondPerSecond.of(400)))
           .withGoalTolerance(new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.01)))
           .build();
 
@@ -71,7 +71,7 @@ public class V1_DoomSpiralClimberConstants {
 
   @AllArgsConstructor
   public enum ClimberGoal {
-    L1_POSITION_GOAL(Rotation2d.fromDegrees(115.927734)),
+    L1_POSITION_GOAL(Rotation2d.fromDegrees(116.103516)),
     L1_AUTO_POSITION_GOAL(Rotation2d.fromDegrees(100.898438)),
     L1_AUTO_POSITION_GOAL_CLIMBED(Rotation2d.fromDegrees(38.144531)),
     UNCLIMB(Rotation2d.fromDegrees(200.748047)),
