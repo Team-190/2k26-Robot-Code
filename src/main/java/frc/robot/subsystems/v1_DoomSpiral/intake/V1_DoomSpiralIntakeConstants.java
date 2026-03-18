@@ -68,7 +68,7 @@ public class V1_DoomSpiralIntakeConstants {
   public static final Rotation2d INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
 
   public static final Rotation2d ZERO_OFFSET = Rotation2d.kPi;
-  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(9);
+  public static final Rotation2d MIN_ANGLE = Rotation2d.fromDegrees(0);
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(190);
   // points A and D on the intake.
 
@@ -120,6 +120,7 @@ public class V1_DoomSpiralIntakeConstants {
           .withConstraints(CONSTRAINTS)
           .withGains(GAINS)
           .withGearRatio(GEAR_RATIO)
+          .withStartAngle(Rotation2d.fromDegrees(9.0))
           .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
           .withLinkageOffset(LINKAGE_OFFSET)
           .withLinkBounds(LINK_BOUNDS)

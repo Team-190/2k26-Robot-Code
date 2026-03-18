@@ -33,6 +33,7 @@ public class FourBarLinkageConstants {
 
   public final Rotation2d minAngle;
   public final Rotation2d maxAngle;
+  public final Rotation2d startAngle;
 
   public final Gains gains;
   public final AngularPositionConstraints constraints;
