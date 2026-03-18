@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
+import frc.robot.subsystems.v1_DoomSpiral.spindexer.*;
 
 public class FuelSimulator {
   private List<SimulatedFuel> activeShots = new ArrayList<>();
@@ -19,19 +21,27 @@ public class FuelSimulator {
 
   private static final GenericFlywheelIOInputsAutoLogged flywheelInputs =
       new GenericFlywheelIOInputsAutoLogged();
+  // private static final GenericFlywheelConstants constants;
   private static final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
   private static GenericRollerIOInputsAutoLogged feederInputs;
+  private static GenericFlywheelConstants constants;
+  private static V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs;
+  
+  private static final double SPINDEXER_VELOCITY = spindexerInputs.velocity.baseUnitMagnitude();
+  private static final double SPINDEXER_RADIUS = Units.inchesToMeters(19.45);
 
-  private static final Translation2d HUB_CENTER = new Translation2d(8.23, 4.11);
-  private static final double HUB_HEIGHT_Z = 2.64;
-  private static final double HUB_RADIUS = 0.6;
+  private static final double FRICTION_COEFF = 0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
 
-  private static final double TURRET_X_OFFSET = 0.0; // TODO: get actual values for these
+  private static final Translation3d HUB_CENTER = FieldConstants.Hub.innerCenterPoint;
+  private static final double HUB_HEIGHT_Z = FieldConstants.Hub.height;
+  private static final double HUB_RADIUS = FieldConstants.Hub.innerWidth / 2;
+
+  private static final double MOTOR_WORK = 70.85;
+  private static final double TURRET_X_OFFSET = 2.3; // TODO: get actual values for these
   private static final double TURRET_Z_HEIGHT = 0.6; // TODO: get actual values for these
 
   private static final double FLYWHEEL_MASS = 0.27;
-  private static final double FLYWHEEL_RADIUS =
-      Units.inchesToMeters(2); // TODO: Account for the metal rod in code
+  private static final double FLYWHEEL_RADIUS = Units.inchesToMeters(2); // TODO: Account for the metal rod in code
   private static double FLYWHEEL_VELOCITY = flywheelInputs.velocityRadiansPerSecond;
 
   private static final double FEEDER_MASS = 0.23; // Check value
@@ -39,9 +49,13 @@ public class FuelSimulator {
   private static final double FEEDER_RADIUS = Units.inchesToMeters(0.9825);
   private static double FEEER_MOMENT_OF_INTERTIA = 0.5 * FEEDER_MASS * Math.pow(FEEDER_RADIUS, 2);
 
+  private static final double KICKER_MASS = 0.0;
+
   private static final double FUEL_MASS = 0.23;
   private static final double FUEL_RADIUS = Units.inchesToMeters(2.95);
   private static final double FUEL_MOMENT_OF_INERTIA = 0.4 * FUEL_MASS * Math.pow(FUEL_RADIUS, 2);
+
+  private static final double DISPLACEMENT = 0.05; // Distances force of friction between fuel and roller/flywheel.
 
   private static final double ROBOT_HEIGHT = 4;
 
@@ -105,7 +119,8 @@ public class FuelSimulator {
                 / 9.8;
     boolean atRimHeight = Math.abs(fuel.position.getZ() - HUB_HEIGHT_Z) < 0.1;
     double distanceToHub =
-        new Translation2d(FUEL_X_FINAL, fuel.position.getY()).getDistance(HUB_CENTER);
+        new Translation3d(FUEL_X_FINAL, fuel.position.getY(), fuel.position.getZ())
+            .getDistance(HUB_CENTER);
     return atRimHeight && (distanceToHub < HUB_RADIUS);
   }
 
@@ -120,11 +135,15 @@ public class FuelSimulator {
     Logger.recordOutput("FuelSimulator/ShotsMissed", shotsMissed);
   }
 
+  private static double velocityFunction(double massOfRollerOrFlywheel, double previousVelocity) {
+    return Math.sqrt((2 * (FRICTION_COEFF * massOfRollerOrFlywheel * 9.8 * DISPLACEMENT) + Math.pow(previousVelocity, 2) * (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / FUEL_RADIUS))) / FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
+  }
+
   private static double getInitialVelocity() {
-    return Math.sqrt(
-        (FEEER_MOMENT_OF_INTERTIA * Math.pow(FEEDER_VELOCITY / FEEDER_RADIUS, 2)
-                + FLYWHEEL_MASS * Math.pow(FLYWHEEL_VELOCITY, 2))
-            / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2))));
+    double startingVelocity = (FUEL_MOMENT_OF_INERTIA * (SPINDEXER_VELOCITY / SPINDEXER_RADIUS)) / (FUEL_MASS * SPINDEXER_RADIUS / 2);
+    double initialVelocity = velocityFunction(FLYWHEEL_MASS, velocityFunction(FEEDER_MASS, velocityFunction(KICKER_MASS, startingVelocity)));
+    
+    return initialVelocity;
   }
 
   private static double getInitialVelocityX() {
