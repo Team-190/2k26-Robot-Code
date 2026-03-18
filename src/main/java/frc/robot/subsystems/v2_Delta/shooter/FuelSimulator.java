@@ -42,8 +42,7 @@ public class FuelSimulator {
   private static final double TURRET_Z_HEIGHT = 0.6; // TODO: get actual values for these
 
   private static final double FLYWHEEL_MASS = 0.27;
-  private static final double FLYWHEEL_RADIUS =
-      Units.inchesToMeters(2); // TODO: Account for the metal rod in code
+  private static final double FLYWHEEL_RADIUS = Units.inchesToMeters(2); // TODO: Account for the metal rod in code
   private static double FLYWHEEL_VELOCITY = flywheelInputs.velocityRadiansPerSecond;
 
   private static final double FEEDER_MASS = 0.23; // Check value
