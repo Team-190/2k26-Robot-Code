@@ -22,7 +22,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
-import frc.robot.subsystems.v0_Funky.V0_FunkyTunerConstants;
 
 public class V1_DoomSpiralConstants {
   public static final DriveConfig DRIVE_CONFIG =
@@ -46,32 +45,32 @@ public class V1_DoomSpiralConstants {
       Gains.builder()
           .withKP(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kp", V0_FunkyTunerConstants.driveGains.kP))
+                  "Drive/Teleoperated/Drive Kp", V1_DoomSpiralTunerConstants.driveGains.kP))
           .withKD(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kd", V0_FunkyTunerConstants.driveGains.kD))
+                  "Drive/Teleoperated/Drive Kd", V1_DoomSpiralTunerConstants.driveGains.kD))
           .withKS(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Ks", V0_FunkyTunerConstants.driveGains.kS))
+                  "Drive/Teleoperated/Drive Ks", V1_DoomSpiralTunerConstants.driveGains.kS))
           .withKV(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
+                  "Drive/Teleoperated/Drive Kv", V1_DoomSpiralTunerConstants.driveGains.kV))
           .build();
 
   public static final Gains TURN_GAINS =
       Gains.builder()
           .withKP(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kp", V0_FunkyTunerConstants.steerGains.kP))
+                  "Drive/Teleoperated/Turn Kp", V1_DoomSpiralTunerConstants.steerGains.kP))
           .withKD(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kd", V0_FunkyTunerConstants.steerGains.kD))
+                  "Drive/Teleoperated/Turn Kd", V1_DoomSpiralTunerConstants.steerGains.kD))
           .withKS(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Ks", V0_FunkyTunerConstants.steerGains.kS))
+                  "Drive/Teleoperated/Turn Ks", V1_DoomSpiralTunerConstants.steerGains.kS))
           .withKV(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kv", V0_FunkyTunerConstants.steerGains.kV))
+                  "Drive/Teleoperated/Turn Kv", V1_DoomSpiralTunerConstants.steerGains.kV))
           .build();
 
   public static final Gains TRANSLATION_AUTO_GAINS =
@@ -124,8 +123,8 @@ public class V1_DoomSpiralConstants {
 
   public static final Gains AUTO_ALIGN_THETA_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 2.0 * Math.PI))
-          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.05))
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 8.0))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.3))
           .build();
 
   public static final AngularPositionConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
