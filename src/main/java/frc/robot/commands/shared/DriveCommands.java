@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignConstants;
@@ -176,6 +177,14 @@ public final class DriveCommands {
     omegaController.setTolerance(
         driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
         0);
+
+    TunableUpdaterRegistry.registerGains(
+        driveConstants.autoAlignConstants.rotationGains(),
+        g ->
+            omegaController.setPID(
+                driveConstants.autoAlignConstants.rotationGains().kP().get(),
+                0,
+                driveConstants.autoAlignConstants.rotationGains().kD().get()));
 
     return joystickDrive(
         drive,
