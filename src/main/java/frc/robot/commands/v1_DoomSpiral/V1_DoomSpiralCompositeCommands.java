@@ -24,7 +24,6 @@ public class V1_DoomSpiralCompositeCommands {
     return shooter
         .setGoal(HoodGoal.FEED, V1_DoomSpiralRobotState::getFeedVelocity)
         .until(shooter::atGoal)
-        .andThen(Commands.print("shooter at goal (both)"))
         .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
 
@@ -32,8 +31,9 @@ public class V1_DoomSpiralCompositeCommands {
       V1_DoomSpiralShooter shooter, V1_DoomSpiralIntake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
         intake.stopRoller(),
-        shooter
-            .setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity)
+        Commands.parallel(
+                shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
+                spindexer.agitateSpindexer())
             .until(
                 () ->
                     (shooter.atGoal()
