@@ -12,11 +12,13 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.Offset;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import lombok.Getter;
+
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralSpindexer extends SubsystemBase {
   private final V1_DoomSpiralSpindexerIO io;
-  private final V1_DoomSpiralSpindexerIOInputsAutoLogged inputs;
+  @Getter private final V1_DoomSpiralSpindexerIOInputsAutoLogged inputs;
 
   private V1_DoomSpiralSpindexerState state;
   private final Offset<VoltageUnit> voltageGoal;

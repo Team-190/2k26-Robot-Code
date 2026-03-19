@@ -19,19 +19,18 @@ public class FuelSimulator {
   public int shotsMade = 0;
   public int shotsMissed = 0;
 
-  private static final GenericFlywheelIOInputsAutoLogged flywheelInputs =
-      new GenericFlywheelIOInputsAutoLogged();
-  // private static final GenericFlywheelConstants constants;
-  private static final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
-  private static GenericRollerIOInputsAutoLogged feederInputs;
-  private static GenericFlywheelConstants constants;
-  private static V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs;
+  private final GenericFlywheelIOInputsAutoLogged flywheelInputs;
+  private final HoodIOInputsAutoLogged hoodInputs;
+  private final GenericRollerIOInputsAutoLogged feederInputs;
+  private final V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs;
 
-  private static final double SPINDEXER_VELOCITY = spindexerInputs.velocity.baseUnitMagnitude();
+  private Rotation2d hoodPitch;
+  private double spindexerVelocity;
+  private double flywheelVelocity;
+  private double feederVelocity;
+
   private static final double SPINDEXER_RADIUS = Units.inchesToMeters(19.45);
-
-  private static final double FRICTION_COEFF =
-      0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
+  private static final double FRICTION_COEFF = 0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
 
   private static final Translation3d HUB_CENTER = FieldConstants.Hub.innerCenterPoint;
   private static final double HUB_HEIGHT_Z = FieldConstants.Hub.height;
@@ -43,10 +42,10 @@ public class FuelSimulator {
 
   private static final double FLYWHEEL_MASS = 0.27;
   private static final double FLYWHEEL_RADIUS = Units.inchesToMeters(2); // TODO: Account for the metal rod in code
-  private static double FLYWHEEL_VELOCITY = flywheelInputs.velocityRadiansPerSecond;
+  
 
   private static final double FEEDER_MASS = 0.23; // Check value
-  private static double FEEDER_VELOCITY = feederInputs.velocityRadiansPerSecond;
+  
   private static final double FEEDER_RADIUS = Units.inchesToMeters(0.9825);
   private static double FEEER_MOMENT_OF_INTERTIA = 0.5 * FEEDER_MASS * Math.pow(FEEDER_RADIUS, 2);
 
@@ -56,10 +55,21 @@ public class FuelSimulator {
   private static final double FUEL_RADIUS = Units.inchesToMeters(2.95);
   private static final double FUEL_MOMENT_OF_INERTIA = 0.4 * FUEL_MASS * Math.pow(FUEL_RADIUS, 2);
 
-  private static final double DISPLACEMENT =
-      0.05; // Distances force of friction between fuel and roller/flywheel.
+  private static final double DISPLACEMENT = 0.05; // Distances force of friction between fuel and roller/flywheel.
 
   private static final double ROBOT_HEIGHT = 4;
+
+  public FuelSimulator(V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs, GenericFlywheelIOInputsAutoLogged flywheelInputs, GenericRollerIOInputsAutoLogged feederInputs, HoodIOInputsAutoLogged hoodInputs) {
+    this.feederInputs = feederInputs;
+    this.spindexerInputs = spindexerInputs;
+    this.flywheelInputs = flywheelInputs;
+    this.hoodInputs = hoodInputs;
+
+    spindexerVelocity = spindexerInputs.velocity.baseUnitMagnitude();
+    flywheelVelocity = flywheelInputs.velocityRadiansPerSecond;
+    feederVelocity = feederInputs.velocityRadiansPerSecond;
+    hoodPitch = hoodInputs.position;
+  }
 
   public void fireShot(
       Pose2d robotPose,
@@ -89,7 +99,11 @@ public class FuelSimulator {
 
   public void periodic() {
 
-    Rotation2d hoodPitch = hoodInputs.position;
+    feederVelocity = feederInputs.velocityRadiansPerSecond;
+    flywheelVelocity = flywheelInputs.velocityRadiansPerSecond;
+    spindexerVelocity = spindexerInputs.velocity.baseUnitMagnitude();
+
+    hoodPitch = hoodInputs.position;
 
     Iterator<SimulatedFuel> iterator = activeShots.iterator();
     while (iterator.hasNext()) {
@@ -146,9 +160,9 @@ public class FuelSimulator {
             + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
   }
 
-  private static double getInitialVelocity() {
+  private double getInitialVelocity() {
     double startingVelocity =
-        (FUEL_MOMENT_OF_INERTIA * (SPINDEXER_VELOCITY / SPINDEXER_RADIUS))
+        (FUEL_MOMENT_OF_INERTIA * (spindexerVelocity / SPINDEXER_RADIUS))
             / (FUEL_MASS * SPINDEXER_RADIUS / 2);
     double initialVelocity =
         velocityFunction(
@@ -158,21 +172,21 @@ public class FuelSimulator {
     return initialVelocity;
   }
 
-  private static double getInitialVelocityX() {
+  private double getInitialVelocityX() {
     return getInitialVelocity()
         * Math.cos(
             hoodInputs.position
                 .getDegrees()); // Not accounting for friction between fuel and flywheel
   }
 
-  private static double getInitialVelocityY() {
+  private double getInitialVelocityY() {
     return getInitialVelocity()
         * Math.sin(
             hoodInputs.position
                 .getDegrees()); // Not accounting for friction between fuel and flywheel
   }
 
-  private static double getInitialVelocityZ() {
+  private double getInitialVelocityZ() {
     return getInitialVelocityY();
   }
 }

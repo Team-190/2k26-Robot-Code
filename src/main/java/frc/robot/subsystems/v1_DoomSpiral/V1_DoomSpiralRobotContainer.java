@@ -53,6 +53,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
+import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
@@ -74,6 +75,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
+//   private final FuelSimulator fuelSimulator;
 
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -247,6 +249,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
       leds = new V1_DoomSpiralCANdle();
     }
 
+    // fuelSimulator = new FuelSimulator(spindexer.getInputs(), shooter.getFlywheelinputs, spindexer.getFeederInputs, shooter.getHoodInputs);
     configureButtonBindings();
     configureAutos();
   }
