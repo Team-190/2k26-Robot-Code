@@ -11,9 +11,9 @@ public final class RobotConfig {
     V1_DOOMSPIRAL("2026.+"),
     V1_DOOMSPIRAL_SIM("2026.+");
 
-    @Getter private String gompeiLibVersion;
+    @Getter private final String gompeiLibVersion;
 
-    private RobotType(String gompeiLibVersion) {
+    RobotType(String gompeiLibVersion) {
       this.gompeiLibVersion = gompeiLibVersion;
     }
   }
