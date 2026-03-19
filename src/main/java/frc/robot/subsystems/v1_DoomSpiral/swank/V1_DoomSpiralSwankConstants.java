@@ -12,7 +12,6 @@ public class V1_DoomSpiralSwankConstants {
   public static final double SUPPLY_CURRENT_LIMIT = 40;
   public static final double STATOR_CURRENT_LIMIT = 40;
 
-  
   public static final CANBus CAN_LOOP = CANBus.roboRIO();
 
   public static final InvertedValue INVERSION = InvertedValue.CounterClockwise_Positive;
