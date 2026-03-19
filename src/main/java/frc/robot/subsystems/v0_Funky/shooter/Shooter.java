@@ -25,6 +25,7 @@ public class Shooter extends SubsystemBase {
             this,
             "",
             V0_FunkyRobotState::getGlobalPose,
+            V0_FunkyRobotState::getChassisSpeeds,
             ShooterConstants.TURRET_CONSTANTS);
   }
 

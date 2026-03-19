@@ -217,7 +217,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   @Override
   public void robotPeriodic() {
-    V0_FunkyRobotState.periodic(drive.getRawGyroRotation(), drive.getModulePositions());
+    V0_FunkyRobotState.periodic(
+        drive.getRawGyroRotation(), drive.getModulePositions(), drive.getMeasuredChassisSpeeds());
   }
 
   @Override

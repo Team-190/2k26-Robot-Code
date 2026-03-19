@@ -143,8 +143,8 @@ public class TurretIOTalonFX implements TurretIO {
         e1,
         e2);
 
-    positionControlRequest = new MotionMagicVoltage(0).withUseTimesync(true).withEnableFOC(true);
-    voltageControlRequest = new VoltageOut(0.0).withUseTimesync(true).withEnableFOC(true);
+    positionControlRequest = new MotionMagicVoltage(0).withEnableFOC(true);
+    voltageControlRequest = new VoltageOut(0.0).withEnableFOC(true);
   }
 
   @Override

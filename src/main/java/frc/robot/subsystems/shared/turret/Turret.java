@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
@@ -39,6 +40,7 @@ public class Turret {
   private TurretState state;
 
   private final Supplier<Pose2d> robotPoseSupplier;
+  Supplier<ChassisSpeeds> fieldVelocitySupplier;
 
   private final TurretConstants constants;
 
@@ -47,6 +49,7 @@ public class Turret {
       Subsystem subsystem,
       String name,
       Supplier<Pose2d> robotPoseSupplier,
+      Supplier<ChassisSpeeds> fieldVelocitySupplier,
       TurretConstants constants) {
     this.io = io;
     inputs = new TurretIOInputsAutoLogged();
@@ -62,6 +65,7 @@ public class Turret {
             new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
     this.robotPoseSupplier = robotPoseSupplier;
+    this.fieldVelocitySupplier = fieldVelocitySupplier;
 
     translationGoal = new Translation2d();
 
@@ -72,12 +76,20 @@ public class Turret {
     voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
     positionGoal =
         new Setpoint<>(
-            calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()).getMeasure(),
+            calculateTurretAngle(
+                    io.getEncoder1Position(),
+                    io.getEncoder2Position(),
+                    Turret.this.constants.turretAngleCalculation)
+                .getMeasure(),
             constants.angleStep.getMeasure(),
             constants.minAngle.getMeasure(),
             constants.maxAngle.getMeasure());
 
-    io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
+    io.setPosition(
+        calculateTurretAngle(
+            io.getEncoder1Position(),
+            io.getEncoder2Position(),
+            Turret.this.constants.turretAngleCalculation));
   }
 
   @Trace
@@ -87,7 +99,8 @@ public class Turret {
     Logger.processInputs(aKitTopic, inputs);
     Logger.recordOutput(
         aKitTopic + "/CRT Angle",
-        calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
+        calculateTurretAngle(
+            io.getEncoder1Position(), io.getEncoder2Position(), constants.turretAngleCalculation));
 
     Logger.recordOutput(aKitTopic + "/At Goal", atPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
@@ -96,21 +109,68 @@ public class Turret {
       case CLOSED_LOOP_POSITION_CONTROL ->
           io.setPositionGoal(
               wrapRotationWithinBounds(
-                  new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle));
+                  new Rotation2d((Angle) positionGoal.getNewSetpoint()),
+                  inputs.angle,
+                  constants.minAngle.getRadians(),
+                  constants.maxAngle.getRadians()));
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
         positionGoal.setSetpoint(
-            translationGoal
-                .minus(robotPoseSupplier.get().getTranslation())
-                .getAngle()
-                .minus(robotPoseSupplier.get().getRotation())
+            angleToGoal(
+                    translationGoal,
+                    robotPoseSupplier.get(),
+                    fieldVelocitySupplier.get(),
+                    constants.turretOffset,
+                    GompeiLib.getLoopPeriod() * 3,
+                    inputs.angle,
+                    0.1)
                 .getMeasure());
         io.setPositionGoal(
             wrapRotationWithinBounds(
-                new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle));
+                new Rotation2d((Angle) positionGoal.getNewSetpoint()),
+                inputs.angle,
+                constants.minAngle.getRadians(),
+                constants.maxAngle.getRadians()));
       }
       default -> {}
     }
+  }
+
+  private static Rotation2d angleToGoal(
+      Translation2d translationGoal,
+      Pose2d robotPose,
+      ChassisSpeeds fieldVelocity,
+      Translation2d turretOffset,
+      double lookaheadTime,
+      Rotation2d previousAngle,
+      double alpha) {
+
+    Translation2d turretPosition =
+        robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
+
+    double theta = robotPose.getRotation().getRadians();
+
+    double turretVx =
+        fieldVelocity.vxMetersPerSecond
+            - fieldVelocity.omegaRadiansPerSecond
+                * (turretOffset.getX() * Math.sin(theta) + turretOffset.getY() * Math.cos(theta));
+
+    double turretVy =
+        fieldVelocity.vyMetersPerSecond
+            + fieldVelocity.omegaRadiansPerSecond
+                * (turretOffset.getX() * Math.cos(theta) - turretOffset.getY() * Math.sin(theta));
+
+    Translation2d predictedTurretPosition =
+        turretPosition.plus(new Translation2d(turretVx * lookaheadTime, turretVy * lookaheadTime));
+
+    Rotation2d rawAngle =
+        translationGoal.minus(predictedTurretPosition).getAngle().minus(robotPose.getRotation());
+
+    if (previousAngle != null && alpha > 0.0) {
+      return previousAngle.interpolate(rawAngle, alpha);
+    }
+
+    return rawAngle;
   }
 
   public boolean outOfRange(Rotation2d angle) {
@@ -158,10 +218,6 @@ public class Turret {
         .andThen(Commands.waitUntil(this::atPositionGoal));
   }
 
-  public void incrementTurret(Rotation2d increment) {
-    setPositionGoal(inputs.angle.plus(increment));
-  }
-
   public Command reset() {
     return Commands.runOnce(() -> setPositionGoal(new Rotation2d()))
         .andThen(stopTurret())
@@ -189,10 +245,9 @@ public class Turret {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
-  private Rotation2d wrapRotationWithinBounds(Rotation2d target, Rotation2d current) {
+  private static Rotation2d wrapRotationWithinBounds(
+      Rotation2d target, Rotation2d current, double minRad, double maxRad) {
     double currentTotalRad = current.getRadians();
-    double minRad = constants.minAngle.getRadians();
-    double maxRad = constants.maxAngle.getRadians();
 
     double diff = target.getRadians() - currentTotalRad;
     double unwound = currentTotalRad + Math.IEEEremainder(diff, 2 * Math.PI);
@@ -225,7 +280,8 @@ public class Turret {
    * Method that calculates turret angle based on encoder values. Uses the Chinese Remainder
    * Theorem.
    */
-  public Rotation2d calculateTurretAngle(Angle e1, Angle e2) {
+  public static Rotation2d calculateTurretAngle(
+      Angle e1, Angle e2, TurretConstants.TurretAngleCalculation gearRatios) {
 
     // Get encoder positions in rotations (0 to 1), using full floating point precision
     double e1Rotations = e1.in(Rotations) % 1.0;
@@ -250,9 +306,9 @@ public class Turret {
     // Direct calculation: θ = Δ * (g1*g2/g0)
     double turretRotations =
         diff
-            * constants.turretAngleCalculation.gear1ToothCount()
-            * constants.turretAngleCalculation.gear2ToothCount()
-            / (double) constants.turretAngleCalculation.gear0ToothCount();
+            * gearRatios.gear1ToothCount()
+            * gearRatios.gear2ToothCount()
+            / (double) gearRatios.gear0ToothCount();
 
     return Rotation2d.fromRotations(turretRotations);
   }

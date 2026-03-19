@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
@@ -18,6 +19,7 @@ import org.littletonrobotics.junction.Logger;
 public class V0_FunkyRobotState {
   private static final AprilTagFieldLayout fieldLayout;
   private static final Localization localization;
+  @Getter private static ChassisSpeeds chassisSpeeds;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
@@ -39,12 +41,16 @@ public class V0_FunkyRobotState {
             List.of(globalZone), V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.kinematics(), 2);
     scoreAngle = Rotation2d.kZero;
     feedAngle = Rotation2d.kZero;
+
+    chassisSpeeds = new ChassisSpeeds();
   }
 
-  public static void periodic(Rotation2d heading, SwerveModulePosition[] modulePositions) {
+  public static void periodic(
+      Rotation2d heading, SwerveModulePosition[] modulePositions, ChassisSpeeds chassisSpeeds) {
 
     localization.addOdometryObservation(Timer.getTimestamp(), heading, modulePositions);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Global Pose", getGlobalPose());
+    V0_FunkyRobotState.chassisSpeeds = chassisSpeeds;
   }
 
   public static void resetPose(Pose2d pose) {

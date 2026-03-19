@@ -4,6 +4,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -36,6 +37,8 @@ public class TurretConstants {
 
   @NonNull public final Voltage voltageStep;
   @NonNull public final Rotation2d angleStep;
+
+  @NonNull public final Translation2d turretOffset;
 
   @NonNull public final CANBus canBus;
 
