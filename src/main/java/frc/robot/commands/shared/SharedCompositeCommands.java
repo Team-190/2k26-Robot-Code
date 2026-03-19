@@ -14,6 +14,7 @@ import java.util.function.Supplier;
  * A class that holds composite commands, which are sequences of commands for complex robot actions.
  */
 public class SharedCompositeCommands {
+
   /**
    * Creates a command to reset the robot's heading to the alliance-specific zero.
    *
@@ -31,5 +32,9 @@ public class SharedCompositeCommands {
                       currentRobotTranslation.get(), AllianceFlipUtil.apply(new Rotation2d())));
             })
         .ignoringDisable(true);
+  }
+
+  public static Command updateCurrentLimits(SwerveDrive drive, double driveCurrentLimit, double turnCurrentLimit) {
+    return Commands.runOnce(() -> drive.updateCurrentLimits(driveCurrentLimit, turnCurrentLimit)).ignoringDisable(true);
   }
 }
