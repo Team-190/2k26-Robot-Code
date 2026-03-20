@@ -158,8 +158,9 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setPositionGoal(Rotation2d goal) {
-    talonFX.setControl(positionControlRequest.withPosition(goal.getRotations()));
+  public void setPositionGoal(Rotation2d goal, double feedforward) {
+    talonFX.setControl(
+        positionControlRequest.withPosition(goal.getRotations()).withFeedForward(feedforward));
   }
 
   @Override

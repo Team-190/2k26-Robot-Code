@@ -106,10 +106,12 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void setPositionGoal(Rotation2d goal) {
+  public void setPositionGoal(Rotation2d goal, double feedforwardVoltage) {
     appliedVolts =
         feedback.calculate(sim.getAngularPositionRad(), goal.getRadians())
             + feedforward.calculate(feedback.getSetpoint().velocity);
+
+    appliedVolts = Math.copySign(appliedVolts, feedforwardVoltage);
     positionGoal = goal;
   }
 

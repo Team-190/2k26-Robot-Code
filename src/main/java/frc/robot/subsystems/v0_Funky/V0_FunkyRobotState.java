@@ -6,9 +6,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
+import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.util.NTPrefixes;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,6 +53,11 @@ public class V0_FunkyRobotState {
     localization.addOdometryObservation(Timer.getTimestamp(), heading, modulePositions);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Global Pose", getGlobalPose());
     V0_FunkyRobotState.chassisSpeeds = chassisSpeeds;
+  }
+
+  public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
+    if (Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= Units.degreesToRadians(2.0))
+      localization.addPoseObservations(observations);
   }
 
   public static void resetPose(Pose2d pose) {

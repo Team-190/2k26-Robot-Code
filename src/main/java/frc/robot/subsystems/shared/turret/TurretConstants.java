@@ -39,6 +39,7 @@ public class TurretConstants {
   @NonNull public final Rotation2d angleStep;
 
   @NonNull public final Translation2d turretOffset;
+  @NonNull public final Gains aimingFeedforwardGains;
 
   @NonNull public final CANBus canBus;
 

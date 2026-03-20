@@ -179,13 +179,18 @@ public class V0_FunkyConstants {
 
   public static final LimelightConfig LIMELIGHT_CONFIG =
       LimelightConfig.builder()
-          .key("limelight")
+          .key("right")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(82.0)
           .verticalFOV(56.2)
           .megatagXYStdev(0.1)
           .metatagThetaStdev(0.0015)
           .megatag2XYStdev(0.001)
-          .robotToCameraTransform(new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0)))
+          .robotToCameraTransform(
+              new Transform3d(
+                  Inches.of(11.25),
+                  Inches.of(0.0),
+                  Inches.of(13.3),
+                  new Rotation3d(0.0, 0.6974, 0.0)))
           .build();
 }

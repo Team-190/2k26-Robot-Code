@@ -1,5 +1,7 @@
 package frc.robot.subsystems.v0_Funky;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -25,6 +27,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
@@ -35,6 +38,7 @@ import frc.robot.subsystems.v0_Funky.feeder.Feeder;
 import frc.robot.subsystems.v0_Funky.feeder.FeederConstants;
 import frc.robot.subsystems.v0_Funky.shooter.Shooter;
 import frc.robot.subsystems.v0_Funky.shooter.ShooterConstants;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.input.XKeysInput;
 import java.util.List;
 
@@ -79,13 +83,13 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =
               new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark),
                   new CameraLimelight(
                       new CameraIOLimelight(V0_FunkyConstants.LIMELIGHT_CONFIG),
                       V0_FunkyConstants.LIMELIGHT_CONFIG,
                       V0_FunkyRobotState::getHeading,
                       NetworkTablesJNI::now,
-                      List.of(),
+                      List.of(V0_FunkyRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
           break;
 
@@ -169,21 +173,17 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 drive,
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
+    driver
+        .x()
+        .onTrue(shooter.setTurretGoal(() -> V0_FunkyRobotState.getHeading()))
+        .onFalse(shooter.setTurretVoltage(Volts.zero()));
 
     driver
-        .rightTrigger(V0_FunkyConstants.TRIGGER_DEADBAND)
+        .y()
         .whileTrue(
-            Commands.run(
-                () -> {
-                  System.out.println("Speed: " + driver.getRightTriggerAxis());
-                  shooter.setVoltage(12 * driver.getRightTriggerAxis());
-                }))
-        .whileFalse(Commands.runOnce(() -> shooter.setVoltage(0)));
-
-    driver
-        .leftBumper()
-        .whileTrue(Commands.run(() -> feeder.setVoltage(-12.0)))
-        .whileFalse(Commands.runOnce(() -> feeder.setVoltage(0)));
+            shooter.setTurretGoalPose(
+                () -> AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())))
+        .onFalse(shooter.setTurretVoltage(Volts.zero()));
 
     xkeys
         .a1()
