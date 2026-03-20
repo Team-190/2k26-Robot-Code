@@ -6,7 +6,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -42,14 +42,9 @@ public class TurretIOTalonFX implements TurretIO {
   protected final CANcoder encoder1;
 
   private final VoltageOut voltageControlRequest;
-  private final MotionMagicVoltage positionControlRequest;
+  private final PositionVoltage positionControlRequest;
 
-  /*
-   * Gear Information:
-   * Variables that store amount of gear teeth
-   */
-
-  /** Constructor for V0_FunkyTurretIOTalonFX */
+  /** Constructor for TurretIOTalonFX */
   public TurretIOTalonFX(TurretConstants constants) {
     this.constants = constants;
 
@@ -143,7 +138,7 @@ public class TurretIOTalonFX implements TurretIO {
         e1,
         e2);
 
-    positionControlRequest = new MotionMagicVoltage(0).withEnableFOC(true);
+    positionControlRequest = new PositionVoltage(0).withEnableFOC(true);
     voltageControlRequest = new VoltageOut(0.0).withEnableFOC(true);
   }
 
@@ -158,9 +153,12 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   @Override
-  public void setPositionGoal(Rotation2d goal, double feedforward) {
+  public void setPositionGoal(Rotation2d goal, AngularVelocity velocity, double feedforward) {
     talonFX.setControl(
-        positionControlRequest.withPosition(goal.getRotations()).withFeedForward(feedforward));
+        positionControlRequest
+            .withPosition(goal.getRotations())
+            .withVelocity(velocity)
+            .withFeedForward(feedforward));
   }
 
   @Override

@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
@@ -42,19 +41,19 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command setTurretVoltage(Voltage volts) {
-    return Commands.run(() -> turret.setVoltageGoal(volts));
+    return this.run(() -> turret.setVoltageGoal(volts));
   }
 
   public Command setTurretGoal(Rotation2d goal) {
-    return Commands.runOnce(() -> turret.setPositionGoal(goal));
+    return this.run(() -> turret.setPositionGoal(goal));
   }
 
   public Command setTurretGoal(Supplier<Rotation2d> goal) {
-    return Commands.run(() -> turret.setPositionGoal(goal.get()));
+    return this.run(() -> turret.setPositionGoal(goal.get()));
   }
 
   public Command setTurretGoalPose(Supplier<Translation2d> goal) {
-    return Commands.run(() -> turret.setFieldRelativeGoal(goal.get()));
+    return this.run(() -> turret.setFieldRelativeGoal(goal.get()));
   }
 
   public Command waitUntilAtGoal() {

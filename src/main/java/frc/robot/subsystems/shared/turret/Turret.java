@@ -1,8 +1,6 @@
 package frc.robot.subsystems.shared.turret;
 
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,8 +8,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,6 +35,7 @@ public class Turret {
 
   private final Setpoint<VoltageUnit> voltageGoal;
   private final Setpoint<AngleUnit> positionGoal;
+  private final Setpoint<AngularVelocityUnit> angularVelocityGoal;
 
   private Translation2d translationGoal;
 
@@ -89,6 +90,7 @@ public class Turret {
             constants.angleStep.getMeasure(),
             constants.minAngle.getMeasure(),
             constants.maxAngle.getMeasure());
+    angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.25));
 
     io.setPosition(
         calculateTurretAngle(
@@ -100,8 +102,7 @@ public class Turret {
         new SimpleMotorFeedforward(
             constants.aimingFeedforwardGains.getKS(),
             constants.aimingFeedforwardGains.getKV(),
-            constants.aimingFeedforwardGains.getKA(),
-            GompeiLib.getLoopPeriod());
+            constants.aimingFeedforwardGains.getKA());
   }
 
   @Trace
@@ -125,11 +126,13 @@ public class Turret {
                   inputs.angle,
                   constants.minAngle.getRadians(),
                   constants.maxAngle.getRadians()),
+              (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
               0.0);
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
         positionGoal.setSetpoint(
-            angleToGoal(translationGoal, robotPoseSupplier.get(), constants.turretOffset)
+            angleToGoal(
+                    translationGoal, robotPoseSupplier.get(), inputs.angle, constants.turretOffset)
                 .getMeasure());
         io.setPositionGoal(
             wrapRotationWithinBounds(
@@ -137,6 +140,7 @@ public class Turret {
                 inputs.angle,
                 constants.minAngle.getRadians(),
                 constants.maxAngle.getRadians()),
+            (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
             calculateFeedforwardVoltage(
                 feedforwardController,
                 translationGoal,
@@ -148,14 +152,20 @@ public class Turret {
   }
 
   private static Rotation2d angleToGoal(
-      Translation2d translationGoal, Pose2d robotPose, Translation2d turretOffset) {
+      Translation2d translationGoal,
+      Pose2d robotPose,
+      Rotation2d currentAngle,
+      Translation2d turretOffset) {
 
     Translation2d turretPosition =
         robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
 
-    Rotation2d fieldAngle = translationGoal.minus(turretPosition).getAngle();
+    Rotation2d fieldAngle = translationGoal.minus(turretPosition).getAngle().unaryMinus();
+    Rotation2d delta = fieldAngle.minus(robotPose.getRotation().unaryMinus()).minus(currentAngle);
 
-    return fieldAngle.minus(robotPose.getRotation());
+    return Rotation2d.fromRadians(
+        Math.atan2(Math.sin(delta.getRadians()), Math.cos(delta.getRadians()))
+            + currentAngle.getRadians());
   }
 
   private static double calculateFeedforwardVoltage(
@@ -195,6 +205,12 @@ public class Turret {
     positionGoal.setSetpoint(goal.getMeasure());
   }
 
+  public void setPositionGoal(Rotation2d goal, AngularVelocity velocity) {
+    state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
+    positionGoal.setSetpoint(goal.getMeasure());
+    angularVelocityGoal.setSetpoint(velocity);
+  }
+
   public void setPosition(Rotation2d position) {
     io.setPosition(position);
   }
@@ -232,6 +248,12 @@ public class Turret {
 
   public void setFieldRelativeGoal(Translation2d goal) {
     state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
+    translationGoal = goal;
+  }
+
+  public void setFieldRelativeGoal(Translation2d goal, AngularVelocity velocity) {
+    state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
+    angularVelocityGoal.setSetpoint(velocity);
     translationGoal = goal;
   }
 

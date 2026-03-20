@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -106,10 +107,11 @@ public class TurretIOSim implements TurretIO {
   }
 
   @Override
-  public void setPositionGoal(Rotation2d goal, double feedforwardVoltage) {
+  public void setPositionGoal(
+      Rotation2d goal, AngularVelocity velocity, double feedforwardVoltage) {
     appliedVolts =
         feedback.calculate(sim.getAngularPositionRad(), goal.getRadians())
-            + feedforward.calculate(feedback.getSetpoint().velocity);
+            + feedforward.calculate(feedback.getSetpoint().velocity + velocity.baseUnitMagnitude());
 
     appliedVolts = Math.copySign(appliedVolts, feedforwardVoltage);
     positionGoal = goal;
