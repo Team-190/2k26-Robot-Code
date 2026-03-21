@@ -84,10 +84,16 @@ public class V1_DoomSpiralCompositeCommands {
   }
 
   public static Command autoAllignL3(SwerveDrive drive) {
-    return DriveCommands.autoAlignPoseCommand(
-        drive,
-        V1_DoomSpiralRobotState::getGlobalPose,
-        new Pose2d(1.3, 4.67, Rotation2d.fromDegrees(90)),
-        V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS);
+    return Commands.sequence(
+        DriveCommands.autoAlignPoseCommand(
+            drive,
+            V1_DoomSpiralRobotState::getGlobalPose,
+            new Pose2d(1.676, 5.004, Rotation2d.fromDegrees(90)),
+            V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS),
+        DriveCommands.autoAlignPoseCommand(
+            drive,
+            V1_DoomSpiralRobotState::getGlobalPose,
+            new Pose2d(1.3, 4.67, Rotation2d.fromDegrees(90)),
+            V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS));
   }
 }
