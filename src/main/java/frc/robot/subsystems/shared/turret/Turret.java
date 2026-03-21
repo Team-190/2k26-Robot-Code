@@ -131,8 +131,7 @@ public class Turret {
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
         positionGoal.setSetpoint(
-            angleToGoal(
-                    translationGoal, robotPoseSupplier.get(), inputs.angle, constants.turretOffset)
+            angleToGoal(translationGoal, robotPoseSupplier.get(), constants.turretOffset)
                 .getMeasure());
         io.setPositionGoal(
             wrapRotationWithinBounds(
@@ -152,20 +151,16 @@ public class Turret {
   }
 
   private static Rotation2d angleToGoal(
-      Translation2d translationGoal,
-      Pose2d robotPose,
-      Rotation2d currentAngle,
-      Translation2d turretOffset) {
+      Translation2d translationGoal, Pose2d robotPose, Translation2d turretOffset) {
 
     Translation2d turretPosition =
         robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
 
-    Rotation2d fieldAngle = translationGoal.minus(turretPosition).getAngle().unaryMinus();
-    Rotation2d delta = fieldAngle.minus(robotPose.getRotation().unaryMinus()).minus(currentAngle);
-
-    return Rotation2d.fromRadians(
-        Math.atan2(Math.sin(delta.getRadians()), Math.cos(delta.getRadians()))
-            + currentAngle.getRadians());
+    return translationGoal
+        .minus(turretPosition)
+        .getAngle()
+        .minus(robotPose.getRotation())
+        .unaryMinus();
   }
 
   private static double calculateFeedforwardVoltage(
@@ -300,8 +295,8 @@ public class Turret {
       }
     }
 
-    // Not possible... return target angle (io handles this by going to the closest bound)
-    return target;
+    // Not possible... return unwound angle (io handles this by clamping to the closest bound)
+    return Rotation2d.fromRadians(unwound);
   }
 
   /**
