@@ -10,7 +10,7 @@ plugins {
 ext {
     deploySrcDir = "src/main/deploy"
     deployRobotDir = "/home/lvuser/deploy"
-    useLocalGompeiLib = project.hasProperty("useLocalGompeiLib")
+    useLocalGompeiLib = true
 }
 
 java {
