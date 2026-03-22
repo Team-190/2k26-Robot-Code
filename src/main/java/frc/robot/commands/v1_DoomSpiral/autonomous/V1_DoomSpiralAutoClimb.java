@@ -26,6 +26,7 @@ public class V1_DoomSpiralAutoClimb {
       Climber climber) {
     // Create the routine and the trajectory
 
+
     AutoRoutine routine = drive.getAutoFactory().newRoutine("CLIMB");
 
     AutoTrajectory CLIMB = routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.CLIMB);
@@ -38,9 +39,10 @@ public class V1_DoomSpiralAutoClimb {
                 // Set the inital pose
 
                 CLIMB.resetOdometry(),
-                // V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
-                //     .withTimeout(5),
-                // V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
+                     .withTimeout(5),
+                V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+
 
                 // Follow the path
 
