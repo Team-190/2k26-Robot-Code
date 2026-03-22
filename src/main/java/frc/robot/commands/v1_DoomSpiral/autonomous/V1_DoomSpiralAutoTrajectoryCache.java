@@ -42,4 +42,12 @@ public class V1_DoomSpiralAutoTrajectoryCache {
       Choreo.loadTrajectory("LEFT_TRENCH_ANTI_BUCKS").get();
   public static final Trajectory<?> RIGHT_TRENCH_ANTI_BUCKS =
       Choreo.loadTrajectory("RIGHT_TRENCH_ANTI_BUCKS").get();
+  public static final Trajectory<?> LEFT_TRENCH_ANTI_BUCKS_CROSSES =
+      Choreo.loadTrajectory("LEFT_TRENCH_ANTI_BUCKS_CROSSES").get();
+  public static final Trajectory<?> RIGHT_TRENCH_ANTI_BUCKS_CROSSES =
+      Choreo.loadTrajectory("RIGHT_TRENCH_ANTI_BUCKS_CROSSES").get();
+  public static final Trajectory<?> LEFT_TRENCH_2_CYCLE_PATH_1_MIDLINE =
+      Choreo.loadTrajectory("LEFT_TRENCH_2_CYCLE_PATH_1_MIDLINE").get();
+  public static final Trajectory<?> RIGHT_TRENCH_2_CYCLE_PATH_1_MIDLINE =
+      Choreo.loadTrajectory("RIGHT_TRENCH_2_CYCLE_PATH_1_MIDLINE").get();
 }
