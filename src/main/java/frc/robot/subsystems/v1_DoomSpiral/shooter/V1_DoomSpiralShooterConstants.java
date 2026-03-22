@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
@@ -117,6 +118,9 @@ public class V1_DoomSpiralShooterConstants {
                   .build())
           .withVoltageStep(Volts.of(0.5))
           .build();
+
+  public static Transform2d SHOOTER_POSE =
+      new Transform2d(0.015, 0.255299, Rotation2d.fromDegrees(-90.0));
 
   public enum HoodGoal {
     SCORE,

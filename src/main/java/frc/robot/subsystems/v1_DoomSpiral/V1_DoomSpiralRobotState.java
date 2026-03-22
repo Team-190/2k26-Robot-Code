@@ -225,8 +225,12 @@ public class V1_DoomSpiralRobotState {
 
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+    Pose2d shooterPosition = hubPose.transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
+
     distanceToHub =
-        Distance.ofBaseUnits(hubPose.getTranslation().minus(hubTranslation).getNorm(), Meters);
+        Distance.ofBaseUnits(
+            shooterPosition.getTranslation().minus(hubTranslation).getNorm(), Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
@@ -237,7 +241,10 @@ public class V1_DoomSpiralRobotState {
             Meters);
 
     robotToHubAngle =
-        hubPose.getTranslation().minus(hubTranslation).getAngle().minus(Rotation2d.kCCW_90deg);
+        hubTranslation
+            .minus(shooterPosition.getTranslation())
+            .getAngle()
+            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
