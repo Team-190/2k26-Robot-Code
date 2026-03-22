@@ -2,6 +2,7 @@ package frc.robot.commands.v1_DoomSpiral;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
@@ -83,17 +84,16 @@ public class V1_DoomSpiralCompositeCommands {
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
   }
 
-  public static Command autoAlignL3(SwerveDrive drive) {
+  public static Command autoAlignL3(SwerveDrive drive, V1_DoomSpiralClimber climber) {
     return Commands.sequence(
+        Commands.runOnce(
+            () -> V1_DoomSpiralRobotState.resetPose(new Pose2d(3, 3.5, new Rotation2d(0)))), // test start position
         DriveCommands.autoAlignPoseCommand(
-            drive,
-            V1_DoomSpiralRobotState::getGlobalPose,
-            new Pose2d(1.676, 5.004, Rotation2d.fromDegrees(90)),
-            V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS),
-        DriveCommands.autoAlignPoseCommand(
-            drive,
-            V1_DoomSpiralRobotState::getGlobalPose,
-            new Pose2d(1.3, 4.67, Rotation2d.fromDegrees(90)),
-            V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS));
+                drive,
+                V1_DoomSpiralRobotState::getGlobalPose,
+                new Pose2d(1.576, 4.54, Rotation2d.fromDegrees(90)),
+                V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
+            .withTimeout(4),
+        Commands.run(() -> drive.runVelocity(new ChassisSpeeds(-0.04, 0.15, 0))).withTimeout(1));
   }
 }

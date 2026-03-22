@@ -566,6 +566,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return V1_DoomSpiralCompositeCommands.autoAlignL3(drive, climber);
   }
 }

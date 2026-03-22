@@ -34,7 +34,7 @@ public class SharedCompositeCommands {
         .ignoringDisable(true);
   }
 
-  //TODO: Uncomment this when GompeiLib is updated 
+  // TODO: Uncomment this when GompeiLib is updated
   /*
     public static Command updateCurrentLimits(
         SwerveDrive drive, double driveCurrentLimit, double turnCurrentLimit) {
