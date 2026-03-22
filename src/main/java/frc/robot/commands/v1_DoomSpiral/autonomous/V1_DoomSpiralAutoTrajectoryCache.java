@@ -29,6 +29,6 @@ public class V1_DoomSpiralAutoTrajectoryCache {
       Choreo.loadTrajectory("RIGHT_TRENCH_ANTI_BUCKS_CROSSES").get();
   public static final Trajectory<?> LEFT_TRENCH_SIMPLE_CROSSES =
       Choreo.loadTrajectory("LEFT_TRENCH_SIMPLE_CROSSES").get();
-    public static final Trajectory<?> RIGHT_TRENCH_SIMPLE_CROSSES =
+  public static final Trajectory<?> RIGHT_TRENCH_SIMPLE_CROSSES =
       Choreo.loadTrajectory("RIGHT_TRENCH_SIMPLE_CROSSES").get();
 }
