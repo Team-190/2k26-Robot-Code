@@ -87,7 +87,9 @@ public class V1_DoomSpiralCompositeCommands {
   public static Command autoAlignL3(SwerveDrive drive, V1_DoomSpiralClimber climber) {
     return Commands.sequence(
         Commands.runOnce(
-            () -> V1_DoomSpiralRobotState.resetPose(new Pose2d(3, 3.5, new Rotation2d(0)))), // test start position
+            () ->
+                V1_DoomSpiralRobotState.resetPose(
+                    new Pose2d(3, 3.5, new Rotation2d(0)))), // test start position
         DriveCommands.autoAlignPoseCommand(
                 drive,
                 V1_DoomSpiralRobotState::getGlobalPose,
