@@ -83,7 +83,7 @@ public class V1_DoomSpiralCompositeCommands {
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
   }
 
-  public static Command autoAllignL3(SwerveDrive drive) {
+  public static Command autoAlignL3(SwerveDrive drive) {
     return Commands.sequence(
         DriveCommands.autoAlignPoseCommand(
             drive,
