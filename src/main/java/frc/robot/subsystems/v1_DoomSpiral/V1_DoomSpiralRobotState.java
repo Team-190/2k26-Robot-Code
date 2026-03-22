@@ -138,29 +138,38 @@ public class V1_DoomSpiralRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    shootAngleTree.put(Meters.of(1.08169), Rotation2d.fromDegrees(5.0));
-    shootAngleTree.put(Meters.of(1.34257), Rotation2d.fromDegrees(6.5));
-    shootAngleTree.put(Meters.of(1.676884), Rotation2d.fromRadians(0.231631));
-    shootAngleTree.put(Meters.of(2.013799), Rotation2d.fromRadians(0.262311));
-    shootAngleTree.put(Meters.of(2.26935), Rotation2d.fromDegrees(13.5));
-    shootAngleTree.put(Meters.of(2.4), Rotation2d.fromDegrees(15.5));
-    shootAngleTree.put(Meters.of(2.539004), Rotation2d.fromDegrees(16.5));
-    shootAngleTree.put(Meters.of(2.748745), Rotation2d.fromDegrees(18.5));
-    shootAngleTree.put(Meters.of(3.039446), Rotation2d.fromDegrees(18.5));
-    shootAngleTree.put(Meters.of(3.280458), Rotation2d.fromDegrees(19.5));
-    shootAngleTree.put(Meters.of(3.527742), Rotation2d.fromDegrees(20.0));
+    shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(5.0));
+    shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(340.0));
 
-    shootSpeedTree.put(Meters.of(1.08169), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(1.34257), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(1.676884), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.013799), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.26935), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(2.4), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(2.539004), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(2.748745), RadiansPerSecond.of(380));
-    shootSpeedTree.put(Meters.of(3.039446), RadiansPerSecond.of(402));
-    shootSpeedTree.put(Meters.of(3.280458), RadiansPerSecond.of(409));
-    shootSpeedTree.put(Meters.of(3.527742), RadiansPerSecond.of(420));
+    shootAngleTree.put(Meters.of(1.491203295344588), Rotation2d.fromDegrees(6.0));
+    shootSpeedTree.put(Meters.of(1.491203295344588), RadiansPerSecond.of(345.0));
+
+    shootAngleTree.put(Meters.of(1.735737657075872), Rotation2d.fromDegrees(16.0));
+    shootSpeedTree.put(Meters.of(1.735737657075872), RadiansPerSecond.of(345.0));
+
+    shootAngleTree.put(Meters.of(2.0049492041827994), Rotation2d.fromDegrees(17.0));
+    shootSpeedTree.put(Meters.of(2.0049492041827994), RadiansPerSecond.of(350.0));
+
+    shootAngleTree.put(Meters.of(2.30668187255375), Rotation2d.fromDegrees(18.0));
+    shootSpeedTree.put(Meters.of(2.30668187255375), RadiansPerSecond.of(355.0));
+
+    shootAngleTree.put(Meters.of(2.572028569812878), Rotation2d.fromDegrees(19.0));
+    shootSpeedTree.put(Meters.of(2.572028569812878), RadiansPerSecond.of(375.0));
+
+    shootAngleTree.put(Meters.of(2.9670118924057562), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(2.9670118924057562), RadiansPerSecond.of(388.0));
+
+    shootAngleTree.put(Meters.of(3.297585897171101), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(3.297585897171101), RadiansPerSecond.of(405.0));
+
+    shootAngleTree.put(Meters.of(3.622009715844515), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(3.622009715844515), RadiansPerSecond.of(415.0));
+
+    shootAngleTree.put(Meters.of(3.8605317055005743), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(3.8605317055005743), RadiansPerSecond.of(430.0));
+
+    shootAngleTree.put(Meters.of(4.120246303911951), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(4.120246303911951), RadiansPerSecond.of(457.0));
 
     feedAngleTree.put(
         Meters.of(0.0),
@@ -216,8 +225,12 @@ public class V1_DoomSpiralRobotState {
 
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+    Pose2d shooterPosition = hubPose.transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
+
     distanceToHub =
-        Distance.ofBaseUnits(hubPose.getTranslation().minus(hubTranslation).getNorm(), Meters);
+        Distance.ofBaseUnits(
+            shooterPosition.getTranslation().minus(hubTranslation).getNorm(), Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
@@ -228,7 +241,10 @@ public class V1_DoomSpiralRobotState {
             Meters);
 
     robotToHubAngle =
-        hubPose.getTranslation().minus(hubTranslation).getAngle().minus(Rotation2d.kCCW_90deg);
+        hubTranslation
+            .minus(shooterPosition.getTranslation())
+            .getAngle()
+            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
@@ -256,7 +272,7 @@ public class V1_DoomSpiralRobotState {
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(2.0))
+    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(20.0))
       localization.addPoseObservations(observations);
   }
 
