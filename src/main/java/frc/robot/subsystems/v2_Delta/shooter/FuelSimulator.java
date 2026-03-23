@@ -3,7 +3,6 @@ package frc.robot.subsystems.v2_Delta.shooter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOInputsAutoLogged;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOInputsAutoLogged;
 import frc.robot.FieldConstants;
@@ -25,9 +24,16 @@ public class FuelSimulator {
   private final V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs;
 
   private Rotation2d hoodPitch;
+
   private double spindexerVelocity;
   private double flywheelVelocity;
   private double feederVelocity;
+
+  private double MOTOR_TORQUE;
+
+  private static final double KICKER_GEAR_RATIO = 2; // Replace with actual values
+  private static final double FEEDER_GEAR_RATIO = 3; // Replace with actual values
+  private static final double SHOOTER_GEAR_RATIO = 4;//  Replace with actual values
 
   private static final double SPINDEXER_RADIUS = Units.inchesToMeters(19.45);
   private static final double FRICTION_COEFF = 0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
@@ -161,13 +167,13 @@ public class FuelSimulator {
   }
 
   private double getInitialVelocity() {
-    double startingVelocity =
+    double spindexerInitialFuelVelocity =
         (FUEL_MOMENT_OF_INERTIA * (spindexerVelocity / SPINDEXER_RADIUS))
             / (FUEL_MASS * SPINDEXER_RADIUS / 2);
     double initialVelocity =
         velocityFunction(
             FLYWHEEL_MASS,
-            velocityFunction(FEEDER_MASS, velocityFunction(KICKER_MASS, startingVelocity)));
+            velocityFunction(FEEDER_MASS, velocityFunction(KICKER_MASS, spindexerInitialFuelVelocity)));
 
     return initialVelocity;
   }
@@ -176,17 +182,23 @@ public class FuelSimulator {
     return getInitialVelocity()
         * Math.cos(
             hoodInputs.position
-                .getDegrees()); // Not accounting for friction between fuel and flywheel
+                .getDegrees());
   }
 
   private double getInitialVelocityY() {
     return getInitialVelocity()
         * Math.sin(
             hoodInputs.position
-                .getDegrees()); // Not accounting for friction between fuel and flywheel
+                .getDegrees()); 
   }
 
   private double getInitialVelocityZ() {
-    return getInitialVelocityY();
+    return Math.sqrt(Math.pow(getInitialVelocity(), 2) + Math.pow(getInitialVelocityX(), 2) + Math.pow(getInitialVelocityY(), 2));
   }
+
+  private double getTorqueComponent(double gearRatio, boolean isFOC) { // Assuming KrakenX60 or KrakenX60FOC
+    MOTOR_TORQUE = (isFOC) ? 9.365 : 7.06;
+    return MOTOR_TORQUE / gearRatio;
+}
+
 }

@@ -14,13 +14,12 @@ public class SimulatedFuel {
   public Translation3d angularVelocity;
 
   private static final double MASS_KG = 0.215;
-  private static final double RADIUS_M = 0.075;
   private static final double AIR_DENSITY = 1.2793; // Check if this is right
   private static final double CL = 0.45;
   private static final double CD = 0.2;
   private static final double FUEL_RADIUS = Units.inchesToMeters(2.95);
-  private static final double AREA = Math.PI * FUEL_RADIUS;
-  private static final double ALPHA = (AIR_DENSITY * AREA) / (MASS_KG);
+  private static final double AREA = Math.PI * Math.pow(FUEL_RADIUS, 2);
+  private static final double ALPHA = (AIR_DENSITY * AREA) / (2 * MASS_KG);
 
   public SimulatedFuel(Translation3d position, Translation3d velocity) {
     this.position = position;
