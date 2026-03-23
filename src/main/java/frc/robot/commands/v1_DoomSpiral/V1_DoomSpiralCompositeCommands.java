@@ -89,7 +89,10 @@ public class V1_DoomSpiralCompositeCommands {
         Commands.runOnce(
             () ->
                 V1_DoomSpiralRobotState.resetPose(
-                    new Pose2d(3, 3.5, new Rotation2d(0)))), // test start position, remove when implementing
+                    new Pose2d(
+                        3,
+                        3.5,
+                        new Rotation2d(0)))), // test start position, remove when implementing
         DriveCommands.autoAlignPoseCommand(
                 drive,
                 V1_DoomSpiralRobotState::getGlobalPose,
