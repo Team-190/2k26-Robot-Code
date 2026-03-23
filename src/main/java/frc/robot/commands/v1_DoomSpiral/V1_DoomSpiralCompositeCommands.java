@@ -89,11 +89,11 @@ public class V1_DoomSpiralCompositeCommands {
         Commands.runOnce(
             () ->
                 V1_DoomSpiralRobotState.resetPose(
-                    new Pose2d(3, 3.5, new Rotation2d(0)))), // test start position
+                    new Pose2d(3, 3.5, new Rotation2d(0)))), // test start position, remove when implementing
         DriveCommands.autoAlignPoseCommand(
                 drive,
                 V1_DoomSpiralRobotState::getGlobalPose,
-                new Pose2d(1.576, 4.54, Rotation2d.fromDegrees(90)),
+                AllianceFlipUtil.apply(new Pose2d(1.576, 4.54, Rotation2d.fromDegrees(90))),
                 V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
             .withTimeout(4),
         Commands.run(() -> drive.runVelocity(new ChassisSpeeds(-0.04, 0.15, 0))).withTimeout(1));
