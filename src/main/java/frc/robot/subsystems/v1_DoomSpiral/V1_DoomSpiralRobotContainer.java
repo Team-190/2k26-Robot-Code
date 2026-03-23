@@ -640,6 +640,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     RobotModeTriggers.autonomous()
         .negate()
+        .and(DriverStation::isFMSAttached)
         .onTrue(Commands.runOnce(() -> autoChooser.setResetPose(false)).ignoringDisable(true));
   }
 
