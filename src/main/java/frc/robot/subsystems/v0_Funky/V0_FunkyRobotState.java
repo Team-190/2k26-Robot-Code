@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
@@ -15,6 +16,7 @@ import frc.robot.util.NTPrefixes;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -33,6 +35,8 @@ public class V0_FunkyRobotState {
 
   private static final FieldZone globalZone;
 
+  @Setter private static long networktablesTimestamp;
+
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
@@ -45,6 +49,8 @@ public class V0_FunkyRobotState {
     feedAngle = Rotation2d.kZero;
 
     chassisSpeeds = new ChassisSpeeds();
+
+    networktablesTimestamp = NetworkTablesJNI.now();
   }
 
   public static void periodic(
@@ -56,7 +62,7 @@ public class V0_FunkyRobotState {
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    if (Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= Units.degreesToRadians(2.0))
+    if (Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= Units.degreesToRadians(120.0))
       localization.addPoseObservations(observations);
   }
 

@@ -14,7 +14,7 @@ import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 
-public class V1_DoomSpiralAutoLeftTrench2Cycle {
+public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
@@ -24,12 +24,10 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("DEPOT_AND_BACK_HUB");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE");
 
-    AutoTrajectory LEFT_TRENCH_2_CYCLE_PATH_1 =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_2_CYCLE_PATH_1);
-    AutoTrajectory LEFT_TRENCH_2_CYCLE_PATH_2 =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_2_CYCLE_PATH_2);
+    AutoTrajectory RIGHT_TRENCH_SIMPLE_CROSSES =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE_CROSSES);
 
     routine
         .active()
@@ -38,7 +36,7 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
 
                 // Set the inital pose
 
-                LEFT_TRENCH_2_CYCLE_PATH_1.resetOdometry(),
+                RIGHT_TRENCH_SIMPLE_CROSSES.resetOdometry(),
 
                 // Deploy the intake
 
@@ -49,7 +47,7 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
 
                 // Follow the path
 
-                LEFT_TRENCH_2_CYCLE_PATH_1.cmd(),
+                RIGHT_TRENCH_SIMPLE_CROSSES.cmd(),
 
                 // Stop drive
 
@@ -59,21 +57,8 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
-                    .withTimeout(5.0),
-                intake
-                    .deploy()
-                    .alongWith(
-                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
-                LEFT_TRENCH_2_CYCLE_PATH_2.cmd(),
-                Commands.runOnce(() -> drive.stop()),
-
-                // Stop the intake and align the shooter in parallel
-
-                V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
-                    .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
-                    .withTimeout(5.0)));
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
     RobotModeTriggers.autonomous()
         .negate()

@@ -14,7 +14,7 @@ import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 
-public class V1_DoomSpiralAutoLeftBlueShell {
+public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
@@ -24,10 +24,10 @@ public class V1_DoomSpiralAutoLeftBlueShell {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_BLUESHELL");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_ANTI_BUCKS_CROSSES");
 
-    AutoTrajectory LEFT_BLUESHELL =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_BLUESHELL);
+    AutoTrajectory RIGHT_TRENCH_ANTI_BUCKS_CROSSES =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_ANTI_BUCKS_CROSSES);
 
     routine
         .active()
@@ -36,7 +36,7 @@ public class V1_DoomSpiralAutoLeftBlueShell {
 
                 // Set the inital pose
 
-                LEFT_BLUESHELL.resetOdometry(),
+                RIGHT_TRENCH_ANTI_BUCKS_CROSSES.resetOdometry(),
 
                 // Deploy the intake
 
@@ -47,7 +47,7 @@ public class V1_DoomSpiralAutoLeftBlueShell {
 
                 // Follow the path
 
-                LEFT_BLUESHELL.cmd(),
+                RIGHT_TRENCH_ANTI_BUCKS_CROSSES.cmd(),
 
                 // Stop drive
 
@@ -57,7 +57,8 @@ public class V1_DoomSpiralAutoLeftBlueShell {
 
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
-                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))));
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
     RobotModeTriggers.autonomous()
         .negate()

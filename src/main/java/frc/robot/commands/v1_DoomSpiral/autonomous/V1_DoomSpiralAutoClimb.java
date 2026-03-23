@@ -15,7 +15,9 @@ import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
+import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
+import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
 import frc.robot.util.AllianceFlipUtil;
 
 public class V1_DoomSpiralAutoClimb {
@@ -39,21 +41,27 @@ public class V1_DoomSpiralAutoClimb {
                 // Set the inital pose
 
                 CLIMB.resetOdometry(),
-                // V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
-                //     .withTimeout(5),
-                // V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                Commands.parallel(
+                        intake.stopRoller(),
+                        shooter.setGoal(
+                            V1_DoomSpiralShooterConstants.HoodGoal.SCORE,
+                            V1_DoomSpiralRobotState::getScoreVelocity),
+                        Commands.sequence(
+                            spindexer.agitateSpindexer().until(shooter::atGoal),
+                            spindexer.setVoltage(
+                                V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)))
+                    .withTimeout(4),
+                V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
 
                 // Follow the path
 
                 CLIMB.cmd(),
                 climber.setPositionGoal(ClimberGoal.L1_AUTO_POSITION_GOAL),
                 DriveCommands.autoAlignPoseCommand(
-                        drive,
-                        V1_DoomSpiralRobotState::getGlobalPose,
-                        AllianceFlipUtil.apply(
-                            new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0))),
-                        V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
-                    .withTimeout(5.0),
+                    drive,
+                    V1_DoomSpiralRobotState::getGlobalPose,
+                    AllianceFlipUtil.apply(new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0))),
+                    V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS),
                 intake.deploy(),
                 Commands.waitSeconds(1.0),
                 climber.setVoltage(-3.0),
