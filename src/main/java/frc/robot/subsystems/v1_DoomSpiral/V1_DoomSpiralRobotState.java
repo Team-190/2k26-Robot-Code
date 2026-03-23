@@ -10,6 +10,7 @@ import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,10 +30,7 @@ import frc.robot.util.NTPrefixes;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotState {
@@ -67,6 +65,8 @@ public class V1_DoomSpiralRobotState {
   @Getter private static double feedVelocity;
 
   @Getter private static final LEDStates ledStates;
+
+  @Setter private static long networktablesTimestamp;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -203,6 +203,8 @@ public class V1_DoomSpiralRobotState {
 
     field.setRobotPose(getGlobalPose());
     SmartDashboard.putData("Field", field);
+
+    networktablesTimestamp = NetworkTablesJNI.now();
   }
 
   @Trace
