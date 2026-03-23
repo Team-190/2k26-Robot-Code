@@ -35,7 +35,7 @@ public class V0_FunkyRobotState {
 
   private static final FieldZone globalZone;
 
-  @Setter private static long networktablesTimestamp;
+  @Setter @Getter private static long networktablesTimestamp;
 
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
@@ -57,7 +57,7 @@ public class V0_FunkyRobotState {
       Rotation2d heading, SwerveModulePosition[] modulePositions, ChassisSpeeds chassisSpeeds) {
 
     localization.addOdometryObservation(Timer.getTimestamp(), heading, modulePositions);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Global Pose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Global Pose", getGlobalPose());
     V0_FunkyRobotState.chassisSpeeds = chassisSpeeds;
   }
 

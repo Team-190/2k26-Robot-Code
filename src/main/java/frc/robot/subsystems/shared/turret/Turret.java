@@ -92,11 +92,7 @@ public class Turret {
             constants.maxAngle.getMeasure());
     angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.25));
 
-    io.setPosition(
-        calculateTurretAngle(
-            io.getEncoder1Position(),
-            io.getEncoder2Position(),
-            Turret.this.constants.turretAngleCalculation));
+    io.setPosition(new Rotation2d());
 
     feedforwardController =
         new SimpleMotorFeedforward(
@@ -181,7 +177,7 @@ public class Turret {
     double targetOmega =
         (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond) / distanceSq;
 
-    return feedforwardController.calculate(targetOmega - fieldVelocity.omegaRadiansPerSecond);
+    return -feedforwardController.calculate(fieldVelocity.omegaRadiansPerSecond - targetOmega); //still needs testing
   }
 
   public boolean outOfRange(Rotation2d angle) {

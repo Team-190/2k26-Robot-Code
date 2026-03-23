@@ -6,7 +6,6 @@ import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -91,7 +90,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       V0_FunkyConstants.LIMELIGHT_CONFIG,
                       V0_FunkyRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
-                      NetworkTablesJNI::now,
+                      V0_FunkyRobotState::getNetworktablesTimestamp,
                       List.of(V0_FunkyRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
           break;
@@ -165,9 +164,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
         DriveCommands.joystickDrive(
             drive,
             V0_FunkyConstants.DRIVE_CONSTANTS,
-            driver::getLeftY,
-            driver::getLeftX,
-            driver::getRightX,
+            () -> -driver.getLeftY(),
+            () -> -driver.getLeftX(),
+            () -> -driver.getRightX(),
             V0_FunkyRobotState::getHeading));
 
     driver

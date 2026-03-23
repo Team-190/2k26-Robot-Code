@@ -31,7 +31,7 @@ public class V0_FunkyConstants {
               V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond))
           .withWheelRadiusMeters(V0_FunkyTunerConstants.kWheelRadius.in(Meters))
           .withDriveModel(DCMotor.getKrakenX60Foc(1))
-          .withTurnModel(DCMotor.getKrakenX44Foc(1))
+          .withTurnModel(DCMotor.getKrakenX60Foc(1))
           .withFrontLeft(V0_FunkyTunerConstants.FrontLeft)
           .withFrontRight(V0_FunkyTunerConstants.FrontRight)
           .withBackLeft(V0_FunkyTunerConstants.BackLeft)
@@ -181,11 +181,12 @@ public class V0_FunkyConstants {
       LimelightConfig.builder()
           .key("right")
           .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(82.0)
-          .verticalFOV(56.2)
-          .megatagXYStdev(0.1)
-          .metatagThetaStdev(0.0015)
-          .megatag2XYStdev(0.001)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.primaryThetaStandardDeviationCoefficient)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .enableRewind(false)
           .robotToCameraTransform(
               new Transform3d(
                   Inches.of(11.25),
