@@ -546,6 +546,16 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         () ->
             V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
                 drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Right Trench Anti Bucks Crosses",
+        () ->
+            V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutine(
+        "Right Trench Anti Bucks Crosses",
+        () ->
+            V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
+                drive, intake, shooter, spindexer, climber));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
   }
 

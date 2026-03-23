@@ -123,8 +123,8 @@ public class V1_DoomSpiralConstants {
 
   public static final Gains AUTO_ALIGN_THETA_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 8.0))
-          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.3))
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 6.5))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.2))
           .build();
 
   public static final AngularPositionConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
