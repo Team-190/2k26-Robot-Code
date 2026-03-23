@@ -137,7 +137,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
-                      NetworkTablesJNI::now,
+                      V1_DoomSpiralRobotState::getNetworktablesTimestamp,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()),
                   new CameraLimelight(
@@ -145,7 +145,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
-                      NetworkTablesJNI::now,
+                      V1_DoomSpiralRobotState::getNetworktablesTimestamp,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
           //   new CameraLimelight(

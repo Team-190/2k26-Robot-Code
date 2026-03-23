@@ -66,7 +66,7 @@ public class V1_DoomSpiralRobotState {
 
   @Getter private static final LEDStates ledStates;
 
-  @Setter private static long networktablesTimestamp;
+  @Setter @Getter private static long networktablesTimestamp;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
