@@ -69,6 +69,6 @@ public class V1_DoomSpiralAutoLeftTrenchSimpleCrosses {
                     intake.deploy())
                 .ignoringDisable(true));
 
-    return routine;
+    return routine;1
   }
 }
