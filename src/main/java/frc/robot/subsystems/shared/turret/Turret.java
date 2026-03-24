@@ -177,7 +177,8 @@ public class Turret {
     double targetOmega =
         (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond) / distanceSq;
 
-    return -feedforwardController.calculate(fieldVelocity.omegaRadiansPerSecond - targetOmega); //still needs testing
+    return -feedforwardController.calculate(
+        fieldVelocity.omegaRadiansPerSecond - targetOmega); // still needs testing
   }
 
   public boolean outOfRange(Rotation2d angle) {
