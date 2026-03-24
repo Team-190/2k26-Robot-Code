@@ -4,9 +4,7 @@ import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -40,7 +38,6 @@ import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.autonomous.*;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
@@ -110,11 +107,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralClimber(
                   new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
                   gyroIO.getRoll().asSupplier());
-          intake =
-              new V1_DoomSpiralIntake(
-                  new GenericRollerIOTalonFX(
-                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-                  new FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
+          //          intake =
+          //              new V1_DoomSpiralIntake(
+          //                  new GenericRollerIOTalonFX(
+          //                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+          //                  new
+          // FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFX(),
@@ -518,124 +516,44 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private void configureAutos() {
     new V1_DoomSpiralAutoTrajectoryCache();
 
-    autoChooser.addRoutine(
+    autoChooser.addRoutineConfig(
         "Left Trench Simple",
-        () ->
-            V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_SIMPLE
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks",
-        () ->
-            V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Right Trench Simple",
-        () ->
-            V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks",
-        () ->
-            V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_ANTI_BUCKS
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Depot And Back Hub",
-        () ->
-            V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.DEPOT_AND_XXX_PATH_1
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
-        "Climb",
-        () -> V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.CLIMB
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
+        "Climb", V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Left Trench Simple Crosses",
-        () ->
-            V1_DoomSpiralAutoLeftTrenchSimpleCrosses.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_SIMPLE_CROSSES
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoLeftTrenchSimpleCrosses.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Right Trench Simple Crosses",
-        () ->
-            V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE_CROSSES
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks Crosses",
-        () ->
-            V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS_CROSSES
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
-    autoChooser.addRoutine(
+        V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
+    autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks Crosses",
-        () ->
-            V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
-                drive, intake, shooter, spindexer, climber),
-        () ->
-            V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_ANTI_BUCKS_CROSSES
-                .getInitialPose(
-                    DriverStation.getAlliance()
-                        .orElse(DriverStation.Alliance.Blue)
-                        .equals(DriverStation.Alliance.Red))
-                .orElse(new Pose2d()));
+        V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
+            drive, intake, shooter, spindexer, climber));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
     RobotModeTriggers.autonomous()
