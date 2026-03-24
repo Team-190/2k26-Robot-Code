@@ -13,7 +13,6 @@ import edu.wpi.team190.gompeilib.core.utility.Offset;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import lombok.Getter;
-
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralSpindexer extends SubsystemBase {

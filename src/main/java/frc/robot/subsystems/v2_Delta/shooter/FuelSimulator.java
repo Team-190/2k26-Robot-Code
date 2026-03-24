@@ -6,6 +6,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOInputsAutoLogged;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOInputsAutoLogged;
 import frc.robot.FieldConstants;
+import frc.robot.RobotConfig;
+import frc.robot.RobotConfig.RobotType;
 import frc.robot.subsystems.shared.hood.HoodIOInputsAutoLogged;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.*;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class FuelSimulator {
   public int shotsMissed = 0;
 
   private final GenericFlywheelIOInputsAutoLogged flywheelInputs;
+  private final GenericRollerIOInputsAutoLogged kickerInputs;
   private final HoodIOInputsAutoLogged hoodInputs;
   private final GenericRollerIOInputsAutoLogged feederInputs;
   private final V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs;
@@ -26,18 +29,18 @@ public class FuelSimulator {
   private Rotation2d hoodPitch;
 
   private double spindexerVelocity;
-  private double flywheelVelocity;
+  private double shooterVelocity;
   private double feederVelocity;
+  private double kickerVelocity;
 
   private double MOTOR_TORQUE;
 
   private static final double KICKER_GEAR_RATIO = 2; // Replace with actual values
   private static final double FEEDER_GEAR_RATIO = 3; // Replace with actual values
-  private static final double SHOOTER_GEAR_RATIO = 4;//  Replace with actual values
+  private static final double SHOOTER_GEAR_RATIO = 4; // Replace with actual values
 
   private static final double SPINDEXER_RADIUS = Units.inchesToMeters(19.45);
   private static final double FRICTION_COEFF = 0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
-
   private static final Translation3d HUB_CENTER = FieldConstants.Hub.innerCenterPoint;
   private static final double HUB_HEIGHT_Z = FieldConstants.Hub.height;
   private static final double HUB_RADIUS = FieldConstants.Hub.innerWidth / 2;
@@ -46,34 +49,50 @@ public class FuelSimulator {
   private static final double TURRET_X_OFFSET = 2.3; // TODO: get actual values for these
   private static final double TURRET_Z_HEIGHT = 0.6; // TODO: get actual values for these
 
-  private static final double FLYWHEEL_MASS = 0.27;
-  private static final double FLYWHEEL_RADIUS = Units.inchesToMeters(2); // TODO: Account for the metal rod in code
-  
+  private static final double SHOOTER_MASS = 0.27;
+  private static final double SHOOTER_RADIUS =
+      Units.inchesToMeters(2); // TODO: Account for the metal rod in code
+  private static final double SHOOTER_MOMENT_OF_INERTIA =
+      1 / 2 * SHOOTER_MASS * Math.pow(SHOOTER_RADIUS, 2);
 
   private static final double FEEDER_MASS = 0.23; // Check value
-  
   private static final double FEEDER_RADIUS = Units.inchesToMeters(0.9825);
-  private static double FEEER_MOMENT_OF_INTERTIA = 0.5 * FEEDER_MASS * Math.pow(FEEDER_RADIUS, 2);
+  private static double FEEDER_MOMENT_OF_INERTIA = 0.5 * FEEDER_MASS * Math.pow(FEEDER_RADIUS, 2);
 
   private static final double KICKER_MASS = 0.0;
+  private static final double KICKER_RADIUS = 0.0;
+  private static final double KICKER_MOMENT_OF_INERTIA =
+      1 / 2 * KICKER_MASS * Math.pow(KICKER_RADIUS, 2);
 
   private static final double FUEL_MASS = 0.23;
   private static final double FUEL_RADIUS = Units.inchesToMeters(2.95);
   private static final double FUEL_MOMENT_OF_INERTIA = 0.4 * FUEL_MASS * Math.pow(FUEL_RADIUS, 2);
 
-  private static final double DISPLACEMENT = 0.05; // Distances force of friction between fuel and roller/flywheel.
+  private static final double DISPLACEMENT =
+      0.05; // Distance for force of friction between fuel and roller/flywheel.
 
   private static final double ROBOT_HEIGHT = 4;
 
-  public FuelSimulator(V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs, GenericFlywheelIOInputsAutoLogged flywheelInputs, GenericRollerIOInputsAutoLogged feederInputs, HoodIOInputsAutoLogged hoodInputs) {
+  private static final double KICKER_DEPTH = 5; // TODO: get actual value
+  private static final double FEEDER_DEPTH = 6; // TODO: get actual value
+  private static final double SHOOTER_WHEEL_DEPTH = 7; // TODO: get actual value
+
+  public FuelSimulator(
+      V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs,
+      GenericFlywheelIOInputsAutoLogged flywheelInputs,
+      GenericRollerIOInputsAutoLogged feederInputs,
+      HoodIOInputsAutoLogged hoodInputs,
+      GenericRollerIOInputsAutoLogged kickerInputs) {
     this.feederInputs = feederInputs;
     this.spindexerInputs = spindexerInputs;
     this.flywheelInputs = flywheelInputs;
     this.hoodInputs = hoodInputs;
+    this.kickerInputs = kickerInputs;
 
     spindexerVelocity = spindexerInputs.velocity.baseUnitMagnitude();
-    flywheelVelocity = flywheelInputs.velocityRadiansPerSecond;
+    shooterVelocity = flywheelInputs.velocityRadiansPerSecond;
     feederVelocity = feederInputs.velocityRadiansPerSecond;
+    kickerVelocity = kickerInputs.velocityRadiansPerSecond;
     hoodPitch = hoodInputs.position;
   }
 
@@ -106,7 +125,7 @@ public class FuelSimulator {
   public void periodic() {
 
     feederVelocity = feederInputs.velocityRadiansPerSecond;
-    flywheelVelocity = flywheelInputs.velocityRadiansPerSecond;
+    shooterVelocity = flywheelInputs.velocityRadiansPerSecond;
     spindexerVelocity = spindexerInputs.velocity.baseUnitMagnitude();
 
     hoodPitch = hoodInputs.position;
@@ -157,48 +176,79 @@ public class FuelSimulator {
     Logger.recordOutput("FuelSimulator/ShotsMissed", shotsMissed);
   }
 
-  private static double velocityFunction(double massOfRollerOrFlywheel, double previousVelocity) {
-    return Math.sqrt(
-        (2 * (FRICTION_COEFF * massOfRollerOrFlywheel * 9.8 * DISPLACEMENT)
-                    + Math.pow(previousVelocity, 2)
-                        * (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / FUEL_RADIUS)))
-                / FUEL_MASS
-            + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
-  }
+  private double getInitialVelocity(RobotConfig.RobotType robotType) {
+    switch (robotType) {
+      case V1_DOOMSPIRAL:
+            // Velocity of fuel once exiting spindexer
+        double spindexerInitialFuelVelocity =
+            (FUEL_MOMENT_OF_INERTIA * (spindexerVelocity / SPINDEXER_RADIUS)) 
+                / (FUEL_MASS * FUEL_RADIUS);
+        
+        // Velocity of fuel once exiting kicker
+        double kickerFinalFuelVelocity =
+            Math.sqrt(
+                (KICKER_MOMENT_OF_INERTIA * Math.pow((shooterVelocity / KICKER_RADIUS), 2)
+                        + FUEL_MOMENT_OF_INERTIA
+                            * Math.pow((spindexerInitialFuelVelocity / FUEL_RADIUS), 2)
+                        + FUEL_MASS * Math.pow(spindexerInitialFuelVelocity, 2)
+                        + 2
+                            * FRICTION_COEFF
+                            * (getTorqueComponent(KICKER_GEAR_RATIO, true)
+                                / (KICKER_RADIUS * (KICKER_DEPTH / (KICKER_RADIUS + FUEL_RADIUS)))))
+                    / (FUEL_MASS + FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
+        
+        // Velocity of fuel once exiting feeder
+        double feederFinalFuelVelocity =
+            Math.sqrt(
+                (FEEDER_MOMENT_OF_INERTIA * Math.pow((feederVelocity / FEEDER_RADIUS), 2)
+                        + FUEL_MOMENT_OF_INERTIA * Math.pow((kickerFinalFuelVelocity / FUEL_RADIUS), 2)
+                        + 2
+                            * FRICTION_COEFF
+                            * (getTorqueComponent(FEEDER_GEAR_RATIO, true)
+                                / (FEEDER_RADIUS * (FEEDER_DEPTH / (FEEDER_RADIUS + FUEL_RADIUS)))))
+                    / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / (Math.pow(FUEL_RADIUS, 2)))));
+        
+        // Velocity of fuel once exiting shooter (actual initial velocity of the ball once exiting robot)
+        double initialVelocity =
+            Math.sqrt(
+                (SHOOTER_MOMENT_OF_INERTIA * Math.pow(shooterVelocity / SHOOTER_RADIUS, 2)
+                        + FUEL_MOMENT_OF_INERTIA * Math.pow((feederFinalFuelVelocity / FUEL_RADIUS), 2)
+                        + 2
+                            * FRICTION_COEFF
+                            * (getTorqueComponent(SHOOTER_GEAR_RATIO, true)
+                                / (SHOOTER_RADIUS
+                                    * (SHOOTER_WHEEL_DEPTH / (FUEL_RADIUS + SHOOTER_RADIUS)))))
+                    / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2))));
 
-  private double getInitialVelocity() {
-    double spindexerInitialFuelVelocity =
-        (FUEL_MOMENT_OF_INERTIA * (spindexerVelocity / SPINDEXER_RADIUS))
-            / (FUEL_MASS * SPINDEXER_RADIUS / 2);
-    double initialVelocity =
-        velocityFunction(
-            FLYWHEEL_MASS,
-            velocityFunction(FEEDER_MASS, velocityFunction(KICKER_MASS, spindexerInitialFuelVelocity)));
-
-    return initialVelocity;
+        return initialVelocity;
+      case V2_DELTA:
+        double fuelVelocity = Math.sqrt((2 * FRICTION_COEFF * FUEL_MASS * 9.8) / (FUEL_MASS + FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
+        return FUEL_MASS * Math.pow(fuelVelocity, 2) + FUEL_MOMENT_OF_INERTIA * (fuelVelocity / Math.pow(FUEL_RADIUS, 2)) + SHOOTER_MOMENT_OF_INERTIA * (shooterV) 
+      default:
+        return 6328.67;
+      
+    }
+    
   }
 
   private double getInitialVelocityX() {
-    return getInitialVelocity()
-        * Math.cos(
-            hoodInputs.position
-                .getDegrees());
+    return getInitialVelocity(RobotType.V1_DOOMSPIRAL) * Math.cos(hoodInputs.position.getDegrees());
   }
 
   private double getInitialVelocityY() {
-    return getInitialVelocity()
-        * Math.sin(
-            hoodInputs.position
-                .getDegrees()); 
+    return getInitialVelocity(RobotType.V1_DOOMSPIRAL) * Math.sin(hoodInputs.position.getDegrees());
   }
 
   private double getInitialVelocityZ() {
-    return Math.sqrt(Math.pow(getInitialVelocity(), 2) + Math.pow(getInitialVelocityX(), 2) + Math.pow(getInitialVelocityY(), 2));
+    return Math.sqrt(
+        Math.pow(getInitialVelocity(RobotType.V1_DOOMSPIRAL), 2)
+            + Math.pow(getInitialVelocityX(), 2)
+            + Math.pow(getInitialVelocityY(), 2));
   }
 
-  private double getTorqueComponent(double gearRatio, boolean isFOC) { // Assuming KrakenX60 or KrakenX60FOC
+  private double getTorqueComponent(
+      double gearRatio, boolean isFOC) { // Assuming KrakenX60 or KrakenX60FOC
     MOTOR_TORQUE = (isFOC) ? 9.365 : 7.06;
     return MOTOR_TORQUE / gearRatio;
-}
-
+  }
 }
