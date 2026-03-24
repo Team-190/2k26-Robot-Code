@@ -24,7 +24,7 @@ public class V1_DoomSpiralAutoLeftTrenchSimpleCrosses {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE_CROSSES");
 
     AutoTrajectory LEFT_TRENCH_SIMPLE_CROSSES =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_SIMPLE_CROSSES);
