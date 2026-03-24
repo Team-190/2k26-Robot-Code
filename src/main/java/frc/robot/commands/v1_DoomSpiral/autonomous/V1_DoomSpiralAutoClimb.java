@@ -1,12 +1,18 @@
 package frc.robot.commands.v1_DoomSpiral.autonomous;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
@@ -21,6 +27,36 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConsta
 import frc.robot.util.AllianceFlipUtil;
 
 public class V1_DoomSpiralAutoClimb {
+  private static final SwerveDriveConstants.AutoAlignConstants autoAlignConstants =
+      SwerveDriveConstants.AutoAlignConstants.builder()
+          .withXGains(
+              Gains.fromDoubles()
+                  .withPrefix("Drive/Auto Align/Climb/X")
+                  .withKP(1.5)
+                  .withKD(0.05)
+                  .build())
+          .withXConstraints(V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS)
+          .withYGains(
+              Gains.fromDoubles()
+                  .withPrefix("Drive/Auto Align/Climb/Y")
+                  .withKP(1.5)
+                  .withKD(0.05)
+                  .build())
+          .withYConstraints(V1_DoomSpiralConstants.AUTO_ALIGN_Y_CONSTRAINTS)
+          .withRotationGains(
+              Gains.fromDoubles()
+                  .withPrefix("Drive/Auto Align/Climb/Rotation")
+                  .withKP(0.5)
+                  .withKD(0.01)
+                  .build())
+          .withRotationConstraints(V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS)
+          .withAngularThreshold(
+              new LoggedTunableMeasure<>(
+                  "Drive/Auto Align/Climb/AngularThreshold", Degrees.of(0.25)))
+          .withLinearThreshold(
+              new LoggedTunableMeasure<>("Drive/Auto Align/Climb/LinearThreshold", Meters.of(0.02)))
+          .build();
+
   public static final AutoRoutine getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
@@ -50,18 +86,20 @@ public class V1_DoomSpiralAutoClimb {
                             spindexer.agitateSpindexer().until(shooter::atGoal),
                             spindexer.setVoltage(
                                 V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)))
-                    .withTimeout(4),
-                V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                    .withTimeout(3.5),
 
                 // Follow the path
 
-                CLIMB.cmd(),
+                CLIMB
+                    .cmd()
+                    .alongWith(
+                        V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer)),
                 climber.setPositionGoal(ClimberGoal.L1_AUTO_POSITION_GOAL),
                 DriveCommands.autoAlignPoseCommand(
                     drive,
                     V1_DoomSpiralRobotState::getGlobalPose,
                     AllianceFlipUtil.apply(new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0))),
-                    V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS),
+                    autoAlignConstants),
                 intake.deploy(),
                 Commands.waitSeconds(1.0),
                 climber.setVoltage(-3.0),

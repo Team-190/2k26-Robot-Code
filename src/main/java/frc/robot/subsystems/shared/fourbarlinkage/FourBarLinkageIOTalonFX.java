@@ -48,9 +48,11 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
     talonFXConfig = new TalonFXConfiguration();
 
-    talonFXConfig.CurrentLimits.SupplyCurrentLimit = constants.supplyCurrentLimit;
+    talonFXConfig.CurrentLimits.SupplyCurrentLimit =
+        constants.currentLimits.supplyCurrentLimit().in(Amps);
     talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talonFXConfig.CurrentLimits.StatorCurrentLimit = constants.statorCurrentLimit;
+    talonFXConfig.CurrentLimits.StatorCurrentLimit =
+        constants.currentLimits.statorCurrentLimit().in(Amps);
     talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonFXConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     talonFXConfig.Feedback.SensorToMechanismRatio = constants.gearRatio;

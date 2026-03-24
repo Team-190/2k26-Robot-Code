@@ -66,7 +66,7 @@ public class V1_DoomSpiralRobotState {
 
   @Getter private static final LEDStates ledStates;
 
-  @Setter @Getter private static long networktablesTimestamp;
+  @Setter @Getter private static long headingUpdateTimestamp;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -204,7 +204,7 @@ public class V1_DoomSpiralRobotState {
     field.setRobotPose(getGlobalPose());
     SmartDashboard.putData("Field", field);
 
-    networktablesTimestamp = NetworkTablesJNI.now();
+    headingUpdateTimestamp = NetworkTablesJNI.now();
   }
 
   @Trace

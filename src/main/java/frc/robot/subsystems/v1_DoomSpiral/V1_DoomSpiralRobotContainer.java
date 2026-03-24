@@ -86,7 +86,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           gyroIO =
               new GyroIOPigeon2(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                  V1_DoomSpiralRobotState::setNetworktablesTimestamp);
+                  V1_DoomSpiralRobotState::setHeadingUpdateTimestamp);
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
@@ -137,7 +137,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
-                      V1_DoomSpiralRobotState::getNetworktablesTimestamp,
+                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()),
                   new CameraLimelight(
@@ -145,7 +145,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
-                      V1_DoomSpiralRobotState::getNetworktablesTimestamp,
+                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
                       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
                       List.of()));
           //   new CameraLimelight(
