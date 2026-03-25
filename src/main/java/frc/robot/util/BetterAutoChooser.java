@@ -53,7 +53,8 @@ public class BetterAutoChooser implements Sendable {
 
   private Optional<Alliance> allianceAtGeneration = Optional.empty();
   private String nameAtGeneration;
-  private Command generatedCommand = Commands.none();
+  private Command generatedCommand;
+  private Command prerunCommand;
 
   private final Consumer<Pose2d> resetPoseConsumer;
   @Setter private boolean resetPose;
@@ -78,6 +79,7 @@ public class BetterAutoChooser implements Sendable {
     DO_NOTHING_NAME = doNothingName;
     nameAtGeneration = DO_NOTHING_NAME;
     generatedCommand = Commands.none();
+    prerunCommand = Commands.none();
     addCmd(DO_NOTHING_NAME, Commands::none);
     select(DO_NOTHING_NAME);
 
@@ -141,10 +143,13 @@ public class BetterAutoChooser implements Sendable {
       resetPoseConsumer.accept(startingPoses.get(nameAtGeneration).get());
     }
 
+    CommandScheduler.getInstance().cancel(prerunCommand);
     if (onSelectCommand.containsKey(nameAtGeneration)) {
-      CommandScheduler.getInstance()
-          .schedule(onSelectCommand.get(nameAtGeneration).get().ignoringDisable(true));
+      prerunCommand = onSelectCommand.get(nameAtGeneration).get().ignoringDisable(true);
+    } else {
+      prerunCommand = Commands.none();
     }
+    CommandScheduler.getInstance().schedule(prerunCommand);
 
     return nameAtGeneration;
   }
@@ -246,6 +251,7 @@ public class BetterAutoChooser implements Sendable {
     if (RobotBase.isSimulation() && nameAtGeneration == DO_NOTHING_NAME) {
       select(selected, true);
     }
+    CommandScheduler.getInstance().cancel(prerunCommand);
     return generatedCommand;
   }
 

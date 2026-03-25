@@ -21,7 +21,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.BetterAutoChooser;
-import java.util.Arrays;
 
 public class V1_DoomSpiralAutoClimb {
 
@@ -93,10 +92,7 @@ public class V1_DoomSpiralAutoClimb {
                           .withKP(new LoggedTunableNumber("Drive/Auto/Climb/Rotation Kp", 2.0))
                           .withKD(new LoggedTunableNumber("Drive/Auto/Climb/Rotation Kd", 0.0))
                           .build());
-                  V1_DoomSpiralRobotState.setAutoTrajectory(
-                      Arrays.stream(CLIMB.getRawTrajectory().getPoses())
-                          .map(AllianceFlipUtil::apply)
-                          .toArray(Pose2d[]::new));
+                  V1_DoomSpiralRobotState.setAutoTrajectory(CLIMB);
                 }));
   }
 }

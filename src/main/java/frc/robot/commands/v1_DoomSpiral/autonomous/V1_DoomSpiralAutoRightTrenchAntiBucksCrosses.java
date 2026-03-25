@@ -15,9 +15,7 @@ import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.BetterAutoChooser;
-import java.util.Arrays;
 
 public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
@@ -83,10 +81,7 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
                   drive.setAutoControllers(
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(
-                      Arrays.stream(RIGHT_TRENCH_ANTI_BUCKS_CROSSES.getRawTrajectory().getPoses())
-                          .map(AllianceFlipUtil::apply)
-                          .toArray(Pose2d[]::new));
+                  V1_DoomSpiralRobotState.setAutoTrajectory(RIGHT_TRENCH_ANTI_BUCKS_CROSSES);
                 }));
   }
 }
