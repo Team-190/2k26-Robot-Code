@@ -338,10 +338,15 @@ public class V1_DoomSpiralRobotState {
   }
 
   public static void setAutoTrajectory(AutoTrajectory... trajectories) {
-    setAutoTrajectory(Arrays.stream(trajectories)
+    setAutoTrajectory(
+        Arrays.stream(trajectories)
             .flatMap(traj -> Arrays.stream(traj.getRawTrajectory().getPoses()))
             .map(AllianceFlipUtil::apply)
             .toArray(Pose2d[]::new));
+  }
+
+  public static void setAutoTrajectory() {
+    field.getObject("trajectory").setPoses();
   }
 
   public record FixedShotParameters(

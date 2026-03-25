@@ -81,8 +81,7 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
                   drive.setAutoControllers(
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(
-                      LEFT_TRENCH_ANTI_BUCKS);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_ANTI_BUCKS);
                 }));
   }
 }
