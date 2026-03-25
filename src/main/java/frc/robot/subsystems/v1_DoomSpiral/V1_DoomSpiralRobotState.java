@@ -3,6 +3,7 @@ package frc.robot.subsystems.v1_DoomSpiral;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -27,6 +28,7 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -333,6 +335,13 @@ public class V1_DoomSpiralRobotState {
 
   public static void setAutoTrajectory(Pose2d... trajectory) {
     field.getObject("trajectory").setPoses(trajectory);
+  }
+
+  public static void setAutoTrajectory(AutoTrajectory... trajectories) {
+    setAutoTrajectory(Arrays.stream(trajectories)
+            .flatMap(traj -> Arrays.stream(traj.getRawTrajectory().getPoses()))
+            .map(AllianceFlipUtil::apply)
+            .toArray(Pose2d[]::new));
   }
 
   public record FixedShotParameters(

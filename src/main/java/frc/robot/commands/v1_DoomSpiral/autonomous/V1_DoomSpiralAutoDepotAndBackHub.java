@@ -15,10 +15,7 @@ import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.BetterAutoChooser;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class V1_DoomSpiralAutoDepotAndBackHub {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
@@ -94,13 +91,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
                   V1_DoomSpiralRobotState.setAutoTrajectory(
-                      Stream.concat(
-                              Arrays.stream(
-                                  DEPOT_AND_BACK_HUB_PATH_1.getRawTrajectory().getPoses()),
-                              Arrays.stream(
-                                  DEPOT_AND_BACK_HUB_PATH_2.getRawTrajectory().getPoses()))
-                          .map(AllianceFlipUtil::apply)
-                          .toArray(Pose2d[]::new));
+                      DEPOT_AND_BACK_HUB_PATH_1, DEPOT_AND_BACK_HUB_PATH_2);
                 }));
   }
 }
