@@ -558,7 +558,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     RobotModeTriggers.autonomous()
         .negate()
-        .onTrue(Commands.runOnce(() -> autoChooser.setResetPose(false)).ignoringDisable(true));
+        .onTrue(
+            Commands.runOnce(
+                    () -> {
+                      autoChooser.setResetPose(false);
+                      V1_DoomSpiralRobotState.setAutoTrajectory();
+                    })
+                .ignoringDisable(true));
   }
 
   @Override

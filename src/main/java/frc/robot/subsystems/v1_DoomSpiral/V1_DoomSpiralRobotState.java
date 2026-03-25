@@ -331,6 +331,10 @@ public class V1_DoomSpiralRobotState {
     return towerZonePose;
   }
 
+  public static void setAutoTrajectory(Pose2d... trajectory) {
+    field.getObject("trajectory").setPoses(trajectory);
+  }
+
   public record FixedShotParameters(
       Rotation2d robotAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
 

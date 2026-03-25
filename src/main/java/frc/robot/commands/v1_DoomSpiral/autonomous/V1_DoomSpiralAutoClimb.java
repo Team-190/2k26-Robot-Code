@@ -21,6 +21,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.BetterAutoChooser;
+import java.util.Arrays;
 
 public class V1_DoomSpiralAutoClimb {
 
@@ -65,10 +66,10 @@ public class V1_DoomSpiralAutoClimb {
                         AllianceFlipUtil.apply(
                             new Pose2d(1.055, 3.589, Rotation2d.fromDegrees(90.0))),
                         V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
-                    .withTimeout(4.0),
+                    .withTimeout(3.5),
                 intake.deploy(),
-                Commands.waitSeconds(0.75),
-                climber.setVoltage(-3.0),
+                Commands.waitSeconds(0.45),
+                climber.setVoltage(-3.5),
                 Commands.waitUntil(
                     () ->
                         climber.getArmPosition().getRadians()
@@ -82,15 +83,20 @@ public class V1_DoomSpiralAutoClimb {
         () -> CLIMB.getInitialPose().orElse(new Pose2d()),
         () ->
             Commands.runOnce(
-                () ->
-                    drive.setAutoControllers(
-                        Gains.builder()
-                            .withKP(new LoggedTunableNumber("Drive/Auto/Climb/Translation Kp", 3.5))
-                            .withKD(new LoggedTunableNumber("Drive/Auto/Climb/Translation Kd", 0.0))
-                            .build(),
-                        Gains.builder()
-                            .withKP(new LoggedTunableNumber("Drive/Auto/Climb/Rotation Kp", 2.0))
-                            .withKD(new LoggedTunableNumber("Drive/Auto/Climb/Rotation Kd", 0.0))
-                            .build())));
+                () -> {
+                  drive.setAutoControllers(
+                      Gains.builder()
+                          .withKP(new LoggedTunableNumber("Drive/Auto/Climb/Translation Kp", 3.5))
+                          .withKD(new LoggedTunableNumber("Drive/Auto/Climb/Translation Kd", 0.0))
+                          .build(),
+                      Gains.builder()
+                          .withKP(new LoggedTunableNumber("Drive/Auto/Climb/Rotation Kp", 2.0))
+                          .withKD(new LoggedTunableNumber("Drive/Auto/Climb/Rotation Kd", 0.0))
+                          .build());
+                  V1_DoomSpiralRobotState.setAutoTrajectory(
+                      Arrays.stream(CLIMB.getRawTrajectory().getPoses())
+                          .map(AllianceFlipUtil::apply)
+                          .toArray(Pose2d[]::new));
+                }));
   }
 }

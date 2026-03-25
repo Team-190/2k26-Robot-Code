@@ -9,12 +9,16 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.BetterAutoChooser;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class V1_DoomSpiralAutoDepotAndBackHub {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
@@ -85,9 +89,18 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         () -> DEPOT_AND_BACK_HUB_PATH_1.getInitialPose().orElse(new Pose2d()),
         () ->
             Commands.runOnce(
-                () ->
-                    drive.setAutoControllers(
-                        V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-                        V1_DoomSpiralConstants.ROTATION_AUTO_GAINS)));
+                () -> {
+                  drive.setAutoControllers(
+                      V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+                      V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(
+                      Stream.concat(
+                              Arrays.stream(
+                                  DEPOT_AND_BACK_HUB_PATH_1.getRawTrajectory().getPoses()),
+                              Arrays.stream(
+                                  DEPOT_AND_BACK_HUB_PATH_2.getRawTrajectory().getPoses()))
+                          .map(AllianceFlipUtil::apply)
+                          .toArray(Pose2d[]::new));
+                }));
   }
 }
