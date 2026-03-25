@@ -38,6 +38,7 @@ import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.autonomous.*;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
@@ -107,12 +108,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralClimber(
                   new ArmIOTalonFX(V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS),
                   gyroIO.getRoll().asSupplier());
-          //          intake =
-          //              new V1_DoomSpiralIntake(
-          //                  new GenericRollerIOTalonFX(
-          //                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
-          //                  new
-          // FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
+          intake =
+              new V1_DoomSpiralIntake(
+                  new GenericRollerIOTalonFX(
+                      V1_DoomSpiralIntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new FourBarLinkageIOTalonFX(V1_DoomSpiralIntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFX(),
@@ -344,6 +344,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     drive,
                     shooter,
                     spindexer,
+                    intake,
                     V1_DoomSpiralRobotState.FixedShots.LEFT_TRENCH.getParameters())
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
@@ -357,6 +358,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     drive,
                     shooter,
                     spindexer,
+                    intake,
                     V1_DoomSpiralRobotState.FixedShots.RIGHT_TRENCH.getParameters())
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
@@ -370,6 +372,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     drive,
                     shooter,
                     spindexer,
+                    intake,
                     V1_DoomSpiralRobotState.FixedShots.HUB.getParameters())
                 .withName("driver-bottomLeftPaddle-while"))
         .onFalse(
@@ -383,6 +386,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     drive,
                     shooter,
                     spindexer,
+                    intake,
                     V1_DoomSpiralRobotState.FixedShots.TOWER.getParameters())
                 .withName("driver-bottomRightPaddle-while"))
         .onFalse(

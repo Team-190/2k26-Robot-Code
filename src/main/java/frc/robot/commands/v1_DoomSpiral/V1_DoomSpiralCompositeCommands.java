@@ -53,8 +53,10 @@ public class V1_DoomSpiralCompositeCommands {
       SwerveDrive drive,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
+      V1_DoomSpiralIntake intake,
       FixedShotParameters shotParameters) {
     return Commands.sequence(
+        intake.stopRoller(),
         Commands.parallel(
                 DriveCommands.rotateToAngle(
                     drive,
@@ -62,7 +64,8 @@ public class V1_DoomSpiralCompositeCommands {
                     V1_DoomSpiralRobotState::getHeading,
                     () -> AllianceFlipUtil.apply(shotParameters.robotAngle())),
                 shooter.setFlywheelGoal(shotParameters.flywheelSpeed()),
-                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()))
+                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()),
+                spindexer.agitateSpindexer())
             .until(shooter::atGoal),
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
