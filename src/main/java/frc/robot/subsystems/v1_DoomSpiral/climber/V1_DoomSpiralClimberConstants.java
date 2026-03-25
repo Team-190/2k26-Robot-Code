@@ -21,7 +21,7 @@ public class V1_DoomSpiralClimberConstants {
   public static final double SLOW_VOLTAGE = 1.0;
   public static final Gains SLOT_0_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 25.0))
+          .withKP(new LoggedTunableNumber("Climber/Slot0/kP", 200.0))
           .withKD(new LoggedTunableNumber("Climber/Slot0/kD", 0.0))
           .withKS(new LoggedTunableNumber("Climber/Slot0/kS", 0.152))
           .withKG(new LoggedTunableNumber("Climber/Slot0/kG", 0.034689))
@@ -31,7 +31,7 @@ public class V1_DoomSpiralClimberConstants {
 
   public static final Gains SLOT_1_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 495.0))
+          .withKP(new LoggedTunableNumber("Climber/Slot1/kP", 800.0))
           .withKD(new LoggedTunableNumber("Climber/Slot1/kD", 0.0))
           .withKS(new LoggedTunableNumber("Climber/Slot1/kS", .196))
           .withKG(new LoggedTunableNumber("Climber/Slot1/kG", 0.034689))
@@ -42,10 +42,10 @@ public class V1_DoomSpiralClimberConstants {
   public static final AngularPositionConstraints CONSTRAINTS =
       AngularPositionConstraints.builder()
           .withMaxVelocity(
-              new LoggedTunableMeasure<>("Climber/MaxVelocity", RadiansPerSecond.of(60 * Math.PI)))
+              new LoggedTunableMeasure<>("Climber/MaxVelocity", RotationsPerSecond.of(2000)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Climber/MaxAcceleration", RotationsPerSecondPerSecond.of(400)))
+                  "Climber/MaxAcceleration", RotationsPerSecondPerSecond.of(10000)))
           .withGoalTolerance(new LoggedTunableMeasure<>("Climber/GoalTolerance", Radians.of(0.01)))
           .build();
 
