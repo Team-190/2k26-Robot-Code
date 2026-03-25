@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Radians;
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,7 +55,6 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
-import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
@@ -269,14 +267,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> -driver.getRightX(),
                 V1_DoomSpiralRobotState::getHeading,
                 driver.rightTrigger(),
-                () ->
-                    (AllianceFlipUtil.shouldFlip()
-                            ? FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()
-                            : FieldConstants.Hub.topCenterPoint.toTranslation2d())
-                        .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
-                        .getAngle()
-                        .minus(Rotation2d.kCW_Pi_2)
-                        .getRadians(),
+                () -> V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
                 driver.leftTrigger().or(driver.x()),
                 driver.x())
             .withName("joystickDriveRotationLock"));

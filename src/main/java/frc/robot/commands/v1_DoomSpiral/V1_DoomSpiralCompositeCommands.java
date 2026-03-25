@@ -34,14 +34,16 @@ public class V1_DoomSpiralCompositeCommands {
       V1_DoomSpiralShooter shooter, V1_DoomSpiralIntake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
         intake.stopRoller(),
-        Commands.parallel(
-                shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
-                spindexer.agitateSpindexer())
-            .until(
-                () ->
-                    (shooter.atGoal()
-                        && DriveCommands.atAngle(V1_DoomSpiralRobotState.getRobotToHubAngle())))
-            .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+        shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
+        Commands.sequence(
+            spindexer
+                .agitateSpindexer()
+                .until(
+                    () ->
+                        (shooter.atGoal()
+                            && DriveCommands.atAngle(
+                                V1_DoomSpiralRobotState.getRobotToHubAngle()))),
+            spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
   }
 
   public static Command stopShooterCommand(

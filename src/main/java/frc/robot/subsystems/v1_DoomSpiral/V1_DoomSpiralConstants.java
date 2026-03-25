@@ -188,6 +188,7 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(90 - 62.000),
                       Units.degreesToRadians(-90.000))))
+          .enableRewind(true)
           .build();
 
   public static final LimelightConfig LIMELIGHT_CLIMBER_CONFIG =
@@ -208,6 +209,7 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(90.409532))))
+          .enableRewind(true)
           .build();
 
   public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =
