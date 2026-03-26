@@ -4,7 +4,6 @@ import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -575,10 +574,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   public void robotPeriodic() {
 
     V1_DoomSpiralRobotState.periodic(
-        drive.getRawGyroRotation(),
-        NetworkTablesJNI.now(),
-        drive.getYawVelocity(),
-        drive.getModulePositions());
+        drive.getRawGyroRotation(), drive.getYawVelocity(), drive.getModulePositions());
 
     Logger.recordOutput(
         "Mechanism 3d",
