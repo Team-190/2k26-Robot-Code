@@ -132,8 +132,11 @@ public class V1_DoomSpiralIntakeConstants {
           .withMotorCanId(MOTOR_CAN_ID)
           .withMotorConfig(MOTOR_CONFIG)
           .withPinLength(PIN_LENGTH)
-          .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-          .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+          .withCurrentLimits(
+              CurrentLimits.fromDoubles()
+                  .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                  .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                  .build())
           .withZeroOffset(ZERO_OFFSET)
           .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
           .withCanCoderOffset(CAN_CODER_OFFSET)

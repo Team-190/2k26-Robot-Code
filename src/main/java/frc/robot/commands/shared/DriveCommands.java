@@ -315,13 +315,7 @@ public final class DriveCommands {
                   0.0,
                   AutoAlignCommand.calculate(
                       omegaController,
-                      (AllianceFlipUtil.shouldFlip()
-                              ? FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()
-                              : FieldConstants.Hub.topCenterPoint.toTranslation2d())
-                          .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
-                          .getAngle()
-                          .minus(Rotation2d.kCW_Pi_2)
-                          .getRadians(),
+                      V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
                       V1_DoomSpiralRobotState.getHeading().getRadians(),
                       drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
                   V1_DoomSpiralRobotState.getHeading()));

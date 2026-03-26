@@ -57,7 +57,9 @@ public class V0_FunkyRobotContainer implements RobotContainer {
           drive =
               new SwerveDrive(
                   V0_FunkyConstants.DRIVE_CONSTANTS,
-                  new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
+                  new GyroIOPigeon2(
+                      V0_FunkyConstants.DRIVE_CONSTANTS,
+                      V0_FunkyRobotState::setNetworktablesTimestamp),
                   new SwerveModuleIOTalonFX(
                       V0_FunkyConstants.DRIVE_CONSTANTS,
                       V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
@@ -84,6 +86,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                       new CameraIOLimelight(V0_FunkyConstants.LIMELIGHT_CONFIG),
                       V0_FunkyConstants.LIMELIGHT_CONFIG,
                       V0_FunkyRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
                       NetworkTablesJNI::now,
                       List.of(),
                       List.of()));
@@ -127,7 +130,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
       drive =
           new SwerveDrive(
               V0_FunkyConstants.DRIVE_CONSTANTS,
-              new GyroIOPigeon2(V0_FunkyConstants.DRIVE_CONSTANTS),
+              new GyroIOPigeon2(
+                  V0_FunkyConstants.DRIVE_CONSTANTS, V0_FunkyRobotState::setNetworktablesTimestamp),
               new SwerveModuleIO() {},
               new SwerveModuleIO() {},
               new SwerveModuleIO() {},
