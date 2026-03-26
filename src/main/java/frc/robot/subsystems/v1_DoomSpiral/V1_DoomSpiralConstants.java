@@ -100,7 +100,7 @@ public class V1_DoomSpiralConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/X/Max Acceleration", MetersPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/X/Max Velocity", Meters.of(0.03)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/X/Goal Tolerance", Meters.of(0.03)))
           .build();
 
   public static final Gains AUTO_ALIGN_Y_GAINS =
@@ -123,8 +123,8 @@ public class V1_DoomSpiralConstants {
 
   public static final Gains AUTO_ALIGN_THETA_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 8.0))
-          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.3))
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 6.5))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.2))
           .build();
 
   public static final AngularPositionConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
@@ -177,7 +177,7 @@ public class V1_DoomSpiralConstants {
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.primaryThetaStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
@@ -198,7 +198,7 @@ public class V1_DoomSpiralConstants {
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.primaryThetaStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
@@ -210,25 +210,5 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(90.409532))))
           .enableRewind(true)
-          .build();
-
-  public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =
-      LimelightConfig.builder()
-          .key("right")
-          .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
-          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
-          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(
-              new Transform3d(
-                  -0.264,
-                  0.337,
-                  0.484,
-                  // camera is upside down so need to build the angles sequentially
-                  new Rotation3d(0.0, 0.0, Units.degreesToRadians(180 - 21.6))
-                      .rotateBy(new Rotation3d(0.0, Units.degreesToRadians(2.79), 0.0))
-                      .rotateBy(new Rotation3d(Math.PI, 0, 0))))
           .build();
 }
