@@ -276,7 +276,7 @@ public class V1_DoomSpiralRobotState {
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(2.0))
+    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(60.0))
       localization.addPoseObservations(observations);
   }
 
