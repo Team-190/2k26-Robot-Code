@@ -275,8 +275,8 @@ public class V1_DoomSpiralRobotState {
         NTPrefixes.ROBOT_STATE + "Shift Period/Current Shift", HubActivePeriod.getCurrentShift());
   }
 
-  public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(60.0))
+  public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
+    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(2.0))
       localization.addPoseObservations(observations);
   }
 
