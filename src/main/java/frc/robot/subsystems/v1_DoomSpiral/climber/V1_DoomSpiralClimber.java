@@ -218,7 +218,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
   public Command setPositionL1() {
     return setPositionGoal(
-        V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ONE);
+        V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO);
   }
 
   public Command runSysId() {
