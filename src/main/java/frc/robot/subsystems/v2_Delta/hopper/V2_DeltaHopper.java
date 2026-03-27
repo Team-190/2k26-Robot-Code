@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaHopper extends SubsystemBase {
   private final GenericRoller rollerFloor;
@@ -34,6 +35,7 @@ public class V2_DeltaHopper extends SubsystemBase {
   public void periodic() {
     rollerFloor.periodic();
     ballTunnel.periodic();
+    Logger.recordOutput("Beakbreak value", beamBreak.get());
   }
 
   public Command setRollerFloorVoltage(Voltage voltage) {

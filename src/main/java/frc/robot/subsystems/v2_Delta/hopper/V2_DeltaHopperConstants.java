@@ -21,6 +21,8 @@ public class V2_DeltaHopperConstants {
   public static final GenericRollerConstants ROLLERFLOOR_CONSTANTS;
   public static final GenericRollerConstants BALLTUNNEL_CONSTANTS;
 
+  public static final double BEAMBREAK_ID;
+
   static {
     switch (RobotConfig.ROBOT) {
       case V2_DELTA:
@@ -29,6 +31,7 @@ public class V2_DeltaHopperConstants {
         ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(11.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
         OUTTAKE_VOLTAGE = Volts.of(-11.0);
+        BEAMBREAK_ID = 5;
 
         ROLLERFLOOR_CONSTANTS =
             GenericRollerConstants.builder()
