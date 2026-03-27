@@ -2,19 +2,23 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
+import frc.robot.util.BetterAutoChooser;
 
 public class V1_DoomSpiralAutoLeftTrenchSimple {
-  public static final AutoRoutine getAutoRoutine(
+  public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
       V1_DoomSpiralShooter shooter,
@@ -42,7 +46,8 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                 intake
                     .deploy()
                     .alongWith(
-                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setOverrideRollerVoltage(
+                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
@@ -59,11 +64,25 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
                         Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
-    routine
-        .active()
+    RobotModeTriggers.autonomous()
         .negate()
-        .onTrue(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
+        .onTrue(
+            Commands.parallel(
+                    V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                    intake.stopRoller(),
+                    intake.deploy())
+                .ignoringDisable(true));
 
-    return routine;
+    return new BetterAutoChooser.AutoRoutineConfiguration(
+        () -> routine,
+        () -> LEFT_TRENCH_SIMPLE.getInitialPose().orElse(new Pose2d()),
+        () ->
+            Commands.runOnce(
+                () -> {
+                  drive.setAutoControllers(
+                      V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+                      V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_SIMPLE);
+                }));
   }
 }

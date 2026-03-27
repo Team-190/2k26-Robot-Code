@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
-import edu.wpi.team190.gompeilib.core.utility.Offset;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import org.littletonrobotics.junction.Logger;
@@ -19,7 +19,7 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
   private final V1_DoomSpiralSpindexerIOInputsAutoLogged inputs;
 
   private V1_DoomSpiralSpindexerState state;
-  private final Offset<VoltageUnit> voltageGoal;
+  private final Setpoint<VoltageUnit> voltageGoal;
 
   private final GenericRoller kicker;
   private final GenericRoller feeder;
@@ -47,7 +47,7 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
 
     state = STOP;
     voltageGoal =
-        new Offset<>(
+        new Setpoint<>(
             Volts.zero(),
             V1_DoomSpiralSpindexerConstants.SPINDEXER_INCREMENT_VOLTAGE,
             Volts.of(-12),
@@ -62,6 +62,12 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     Logger.processInputs(getName(), inputs);
 
     Logger.recordOutput(getName() + "/Voltage Goal", voltageGoal.getSetpoint());
+    Logger.recordOutput(
+        "Spindexer/RollerFeeder/Voltage Magnitude",
+        Math.abs(feeder.getVoltageGoal().getSetpoint().baseUnitMagnitude()));
+    Logger.recordOutput(
+        "Spindexer/RollerFeeder/Voltage Offset",
+        feeder.getVoltageGoal().getOffset().baseUnitMagnitude());
     Logger.recordOutput(
         getName() + "/Voltage Goal Magnitude",
         String.format("%.1f", Math.abs(voltageGoal.getSetpoint().baseUnitMagnitude())));
@@ -97,14 +103,13 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
    * @return A command that sets the specified voltage.
    */
   public Command setVoltage(double spindexerVolts, double feederVolts, double kickerVolts) {
-    return Commands.parallel(
-        Commands.runOnce(
-            () -> {
-              state = OPEN_LOOP_VOLTAGE;
-              voltageGoal.setSetpoint(Volts.of(spindexerVolts));
-            }),
-        kicker.setVoltage(kickerVolts),
-        feeder.setVoltage(feederVolts));
+    return Commands.runOnce(
+        () -> {
+          state = OPEN_LOOP_VOLTAGE;
+          voltageGoal.setSetpoint(Volts.of(spindexerVolts));
+          kicker.setVoltageGoal(Volts.of(kickerVolts));
+          feeder.setVoltageGoal(Volts.of(feederVolts));
+        });
   }
 
   /**
@@ -125,16 +130,21 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
    */
   public Command setSpindexerOnlyVoltage(double volts) {
     return Commands.runOnce(
-            () -> {
-              state = SPINDEXER_ONLY_VOLTAGE;
-              voltageGoal.setSetpoint(Volts.of(volts));
-            })
-        .alongWith(kicker.setVoltage(0), feeder.setVoltage(0));
+        () -> {
+          state = SPINDEXER_ONLY_VOLTAGE;
+          voltageGoal.setSetpoint(Volts.of(volts));
+          kicker.setVoltageGoal(Volts.zero());
+          feeder.setVoltageGoal(Volts.zero());
+        });
   }
 
   public Command stopSpindexer() {
-    return Commands.parallel(
-        Commands.runOnce(() -> state = STOP), kicker.setVoltage(0), feeder.setVoltage(0.0));
+    return Commands.runOnce(
+        () -> {
+          state = STOP;
+          kicker.setVoltageGoal(Volts.zero());
+          feeder.setVoltageGoal(Volts.zero());
+        });
   }
 
   public Command increaseSpindexerVoltage() {
@@ -145,19 +155,20 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     return Commands.runOnce(voltageGoal::decrement);
   }
 
-  public Command decreaseFeederVoltage() {
-    return feeder.decrementVoltageOffset();
-  }
-
   public Command increaseFeederVoltage() {
-    return feeder.incrementVoltageOffset();
+    return Commands.runOnce(feeder.getVoltageGoal()::increment);
   }
 
-  public Command increaseKickerVoltage() {
-    return kicker.incrementVoltageOffset();
+  public Command decreaseFeederVoltage() {
+    return Commands.runOnce(feeder.getVoltageGoal()::decrement);
   }
 
-  public Command decreaseKickerVoltage() {
-    return kicker.decrementVoltageOffset();
+  public Command agitateSpindexer() {
+    return Commands.sequence(
+            setSpindexerOnlyVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_AGITATION_VOLTAGE),
+            Commands.waitSeconds(0.25),
+            setSpindexerOnlyVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_AGITATION_VOLTAGE),
+            Commands.waitSeconds(0.25))
+        .repeatedly();
   }
 }

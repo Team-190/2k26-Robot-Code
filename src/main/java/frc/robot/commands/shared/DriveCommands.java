@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignConstants;
@@ -27,9 +28,12 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
+
+  @Setter private static double lastCardinalDirection = 0.0;
 
   /**
    * A command that drives a SwerveDrive using joystick input.
@@ -154,9 +158,8 @@ public final class DriveCommands {
       BooleanSupplier pointAtHub,
       DoubleSupplier hubSetpoint,
       BooleanSupplier cardinalDirectionAlign,
-      DoubleSupplier cardinalDirectionSetpoint,
-      BooleanSupplier climbSlowMode,
-      DoubleSupplier climbSlowModeSetpoint) {
+      BooleanSupplier climbSlowMode) {
+
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.rotationGains().kP().get(),
@@ -174,6 +177,15 @@ public final class DriveCommands {
     omegaController.setTolerance(
         driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
         0);
+
+    TunableUpdaterRegistry.registerGains(
+        driveConstants.autoAlignConstants.rotationGains(),
+        g ->
+            omegaController.setPID(
+                driveConstants.autoAlignConstants.rotationGains().kP().get(),
+                0,
+                driveConstants.autoAlignConstants.rotationGains().kD().get()));
+
     return joystickDrive(
         drive,
         driveConstants,
@@ -197,15 +209,7 @@ public final class DriveCommands {
                 () ->
                     AutoAlignCommand.calculate(
                         omegaController,
-                        cardinalDirectionSetpoint.getAsDouble(),
-                        rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
-            Pair.of(
-                climbSlowMode,
-                () ->
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        climbSlowModeSetpoint.getAsDouble(),
+                        lastCardinalDirection,
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
         climbSlowMode);
@@ -215,7 +219,7 @@ public final class DriveCommands {
       SwerveDrive drive,
       SwerveDriveConstants driveConstants,
       Supplier<Rotation2d> currentRotation,
-      Rotation2d targetRotation) {
+      Supplier<Rotation2d> targetRotation) {
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
             driveConstants.autoAlignConstants.rotationGains().kP().get(),
@@ -242,7 +246,7 @@ public final class DriveCommands {
                     0.0,
                     AutoAlignCommand.calculate(
                         omegaController,
-                        targetRotation.getRadians(),
+                        targetRotation.get().getRadians(),
                         currentRotation.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
                     AllianceFlipUtil.apply(currentRotation.get()))));
@@ -311,13 +315,7 @@ public final class DriveCommands {
                   0.0,
                   AutoAlignCommand.calculate(
                       omegaController,
-                      (AllianceFlipUtil.shouldFlip()
-                              ? FieldConstants.Hub.oppTopCenterPoint.toTranslation2d()
-                              : FieldConstants.Hub.topCenterPoint.toTranslation2d())
-                          .minus(V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
-                          .getAngle()
-                          .minus(Rotation2d.kCW_Pi_2)
-                          .getRadians(),
+                      V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
                       V1_DoomSpiralRobotState.getHeading().getRadians(),
                       drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
                   V1_DoomSpiralRobotState.getHeading()));
