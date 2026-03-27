@@ -80,15 +80,14 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                 new StrobeAnimation(section.getStart(), section.getEnd())
                     .withSlot(section.getSlot())
                     .withColor(new RGBWColor(Color.kGreen))
-                    .withFrameRate(70))),
+                    .withFrameRate(50))),
     SHOOTING(
         (leds, section) ->
             leds.setControl(
-                new FireAnimation(125, section.getStart())
+                new StrobeAnimation(section.getStart(), section.getEnd())
                     .withSlot(section.getSlot())
-                    .withSparking(0.586)
-                    .withCooling(0.226)
-                    .withFrameRate(130))),
+                    .withColor(new RGBWColor(Color.kGreen))
+                    .withFrameRate(1000))),
     SPITTING(
         (leds, section) -> {
           leds.setControl(
