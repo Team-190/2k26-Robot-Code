@@ -82,12 +82,23 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                     .withColor(new RGBWColor(Color.kGreen))
                     .withFrameRate(50))),
     SHOOTING(
-        (leds, section) ->
-            leds.setControl(
-                new StrobeAnimation(section.getStart(), section.getEnd())
-                    .withSlot(section.getSlot())
-                    .withColor(new RGBWColor(Color.kGreen))
-                    .withFrameRate(1000))),
+        (leds, section) -> {
+          leds.setControl(
+              new SolidColor(section.getStart(), section.getEnd())
+                  .withColor(
+                      new RGBWColor(
+                          DriverStation.getAlliance()
+                                  .orElse(DriverStation.Alliance.Blue)
+                                  .equals(DriverStation.Alliance.Red)
+                              ? Color.kRed
+                              : Color.kBlue)));
+          leds.setControl(
+              new LarsonAnimation(section.getStart(), section.getEnd())
+                  .withSlot(section.getSlot())
+                  .withColor(new RGBWColor(Color.kGoldenrod))
+                  .withSize(5)
+                  .withFrameRate(200));
+        }),
     SPITTING(
         (leds, section) -> {
           leds.setControl(
