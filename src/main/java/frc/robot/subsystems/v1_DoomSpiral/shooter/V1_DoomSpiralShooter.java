@@ -53,7 +53,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Offset",
-        (int) flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond));
+        flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Magnitude",
         (int) Math.abs(flywheel.getVelocityGoal().getSetpoint().in(RadiansPerSecond)));
