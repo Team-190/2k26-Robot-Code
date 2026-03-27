@@ -34,6 +34,8 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     hood = new Hood(hoodIO, V1_DoomSpiralShooterConstants.HOOD_CONSTANTS, this, "");
 
     hoodGoal = HoodGoal.STOW;
+
+    flywheel.getVelocityGoal().decrement(RadiansPerSecond.of(30));
   }
 
   @Trace
@@ -42,6 +44,19 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     flywheel.periodic();
 
     Logger.recordOutput("Shooter/Hood/Goal", hoodGoal);
+
+    Logger.recordOutput(
+        "Shooter/Hood/Goal Degrees",
+        String.format("%.1f", hood.getPositionGoal().getSetpoint().in(Degrees)));
+    Logger.recordOutput(
+        "Shooter/Hood/Offset Degrees",
+        String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
+    Logger.recordOutput(
+        "Shooter/Flywheel/Velocity Offset",
+        (int) flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond));
+    Logger.recordOutput(
+        "Shooter/Flywheel/Velocity Magnitude",
+        (int) Math.abs(flywheel.getVelocityGoal().getSetpoint().in(RadiansPerSecond)));
 
     if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);

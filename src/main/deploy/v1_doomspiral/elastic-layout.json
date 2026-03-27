@@ -176,7 +176,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "/AdvantageKit/Intake/Roller1/AppliedVolts",
+              "topic": "/AdvantageKit/Intake/Roller/AppliedVolts",
               "period": 0.06,
               "data_type": "double[]"
             }
@@ -189,7 +189,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Intake/Roller1/Voltage Offset",
+              "topic": "/AdvantageKit/RealOutputs/Intake/Roller/Voltage Offset",
               "period": 0.06,
               "data_type": "double"
             }
@@ -202,7 +202,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Intake/Roller1/Voltage Magnitude",
+              "topic": "/AdvantageKit/RealOutputs/Intake/Roller/Voltage Magnitude",
               "period": 0.06,
               "data_type": "double"
             }
