@@ -40,7 +40,8 @@ public class FuelSimulator {
   private static final double SHOOTER_GEAR_RATIO = 4; // Replace with actual values
 
   private static final double SPINDEXER_RADIUS = Units.inchesToMeters(19.45);
-  private static final double FRICTION_COEFF = 0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
+  private static final double FRICTION_COEFF =
+      0.7; // Coeff between rubber and foam is between (0.5 and 0.9). Avg = 0.7.
   private static final Translation3d HUB_CENTER = FieldConstants.Hub.innerCenterPoint;
   private static final double HUB_HEIGHT_Z = FieldConstants.Hub.height;
   private static final double HUB_RADIUS = FieldConstants.Hub.innerWidth / 2;
@@ -77,6 +78,11 @@ public class FuelSimulator {
   private static final double FEEDER_DEPTH = 6; // TODO: get actual value
   private static final double SHOOTER_WHEEL_DEPTH = 7; // TODO: get actual value
 
+  private static final double BALL_ENTERING_SHOOTER_VELOCITY = 1.2; // TODO: get actual value
+  private static final double BALL_MASS = 0.23; // TODO: get actual value
+  private static final double SHOOTER_ENDING_VELOCITY = 20; // TODO: get actual value
+  private static final double BALL_SPIN_SPEED = 1; // TODO: get actual value
+
   public FuelSimulator(
       V1_DoomSpiralSpindexerIOInputsAutoLogged spindexerInputs,
       GenericFlywheelIOInputsAutoLogged flywheelInputs,
@@ -109,6 +115,10 @@ public class FuelSimulator {
 
   private Translation3d calculateGlobalLaunchPosition(Pose2d robotPose) {
     return new Translation3d(robotPose.getX() + TURRET_X_OFFSET, robotPose.getY(), TURRET_Z_HEIGHT);
+  }
+
+  private int getShooterExitVelocity(int initialVelocity) {
+    return 0;
   }
 
   private Translation3d calculateGlobalLaunchVelocity(Rotation2d hoodPitch) {
@@ -179,56 +189,34 @@ public class FuelSimulator {
   private double getInitialVelocity(RobotConfig.RobotType robotType) {
     switch (robotType) {
       case V1_DOOMSPIRAL:
-            // Velocity of fuel once exiting spindexer
-        double spindexerInitialFuelVelocity =
-            (FUEL_MOMENT_OF_INERTIA * (spindexerVelocity / SPINDEXER_RADIUS)) 
-                / (FUEL_MASS * FUEL_RADIUS);
-        
-        // Velocity of fuel once exiting kicker
-        double kickerFinalFuelVelocity =
-            Math.sqrt(
-                (KICKER_MOMENT_OF_INERTIA * Math.pow((shooterVelocity / KICKER_RADIUS), 2)
-                        + FUEL_MOMENT_OF_INERTIA
-                            * Math.pow((spindexerInitialFuelVelocity / FUEL_RADIUS), 2)
-                        + FUEL_MASS * Math.pow(spindexerInitialFuelVelocity, 2)
-                        + 2
-                            * FRICTION_COEFF
-                            * (getTorqueComponent(KICKER_GEAR_RATIO, true)
-                                / (KICKER_RADIUS * (KICKER_DEPTH / (KICKER_RADIUS + FUEL_RADIUS)))))
-                    / (FUEL_MASS + FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
-        
-        // Velocity of fuel once exiting feeder
-        double feederFinalFuelVelocity =
-            Math.sqrt(
-                (FEEDER_MOMENT_OF_INERTIA * Math.pow((feederVelocity / FEEDER_RADIUS), 2)
-                        + FUEL_MOMENT_OF_INERTIA * Math.pow((kickerFinalFuelVelocity / FUEL_RADIUS), 2)
-                        + 2
-                            * FRICTION_COEFF
-                            * (getTorqueComponent(FEEDER_GEAR_RATIO, true)
-                                / (FEEDER_RADIUS * (FEEDER_DEPTH / (FEEDER_RADIUS + FUEL_RADIUS)))))
-                    / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / (Math.pow(FUEL_RADIUS, 2)))));
-        
-        // Velocity of fuel once exiting shooter (actual initial velocity of the ball once exiting robot)
+        // Velocity of fuel once exiting shooter (actual initial velocity of the ball once exiting
+        // robot)
         double initialVelocity =
             Math.sqrt(
-                (SHOOTER_MOMENT_OF_INERTIA * Math.pow(shooterVelocity / SHOOTER_RADIUS, 2)
-                        + FUEL_MOMENT_OF_INERTIA * Math.pow((feederFinalFuelVelocity / FUEL_RADIUS), 2)
-                        + 2
-                            * FRICTION_COEFF
-                            * (getTorqueComponent(SHOOTER_GEAR_RATIO, true)
-                                / (SHOOTER_RADIUS
-                                    * (SHOOTER_WHEEL_DEPTH / (FUEL_RADIUS + SHOOTER_RADIUS)))))
-                    / (FUEL_MASS + (FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2))));
+                (((SHOOTER_MOMENT_OF_INERTIA * Math.pow(shooterVelocity / SHOOTER_RADIUS, 2)
+                        + FUEL_MOMENT_OF_INERTIA * Math.pow((BALL_SPIN_SPEED / FUEL_RADIUS), 2)
+                        + (BALL_MASS * Math.pow(BALL_ENTERING_SHOOTER_VELOCITY, 2) + FRICTION_COEFF)
+                        - SHOOTER_MOMENT_OF_INERTIA
+                            * Math.pow(SHOOTER_ENDING_VELOCITY / SHOOTER_RADIUS, 2)
+                        - FUEL_MOMENT_OF_INERTIA * Math.pow((BALL_SPIN_SPEED / FUEL_RADIUS), 2))
+                    / BALL_MASS)));
 
         return initialVelocity;
       case V2_DELTA:
-        double fuelVelocity = Math.sqrt((2 * FRICTION_COEFF * FUEL_MASS * 9.8) / (FUEL_MASS + FUEL_MOMENT_OF_INERTIA / Math.pow(FUEL_RADIUS, 2)));
-        return FUEL_MASS * Math.pow(fuelVelocity, 2) + FUEL_MOMENT_OF_INERTIA * (fuelVelocity / Math.pow(FUEL_RADIUS, 2)) + SHOOTER_MOMENT_OF_INERTIA * (shooterV) 
+        // Velocity of fuel once exiting shooter (actual initial velocity of the ball once exiting
+        // robot)
+        double fuelVelocity =
+            Math.sqrt(
+                (((SHOOTER_MOMENT_OF_INERTIA * Math.pow(shooterVelocity / SHOOTER_RADIUS, 2)
+                        + FUEL_MOMENT_OF_INERTIA * Math.pow((BALL_SPIN_SPEED / FUEL_RADIUS), 2)
+                        + (BALL_MASS * Math.pow(BALL_ENTERING_SHOOTER_VELOCITY, 2) + FRICTION_COEFF)
+                        - SHOOTER_MOMENT_OF_INERTIA
+                            * Math.pow(SHOOTER_ENDING_VELOCITY / SHOOTER_RADIUS, 2)
+                        - FUEL_MOMENT_OF_INERTIA * Math.pow((BALL_SPIN_SPEED / FUEL_RADIUS), 2))
+                    / BALL_MASS)));
       default:
         return 6328.67;
-      
     }
-    
   }
 
   private double getInitialVelocityX() {
