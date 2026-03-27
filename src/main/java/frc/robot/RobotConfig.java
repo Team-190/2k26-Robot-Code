@@ -3,7 +3,7 @@ package frc.robot;
 import lombok.Getter;
 
 public final class RobotConfig {
-  public static final RobotType ROBOT = RobotType.V1_DOOMSPIRAL;
+  public static final RobotType ROBOT = RobotType.V2_DELTA_SIM;
 
   public enum RobotType {
     V0_FUNKY("2026.+"),
@@ -13,9 +13,9 @@ public final class RobotConfig {
     V2_DELTA("2026.+"),
     V2_DELTA_SIM("2026.+");
 
-    @Getter private String gompeiLibVersion;
+    @Getter private final String gompeiLibVersion;
 
-    private RobotType(String gompeiLibVersion) {
+    RobotType(String gompeiLibVersion) {
       this.gompeiLibVersion = gompeiLibVersion;
     }
   }

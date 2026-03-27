@@ -63,6 +63,12 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
 
     Logger.recordOutput(getName() + "/Voltage Goal", voltageGoal.getSetpoint());
     Logger.recordOutput(
+        "Spindexer/RollerFeeder/Voltage Magnitude",
+        Math.abs(feeder.getVoltageGoal().getSetpoint().baseUnitMagnitude()));
+    Logger.recordOutput(
+        "Spindexer/RollerFeeder/Voltage Offset",
+        feeder.getVoltageGoal().getOffset().baseUnitMagnitude());
+    Logger.recordOutput(
         getName() + "/Voltage Goal Magnitude",
         String.format("%.1f", Math.abs(voltageGoal.getSetpoint().baseUnitMagnitude())));
     Logger.recordOutput(

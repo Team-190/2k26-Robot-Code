@@ -38,7 +38,7 @@ public class FourBarLinkageIOSim implements FourBarLinkageIO {
             constants.minAngle.getRadians(),
             constants.maxAngle.getRadians(),
             false,
-            0.0);
+            constants.startAngle.getRadians());
 
     feedback =
         new ProfiledPIDController(

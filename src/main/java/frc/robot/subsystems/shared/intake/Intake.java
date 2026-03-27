@@ -1,22 +1,23 @@
 package frc.robot.subsystems.shared.intake;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.Setpoint;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -25,46 +26,80 @@ public class Intake extends SubsystemBase {
   @Getter private final FourBarLinkage linkage;
 
   @Getter private IntakeState intakeState;
-  private final Setpoint<VoltageUnit> intakeVoltage;
-
-  private Rotation2d agitationAngle;
+  private boolean intakeOnInIntakeState;
+  private double overrideVoltage;
+  private boolean overrideRoller;
 
   public Intake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
-    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, " 1");
-    linkage = new FourBarLinkage(linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, " 1");
 
     intakeState = IntakeState.STOW;
-    intakeVoltage = new Setpoint<>(Volts.of(IntakeConstants.INTAKE_VOLTAGE), Volts.of(0.5));
 
-    agitationAngle = Rotation2d.fromDegrees(150);
+    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
+    linkage =
+        new FourBarLinkage(
+            linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, "", IntakeState.STOW.getSetpoint());
+
+    intakeState = IntakeState.STOW;
+
+    // setDefaultCommand(defaultCommand());
   }
 
+  @Trace
   @Override
   public void periodic() {
     roller.periodic();
     linkage.periodic();
 
+    if (overrideRoller) roller.setVoltageGoal(Volts.of(overrideVoltage));
+    else
+      switch (intakeState) {
+        case STOW:
+          if (!linkage.atPositionGoal())
+            roller.setVoltageGoal(Volts.of(IntakeConstants.EXTAKE_VOLTAGE));
+          else roller.setVoltageGoal(Volts.of(0.0));
+          break;
+        case INTAKE:
+        case BUMP:
+          if (intakeOnInIntakeState)
+            roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
+          else roller.setVoltageGoal(Volts.of(0.0));
+          break;
+        case AGITATE:
+          roller.setVoltageGoal(Volts.of(3.0));
+          break;
+        default:
+          break;
+      }
+
     Logger.recordOutput("Intake/Intake State", intakeState);
-    Logger.recordOutput("Intake/Agitation Angle", agitationAngle);
 
-    // This needs to change now that its shared, we can't reference the v1 robot state
+    V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
+      V1_DoomSpiralRobotState.getLedStates()
+          .setIntakeCollecting(
+              roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
+                  == IntakeConstants.INTAKE_VOLTAGE);
+      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    } else {
+      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
+      V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
+    }
+    V1_DoomSpiralRobotState.getLedStates()
+        .setSpitting(
+            roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
+                == IntakeConstants.EXTAKE_VOLTAGE);
 
-    // V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
-    // if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
-    //   V1_DoomSpiralRobotState.getLedStates()
-    //       .setIntakeCollecting(
-    //           roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
-    //               == IntakeConstants.INTAKE_VOLTAGE);
-    //   V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
-    // } else {
-    //   V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
-    //   V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
-    // }
-    // V1_DoomSpiralRobotState.getLedStates()
-    //     .setSpitting(
-    //         roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
-    //             == IntakeConstants.EXTAKE_VOLTAGE);
+    Logger.recordOutput(
+        "Intake/Linkage0/Offset Degrees", linkage.getPositionGoal().getOffset().in(Degrees));
+    Logger.recordOutput(
+        "Intake/Linkage0/Angle Degrees", linkage.getPositionGoal().getSetpoint().in(Degrees));
+    Logger.recordOutput(
+        "Intake/Roller/Voltage Offset", roller.getVoltageGoal().getOffset().in(Volts));
+    Logger.recordOutput(
+        "Intake/Roller/AppliedVolts", roller.getVoltageGoal().getSetpoint().in(Volts));
+    Logger.recordOutput(
+        "Intake/Roller/Voltage Magnitude", roller.getVoltageGoal().getNewSetpoint().in(Volts));
   }
 
   /**
@@ -74,8 +109,12 @@ public class Intake extends SubsystemBase {
    * @param voltage the voltage to set the rollers to
    * @return a command that sets the voltage of the top and bottom rollers
    */
-  public Command setRollerVoltage(double voltage) {
-    return Commands.runOnce(() -> roller.setVoltageGoal(Volts.of(voltage)));
+  public Command setOverrideRollerVoltage(double voltage) {
+    return Commands.runOnce(
+        () -> {
+          overrideVoltage = voltage;
+          overrideRoller = true;
+        });
   }
 
   /**
@@ -89,54 +128,73 @@ public class Intake extends SubsystemBase {
   }
 
   public Command stopRoller() {
-    return Commands.runOnce(() -> roller.setVoltageGoal(Volts.of(0)));
+    return Commands.runOnce(
+        () -> {
+          intakeOnInIntakeState = false;
+          overrideRoller = false;
+        });
   }
 
   public Command deploy() {
     return Commands.sequence(
-        Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        Commands.runOnce(() -> linkage.setPositionGoal(IntakeState.INTAKE.getAngle())));
+        Commands.runOnce(
+            () -> {
+              intakeState = IntakeState.INTAKE;
+              intakeOnInIntakeState = true;
+              linkage.setPositionGoal(IntakeState.INTAKE.getSetpoint());
+            }));
   }
 
   public Command stow() {
-    return Commands.sequence(
-        Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        Commands.runOnce(() -> linkage.setPositionGoal(IntakeState.STOW.getAngle())));
+    return Commands.runOnce(
+        () -> {
+          intakeState = IntakeState.STOW;
+          intakeOnInIntakeState = true;
+          linkage.setPositionGoal(IntakeState.STOW.getSetpoint());
+        });
   }
 
   public Command bump() {
-    return Commands.sequence(
-        Commands.runOnce(() -> intakeState = IntakeState.INTAKE),
-        Commands.runOnce(() -> linkage.setPositionGoal(IntakeState.BUMP.getAngle())));
+    return Commands.runOnce(
+        () -> {
+          intakeState = IntakeState.BUMP;
+          intakeOnInIntakeState = true;
+          linkage.setPositionGoal(IntakeState.BUMP.getSetpoint());
+        });
   }
 
   public Command agitate() {
-    return Commands.parallel(
-        Commands.sequence(
-                Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(170 + 8)),
-                Commands.runOnce(() -> linkage.setPositionGoal(agitationAngle)),
-                linkage.waitUntilLinkageAtGoal(),
-                Commands.runOnce(() -> linkage.setPositionGoal(Rotation2d.fromDegrees(98))),
-                linkage.waitUntilLinkageAtGoal())
-            .repeatedly(),
-        setRollerVoltage(3.0));
+    return Commands.sequence(
+            Commands.runOnce(
+                () -> {
+                  intakeState = IntakeState.AGITATE;
+                  linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
+                  linkage.setPositionGoal(IntakeState.AGITATE.getAngle());
+                }),
+            linkage.waitUntilLinkageAtGoal(),
+            Commands.runOnce(
+                () -> {
+                  linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
+                  linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0));
+                }),
+            linkage.waitUntilLinkageAtGoal())
+        .repeatedly();
   }
 
   public Command collect() {
-    return Commands.parallel(deploy(), setRollerVoltage(intakeVoltage.getNewSetpoint().in(Volts)));
+    return deploy();
   }
 
   public Command stopCollect() {
-    return Commands.sequence(
-        Commands.parallel(stow(), setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)),
-        waitUntilIntakeAtGoal(),
-        stopRoller());
+    return stow();
   }
 
   public Command resetIntakeZero() {
-    return Commands.sequence(
-        Commands.runOnce(() -> linkage.setPosition(IntakeConstants.MIN_ANGLE)),
-        Commands.runOnce(() -> linkage.setPositionGoal(IntakeConstants.MIN_ANGLE)));
+    return Commands.runOnce(
+        () -> {
+          linkage.setPosition(IntakeConstants.MIN_ANGLE);
+          linkage.setPositionGoal(IntakeConstants.MIN_ANGLE);
+        });
   }
 
   public Transform3d getHopperWallTransform() {
@@ -178,7 +236,7 @@ public class Intake extends SubsystemBase {
     return 0;
   }
 
-  public boolean atPositionGoal() {
+  public boolean atGoal() {
     return linkage.atPositionGoal();
   }
 
@@ -189,46 +247,46 @@ public class Intake extends SubsystemBase {
 
   public Command incrementStowOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().increment()), stow());
+        Commands.runOnce(() -> IntakeState.STOW.getSetpoint().increment()), stow());
   }
 
   public Command decrementStowOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().decrement()), stow());
+        Commands.runOnce(() -> IntakeState.STOW.getSetpoint().decrement()), stow());
   }
 
   public Command incrementBumpOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.BUMP.getAngle().increment()), bump());
+        Commands.runOnce(() -> IntakeState.BUMP.getSetpoint().increment()), bump());
   }
 
   public Command decrementBumpOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.BUMP.getAngle().decrement()), bump());
+        Commands.runOnce(() -> IntakeState.BUMP.getSetpoint().decrement()), bump());
   }
 
   public Command incrementCollectOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().increment()), deploy());
+        Commands.runOnce(() -> IntakeState.INTAKE.getSetpoint().increment()), deploy());
   }
 
   public Command decrementCollectOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().decrement()), deploy());
+        Commands.runOnce(() -> IntakeState.INTAKE.getSetpoint().decrement()), deploy());
   }
 
   public Command increaseSpeedOffset() {
-    return Commands.runOnce(() -> intakeVoltage.increment());
+    return Commands.runOnce(roller.getVoltageGoal()::increment);
   }
 
   public Command decreaseSpeedOffset() {
-    return Commands.runOnce(() -> intakeVoltage.decrement());
+    return Commands.runOnce(roller.getVoltageGoal()::decrement);
   }
 
   public Command defaultCommand() {
     Command defaultCommand =
         Commands.either(
-            Commands.either(stopRoller(), Commands.none(), this::atPositionGoal),
+            Commands.either(stopRoller(), Commands.none(), this::atGoal),
             Commands.none(),
             () -> (intakeState.equals(IntakeState.STOW)));
     defaultCommand.addRequirements(this);

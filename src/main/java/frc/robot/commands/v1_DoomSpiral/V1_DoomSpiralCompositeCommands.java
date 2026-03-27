@@ -31,14 +31,16 @@ public class V1_DoomSpiralCompositeCommands {
       V1_DoomSpiralShooter shooter, Intake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
         intake.stopRoller(),
-        Commands.parallel(
-                shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
-                spindexer.agitateSpindexer())
-            .until(
-                () ->
-                    (shooter.atGoal()
-                        && DriveCommands.atAngle(V1_DoomSpiralRobotState.getRobotAngle())))
-            .andThen(spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+        shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
+        Commands.sequence(
+            spindexer
+                .agitateSpindexer()
+                .until(
+                    () ->
+                        (shooter.atGoal()
+                            && DriveCommands.atAngle(
+                                V1_DoomSpiralRobotState.getRobotToHubAngle()))),
+            spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
   }
 
   public static Command stopShooterCommand(
@@ -51,8 +53,10 @@ public class V1_DoomSpiralCompositeCommands {
       SwerveDrive drive,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
+      Intake intake,
       FixedShotParameters shotParameters) {
     return Commands.sequence(
+        intake.stopRoller(),
         Commands.parallel(
                 DriveCommands.rotateToAngle(
                     drive,
@@ -60,7 +64,8 @@ public class V1_DoomSpiralCompositeCommands {
                     V1_DoomSpiralRobotState::getHeading,
                     () -> AllianceFlipUtil.apply(shotParameters.robotAngle())),
                 shooter.setFlywheelGoal(shotParameters.flywheelSpeed()),
-                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()))
+                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()),
+                spindexer.agitateSpindexer())
             .until(shooter::atGoal),
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
@@ -69,10 +74,7 @@ public class V1_DoomSpiralCompositeCommands {
     return Commands.sequence(
         intake.stow(),
         Commands.parallel(
-            Commands.sequence(
-                intake.setRollerVoltage(-12.0),
-                intake.waitUntilIntakeAtGoal(),
-                intake.stopRoller()),
+            Commands.sequence(intake.stopCollect()),
             climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO)));
   }
 
