@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
@@ -26,13 +27,13 @@ public class FourBarLinkageConstants {
   public final Rotation2d zeroOffset;
 
   public final double gearRatio;
-  public final double supplyCurrentLimit;
-  public final double statorCurrentLimit;
+  public final CurrentLimits currentLimits;
   public final double momentOfInertia;
   public final DCMotor motorConfig;
 
   public final Rotation2d minAngle;
   public final Rotation2d maxAngle;
+  public final Rotation2d startAngle;
 
   public final Gains gains;
   public final AngularPositionConstraints constraints;

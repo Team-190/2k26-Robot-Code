@@ -24,7 +24,6 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkBo
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkLengths;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 public class IntakeConstants {
   public static final double INTAKE_VOLTAGE;
@@ -163,6 +162,7 @@ public class IntakeConstants {
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
+                .withStartAngle(Rotation2d.fromDegrees(9.0))
                 .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
                 .withLinkageOffset(LINKAGE_OFFSET)
                 .withLinkBounds(LINK_BOUNDS)
@@ -174,9 +174,13 @@ public class IntakeConstants {
                 .withMotorCanId(MOTOR_CAN_ID)
                 .withMotorConfig(MOTOR_CONFIG)
                 .withPinLength(PIN_LENGTH)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withCurrentLimits(
+                    CurrentLimits.fromDoubles()
+                        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                        .build())
                 .withZeroOffset(ZERO_OFFSET)
+                .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(CAN_CODER_OFFSET)
                 .build();
         break;
@@ -275,6 +279,7 @@ public class IntakeConstants {
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
+                .withStartAngle(Rotation2d.fromDegrees(9.0))
                 .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
                 .withLinkageOffset(LINKAGE_OFFSET)
                 .withLinkBounds(LINK_BOUNDS)
@@ -286,9 +291,13 @@ public class IntakeConstants {
                 .withMotorCanId(MOTOR_CAN_ID)
                 .withMotorConfig(MOTOR_CONFIG)
                 .withPinLength(PIN_LENGTH)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withCurrentLimits(
+                    CurrentLimits.fromDoubles()
+                        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                        .build())
                 .withZeroOffset(ZERO_OFFSET)
+                .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(CAN_CODER_OFFSET)
                 .build();
         break;
@@ -389,6 +398,7 @@ public class IntakeConstants {
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
+                .withStartAngle(Rotation2d.fromDegrees(9.0))
                 .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
                 .withLinkageOffset(LINKAGE_OFFSET)
                 .withLinkBounds(LINK_BOUNDS)
@@ -400,22 +410,38 @@ public class IntakeConstants {
                 .withMotorCanId(MOTOR_CAN_ID)
                 .withMotorConfig(MOTOR_CONFIG)
                 .withPinLength(PIN_LENGTH)
-                .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
-                .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                .withCurrentLimits(
+                    CurrentLimits.fromDoubles()
+                        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                        .build())
                 .withZeroOffset(ZERO_OFFSET)
+                .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(CAN_CODER_OFFSET)
                 .build();
         break;
     }
   }
 
-  @RequiredArgsConstructor
   @Getter
   public enum IntakeState {
-    STOW(new Setpoint<AngleUnit>(Degrees.of(9), Degrees.of(1))),
-    INTAKE(new Setpoint<AngleUnit>(Degrees.of(168.134766 + 8.0), Degrees.of(1))),
-    BUMP(new Setpoint<AngleUnit>(Degrees.of(145), Degrees.of(1)));
+    STOW(Rotation2d.fromDegrees(9)),
+    INTAKE(Rotation2d.fromDegrees(168.134766 + 8.0)),
+    BUMP(Rotation2d.fromDegrees(145)),
+    AGITATE(Rotation2d.fromDegrees(168.134766 + 8));
 
-    private final Setpoint<AngleUnit> angle;
+    private final Rotation2d angle;
+
+    IntakeState(Rotation2d angle) {
+      this.angle = angle;
+      setpoint =
+          new Setpoint<>(
+              angle.getMeasure(),
+              LINKAGE_ANGLE_INCREMENT.getMeasure(),
+              MIN_ANGLE.getMeasure(),
+              MAX_ANGLE.getMeasure());
+    }
+
+    @Getter private final Setpoint<AngleUnit> setpoint;
   }
 }

@@ -16,7 +16,7 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
 
-public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
+public class V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
       Intake intake,
@@ -25,10 +25,10 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
     // Create the routine and the trajectory
 
-    AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_TRENCH_ANTI_BUCKS");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_TRENCH_ANTI_BUCKS_CROSSES");
 
-    AutoTrajectory LEFT_TRENCH_ANTI_BUCKS =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS);
+    AutoTrajectory LEFT_TRENCH_ANTI_BUCKS_CROSSES =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS_CROSSES);
 
     routine
         .active()
@@ -37,7 +37,7 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
                 // Set the inital pose
 
-                LEFT_TRENCH_ANTI_BUCKS.resetOdometry(),
+                LEFT_TRENCH_ANTI_BUCKS_CROSSES.resetOdometry(),
 
                 // Deploy the intake
 
@@ -47,7 +47,7 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
                 // Follow the path
 
-                LEFT_TRENCH_ANTI_BUCKS.cmd(),
+                LEFT_TRENCH_ANTI_BUCKS_CROSSES.cmd(),
 
                 // Stop drive
 
@@ -71,14 +71,14 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
     return new BetterAutoChooser.AutoRoutineConfiguration(
         () -> routine,
-        () -> LEFT_TRENCH_ANTI_BUCKS.getInitialPose().orElse(new Pose2d()),
+        () -> LEFT_TRENCH_ANTI_BUCKS_CROSSES.getInitialPose().orElse(new Pose2d()),
         () ->
             Commands.runOnce(
                 () -> {
                   drive.setAutoControllers(
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_ANTI_BUCKS);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_ANTI_BUCKS_CROSSES);
                 }));
   }
 }

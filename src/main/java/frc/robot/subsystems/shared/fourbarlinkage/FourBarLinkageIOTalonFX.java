@@ -48,9 +48,11 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
     talonFXConfig = new TalonFXConfiguration();
 
-    talonFXConfig.CurrentLimits.SupplyCurrentLimit = constants.supplyCurrentLimit;
+    talonFXConfig.CurrentLimits.SupplyCurrentLimit =
+        constants.currentLimits.supplyCurrentLimit().in(Amps);
     talonFXConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-    talonFXConfig.CurrentLimits.StatorCurrentLimit = constants.statorCurrentLimit;
+    talonFXConfig.CurrentLimits.StatorCurrentLimit =
+        constants.currentLimits.statorCurrentLimit().in(Amps);
     talonFXConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     talonFXConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     talonFXConfig.Feedback.SensorToMechanismRatio = constants.gearRatio;
@@ -70,7 +72,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
         .withForwardSoftLimitThreshold(constants.maxAngle.getRotations())
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(constants.minAngle.getRotations())
-        .withReverseSoftLimitEnable(false);
+        .withReverseSoftLimitEnable(true);
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
 
@@ -86,7 +88,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
     // talonFX.setPosition(canCoder.getAbsolutePosition().getValueAsDouble());
 
-    talonFX.setPosition(constants.minAngle.getRotations());
+    talonFX.setPosition(constants.startAngle.getRotations());
     positionRotations = talonFX.getPosition();
     velocity = talonFX.getVelocity();
     torqueCurrent = talonFX.getTorqueCurrent();
