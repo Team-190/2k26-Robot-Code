@@ -196,5 +196,5 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   public void setNeutralMode(NeutralModeValue neutralMode) {
     talonFXConfig.MotorOutput.NeutralMode = neutralMode;
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
-    }
+  }
 }

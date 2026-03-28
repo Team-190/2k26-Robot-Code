@@ -48,8 +48,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
                 intake
                     .deploy()
                     .alongWith(
-                        intake.setOverrideRollerVoltage(
-                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
@@ -70,8 +69,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
                     .deploy()
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                        intake.setOverrideRollerVoltage(
-                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
                 DEPOT_AND_BACK_HUB_PATH_2.cmd()));
 
     RobotModeTriggers.autonomous()

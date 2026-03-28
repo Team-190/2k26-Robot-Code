@@ -46,8 +46,7 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
                 intake
                     .deploy()
                     .alongWith(
-                        intake.setOverrideRollerVoltage(
-                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
