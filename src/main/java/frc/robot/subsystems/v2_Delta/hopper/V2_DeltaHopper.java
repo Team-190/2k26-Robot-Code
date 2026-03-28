@@ -29,6 +29,8 @@ public class V2_DeltaHopper extends SubsystemBase {
     ballTunnel =
         new GenericRoller(
             ballTunnelIO, this, V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS, " Tunnel");
+
+    beamBreak = new DigitalInput(V2_DeltaHopperConstants.BEAMBREAK_ID);
   }
 
   @Override
@@ -80,26 +82,26 @@ public class V2_DeltaHopper extends SubsystemBase {
 
   public Command deployClimber() {
     return Commands.sequence(
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(12))).until(beamBreakFalse),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(12))).until(beamBreakTrue),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(6))).until(beamBreakFalse),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(6))).until(beamBreakTrue),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-12))).until(beamBreakFalse),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-12))).until(beamBreakTrue),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-6))).until(beamBreakFalse),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-6))).until(beamBreakTrue),
         Commands.runOnce(() -> rollerFloor.setVoltageGoal(Volts.of(0.0))));
   }
 
   public Command climbUp() {
     return Commands.sequence(
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(12))).until(beamBreakTrue),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(12))).until(beamBreakFalse),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(6))).until(beamBreakTrue),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-12))).until(beamBreakTrue),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-12))).until(beamBreakFalse),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-6))).until(beamBreakTrue),
         Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(0.0))));
   }
 
   public Command climbDown() {
     return Commands.sequence(
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(6))).until(beamBreakFalse),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(6))).until(beamBreakTrue),
-        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(3))).until(beamBreakFalse),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-6))).until(beamBreakFalse),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-6))).until(beamBreakTrue),
+        Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(-3))).until(beamBreakFalse),
         Commands.run(() -> rollerFloor.setVoltageGoal(Volts.of(0))));
   }
 }
