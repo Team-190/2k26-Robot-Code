@@ -72,7 +72,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
         .withForwardSoftLimitThreshold(constants.maxAngle.getRotations())
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitThreshold(constants.minAngle.getRotations())
-        .withReverseSoftLimitEnable(true);
+        .withReverseSoftLimitEnable(false);
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
 
