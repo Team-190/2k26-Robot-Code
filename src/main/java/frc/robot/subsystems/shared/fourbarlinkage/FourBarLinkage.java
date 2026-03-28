@@ -3,6 +3,7 @@ package frc.robot.subsystems.shared.fourbarlinkage;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -215,6 +216,10 @@ public class FourBarLinkage {
 
   public void setPosition(Rotation2d position) {
     io.setPosition(position);
+  }
+
+  public void setNeutralMode(NeutralModeValue v) {
+    io.setNeutralMode(v);
   }
 
   /**

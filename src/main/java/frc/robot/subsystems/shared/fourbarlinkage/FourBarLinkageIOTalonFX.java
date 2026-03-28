@@ -192,4 +192,9 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   public boolean atVoltageGoal(Voltage voltageReference) {
     return voltageReference.isNear(appliedVolts.getValue(), Millivolts.of(500));
   }
+
+  public void setNeutralMode(NeutralModeValue neutralMode) {
+    talonFXConfig.MotorOutput.NeutralMode = neutralMode;
+    PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
+    }
 }

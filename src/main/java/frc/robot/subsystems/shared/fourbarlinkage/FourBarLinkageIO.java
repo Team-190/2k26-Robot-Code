@@ -2,6 +2,7 @@ package frc.robot.subsystems.shared.fourbarlinkage;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -51,4 +52,6 @@ public interface FourBarLinkageIO {
   default boolean atVoltageGoal(Voltage voltageReference) {
     return false;
   }
+
+  default void setNeutralMode(NeutralModeValue mode) {}
 }

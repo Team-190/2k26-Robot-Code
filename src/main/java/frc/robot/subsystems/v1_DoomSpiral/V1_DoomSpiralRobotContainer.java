@@ -442,6 +442,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
     xkeys.h10().whileTrue(shooter.zeroHood().withName("xkeys-h10-while"));
 
+    driver.povLeft().onTrue(intake.coastIntake());
+    driver.povRight().onTrue(intake.brakeIntake());
+
     xkeys
         .b8()
         .whileTrue(

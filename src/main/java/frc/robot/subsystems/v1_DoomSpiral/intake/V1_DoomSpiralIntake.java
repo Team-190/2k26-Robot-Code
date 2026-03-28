@@ -3,6 +3,7 @@ package frc.robot.subsystems.v1_DoomSpiral.intake;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -201,6 +202,14 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
           linkage.setPosition(V1_DoomSpiralIntakeConstants.MIN_ANGLE);
           linkage.setPositionGoal(V1_DoomSpiralIntakeConstants.MIN_ANGLE);
         });
+  }
+
+  public Command coastIntake() {
+    return Commands.runOnce(() -> linkage.setNeutralMode(NeutralModeValue.Coast));
+  }
+
+  public Command brakeIntake() {
+    return Commands.runOnce(() -> linkage.setNeutralMode(NeutralModeValue.Brake));
   }
 
   public Transform3d getHopperWallTransform() {
