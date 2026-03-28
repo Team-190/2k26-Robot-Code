@@ -45,7 +45,7 @@ import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
 import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
-import frc.robot.subsystems.v1_DoomSpiral.leds.V1_DoomSpiralCANdle;
+import frc.robot.subsystems.v1_DoomSpiral.leds.V1_DoomSpiralRioLeds;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
@@ -68,7 +68,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralIntake intake;
   private V1_DoomSpiralSpindexer spindexer;
   private Vision vision;
-  private V1_DoomSpiralCANdle leds;
+  private V1_DoomSpiralRioLeds leds;
   private V1_DoomSpiralShooter shooter;
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
@@ -198,7 +198,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
-          leds = new V1_DoomSpiralCANdle();
+          leds = new V1_DoomSpiralRioLeds();
 
           break;
 
@@ -253,7 +253,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (leds == null) {
-      leds = new V1_DoomSpiralCANdle();
+      leds = new V1_DoomSpiralRioLeds();
     }
 
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);

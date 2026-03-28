@@ -29,8 +29,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
   private AnimationType lightType;
 
-  private final RainbowAnimation candleAnimation;
-
   private int loopCycleCount = 0;
   private boolean estopped = false;
 
@@ -187,10 +185,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                     RobotController.getBatteryVoltage()
                         < V1_DoomSpiralCANdleConstants.LOW_BATTERY_VOLTAGE)
             .debounce(.5);
-    candleAnimation =
-        new RainbowAnimation(Section.STATUS.getStart(), Section.STATUS.getEnd())
-            .withFrameRate(80)
-            .withDirection(AnimationDirectionValue.Forward);
     leds.setControl(new EmptyControl());
     for (int i = 0; i < 8; i++) {
       leds.setControl(new EmptyAnimation(i));
@@ -236,7 +230,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
     if (primaryAnimationType != lightType) {
       clearSlots(1, 7);
-      leds.setControl(candleAnimation);
       primaryAnimationType.animationSetter.accept(leds, Section.MAIN);
       lightType = primaryAnimationType;
     }
