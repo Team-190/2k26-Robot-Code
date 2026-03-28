@@ -2,7 +2,10 @@ package frc.robot.subsystems.v2_Delta.shooter;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -62,6 +65,23 @@ public class V2_DeltaShooter extends SubsystemBase {
     //   V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(false);
     //   V1_DoomSpiralRobotState.getLedStates().setShooterShooting(false);
     // }
+  }
+
+    /**
+   * Returns the angle from the robot's current position to the target position. This is calculated
+   * by subtracting the robot's current position from the target position, adding the turret's
+   * translation (rotated by the robot's current angle), and then taking the angle of the resulting
+   * translation from the robot's current angle.
+   *
+   * @param robotPose the robot's current pose
+   * @param targetTranslation the target position
+   * @return the angle from the robot's current position to the target position
+   */
+  public static Angle fieldToTurret(Pose2d robotPose, Translation2d targetTranslation) {
+    Translation2d turretToTargetTranslation = targetTranslation.minus(robotPose.getTranslation());
+    // .plus(V2_DeltaShooterConstants.TURRET_TRANSLATION.rotateBy(robotPose.getRotation()));
+    Rotation2d turretRotation = turretToTargetTranslation.getAngle().minus(robotPose.getRotation());
+    return turretRotation.getMeasure();
   }
 
   public Command setHoodGoal(HoodGoal goal) {
