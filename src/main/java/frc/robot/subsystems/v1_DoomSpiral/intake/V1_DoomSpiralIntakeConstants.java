@@ -61,7 +61,7 @@ public class V1_DoomSpiralIntakeConstants {
       SensorDirectionValue.Clockwise_Positive;
   public static final double GEAR_RATIO = 50.79235079;
   public static final int SUPPLY_CURRENT_LIMIT = 40;
-  public static final int STATOR_CURRENT_LIMIT = 40;
+  public static final int STATOR_CURRENT_LIMIT = 60;
 
   public static final double MOMENT_OF_INERTIA = 0.004;
   public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
@@ -89,7 +89,7 @@ public class V1_DoomSpiralIntakeConstants {
               new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(50.0)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(10.0)))
+                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(15.0)))
           .withGoalTolerance(new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
           .build();
 
