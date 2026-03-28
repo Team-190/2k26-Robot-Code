@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral.leds;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -9,17 +8,14 @@ import frc.robot.Robot;
 import frc.robot.subsystems.shared.leds.Leds;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import lombok.RequiredArgsConstructor;
+import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRioLeds extends Leds {
 
   private final Trigger lowBatteryTrigger;
 
-  private volatile AnimationType desiredAnimation;
-  private AnimationType currentAnimation;
+  private AnimationType desiredAnimation;
 
-  private final Notifier animationNotifier;
-
-  private boolean estopped = false;
   private int loopCycleCount = 0;
 
   public V1_DoomSpiralRioLeds() {
@@ -33,27 +29,6 @@ public class V1_DoomSpiralRioLeds extends Leds {
             .debounce(0.5);
 
     desiredAnimation = AnimationType.DEFAULT;
-    currentAnimation = null;
-
-    animationNotifier =
-        new Notifier(
-            () -> {
-              synchronized (this) {
-
-                // E-STOP OVERRIDE
-                if (DriverStation.isEStopped()) {
-                  estopped = true;
-                  runAnimation(AnimationType.E_STOPPED);
-                  leds.setData(buffer);
-                  return;
-                }
-
-                runAnimation(desiredAnimation);
-                leds.setData(buffer);
-              }
-            });
-
-    animationNotifier.startPeriodic(0.01); // 20ms loop
   }
 
   @RequiredArgsConstructor
@@ -72,14 +47,24 @@ public class V1_DoomSpiralRioLeds extends Leds {
 
   @Override
   public synchronized void periodic() {
-    if (estopped) return;
 
     if (loopCycleCount <= MIN_LOOP_CYCLE_COUNT) {
       loopCycleCount++;
       return;
+    } else {
+      loadingNotifier.stop();
     }
 
-    desiredAnimation = getPrimaryAnimationType();
+    if (DriverStation.isEStopped()) {
+      runAnimation(AnimationType.E_STOPPED);
+      leds.setData(buffer);
+      return;
+    }
+
+    runAnimation(getPrimaryAnimationType());
+    leds.setData(buffer);
+
+    Logger.recordOutput("Leds/Animation Type", desiredAnimation);
   }
 
   private void runAnimation(AnimationType type) {
@@ -137,7 +122,7 @@ public class V1_DoomSpiralRioLeds extends Leds {
         break;
     }
 
-    currentAnimation = type;
+    desiredAnimation = type;
   }
 
   private AnimationType getPrimaryAnimationType() {
