@@ -13,9 +13,9 @@ public final class RobotConfig {
     V2_DELTA("2026.+"),
     V2_DELTA_SIM("2026.+");
 
-    @Getter private String gompeiLibVersion;
+    @Getter private final String gompeiLibVersion;
 
-    private RobotType(String gompeiLibVersion) {
+    RobotType(String gompeiLibVersion) {
       this.gompeiLibVersion = gompeiLibVersion;
     }
   }

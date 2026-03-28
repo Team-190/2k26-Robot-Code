@@ -21,6 +21,7 @@ import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
@@ -33,8 +34,8 @@ public class FourBarLinkage {
 
   private FourBarLinkageState currentState;
 
-  private Setpoint<VoltageUnit> voltageGoal;
-  private Setpoint<AngleUnit> positionGoal;
+  @Getter private Setpoint<VoltageUnit> voltageGoal;
+  @Getter private Setpoint<AngleUnit> positionGoal;
 
   public final FourBarLinkageConstants constants;
 

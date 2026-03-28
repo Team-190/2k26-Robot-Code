@@ -211,7 +211,7 @@ public class Climber extends SubsystemBase {
 
   public Command setPositionL1() {
     return setPositionGoal(
-        ClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ONE);
+        ClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO);
   }
 
   public Command runSysId() {
