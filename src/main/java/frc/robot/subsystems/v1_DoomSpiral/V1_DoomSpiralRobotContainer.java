@@ -479,7 +479,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .e1()
         .whileTrue(
             intake
-                .setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)
+                .setOverrideRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-e1-while"))
         .onFalse(intake.stopRoller().withName("xkeys-e1-false"));
 
@@ -487,7 +487,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .e2()
         .whileTrue(
             intake
-                .setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
+                .setOverrideRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)
                 .withName("xkeys-e2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-e2-false"));
 
