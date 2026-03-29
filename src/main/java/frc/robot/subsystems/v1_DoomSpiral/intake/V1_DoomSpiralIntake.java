@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -159,24 +158,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
     //             setRollerVoltage(-2),
     //             () -> linkage.getPosition().getDegrees() > 60)
     //         .repeatedly());
-    return Commands.parallel(
-        Commands.sequence(
-                Commands.runOnce(
-                    () -> {
-                      intakeState = IntakeState.AGITATE;
-                      linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
-                      linkage.setPositionGoal(IntakeState.AGITATE.getAngle());
-                    }),
-                linkage.waitUntilLinkageAtGoal(),
-                Commands.runOnce(
-                    () -> {
-                      linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
-                      linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0));
-                    }),
-                linkage.waitUntilLinkageAtGoal())
-            .repeatedly(),
-        idle(),
-        setRollerVoltage(3.0));
+    return idle();
   }
 
   public Command collect() {
