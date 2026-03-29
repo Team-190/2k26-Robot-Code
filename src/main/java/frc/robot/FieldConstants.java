@@ -285,6 +285,8 @@ public class FieldConstants {
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY + (width / 2), height);
     public static final Translation3d rightCorner =
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY - (width / 2), height);
+
+    public static final Translation2d FEED_TRANSLATION = new Translation2d(3.5, 5.5);
   }
 
   public static class Outpost {
@@ -297,7 +299,7 @@ public class FieldConstants {
     public static final Translation2d centerPoint =
         new Translation2d(0, tagLayoutType.getLayout().getTagPose(29).get().getY());
 
-    public static final Translation2d FEED_TRANSLATION = new Translation2d(0, 0);
+    public static final Translation2d FEED_TRANSLATION = new Translation2d(3.5, 2.5);
   }
 
   public enum AprilTagLayoutType {
