@@ -30,7 +30,7 @@ public class V1_DoomSpiralIntakeConstants {
   public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
-  public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
+  public static final double LINKAGE_SLOW_VOLTAGE = 3.0;
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
@@ -59,7 +59,7 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
       SensorDirectionValue.Clockwise_Positive;
-  public static final double GEAR_RATIO = 50.79235079;
+  public static final double GEAR_RATIO = 50.79235079 * 18 / 17;
   public static final int SUPPLY_CURRENT_LIMIT = 40;
   public static final int STATOR_CURRENT_LIMIT = 60;
 
@@ -145,9 +145,9 @@ public class V1_DoomSpiralIntakeConstants {
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(168.134766 + 5)),
+    INTAKE(Rotation2d.fromDegrees(168.134766 + 6)),
     BUMP(Rotation2d.fromDegrees(145)),
-    AGITATE(Rotation2d.fromDegrees(168.134766 + 5));
+    AGITATE(Rotation2d.fromDegrees(168.134766 + 6));
 
     private final Rotation2d angle;
 

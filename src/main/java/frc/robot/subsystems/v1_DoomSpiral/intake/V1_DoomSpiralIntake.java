@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -135,35 +136,30 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
   }
 
   public Command agitate() {
-    // return Commands.parallel(
-    //     Commands.sequence(
-    //         Commands.runOnce(() -> agitationAngle = Rotation2d.fromDegrees(150)),
-    //         Commands.sequence(
-    //                 linkage.setPositionGoal(
-    //                     () -> agitationAngle,
-    //                     (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
-    //                 waitUntilIntakeAtGoal(),
-    //                 Commands.runOnce(
-    //                     () -> agitationAngle = agitationAngle.minus(agitationDelta.times(2))),
-    //                 linkage.setPositionGoal(
-    //                     () -> agitationAngle,
-    //                     (() -> V1_DoomSpiralRobotState.getIntakeOffsets().getStowOffset())),
-    //                 waitUntilIntakeAtGoal(),
-    //                 Commands.runOnce(() -> agitationAngle = agitationAngle.plus(agitationDelta)))
-    //             .repeatedly()
-    //             .until(() -> agitationAngle.getRadians() <=
-    // agitationDelta.times(4).getRadians())),
-    //     new ContinuousConditionalCommand(
-    //             setRollerVoltage(6),
-    //             setRollerVoltage(-2),
-    //             () -> linkage.getPosition().getDegrees() > 60)
-    //         .repeatedly());
-    return idle();
+    return Commands.parallel(
+        Commands.sequence(
+                Commands.runOnce(
+                    () -> {
+                      intakeState = IntakeState.AGITATE;
+                      linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
+                      linkage.setPositionGoal(IntakeState.AGITATE.getAngle());
+                    }),
+                linkage.waitUntilLinkageAtGoal().withTimeout(0.75),
+                Commands.runOnce(
+                    () -> {
+                      linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
+                      linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0));
+                    }),
+                linkage.waitUntilLinkageAtGoal().withTimeout(0.75))
+            .repeatedly(),
+        idle(),
+        setRollerVoltage(3.0));
   }
 
   public Command collect() {
     return Commands.parallel(
-        deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE), idle());
+            deploy(), setRollerVoltage(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE), idle())
+        .until(this::atGoal);
   }
 
   public Command stopCollect() {
@@ -172,7 +168,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                 stow(), setRollerVoltage(V1_DoomSpiralIntakeConstants.EXTAKE_VOLTAGE)),
             waitUntilIntakeAtGoal(),
             stopRoller())
-        .alongWith(idle());
+        .alongWith(idle())
+        .until(this::atGoal);
   }
 
   public Command resetIntakeZero() {

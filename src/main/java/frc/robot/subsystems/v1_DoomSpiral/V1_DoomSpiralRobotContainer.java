@@ -305,7 +305,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     driver.a().onTrue(intake.stopCollect().withName("driver-a-true"));
 
-    driver.rightBumper().whileTrue(intake.agitate().withName("driver-rightBumper-while"));
+    driver
+        .rightBumper()
+        .whileTrue(intake.agitate().withName("driver-rightBumper-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("driver-agitate-false"));
 
     driver
         .b()
@@ -516,7 +519,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys
         .h1()
         .or(xkeys.h2().or(xkeys.h3()))
-        .whileTrue(intake.agitate().withName("xkeys-h1-h2-h3-while"));
+        .whileTrue(intake.agitate().withName("xkeys-h1-h2-h3-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-h1-h2-h3-false"));
   }
 
   private void configureAutos() {
