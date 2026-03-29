@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v2_Delta.hopper;
+package frc.robot.subsystems.v2_Delta.clopper;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Volts;
@@ -13,15 +13,13 @@ import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
 import frc.robot.RobotConfig;
 
-public class V2_DeltaHopperConstants {
+public class V2_DeltaClopperConstants {
   public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE;
   public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
   public static final Voltage OUTTAKE_VOLTAGE;
 
   public static final GenericRollerConstants ROLLERFLOOR_CONSTANTS;
   public static final GenericRollerConstants BALLTUNNEL_CONSTANTS;
-
-  public static final int BEAMBREAK_ID;
 
   static {
     switch (RobotConfig.ROBOT) {
@@ -31,7 +29,6 @@ public class V2_DeltaHopperConstants {
         ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(11.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
         OUTTAKE_VOLTAGE = Volts.of(-11.0);
-        BEAMBREAK_ID = 0;
 
         ROLLERFLOOR_CONSTANTS =
             GenericRollerConstants.builder()
