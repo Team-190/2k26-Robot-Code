@@ -25,6 +25,7 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
@@ -67,6 +68,8 @@ public class V2_DeltaRobotState {
   @Getter private static final LEDStates ledStates;
 
   @Setter @Getter private static long headingUpdateTimestamp;
+
+  @Getter private static boolean prohibitShot;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -203,7 +206,11 @@ public class V2_DeltaRobotState {
 
   @Trace
   public static void periodic(
-      Rotation2d robotHeading, double robotYawVelocity, SwerveModulePosition[] modulePositions) {
+      Rotation2d robotHeading,
+      double robotYawVelocity,
+      SwerveModulePosition[] modulePositions,
+      Rotation2d turretRotation,
+      boolean isTurretWrapping) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -217,7 +224,12 @@ public class V2_DeltaRobotState {
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
-    Pose2d shooterPosition = hubPose.transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
+    Pose2d shooterPosition =
+        hubPose.transformBy(
+            new Transform2d(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
+                turretRotation));
 
     distanceToHub =
         Distance.ofBaseUnits(
@@ -239,6 +251,8 @@ public class V2_DeltaRobotState {
     feedVelocity = feedSpeedTree.get(distanceToFeedTranslation);
 
     field.setRobotPose(getGlobalPose());
+
+    prohibitShot = isTurretWrapping || shouldTuckHood();
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(
@@ -283,6 +297,22 @@ public class V2_DeltaRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
+  }
+
+  public static boolean shouldTuckHood() {
+    boolean underBlueLeft =
+        FieldConstants.LeftTrench.BLUE_TRENCH.contains(getGlobalPose().getTranslation())
+            || FieldConstants.LeftTrench.BLUE_TRENCH.contains(getHubZonePose().getTranslation());
+    boolean underBlueRight =
+        FieldConstants.RightTrench.BLUE_TRENCH.contains(getGlobalPose().getTranslation())
+            || FieldConstants.RightTrench.BLUE_TRENCH.contains(getHubZonePose().getTranslation());
+    boolean underRedLeft =
+        FieldConstants.LeftTrench.RED_TRENCH.contains(getGlobalPose().getTranslation())
+            || FieldConstants.LeftTrench.RED_TRENCH.contains(getHubZonePose().getTranslation());
+    boolean underRedRight =
+        FieldConstants.RightTrench.RED_TRENCH.contains(getGlobalPose().getTranslation())
+            || FieldConstants.RightTrench.RED_TRENCH.contains(getHubZonePose().getTranslation());
+    return underBlueLeft || underBlueRight || underRedLeft || underRedRight;
   }
 
   public static Pose2d getHubZonePose() {

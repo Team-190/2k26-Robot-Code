@@ -58,28 +58,31 @@ public class V2_DeltaShooter extends SubsystemBase {
     turret.periodic();
     hood.periodic();
     flywheel.periodic();
-
-    switch (shooterGoal) {
-      case STOW:
-        hood.setPositionGoal(Rotation2d.kZero);
-        flywheel.stop();
-        break;
-      case SCORE:
-        turret.setFieldRelativeGoal(
-            AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()));
-        hood.setPositionGoal(V2_DeltaRobotState.getScoreAngle());
-        flywheel.setVelocityGoal(V2_DeltaRobotState.getScoreVelocity());
-        break;
-      case FEED:
-        turret.setFieldRelativeGoal(V2_DeltaRobotState.getFeedTranslation());
-        hood.setPositionGoal(V2_DeltaRobotState.getFeedAngle());
-        flywheel.setVelocityGoal(V2_DeltaRobotState.getFeedVelocity());
-      case OVERRIDE:
-      default:
-        turret.setVoltageGoal(overrideTurretVoltage);
-        hood.setVoltageGoal(overrideHoodVoltage);
-        flywheel.setVoltageGoal(overrideFlywheelVoltage);
-        break;
+    if (V2_DeltaRobotState.shouldTuckHood()) {
+      hood.setPositionGoal(Rotation2d.kZero);
+    } else {
+      switch (shooterGoal) {
+        case STOW:
+          hood.setPositionGoal(Rotation2d.kZero);
+          flywheel.stop();
+          break;
+        case SCORE:
+          turret.setFieldRelativeGoal(
+              AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()));
+          hood.setPositionGoal(V2_DeltaRobotState.getScoreAngle());
+          flywheel.setVelocityGoal(V2_DeltaRobotState.getScoreVelocity());
+          break;
+        case FEED:
+          turret.setFieldRelativeGoal(V2_DeltaRobotState.getFeedTranslation());
+          hood.setPositionGoal(V2_DeltaRobotState.getFeedAngle());
+          flywheel.setVelocityGoal(V2_DeltaRobotState.getFeedVelocity());
+        case OVERRIDE:
+        default:
+          turret.setVoltageGoal(overrideTurretVoltage);
+          hood.setVoltageGoal(overrideHoodVoltage);
+          flywheel.setVoltageGoal(overrideFlywheelVoltage);
+          break;
+      }
     }
 
     Logger.recordOutput("Shooter/Goal", shooterGoal);
@@ -125,7 +128,11 @@ public class V2_DeltaShooter extends SubsystemBase {
     return Commands.runOnce(hood.getPositionGoal()::decrement);
   }
 
-  public boolean isUnwrapping() {
-    return turret.isUnwrapping();
+  public Rotation2d getTurretRotation() {
+    return turret.getPosition();
+  }
+
+  public boolean isTurretWrapping() {
+    return turret.isWrapping();
   }
 }

@@ -11,6 +11,8 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -197,6 +199,25 @@ public class FieldConstants {
         new Translation3d(LinesVertical.oppHubCenter, fieldWidth, openingHeight);
     public static final Translation3d oppOpeningTopRight =
         new Translation3d(LinesVertical.oppHubCenter, fieldWidth - openingWidth, openingHeight);
+
+    public static final Rectangle2d BLUE_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.hubCenter,
+                    LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingHeight,
+            openingHeight);
+    public static final Rectangle2d RED_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.oppHubCenter,
+                    LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingHeight,
+            openingHeight);
   }
 
   public static class RightTrench {
@@ -219,6 +240,25 @@ public class FieldConstants {
         new Translation3d(LinesVertical.oppHubCenter, openingWidth, openingHeight);
     public static final Translation3d oppOpeningTopRight =
         new Translation3d(LinesVertical.oppHubCenter, 0, openingHeight);
+
+    public static final Rectangle2d BLUE_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.hubCenter,
+                    LinesHorizontal.rightTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingHeight,
+            openingHeight);
+    public static final Rectangle2d RED_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.oppHubCenter,
+                    LinesHorizontal.rightTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingHeight,
+            openingHeight);
   }
 
   /** Tower related constants */

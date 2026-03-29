@@ -46,7 +46,7 @@ public class Turret {
 
   private final TurretConstants constants;
 
-  @Getter private boolean isUnwrapping;
+  @Getter private boolean isWrapping;
   private Rotation2d previousCommandedGoal;
   private Rotation2d unwrapGoal;
 
@@ -83,7 +83,7 @@ public class Turret {
 
     io.setPosition(calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
 
-    isUnwrapping = false;
+    isWrapping = false;
     previousCommandedGoal = Rotation2d.kZero;
     unwrapGoal = Rotation2d.kZero;
   }
@@ -98,15 +98,15 @@ public class Turret {
 
     double goalJump = wrappedGoal.minus(previousCommandedGoal).getRadians();
 
-    if (!isUnwrapping && Math.abs(goalJump) > Math.PI) {
-      isUnwrapping = true;
+    if (!isWrapping && Math.abs(goalJump) > Math.PI) {
+      isWrapping = true;
       unwrapGoal = wrappedGoal;
     }
 
-    if (isUnwrapping
+    if (isWrapping
         && Math.abs(inputs.angle.getRadians() - unwrapGoal.getRadians())
             < constants.constraints.getGoalTolerance(Radians)) {
-      isUnwrapping = false;
+      isWrapping = false;
     }
 
     previousCommandedGoal = wrappedGoal;
@@ -123,7 +123,7 @@ public class Turret {
 
     Logger.recordOutput(aKitTopic + "/At Goal", atPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
-    Logger.recordOutput(aKitTopic + "/Is Unwrapping", isUnwrapping);
+    Logger.recordOutput(aKitTopic + "/Is Unwrapping", isWrapping);
     Logger.recordOutput(
         aKitTopic + "/CRT Angle",
         calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
@@ -303,5 +303,9 @@ public class Turret {
             / (double) constants.turretAngleCalculation.gear0ToothCount();
 
     return Rotation2d.fromRotations(turretRotations);
+  }
+
+  public Rotation2d getPosition() {
+    return inputs.angle;
   }
 }
