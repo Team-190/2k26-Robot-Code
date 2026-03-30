@@ -18,8 +18,10 @@ public class V2_DeltaClopperConstants {
   public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
   public static final Voltage OUTTAKE_VOLTAGE;
 
-  public static final GenericRollerConstants ROLLERFLOOR_CONSTANTS;
-  public static final GenericRollerConstants BALLTUNNEL_CONSTANTS;
+  public static final GenericRollerConstants ROLLER_FLOOR_CONSTANTS;
+  public static final GenericRollerConstants BALL_TUNNEL_CONSTANTS;
+
+  public static final int BEAM_BREAK_ID;
 
   static {
     switch (RobotConfig.ROBOT) {
@@ -29,8 +31,9 @@ public class V2_DeltaClopperConstants {
         ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(11.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
         OUTTAKE_VOLTAGE = Volts.of(-11.0);
+        BEAM_BREAK_ID = 0;
 
-        ROLLERFLOOR_CONSTANTS =
+        ROLLER_FLOOR_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(50)
                 .withCurrentLimits(
@@ -47,7 +50,7 @@ public class V2_DeltaClopperConstants {
                 .withVoltageOffsetStep(Volts.of(0.20))
                 .withCanBus(CANBus.roboRIO())
                 .build();
-        BALLTUNNEL_CONSTANTS =
+        BALL_TUNNEL_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(52)
                 .withCurrentLimits(

@@ -8,32 +8,32 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonF
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
-import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopper;
-import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopperConstants;
+import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
+import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
-  private V2_DeltaHopper hopper;
+  private V2_DeltaClopper hopper;
 
   public V2_DeltaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V2_DELTA:
           hopper =
-              new V2_DeltaHopper(
-                  new GenericRollerIOTalonFX(V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS));
+              new V2_DeltaClopper(
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
           break;
         case V2_DELTA_SIM:
           hopper =
-              new V2_DeltaHopper(
-                  new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS));
+              new V2_DeltaClopper(
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
           break;
         default:
       }
     }
     if (hopper == null) {
-      hopper = new V2_DeltaHopper(new GenericRollerIO() {}, new GenericRollerIO() {});
+      hopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
     }
   }
 
