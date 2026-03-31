@@ -31,11 +31,8 @@ public class Turret {
   private final String aKitTopic;
   private final TurretIOInputsAutoLogged inputs;
 
-  private Rotation2d positionGoal;
-  private Rotation2d previousPosition;
-
-  private final Setpoint<VoltageUnit> voltageGoal;
-  private final Setpoint<AngleUnit> positionGoal;
+  private Setpoint<VoltageUnit> voltageGoal;
+  private Setpoint<AngleUnit> positionGoal;
   private final Setpoint<AngularVelocityUnit> angularVelocityGoal;
 
   private Translation2d translationGoal;
@@ -60,7 +57,6 @@ public class Turret {
       TurretConstants constants) {
     this.io = io;
     inputs = new TurretIOInputsAutoLogged();
-    previousPosition = inputs.angle;
     aKitTopic = subsystem.getName() + "/Turret" + name;
     characterizationRoutine =
         new SysIdRoutine(
@@ -77,7 +73,6 @@ public class Turret {
     translationGoal = new Translation2d();
 
     state = TurretState.IDLE;
-    positionGoal = Rotation2d.kZero;
 
     this.constants = constants;
 
@@ -92,7 +87,7 @@ public class Turret {
             constants.angleStep.getMeasure(),
             constants.minAngle.getMeasure(),
             constants.maxAngle.getMeasure());
-    angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.25));
+    angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.05));
 
     io.setPosition(new Rotation2d());
 
@@ -117,17 +112,22 @@ public class Turret {
 
     switch (state) {
       case CLOSED_LOOP_POSITION_CONTROL ->
-          io.setPositionGoal(wrapRotationWithinBounds((positionGoal),
+          io.setPositionGoal(
+              wrapRotationWithinBounds(
+                  new Rotation2d((Angle) positionGoal.getNewSetpoint()),
                   inputs.angle,
                   constants.minAngle.getRadians(),
                   constants.maxAngle.getRadians()),
               (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
               0.0);
-      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal(voltageGoal);
+      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
-        positionGoal =
-            angleToGoal(translationGoal, robotPoseSupplier.get(), constants.turretOffset);
-        io.setPositionGoal(wrapRotationWithinBounds(positionGoal,
+        positionGoal.setSetpoint(
+            angleToGoal(translationGoal, robotPoseSupplier.get(), constants.turretOffset)
+                .getMeasure());
+        io.setPositionGoal(
+            wrapRotationWithinBounds(
+                new Rotation2d((Angle) positionGoal.getNewSetpoint()),
                 inputs.angle,
                 constants.minAngle.getRadians(),
                 constants.maxAngle.getRadians()),
@@ -178,19 +178,28 @@ public class Turret {
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return (!(previousPosition.getDegrees() + angle.getDegrees() <= constants.maxAngle.getDegrees())
-        || !(previousPosition.getDegrees() + angle.getDegrees()
-            >= constants.minAngle.getDegrees()));
+    return (!(angle.getDegrees() <= constants.maxAngle.getDegrees())
+        || !(angle.getDegrees() >= constants.minAngle.getDegrees()));
   }
 
-  public void setVoltageGoal(Voltage voltageGoal) {
+  public void setVoltageGoal(Voltage volts) {
     state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
-    this.voltageGoal = voltageGoal;
+    voltageGoal.setSetpoint(volts);
   }
 
-  public void setPositionGoal(Rotation2d positionGoal) {
+  public void setPositionGoal(Rotation2d goal) {
     state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
-    this.positionGoal = positionGoal;
+    positionGoal.setSetpoint(goal.getMeasure());
+  }
+
+  public void setPositionGoal(Setpoint<AngleUnit> goal) {
+    state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
+    positionGoal = goal;
+  }
+
+  public void setVoltageGoal(Setpoint<VoltageUnit> goal) {
+    state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
+    voltageGoal = goal;
   }
 
   public void setPositionGoal(Rotation2d goal, AngularVelocity velocity) {
@@ -208,7 +217,7 @@ public class Turret {
   }
 
   public boolean atPositionGoal() {
-    return io.atPositionGoal(positionGoal);
+    return io.atPositionGoal((Rotation2d) positionGoal.getNewSetpoint());
   }
 
   public boolean atPositionGoal(Rotation2d positionReference) {
@@ -216,7 +225,7 @@ public class Turret {
   }
 
   public boolean atVoltageGoal() {
-    return io.atVoltageGoal(voltageGoal);
+    return io.atVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
   }
 
   public boolean atVoltageGoal(Voltage voltageReference) {
@@ -250,11 +259,11 @@ public class Turret {
         Commands.runOnce(() -> state = TurretState.IDLE),
         characterizationRoutine
             .quasistatic(Direction.kForward)
-            .until(() -> outOfRange(previousPosition)),
+            .until(() -> outOfRange(inputs.angle)),
         Commands.waitSeconds(3),
         characterizationRoutine
             .quasistatic(Direction.kReverse)
-            .until(() -> outOfRange(previousPosition)),
+            .until(() -> outOfRange(inputs.angle)),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
