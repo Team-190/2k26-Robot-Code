@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -20,22 +21,23 @@ import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class FourBarLinkage {
-  private final FourBarLinkageIO io;
-  private final String aKitTopic;
+  public final FourBarLinkageIO io;
+  public final String aKitTopic;
   private final FourBarLinkageIOInputsAutoLogged inputs;
 
   private FourBarLinkageState currentState;
 
-  private Setpoint<VoltageUnit> voltageGoal;
-  private Setpoint<AngleUnit> positionGoal;
+  @Getter private Setpoint<VoltageUnit> voltageGoal;
+  @Getter private Setpoint<AngleUnit> positionGoal;
 
-  private final FourBarLinkageConstants constants;
+  public final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
@@ -129,7 +131,6 @@ public class FourBarLinkage {
 
   public void periodic() {
     io.updateInputs(inputs);
-
     Logger.processInputs(aKitTopic, inputs);
 
     Logger.recordOutput(aKitTopic + "/Position Goal", positionGoal.getSetpoint());
@@ -156,12 +157,14 @@ public class FourBarLinkage {
     Rotation2d followerAngle = currentPoses.get(2);
     Rotation2d groundAngle = currentPoses.get(3);
 
-    crank.setAngle(crankAngle.unaryMinus());
-    coupler.setAngle(couplerAngle.minus(crankAngle).unaryMinus());
-    follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
-    ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
+    crank.setAngle(crankAngle);
+    coupler.setAngle(couplerAngle.minus(crankAngle));
+    follower.setAngle(followerAngle.minus(couplerAngle));
+    ground.setAngle(groundAngle.minus(followerAngle));
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
+    Logger.recordOutput(
+        aKitTopic + "/Offset Degrees", String.format("%.1f", positionGoal.getOffset().in(Radians)));
   }
 
   /**
@@ -171,13 +174,6 @@ public class FourBarLinkage {
    */
   public Rotation2d getPosition() {
     return inputs.position;
-  }
-
-  public Command setIdle() {
-    return Commands.runOnce(
-        () -> {
-          currentState = FourBarLinkageState.IDLE;
-        });
   }
 
   /**
@@ -228,7 +224,7 @@ public class FourBarLinkage {
   /**
    * Checks if the linkage is at the goal position.
    *
-   * @param position The state to check goal against.
+   * @param state The state to check goal against.
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
   public boolean atPositionGoal(Rotation2d positionReference) {
@@ -317,15 +313,15 @@ public class FourBarLinkage {
 
     double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
-    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
-    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
-    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
+    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, (theta2 + theta1), 0));
+    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, (theta3 + theta1), 0));
+    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, theta5, 0));
+    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, (Math.PI + theta1), 0));
 
-    Rotation2d crankAngle = Rotation2d.fromRadians(-(theta2 + theta1));
-    Rotation2d couplerAngle = Rotation2d.fromRadians(-(theta3 + theta1));
-    Rotation2d followerAngle = Rotation2d.fromRadians(-theta5);
-    Rotation2d groundAngle = Rotation2d.fromRadians(-(Math.PI + theta1));
+    Rotation2d crankAngle = Rotation2d.fromRadians((theta2 + theta1));
+    Rotation2d couplerAngle = Rotation2d.fromRadians((theta3 + theta1));
+    Rotation2d followerAngle = Rotation2d.fromRadians(theta5);
+    Rotation2d groundAngle = Rotation2d.fromRadians((Math.PI + theta1));
 
     LinkageState link1 = new LinkageState(crankPose, crankAngle);
     LinkageState link2 = new LinkageState(couplerPose, couplerAngle);
@@ -343,7 +339,6 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
-        Commands.print("Sys Id being run"),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> atPositionGoal(constants.maxAngle)),

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.HashMap;
 import java.util.Optional;
@@ -45,13 +46,15 @@ public class BetterAutoChooser implements Sendable {
 
   private final HashMap<String, Supplier<Command>> autoRoutines = new HashMap<>();
   private final HashMap<String, Supplier<Pose2d>> startingPoses = new HashMap<>();
+  private final HashMap<String, Supplier<Command>> onSelectCommand = new HashMap<>();
 
   private String selected;
   private String[] options = new String[] {};
 
   private Optional<Alliance> allianceAtGeneration = Optional.empty();
   private String nameAtGeneration;
-  private Command generatedCommand = Commands.none();
+  private Command generatedCommand;
+  private Command prerunCommand;
 
   private final Consumer<Pose2d> resetPoseConsumer;
   @Setter private boolean resetPose;
@@ -76,6 +79,7 @@ public class BetterAutoChooser implements Sendable {
     DO_NOTHING_NAME = doNothingName;
     nameAtGeneration = DO_NOTHING_NAME;
     generatedCommand = Commands.none();
+    prerunCommand = Commands.none();
     addCmd(DO_NOTHING_NAME, Commands::none);
     select(DO_NOTHING_NAME);
 
@@ -132,11 +136,20 @@ public class BetterAutoChooser implements Sendable {
       allianceAtGeneration = Optional.empty();
       nameAtGeneration = DO_NOTHING_NAME;
       generatedCommand = Commands.none();
+      return nameAtGeneration; // early return if auto invalid
     }
 
     if (startingPoses.containsKey(nameAtGeneration) && resetPose) {
       resetPoseConsumer.accept(startingPoses.get(nameAtGeneration).get());
     }
+
+    CommandScheduler.getInstance().cancel(prerunCommand);
+    if (onSelectCommand.containsKey(nameAtGeneration)) {
+      prerunCommand = onSelectCommand.get(nameAtGeneration).get().ignoringDisable(true);
+    } else {
+      prerunCommand = Commands.none();
+    }
+    CommandScheduler.getInstance().schedule(prerunCommand);
 
     return nameAtGeneration;
   }
@@ -183,6 +196,11 @@ public class BetterAutoChooser implements Sendable {
       String name, Supplier<AutoRoutine> generator, Supplier<Pose2d> startingPose) {
     startingPoses.put(name, startingPose);
     return addRoutine(name, generator);
+  }
+
+  public BetterAutoChooser addRoutineConfig(String name, AutoRoutineConfiguration config) {
+    onSelectCommand.put(name, config.prerunCmd());
+    return addRoutine(name, config.autoRoutine(), config.startingPose());
   }
 
   /**
@@ -233,6 +251,7 @@ public class BetterAutoChooser implements Sendable {
     if (RobotBase.isSimulation() && nameAtGeneration == DO_NOTHING_NAME) {
       select(selected, true);
     }
+    CommandScheduler.getInstance().cancel(prerunCommand);
     return generatedCommand;
   }
 
@@ -245,4 +264,9 @@ public class BetterAutoChooser implements Sendable {
     builder.addStringProperty("selected", null, this::select);
     builder.addStringProperty("active", () -> select(selected), null);
   }
+
+  public record AutoRoutineConfiguration(
+      Supplier<AutoRoutine> autoRoutine,
+      Supplier<Pose2d> startingPose,
+      Supplier<Command> prerunCmd) {}
 }

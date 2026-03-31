@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
+import frc.robot.subsystems.shared.climber.Climber;
+import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
+import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState.FixedShotParameters;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
@@ -28,7 +28,7 @@ public class V1_DoomSpiralCompositeCommands {
   }
 
   public static Command scoreCommand(
-      V1_DoomSpiralShooter shooter, V1_DoomSpiralIntake intake, V1_DoomSpiralSpindexer spindexer) {
+      V1_DoomSpiralShooter shooter, Intake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
         intake.stopRoller(),
         shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
@@ -53,8 +53,10 @@ public class V1_DoomSpiralCompositeCommands {
       SwerveDrive drive,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
+      Intake intake,
       FixedShotParameters shotParameters) {
     return Commands.sequence(
+        intake.stopRoller(),
         Commands.parallel(
                 DriveCommands.rotateToAngle(
                     drive,
@@ -62,23 +64,21 @@ public class V1_DoomSpiralCompositeCommands {
                     V1_DoomSpiralRobotState::getHeading,
                     () -> AllianceFlipUtil.apply(shotParameters.robotAngle())),
                 shooter.setFlywheelGoal(shotParameters.flywheelSpeed()),
-                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()))
+                shooter.setOverrideHoodGoal(shotParameters.hoodAngle()),
+                spindexer.agitateSpindexer())
             .until(shooter::atGoal),
         spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE));
   }
 
-  public static Command deployClimber(V1_DoomSpiralIntake intake, V1_DoomSpiralClimber climber) {
+  public static Command deployClimber(Intake intake, Climber climber) {
     return Commands.sequence(
         intake.stow(),
         Commands.parallel(
-            Commands.sequence(
-                intake.setRollerVoltage(-12.0),
-                intake.waitUntilIntakeAtGoal(),
-                intake.stopRoller()),
+            Commands.sequence(intake.stopCollect()),
             climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO)));
   }
 
-  public static Command unClimbPostAuto(V1_DoomSpiralIntake intake, V1_DoomSpiralClimber climber) {
+  public static Command unClimbPostAuto(Intake intake, Climber climber) {
     return Commands.parallel(
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
   }

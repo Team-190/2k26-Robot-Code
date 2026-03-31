@@ -1,6 +1,7 @@
-package frc.robot.subsystems.v1_DoomSpiral.climber;
+package frc.robot.subsystems.shared.climber;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,13 +13,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimberConstants.ClimberGoal;
+import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class V1_DoomSpiralClimber extends SubsystemBase {
+public class Climber extends SubsystemBase {
   private final Arm arm;
   private final Supplier<Angle> rollSupplier;
 
@@ -30,9 +30,9 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   @AutoLogOutput(key = "Climber/isClimbed")
   private boolean isClimbed; // TODO: Update this
 
-  public V1_DoomSpiralClimber(ArmIO io, Supplier<Angle> rollSupplier) {
+  public Climber(ArmIO io, Supplier<Angle> rollSupplier) {
     setName("Climber");
-    arm = new Arm(io, this, 1, V1_DoomSpiralClimberConstants.CLIMBER_CONSTANTS);
+    arm = new Arm(io, this, 1, ClimberConstants.CLIMBER_CONSTANTS);
     this.rollSupplier = rollSupplier;
 
     goal = Rotation2d.kZero;
@@ -40,12 +40,12 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
     state = ClimberGoal.DEFAULT;
     controller =
         new ProfiledPIDController(
-            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kP(),
+            ClimberConstants.SLOT_2_GAINS.kP().get(),
             0,
-            V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.kD(),
+            ClimberConstants.SLOT_2_GAINS.kD().get(),
             new TrapezoidProfile.Constraints(
-                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
-                V1_DoomSpiralClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
+                ClimberConstants.ROLL_PID_CONSTANTS.maxVelocity(),
+                ClimberConstants.ROLL_PID_CONSTANTS.maxAcceleration()));
     arm.setPosition(Rotation2d.kZero);
   }
 
@@ -69,7 +69,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    * @return A command that sets the specified voltage.
    */
   public Command setVoltage(double voltage) {
-    return Commands.runOnce(() -> arm.setVoltageGoal(Volt.of(voltage)));
+    return Commands.runOnce(() -> arm.setVoltageGoal(Volts.of(voltage)));
   }
 
   /**
@@ -129,7 +129,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
 
   public boolean atGoal() {
     return Math.abs(arm.getArmPosition().getRadians() - goal.getRadians())
-        < V1_DoomSpiralClimberConstants.CONSTRAINTS.goalTolerance().get(Radians);
+        < ClimberConstants.CONSTRAINTS.goalTolerance().get(Radians);
   }
 
   public Command stop() {
@@ -185,13 +185,7 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
    */
   public Command climbAutoSequence() {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> {
-                  state = ClimberGoal.L1_AUTO_POSITION_GOAL;
-                  V1_DoomSpiralRobotState.getLedStates().setAutoClimbing(true);
-                }),
-            waitUntilPosition())
-        .finallyDo(() -> V1_DoomSpiralRobotState.getLedStates().setAutoClimbing(false));
+        Commands.runOnce(() -> state = ClimberGoal.L1_AUTO_POSITION_GOAL), waitUntilPosition());
   }
 
   public Command runZeroSequence() { // add actual zeroing later
@@ -204,21 +198,20 @@ public class V1_DoomSpiralClimber extends SubsystemBase {
   }
 
   public Command clockwiseSlow() {
-    return setVoltage(-V1_DoomSpiralClimberConstants.SLOW_VOLTAGE);
+    return setVoltage(-ClimberConstants.SLOW_VOLTAGE);
   }
 
   public Command counterClockwiseSlow() {
-    return setVoltage(V1_DoomSpiralClimberConstants.SLOW_VOLTAGE);
+    return setVoltage(ClimberConstants.SLOW_VOLTAGE);
   }
 
   public Command setPositionDefault() {
-    return setPositionGoal(
-        V1_DoomSpiralClimberConstants.ClimberGoal.DEFAULT.getPosition(), GainSlot.ZERO);
+    return setPositionGoal(ClimberConstants.ClimberGoal.DEFAULT.getPosition(), GainSlot.ZERO);
   }
 
   public Command setPositionL1() {
     return setPositionGoal(
-        V1_DoomSpiralClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ONE);
+        ClimberConstants.ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO);
   }
 
   public Command runSysId() {

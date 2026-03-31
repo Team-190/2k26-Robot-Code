@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v1_DoomSpiral;
+package frc.robot.subsystems.v2_Delta;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -8,7 +8,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.Linkag
 import frc.robot.subsystems.shared.intake.Intake;
 import java.util.List;
 
-public class V1_DoomSpiralMechanism3d {
+public class V2_DeltaMechanism3d {
   private static final Translation3d spindexerTranslation =
       new Translation3d(-0.009525, 0, 0.067589);
   private static final Translation3d climberTranslation =

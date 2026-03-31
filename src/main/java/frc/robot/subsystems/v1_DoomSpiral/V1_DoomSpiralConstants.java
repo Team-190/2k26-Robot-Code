@@ -100,7 +100,7 @@ public class V1_DoomSpiralConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/X/Max Acceleration", MetersPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/X/Max Velocity", Meters.of(0.03)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/X/Goal Tolerance", Meters.of(0.03)))
           .build();
 
   public static final Gains AUTO_ALIGN_Y_GAINS =

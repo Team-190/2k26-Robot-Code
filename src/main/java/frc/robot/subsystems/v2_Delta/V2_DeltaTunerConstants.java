@@ -14,8 +14,7 @@ import edu.wpi.first.units.measure.*;
 public class V2_DeltaTunerConstants {
   // Both sets of gains need to be tuned to your individual robot.
 
-  // The steer motor uses any SwerveModule.SteerRequestType control request with
-  // the
+  // The steer motor uses any SwerveModule.SteerRequestType control request with the
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   public static final Slot0Configs steerGains =
       new Slot0Configs()

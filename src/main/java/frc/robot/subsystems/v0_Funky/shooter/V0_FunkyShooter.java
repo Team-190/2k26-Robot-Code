@@ -14,12 +14,13 @@ import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotState;
 import java.util.function.Supplier;
 
-public class Shooter extends SubsystemBase {
+public class V0_FunkyShooter extends SubsystemBase {
   private final GenericFlywheel flywheel;
   private final Turret turret;
 
-  public Shooter(GenericFlywheelIO io, TurretIO turretIO) {
-    flywheel = new GenericFlywheel(io, this, ShooterConstants.SHOOT_CONSTANTS, "Flywheel 1");
+  public V0_FunkyShooter(GenericFlywheelIO io, TurretIO turretIO) {
+    flywheel =
+        new GenericFlywheel(io, this, V0_FunkyShooterConstants.SHOOT_CONSTANTS, "Flywheel 1");
     turret =
         new Turret(
             turretIO,
@@ -27,7 +28,7 @@ public class Shooter extends SubsystemBase {
             "",
             V0_FunkyRobotState::getGlobalPose,
             V0_FunkyRobotState::getChassisSpeeds,
-            ShooterConstants.TURRET_CONSTANTS);
+            V0_FunkyShooterConstants.TURRET_CONSTANTS);
   }
 
   @Override
