@@ -49,6 +49,8 @@ public interface TurretIO {
    */
   default void setPositionGoal(Rotation2d goal, AngularVelocity velocity, double feedforward) {}
 
+  default void setPositionGoal(Rotation2d goal, double feedforward) {}
+
   /** Checks whether the turret is within the tolerance of its goal and returns a boolean. */
   default boolean atPositionGoal(Rotation2d positionReference) {
     return false;

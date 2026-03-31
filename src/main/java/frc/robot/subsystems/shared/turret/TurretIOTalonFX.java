@@ -6,6 +6,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -43,6 +44,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   private final VoltageOut voltageControlRequest;
   private final PositionVoltage positionControlRequest;
+  private final MotionMagicVoltage motionMagicControlRequest;
 
   /** Constructor for TurretIOTalonFX */
   public TurretIOTalonFX(TurretConstants constants) {
@@ -138,8 +140,9 @@ public class TurretIOTalonFX implements TurretIO {
         e1,
         e2);
 
-    positionControlRequest = new PositionVoltage(0).withEnableFOC(true);
+    positionControlRequest = new PositionVoltage(0.0).withEnableFOC(true);
     voltageControlRequest = new VoltageOut(0.0).withEnableFOC(true);
+    motionMagicControlRequest = new MotionMagicVoltage(0.0).withEnableFOC(true);
   }
 
   @Override
@@ -159,6 +162,12 @@ public class TurretIOTalonFX implements TurretIO {
             .withPosition(goal.getRotations())
             .withVelocity(velocity)
             .withFeedForward(feedforward));
+  }
+
+  @Override
+  public void setPositionGoal(Rotation2d goal, double feedforward) {
+    talonFX.setControl(
+        motionMagicControlRequest.withPosition(goal.getRotations()).withFeedForward(feedforward));
   }
 
   @Override
