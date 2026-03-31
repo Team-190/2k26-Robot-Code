@@ -52,6 +52,6 @@ public class V0_FunkyShooter extends SubsystemBase {
   }
 
   public Command runTurretSysID() {
-    return turret.runSysId();
+    return turret.runSysIdRoutine();
   }
 }

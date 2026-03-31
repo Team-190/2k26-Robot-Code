@@ -32,6 +32,7 @@ public class V0_FunkyRobotState {
   private static final FieldZone globalZone;
 
   @Setter private static long networktablesTimestamp;
+  @Setter @Getter private static boolean turretWrapping;
 
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);

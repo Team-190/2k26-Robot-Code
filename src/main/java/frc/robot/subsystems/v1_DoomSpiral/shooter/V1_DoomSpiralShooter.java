@@ -151,7 +151,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command hoodSysId() {
-    return hood.runSysId();
+    return hood.runSysIdRoutine();
   }
 
   public Command flywheelSysId() {

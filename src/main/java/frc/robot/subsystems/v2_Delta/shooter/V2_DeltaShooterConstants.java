@@ -9,7 +9,10 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -20,6 +23,7 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
 import frc.robot.subsystems.shared.hood.HoodConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants;
+import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
 
 public class V2_DeltaShooterConstants {
 
@@ -105,14 +109,68 @@ public class V2_DeltaShooterConstants {
                   .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
                   .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .build())
+          .withVoltageStep(Volts.of(0.5))
           .build();
 
-  public static final TurretConstants TURRET_CONSTANTS = TurretConstants.builder().build();
+  public static final TurretConstants TURRET_CONSTANTS =
+      TurretConstants.builder()
+          .withMotorConfig(DCMotor.getKrakenX60Foc(1))
+          .withMomentOfInertia(0.004)
+          .withTurretCANID(2)
+          .withMotorInversion(InvertedValue.CounterClockwise_Positive)
+          .withEncoderInversion(SensorDirectionValue.Clockwise_Positive)
+          .withCanBus(CANBus.roboRIO())
+          .withEncoder1ID(16)
+          .withEncoder2ID(15)
+          .withMaxAngle(Rotation2d.fromRadians(2 * Math.PI))
+          .withMinAngle(Rotation2d.fromRadians(-2 * Math.PI))
+          .withGearRatio(120.0 / 20)
+          .withSupplyCurrentLimit(30.0)
+          .withStatorCurrentLimit(30.0)
+          .withE1Offset(
+              Rotation2d.fromRotations(-0.521973)
+                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
+          .withE2Offset(
+              Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
+          .withGains(
+              Gains.builder()
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 2.8624920))
+                  .withKD(new LoggedTunableNumber("Turret/Kd", 0.0))
+                  .withKS(new LoggedTunableNumber("Turret/Ks", 0.158040))
+                  .withKV(new LoggedTunableNumber("Turret/Kv", 0.11377))
+                  .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
+                  .build())
+          .withConstraints(
+              AngularPositionConstraints.builder()
+                  .withMaxAcceleration(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Turret/MaxAcceleration",
+                          RadiansPerSecondPerSecond.of(35.566371)))
+                  .withMaxVelocity(
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
+                  .withGoalTolerance(
+                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
+                  .build())
+          .withTurretAngleCalculation(
+              TurretAngleCalculation.builder()
+                  .withGear0ToothCount(120)
+                  .withGear1ToothCount(16)
+                  .withGear2ToothCount(17)
+                  .build())
+          .withRobotToTurretTransform(
+              new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d()))
+          .withVoltageStep(Volts.of(0.5))
+          .withAngleStep(Rotation2d.fromDegrees(1.0))
+          .build();
 
-  public enum HoodGoal {
+  public enum ShooterGoal {
     SCORE,
     FEED,
     STOW,
-    OVERRIDE
+    OVERRIDE_TURRET,
+    OVERRIDE_HOOD,
+    OVERRIDE_FLYWHEEL,
+    SYSID
   }
 }
