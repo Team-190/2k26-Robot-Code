@@ -167,7 +167,6 @@ public class V2_DeltaShooterConstants {
   public enum ShooterGoal {
     SCORE,
     FEED,
-    UNWRAP,
     STOW,
     OVERRIDE
   }

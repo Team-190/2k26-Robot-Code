@@ -237,10 +237,11 @@ public class V2_DeltaRobotState {
         Distance.ofBaseUnits(
             shooterPosition.getTranslation().minus(hubTranslation).getNorm(), Meters);
 
+    Translation2d feedTranslation = getFeedTranslation();
+
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
-            getGlobalPose().getTranslation().minus(getFeedTranslation()).getNorm(), Meters);
-
+            getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
     robotToHubAngle =
         hubTranslation
             .minus(shooterPosition.getTranslation())
@@ -259,6 +260,9 @@ public class V2_DeltaRobotState {
         isTurretWrapping
             || shouldHoodTuck
             || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
+
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(
@@ -306,12 +310,20 @@ public class V2_DeltaRobotState {
 
   public static Translation2d getFeedTranslation() {
     Translation2d feedTranslation;
-    if (getGlobalPose().getY() >= FieldConstants.fieldWidth) {
-      feedTranslation = FieldConstants.Depot.FEED_TRANSLATION;
+    if (getGlobalPose().getY() >= FieldConstants.fieldWidth / 2) {
+      if (AllianceFlipUtil.shouldFlip()) {
+        feedTranslation = FieldConstants.Outpost.RED_FEED_TRANSLATION;
+      } else {
+        feedTranslation = FieldConstants.Depot.BLUE_FEED_TRANSLATION;
+      }
     } else {
-      feedTranslation = FieldConstants.Outpost.FEED_TRANSLATION;
+      if (AllianceFlipUtil.shouldFlip()) {
+        feedTranslation = FieldConstants.Depot.RED_FEED_TRANSLATION;
+      } else {
+        feedTranslation = FieldConstants.Outpost.BLUE_FEED_TRANSLATION;
+      }
     }
-    return AllianceFlipUtil.apply(feedTranslation);
+    return feedTranslation;
   }
 
   public static void resetPose(Pose2d pose) {

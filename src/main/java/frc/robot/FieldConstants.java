@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.List;
 
 /**
@@ -348,7 +349,9 @@ public class FieldConstants {
     public static final Translation3d rightCorner =
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY - (width / 2), height);
 
-    public static final Translation2d FEED_TRANSLATION = new Translation2d(3.5, 5.5);
+    public static final Translation2d BLUE_FEED_TRANSLATION = new Translation2d(3.5, 5.5);
+    public static final Translation2d RED_FEED_TRANSLATION =
+        AllianceFlipUtil.overrideApply(new Translation2d(3.5, 5.5));
   }
 
   public static class Outpost {
@@ -361,7 +364,9 @@ public class FieldConstants {
     public static final Translation2d centerPoint =
         new Translation2d(0, tagLayoutType.getLayout().getTagPose(29).get().getY());
 
-    public static final Translation2d FEED_TRANSLATION = new Translation2d(3.5, 2.5);
+    public static final Translation2d BLUE_FEED_TRANSLATION = new Translation2d(3.5, 2.5);
+    public static final Translation2d RED_FEED_TRANSLATION =
+        AllianceFlipUtil.overrideApply(new Translation2d(3.5, 2.5));
   }
 
   public enum AprilTagLayoutType {

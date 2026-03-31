@@ -93,6 +93,8 @@ public class Turret {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
 
+    positionGoal = fieldToTurret(robotPoseSupplier.get());
+
     // Detect wrapping
     Rotation2d wrappedGoal = wrapRotationWithinBounds(positionGoal, inputs.angle);
 
@@ -114,10 +116,7 @@ public class Turret {
     switch (state) {
       case CLOSED_LOOP_POSITION_CONTROL -> io.setPositionGoal(wrappedGoal);
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal(voltageGoal);
-      case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
-        positionGoal = fieldToTurret(robotPoseSupplier.get());
-        io.setPositionGoal(wrappedGoal);
-      }
+      case CLOSED_LOOP_AUTO_AIM_CONTROL -> io.setPositionGoal(wrappedGoal);
       default -> {}
     }
 
