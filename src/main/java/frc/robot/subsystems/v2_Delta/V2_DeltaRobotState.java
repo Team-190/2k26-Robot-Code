@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
+import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
@@ -70,6 +71,7 @@ public class V2_DeltaRobotState {
   @Setter @Getter private static long headingUpdateTimestamp;
 
   @Getter private static boolean prohibitShot;
+  @Getter private static boolean shouldHoodTuck;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -252,7 +254,11 @@ public class V2_DeltaRobotState {
 
     field.setRobotPose(getGlobalPose());
 
-    prohibitShot = isTurretWrapping || shouldTuckHood();
+    shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
+    prohibitShot =
+        isTurretWrapping
+            || shouldHoodTuck
+            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(
@@ -270,6 +276,27 @@ public class V2_DeltaRobotState {
         (int) HubActivePeriod.getShiftTimeRemaining());
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Current Shift", HubActivePeriod.getCurrentShift());
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Left Blue Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.BLUE_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Left Red Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Right Blue Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Right Red Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Tower Zones/Blue Tower Zone",
+        GeometryUtil.rectanglePose2ds(FieldConstants.Tower.BLUE_TOWER));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Tower Zones/Red Tower Zone",
+        GeometryUtil.rectanglePose2ds(FieldConstants.Tower.RED_TOWER));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "No Feed Zone",
+        GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
@@ -297,22 +324,6 @@ public class V2_DeltaRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
-  }
-
-  public static boolean shouldTuckHood() {
-    boolean underBlueLeft =
-        FieldConstants.LeftTrench.BLUE_TRENCH.contains(getGlobalPose().getTranslation())
-            || FieldConstants.LeftTrench.BLUE_TRENCH.contains(getHubZonePose().getTranslation());
-    boolean underBlueRight =
-        FieldConstants.RightTrench.BLUE_TRENCH.contains(getGlobalPose().getTranslation())
-            || FieldConstants.RightTrench.BLUE_TRENCH.contains(getHubZonePose().getTranslation());
-    boolean underRedLeft =
-        FieldConstants.LeftTrench.RED_TRENCH.contains(getGlobalPose().getTranslation())
-            || FieldConstants.LeftTrench.RED_TRENCH.contains(getHubZonePose().getTranslation());
-    boolean underRedRight =
-        FieldConstants.RightTrench.RED_TRENCH.contains(getGlobalPose().getTranslation())
-            || FieldConstants.RightTrench.RED_TRENCH.contains(getHubZonePose().getTranslation());
-    return underBlueLeft || underBlueRight || underRedLeft || underRedRight;
   }
 
   public static Pose2d getHubZonePose() {

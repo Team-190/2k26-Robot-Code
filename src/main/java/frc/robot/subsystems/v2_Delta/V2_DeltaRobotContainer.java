@@ -1,9 +1,5 @@
 package frc.robot.subsystems.v2_Delta;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rectangle2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
@@ -21,8 +17,6 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import frc.robot.Constants;
-import frc.robot.FieldConstants.LeftTrench;
-import frc.robot.FieldConstants.RightTrench;
 import frc.robot.RobotConfig;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.hood.HoodIO;
@@ -36,7 +30,6 @@ import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopperConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
-import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
@@ -153,38 +146,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         drive.getModulePositions(),
         shooter.getTurretRotation(),
         shooter.isTurretWrapping());
-
-    Logger.recordOutput("Rectangle1", getRectangle(LeftTrench.BLUE_TRENCH));
-    Logger.recordOutput("Rectangle2", getRectangle(LeftTrench.RED_TRENCH));
-
-    Logger.recordOutput("Rectangle3", getRectangle(RightTrench.BLUE_TRENCH));
-    Logger.recordOutput("Rectangle4", getRectangle(RightTrench.RED_TRENCH));
-  }
-
-  public static Pose2d[] getRectangle(Rectangle2d rectangle) {
-    Pose2d[] poses = new Pose2d[5];
-    poses[0] =
-        rectangle
-            .getCenter()
-            .transformBy(
-                new Transform2d(rectangle.getXWidth(), rectangle.getYWidth(), new Rotation2d()));
-    poses[1] =
-        rectangle
-            .getCenter()
-            .transformBy(
-                new Transform2d(-rectangle.getXWidth(), rectangle.getYWidth(), new Rotation2d()));
-    poses[2] =
-        rectangle
-            .getCenter()
-            .transformBy(
-                new Transform2d(-rectangle.getXWidth(), -rectangle.getYWidth(), new Rotation2d()));
-    poses[3] =
-        rectangle
-            .getCenter()
-            .transformBy(
-                new Transform2d(rectangle.getXWidth(), -rectangle.getYWidth(), new Rotation2d()));
-    poses[4] = rectangle.getCenter();
-    return poses;
   }
 
   @Override

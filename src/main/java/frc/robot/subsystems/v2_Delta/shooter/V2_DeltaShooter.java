@@ -58,7 +58,7 @@ public class V2_DeltaShooter extends SubsystemBase {
     turret.periodic();
     hood.periodic();
     flywheel.periodic();
-    if (V2_DeltaRobotState.shouldTuckHood()) {
+    if (V2_DeltaRobotState.isShouldHoodTuck()) {
       hood.setPositionGoal(Rotation2d.kZero);
     } else {
       switch (shooterGoal) {

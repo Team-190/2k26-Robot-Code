@@ -128,6 +128,12 @@ public class FieldConstants {
     public static final Pose2d rightFace =
         tagLayoutType.getLayout().getTagPose(18).get().toPose2d();
     public static final Pose2d leftFace = tagLayoutType.getLayout().getTagPose(21).get().toPose2d();
+
+    public static final Rectangle2d FEED_KEEPOUT =
+        new Rectangle2d(
+            new Pose2d(fieldLength / 2.0, fieldWidth / 2.0, new Rotation2d()),
+            Math.abs(farRightCorner.getX() - oppNearLeftCorner.getX()) / 2,
+            width / 2);
   }
 
   /** Left Bump related constants */
@@ -207,8 +213,8 @@ public class FieldConstants {
                     LinesVertical.hubCenter,
                     LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
                 new Rotation2d()),
-            openingHeight,
-            openingHeight);
+            openingWidth / 2,
+            openingWidth / 2);
     public static final Rectangle2d RED_TRENCH =
         new Rectangle2d(
             new Pose2d(
@@ -216,8 +222,8 @@ public class FieldConstants {
                     LinesVertical.oppHubCenter,
                     LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
                 new Rotation2d()),
-            openingHeight,
-            openingHeight);
+            openingWidth / 2,
+            openingWidth / 2);
   }
 
   public static class RightTrench {
@@ -309,6 +315,22 @@ public class FieldConstants {
             (tagLayoutType.getLayout().getTagPose(15).get().getY())
                 - innerOpeningWidth / 2
                 - Units.inchesToMeters(0.75));
+
+    public static final Rectangle2d BLUE_TOWER =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(centerPoint.getX() - depth / 2, centerPoint.getY()),
+                new Rotation2d()),
+            depth / 2,
+            depth / 2);
+
+    public static final Rectangle2d RED_TOWER =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(oppCenterPoint.getX() + depth / 2, oppCenterPoint.getY()),
+                new Rotation2d()),
+            depth / 2,
+            depth / 2);
   }
 
   public static class Depot {
@@ -381,5 +403,14 @@ public class FieldConstants {
         FieldConstants.tagLayoutType.getLayout().getTags().stream()
             .filter((AprilTag tag) -> List.of(15, 16).contains(tag.ID))
             .toList();
+  }
+
+  public static class Zones {
+    public static final Rectangle2d[] PROHIBIT_LAUNCH_ZONES = {
+      Tower.BLUE_TOWER, Tower.RED_TOWER, Hub.FEED_KEEPOUT
+    };
+    public static final Rectangle2d[] HOOD_TUCK_ZONES = {
+      LeftTrench.BLUE_TRENCH, LeftTrench.RED_TRENCH, RightTrench.BLUE_TRENCH, RightTrench.RED_TRENCH
+    };
   }
 }
