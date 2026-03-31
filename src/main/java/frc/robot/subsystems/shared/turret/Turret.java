@@ -1,10 +1,12 @@
 package frc.robot.subsystems.shared.turret;
 
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.AngleUnit;
@@ -23,9 +25,16 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import java.util.function.Supplier;
+
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.Logger;
 
+@ExtensionMethod(GeometryUtil.class)
 public class Turret {
   private final TurretIO io;
   private final String aKitTopic;
@@ -47,6 +56,10 @@ public class Turret {
   private final TurretConstants constants;
 
   private final SimpleMotorFeedforward feedforwardController;
+
+  @Getter private boolean isWrapping;
+  private Rotation2d previousCommandedGoal;
+  private Rotation2d unwrapGoal;
 
   public Turret(
       TurretIO io,
@@ -96,88 +109,127 @@ public class Turret {
             constants.aimingFeedforwardGains.getKS(),
             constants.aimingFeedforwardGains.getKV(),
             constants.aimingFeedforwardGains.getKA());
+
+    isWrapping = false;
+    previousCommandedGoal = Rotation2d.kZero;
+    unwrapGoal = Rotation2d.kZero;
   }
 
   @Trace
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
-    Logger.recordOutput(
-        aKitTopic + "/CRT Angle",
-        calculateTurretAngle(
-            io.getEncoder1Position(), io.getEncoder2Position(), constants.turretAngleCalculation));
+
+    positionGoal = fieldToTurret(robotPoseSupplier.get());
+
+    // Detect wrapping
+    Rotation2d wrappedGoal = wrapRotationWithinBounds(positionGoal, inputs.angle);
+
+    double goalJump = wrappedGoal.minus(previousCommandedGoal).getRadians();
+
+    if (!isWrapping && Math.abs(goalJump) > Math.PI) {
+      isWrapping = true;
+      unwrapGoal = wrappedGoal;
+    }
+
+    if (isWrapping
+        && Math.abs(inputs.angle.getRadians() - unwrapGoal.getRadians())
+            < constants.constraints.getGoalTolerance(Radians)) {
+      isWrapping = false;
+    }
+
+    previousCommandedGoal = wrappedGoal;
+
+    switch (state) {
+      case CLOSED_LOOP_POSITION_CONTROL -> io.setPositionGoal(wrappedGoal);
+      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal(voltageGoal);
+      case CLOSED_LOOP_AUTO_AIM_CONTROL -> io.setPositionGoal(wrappedGoal);
+      default -> {}
+    }
 
     Logger.recordOutput(aKitTopic + "/At Goal", atPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
-
-    switch (state) {
-      case CLOSED_LOOP_POSITION_CONTROL ->
-          io.setPositionGoal(
-              wrapRotationWithinBounds(
-                  new Rotation2d((Angle) positionGoal.getNewSetpoint()),
-                  inputs.angle,
-                  constants.minAngle.getRadians(),
-                  constants.maxAngle.getRadians()),
-              (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
-              0.0);
-      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
-      case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
-        positionGoal.setSetpoint(
-            angleToGoal(translationGoal, robotPoseSupplier.get(), constants.turretOffset)
-                .getMeasure());
-        io.setPositionGoal(
-            wrapRotationWithinBounds(
-                new Rotation2d((Angle) positionGoal.getNewSetpoint()),
-                inputs.angle,
-                constants.minAngle.getRadians(),
-                constants.maxAngle.getRadians()),
-            (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
-            calculateFeedforwardVoltage(
-                feedforwardController,
-                translationGoal,
-                robotPoseSupplier.get(),
-                fieldVelocitySupplier.get()));
-      }
-      default -> {}
-    }
+    Logger.recordOutput(aKitTopic + "/Is Unwrapping", isWrapping);
+    Logger.recordOutput(
+        aKitTopic + "/CRT Angle",
+        calculateTurretAngle(io.getEncoder1Position(), io.getEncoder2Position()));
+    Logger.recordOutput(
+        aKitTopic + "/Pose",
+        new Pose2d(
+            robotPoseSupplier
+                .get()
+                .transformBy(
+                    new Transform2d(
+                        constants.robotToTurretTransform.getX(),
+                        constants.robotToTurretTransform.getY(),
+                        Rotation2d.kZero))
+                .getTranslation(),
+            inputs.angle.plus(robotPoseSupplier.get().getRotation())));
   }
 
-  private static Rotation2d angleToGoal(
-      Translation2d translationGoal, Pose2d robotPose, Translation2d turretOffset) {
-
-    Translation2d turretPosition =
-        robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
-
-    return translationGoal
-        .minus(turretPosition)
-        .getAngle()
-        .minus(robotPose.getRotation())
-        .unaryMinus();
+  /**
+   * Returns the angle from the robot's current position to the target position. This is calculated
+   * by subtracting the robot's current position from the target position, adding the turret's
+   * translation (rotated by the robot's current angle), and then taking the angle of the resulting
+   * translation from the robot's current angle.
+   *
+   * @param robotPose the robot's current pose
+   * @param targetTranslation the target position
+   * @return the angle from the robot's current position to the target position
+   */
+  public Rotation2d fieldToTurret(Pose2d robotPose) {
+    Transform2d robotToTurretTransform =
+        new Transform2d(
+            constants.robotToTurretTransform.getX(),
+            constants.robotToTurretTransform.getY(),
+            Rotation2d.kZero);
+    Pose2d turretPose = robotPose.transformBy(robotToTurretTransform);
+    Translation2d turretToTarget = translationGoal.minus(turretPose.getTranslation());
+    return turretToTarget.getAngle().minus(turretPose.getRotation());
   }
 
-  private static double calculateFeedforwardVoltage(
-      SimpleMotorFeedforward feedforwardController,
-      Translation2d translationGoal,
-      Pose2d robotPose,
-      ChassisSpeeds fieldVelocity) {
+  public void setFieldRelativeGoal(Translation2d goal) {
+    state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
+    translationGoal = goal;
+  }
 
-    double rx = translationGoal.getX() - robotPose.getX();
-    double ry = translationGoal.getY() - robotPose.getY();
+    private static Rotation2d angleToGoal(
+            Translation2d translationGoal, Pose2d robotPose, Translation2d turretOffset) {
 
-    double distanceSq = (rx * rx) + (ry * ry);
+        Translation2d turretPosition =
+                robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
 
-    if (distanceSq < 0.01) {
-      return 0.0;
+        return translationGoal
+                .minus(turretPosition)
+                .getAngle()
+                .minus(robotPose.getRotation())
+                .unaryMinus();
     }
 
-    double targetOmega =
-        (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond) / distanceSq;
+    private static double calculateFeedforwardVoltage(
+            SimpleMotorFeedforward feedforwardController,
+            Translation2d translationGoal,
+            Pose2d robotPose,
+            ChassisSpeeds fieldVelocity) {
 
-    return -feedforwardController.calculate(
-        fieldVelocity.omegaRadiansPerSecond - targetOmega); // still needs testing
-  }
+        double rx = translationGoal.getX() - robotPose.getX();
+        double ry = translationGoal.getY() - robotPose.getY();
 
-  public boolean outOfRange(Rotation2d angle) {
+        double distanceSq = (rx * rx) + (ry * ry);
+
+        if (distanceSq < 0.01) {
+            return 0.0;
+        }
+
+        double targetOmega =
+                (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond) / distanceSq;
+
+        return -feedforwardController.calculate(
+                fieldVelocity.omegaRadiansPerSecond - targetOmega); // still needs testing
+    }
+
+
+    public boolean outOfRange(Rotation2d angle) {
     return (!(angle.getDegrees() <= constants.maxAngle.getDegrees())
         || !(angle.getDegrees() >= constants.minAngle.getDegrees()));
   }
@@ -243,18 +295,13 @@ public class Turret {
         .finallyDo(() -> io.setPosition(new Rotation2d()));
   }
 
-  public void setFieldRelativeGoal(Translation2d goal) {
-    state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
-    translationGoal = goal;
-  }
-
   public void setFieldRelativeGoal(Translation2d goal, AngularVelocity velocity) {
     state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
     angularVelocityGoal.setSetpoint(velocity);
     translationGoal = goal;
   }
 
-  public Command runSysId() {
+  public Command runSysIdRoutine() {
     return Commands.sequence(
         Commands.runOnce(() -> state = TurretState.IDLE),
         characterizationRoutine
@@ -336,6 +383,10 @@ public class Turret {
             / (double) gearRatios.gear0ToothCount();
 
     return Rotation2d.fromRotations(turretRotations);
+  }
+
+  public Rotation2d getPosition() {
+    return inputs.angle;
   }
 
   public void updateGains(Gains gains) {

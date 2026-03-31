@@ -3,6 +3,7 @@ package frc.robot.subsystems.v2_Delta;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -10,26 +11,30 @@ import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
+import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
+import lombok.*;
 import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaRobotState {
@@ -47,8 +52,6 @@ public class V2_DeltaRobotState {
 
   private static final Localization localization;
 
-  private static Rotation2d robotHeading;
-
   @Getter private static Distance distanceToHub;
   @Getter private static Distance distanceToFeedTranslation;
 
@@ -57,13 +60,18 @@ public class V2_DeltaRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
-  @Getter private static Rotation2d robotAngle;
+  @Getter private static Rotation2d robotToHubAngle;
   @Getter private static Rotation2d scoreAngle;
-  @Getter private static double scoreVelocity;
+  @Getter private static AngularVelocity scoreVelocity;
   @Getter private static Rotation2d feedAngle;
-  @Getter private static double feedVelocity;
+  @Getter private static AngularVelocity feedVelocity;
 
   @Getter private static final LEDStates ledStates;
+
+  @Setter @Getter private static long headingUpdateTimestamp;
+
+  @Getter private static boolean prohibitShot;
+  @Getter private static boolean shouldHoodTuck;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -78,13 +86,13 @@ public class V2_DeltaRobotState {
 
     localization =
         new Localization(
-            List.of(globalZone), V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.kinematics(), 2);
-
-    robotHeading = Rotation2d.kZero;
+            List.of(globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone),
+            V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
+            2);
 
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose()
+            getHubZonePose()
                 .getTranslation()
                 .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
                 .getNorm(),
@@ -92,11 +100,7 @@ public class V2_DeltaRobotState {
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
-            getGlobalPose()
-                .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
-                .getNorm(),
-            Meters);
+            getGlobalPose().getTranslation().minus(getFeedTranslation()).getNorm(), Meters);
 
     ledStates = new LEDStates(false, false, false, false, false, false);
 
@@ -133,29 +137,38 @@ public class V2_DeltaRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    shootAngleTree.put(Meters.of(1.08169), Rotation2d.fromDegrees(5.0));
-    shootAngleTree.put(Meters.of(1.34257), Rotation2d.fromDegrees(6.5));
-    shootAngleTree.put(Meters.of(1.676884), Rotation2d.fromRadians(0.231631));
-    shootAngleTree.put(Meters.of(2.013799), Rotation2d.fromRadians(0.262311));
-    shootAngleTree.put(Meters.of(2.26935), Rotation2d.fromDegrees(13.5));
-    shootAngleTree.put(Meters.of(2.4), Rotation2d.fromDegrees(15.5));
-    shootAngleTree.put(Meters.of(2.539004), Rotation2d.fromDegrees(16.5));
-    shootAngleTree.put(Meters.of(2.748745), Rotation2d.fromDegrees(18.5));
-    shootAngleTree.put(Meters.of(3.039446), Rotation2d.fromDegrees(18.5));
-    shootAngleTree.put(Meters.of(3.280458), Rotation2d.fromDegrees(19.5));
-    shootAngleTree.put(Meters.of(3.527742), Rotation2d.fromDegrees(20.0));
+    shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(5.0));
+    shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(340.0));
 
-    shootSpeedTree.put(Meters.of(1.08169), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(1.34257), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(1.676884), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.013799), RadiansPerSecond.of(350));
-    shootSpeedTree.put(Meters.of(2.26935), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(2.4), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(2.539004), RadiansPerSecond.of(370));
-    shootSpeedTree.put(Meters.of(2.748745), RadiansPerSecond.of(380));
-    shootSpeedTree.put(Meters.of(3.039446), RadiansPerSecond.of(402));
-    shootSpeedTree.put(Meters.of(3.280458), RadiansPerSecond.of(409));
-    shootSpeedTree.put(Meters.of(3.527742), RadiansPerSecond.of(420));
+    shootAngleTree.put(Meters.of(1.491203295344588), Rotation2d.fromDegrees(6.0));
+    shootSpeedTree.put(Meters.of(1.491203295344588), RadiansPerSecond.of(345.0));
+
+    shootAngleTree.put(Meters.of(1.735737657075872), Rotation2d.fromDegrees(16.0));
+    shootSpeedTree.put(Meters.of(1.735737657075872), RadiansPerSecond.of(345.0));
+
+    shootAngleTree.put(Meters.of(2.0049492041827994), Rotation2d.fromDegrees(17.0));
+    shootSpeedTree.put(Meters.of(2.0049492041827994), RadiansPerSecond.of(350.0));
+
+    shootAngleTree.put(Meters.of(2.30668187255375), Rotation2d.fromDegrees(18.0));
+    shootSpeedTree.put(Meters.of(2.30668187255375), RadiansPerSecond.of(355.0));
+
+    shootAngleTree.put(Meters.of(2.572028569812878), Rotation2d.fromDegrees(19.0));
+    shootSpeedTree.put(Meters.of(2.572028569812878), RadiansPerSecond.of(375.0));
+
+    shootAngleTree.put(Meters.of(2.9670118924057562), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(2.9670118924057562), RadiansPerSecond.of(388.0));
+
+    shootAngleTree.put(Meters.of(3.297585897171101), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(3.297585897171101), RadiansPerSecond.of(405.0));
+
+    shootAngleTree.put(Meters.of(3.622009715844515), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(3.622009715844515), RadiansPerSecond.of(415.0));
+
+    shootAngleTree.put(Meters.of(3.8605317055005743), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(3.8605317055005743), RadiansPerSecond.of(430.0));
+
+    shootAngleTree.put(Meters.of(4.120246303911951), Rotation2d.fromDegrees(20.0));
+    shootSpeedTree.put(Meters.of(4.120246303911951), RadiansPerSecond.of(457.0));
 
     feedAngleTree.put(
         Meters.of(0.0),
@@ -183,58 +196,78 @@ public class V2_DeltaRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
     scoreAngle = new Rotation2d();
-    scoreVelocity = 0;
+    scoreVelocity = RadiansPerSecond.of(0.0);
     feedAngle = new Rotation2d();
-    feedVelocity = 0;
+    feedVelocity = RadiansPerSecond.of(0.0);
 
     field.setRobotPose(getGlobalPose());
     SmartDashboard.putData("Field", field);
+
+    headingUpdateTimestamp = NetworkTablesJNI.now();
   }
 
   @Trace
   public static void periodic(
       Rotation2d robotHeading,
-      long latestRobotHeadingTimestamp,
       double robotYawVelocity,
-      SwerveModulePosition[] modulePositions) {
+      SwerveModulePosition[] modulePositions,
+      Rotation2d turretRotation,
+      boolean isTurretWrapping) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
 
-    V2_DeltaRobotState.robotHeading = robotHeading;
+    Pose2d hubPose = getHubZonePose();
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", hubPose);
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
 
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+    Pose2d shooterPosition =
+        hubPose.transformBy(
+            new Transform2d(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
+                turretRotation));
+
     distanceToHub =
         Distance.ofBaseUnits(
-            getGlobalPose().getTranslation().minus(hubTranslation).getNorm(), Meters);
+            shooterPosition.getTranslation().minus(hubTranslation).getNorm(), Meters);
+
+    Translation2d feedTranslation = getFeedTranslation();
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
-            getGlobalPose()
-                .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
-                .getNorm(),
-            Meters);
-
-    double xDiff = getGlobalPose().getX() - hubTranslation.getX();
-    double yDiff = getGlobalPose().getY() - hubTranslation.getY();
-
-    robotAngle = new Rotation2d(xDiff, yDiff).minus(Rotation2d.kCCW_90deg);
+            getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
+    robotToHubAngle =
+        hubTranslation
+            .minus(shooterPosition.getTranslation())
+            .getAngle()
+            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
 
     scoreAngle = shootAngleTree.get(distanceToHub);
-    scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
+    scoreVelocity = shootSpeedTree.get(distanceToHub);
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
-    feedVelocity = feedSpeedTree.get(distanceToFeedTranslation).in(RadiansPerSecond);
+    feedVelocity = feedSpeedTree.get(distanceToFeedTranslation);
 
     field.setRobotPose(getGlobalPose());
+
+    shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
+    prohibitShot =
+        isTurretWrapping
+            || shouldHoodTuck
+            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
+
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Rotation to Hub",
-        new Pose2d(getGlobalPose().getX(), getGlobalPose().getY(), robotAngle));
+        new Pose2d(hubPose.getTranslation(), robotToHubAngle));
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
@@ -247,11 +280,50 @@ public class V2_DeltaRobotState {
         (int) HubActivePeriod.getShiftTimeRemaining());
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Current Shift", HubActivePeriod.getCurrentShift());
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Left Blue Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.BLUE_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Left Red Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Right Blue Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Trench Zones/Right Red Trench",
+        GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Tower Zones/Blue Tower Zone",
+        GeometryUtil.rectanglePose2ds(FieldConstants.Tower.BLUE_TOWER));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Tower Zones/Red Tower Zone",
+        GeometryUtil.rectanglePose2ds(FieldConstants.Tower.RED_TOWER));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "No Feed Zone",
+        GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
   }
 
-  public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(2.0))
+  public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
+    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(20.0))
       localization.addPoseObservations(observations);
+  }
+
+  public static Translation2d getFeedTranslation() {
+    Translation2d feedTranslation;
+    if (getGlobalPose().getY() >= FieldConstants.fieldWidth / 2) {
+      if (AllianceFlipUtil.shouldFlip()) {
+        feedTranslation = FieldConstants.Outpost.RED_FEED_TRANSLATION;
+      } else {
+        feedTranslation = FieldConstants.Depot.BLUE_FEED_TRANSLATION;
+      }
+    } else {
+      if (AllianceFlipUtil.shouldFlip()) {
+        feedTranslation = FieldConstants.Depot.RED_FEED_TRANSLATION;
+      } else {
+        feedTranslation = FieldConstants.Outpost.BLUE_FEED_TRANSLATION;
+      }
+    }
+    return feedTranslation;
   }
 
   public static void resetPose(Pose2d pose) {
@@ -264,6 +336,63 @@ public class V2_DeltaRobotState {
 
   public static Pose2d getGlobalPose() {
     return localization.getEstimatedPose(globalZone);
+  }
+
+  public static Pose2d getHubZonePose() {
+    Pose2d hubZonePose;
+
+    // use alliance pose if alliance is known, else fallback to global pose
+
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+
+    if (alliance.isPresent()) {
+      if (alliance.get() == Alliance.Red) {
+        hubZonePose = localization.getEstimatedPose(redHubZone);
+      } else {
+        hubZonePose = localization.getEstimatedPose(blueHubZone);
+      }
+    } else {
+      // fall back to global pose if no alliance
+      hubZonePose = getGlobalPose();
+    }
+    return hubZonePose;
+  }
+
+  public static Pose2d getTowerZonePose() {
+    Pose2d towerZonePose;
+
+    // use alliance pose if alliance is known, else fallback to global pose
+
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+
+    if (alliance.isPresent()) {
+      if (alliance.get() == Alliance.Red) {
+        towerZonePose = localization.getEstimatedPose(redTowerZone);
+      } else {
+        towerZonePose = localization.getEstimatedPose(blueTowerZone);
+      }
+    } else {
+      // fall back to global pose if no alliance
+      towerZonePose = getGlobalPose();
+    }
+
+    return towerZonePose;
+  }
+
+  public static void setAutoTrajectory(Pose2d... trajectory) {
+    field.getObject("trajectory").setPoses(trajectory);
+  }
+
+  public static void setAutoTrajectory(AutoTrajectory... trajectories) {
+    setAutoTrajectory(
+        Arrays.stream(trajectories)
+            .flatMap(traj -> Arrays.stream(traj.getRawTrajectory().getPoses()))
+            .map(AllianceFlipUtil::apply)
+            .toArray(Pose2d[]::new));
+  }
+
+  public static void setAutoTrajectory() {
+    field.getObject("trajectory").setPoses();
   }
 
   public record FixedShotParameters(
