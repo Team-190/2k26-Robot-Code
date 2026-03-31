@@ -19,7 +19,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
@@ -79,7 +79,7 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                   V0_FunkyRobotState::resetPose);
           shooter =
               new V0_FunkyShooter(
-                  new GenericFlywheelIOTalonFX(V0_FunkyShooterConstants.SHOOT_CONSTANTS),
+                  new GenericFlywheelIOTalonFXSim(V0_FunkyShooterConstants.SHOOT_CONSTANTS),
                   new TurretIOTalonFX(V0_FunkyShooterConstants.TURRET_CONSTANTS));
           // feeder = new Feeder(new GenericRollerIOTalonFX(V0_FunkyConstants.FEED_CONSTANTS));
           vision =

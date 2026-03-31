@@ -86,9 +86,10 @@ public class V0_FunkyShooterConstants {
           .withRobotToTurretTransform(new Transform3d())
           .withE1Offset(
               Rotation2d.fromRotations(-0.521973)
-                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
+                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172 + 88.681641)))
           .withE2Offset(
-              Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
+              Rotation2d.fromRotations(-0.44458)
+                  .minus(Rotation2d.fromDegrees(325.371094 + 233.261719)))
           .withGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 28.624920))
