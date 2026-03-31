@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
-import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
@@ -129,7 +128,8 @@ public class Turret {
     Logger.recordOutput(
         aKitTopic + "/Pose",
         new Pose2d(
-            V2_DeltaRobotState.getGlobalPose()
+            robotPoseSupplier
+                .get()
                 .transformBy(
                     new Transform2d(
                         constants.robotToTurretTransform.getX(),
@@ -220,7 +220,7 @@ public class Turret {
         .finallyDo(() -> io.setPosition(new Rotation2d()));
   }
 
-  public Command runSysId() {
+  public Command runSysIdRoutine() {
     return Commands.sequence(
         Commands.runOnce(() -> state = TurretState.IDLE),
         characterizationRoutine
