@@ -87,14 +87,14 @@ public class V1_DoomSpiralCompositeCommands {
   }
 
   public static Command autoAlignL3(SwerveDrive drive, V1_DoomSpiralClimber climber) {
-    Pose2d hubPose = new Pose2d(1.576, 4.54, Rotation2d.fromDegrees(90));
+    Pose2d autoAllignPose = new Pose2d(1.576, 4.54, Rotation2d.fromDegrees(90));
     ChassisSpeeds autoAlignSpeed = new ChassisSpeeds(-0.04, 0.15, 0);
 
     return Commands.sequence(
         DriveCommands.autoAlignPoseCommand(
                 drive,
                 V1_DoomSpiralRobotState::getTowerZonePose,
-                AllianceFlipUtil.apply(hubPose),
+                AllianceFlipUtil.apply(autoAllignPose),
                 V1_DoomSpiralConstants.AUTO_ALIGN_CONSTANTS)
             .withTimeout(4),
         Commands.run(() -> drive.runVelocity(autoAlignSpeed)).withTimeout(1));
