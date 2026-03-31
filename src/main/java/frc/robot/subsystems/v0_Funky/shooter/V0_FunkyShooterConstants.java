@@ -6,7 +6,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -83,7 +83,7 @@ public class V0_FunkyShooterConstants {
           .withGearRatio(120.0 / 20)
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withTurretOffset(new Translation2d())
+          .withRobotToTurretTransform(new Transform3d())
           .withE1Offset(
               Rotation2d.fromRotations(-0.521973)
                   .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
