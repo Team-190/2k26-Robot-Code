@@ -19,14 +19,15 @@ public interface ShotCalculator {
    * @param distanceToTimeFunction A function that converts distance to time.
    * @return The corrected pose to aim at.
    */
-  public default Translation2d getAdjustedTargetPose(
+  public static Translation2d getAdjustedTargetPose(
       Pose2d initialPose,
       Pose2d targetPose,
       ChassisSpeeds robotVelocityMetersPerSecond,
       Function<Double, Double> distanceToTimeFunction,
       Transform2d centerToShooterCenter) {
 
-    // Adds phase delay to the initial pose based on robot velocity to account for latency caused by
+    // Adds phase delay to the initial pose based on robot velocity to account for
+    // latency caused by
     // target pose calculation
     initialPose =
         initialPose.exp(

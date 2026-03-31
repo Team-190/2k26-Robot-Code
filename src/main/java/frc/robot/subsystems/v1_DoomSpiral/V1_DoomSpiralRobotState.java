@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
@@ -22,12 +23,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
+import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
+import frc.robot.util.ShotCalculator;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +38,7 @@ import java.util.Optional;
 import lombok.*;
 import org.littletonrobotics.junction.Logger;
 
-public class V1_DoomSpiralRobotState {
+public class V1_DoomSpiralRobotState implements ShotCalculator {
   private static final AprilTagFieldLayout fieldLayout;
 
   private static final Field2d field;
@@ -59,6 +62,7 @@ public class V1_DoomSpiralRobotState {
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
   @Getter private static Rotation2d robotToHubAngle;
+  @Getter private static Rotation2d robotToHubAngleAdjusted;
   @Getter private static Rotation2d scoreAngle;
   @Getter private static double scoreVelocity;
   @Getter private static Rotation2d feedAngle;
@@ -207,7 +211,10 @@ public class V1_DoomSpiralRobotState {
 
   @Trace
   public static void periodic(
-      Rotation2d robotHeading, double robotYawVelocity, SwerveModulePosition[] modulePositions) {
+      Rotation2d robotHeading,
+      double robotYawVelocity,
+      SwerveModulePosition[] modulePositions,
+      SwerveDrive drive) {
     V1_DoomSpiralRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -240,6 +247,28 @@ public class V1_DoomSpiralRobotState {
             .minus(shooterPosition.getTranslation())
             .getAngle()
             .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
+
+    robotToHubAngleAdjusted =
+        ShotCalculator.getAdjustedTargetPose(
+                getHubZonePose(),
+                new Pose2d(hubTranslation, new Rotation2d()),
+                drive.getMeasuredChassisSpeeds(),
+                distance -> {
+                  Distance dMeters = Distance.ofBaseUnits(distance, Meters);
+
+                  Rotation2d angle = shootAngleTree.get(dMeters);
+                  double theta = angle.getRadians();
+
+                  double omega = shootSpeedTree.get(dMeters).in(RadiansPerSecond);
+
+                  double v0 =
+                      omega * Distance.ofBaseUnits(2, Inches).in(Meters); // Flywheel rad = 2 in
+
+                  return distance / (v0 * Math.cos(theta));
+                },
+                V1_DoomSpiralConstants.SHOOTER_OFFSET)
+            .minus(getGlobalPose().getTranslation())
+            .getAngle();
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
