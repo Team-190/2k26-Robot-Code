@@ -1,0 +1,23 @@
+{
+  "name": "Delta",
+  "sourceUrl": "https://frc190.onshape.com/documents/ba8a365713d40fc24cf0b54f/w/90379dd84e9a15f2f3a15787/e/f7562994bcc6d5175e8e4e30",
+  "disableSimplification": true,
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0,
+    0,
+    0
+  ],
+  "cameras": [],
+  "components": [
+  ]
+}

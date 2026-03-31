@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -28,8 +27,8 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class FourBarLinkage {
-  public final FourBarLinkageIO io;
-  public final String aKitTopic;
+  private final FourBarLinkageIO io;
+  private final String aKitTopic;
   private final FourBarLinkageIOInputsAutoLogged inputs;
 
   private FourBarLinkageState currentState;
@@ -37,7 +36,7 @@ public class FourBarLinkage {
   @Getter private Setpoint<VoltageUnit> voltageGoal;
   @Getter private Setpoint<AngleUnit> positionGoal;
 
-  public final FourBarLinkageConstants constants;
+  private final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
@@ -70,10 +69,10 @@ public class FourBarLinkage {
     this.io = io;
     this.constants = constants;
     this.mechanism2d =
-        new LoggedMechanism2d(constants.linkageOffset.getX(), constants.linkageOffset.getZ());
+        new LoggedMechanism2d(2, 2);
     aKitTopic = subsystem.getName() + "/Linkage" + name;
 
-    this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
+    this.root2d = mechanism2d.getRoot("Linkage", 1, 1);
 
     this.crank =
         root2d.append(new LoggedMechanismLigament2d("Crank", constants.linkLengths.AB(), 0));
@@ -131,6 +130,7 @@ public class FourBarLinkage {
 
   public void periodic() {
     io.updateInputs(inputs);
+
     Logger.processInputs(aKitTopic, inputs);
 
     Logger.recordOutput(aKitTopic + "/Position Goal", positionGoal.getSetpoint());
@@ -163,8 +163,6 @@ public class FourBarLinkage {
     ground.setAngle(groundAngle.minus(followerAngle));
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
-    Logger.recordOutput(
-        aKitTopic + "/Offset Degrees", String.format("%.1f", positionGoal.getOffset().in(Radians)));
   }
 
   /**
@@ -174,6 +172,13 @@ public class FourBarLinkage {
    */
   public Rotation2d getPosition() {
     return inputs.position;
+  }
+
+  public Command setIdle() {
+    return Commands.runOnce(
+        () -> {
+          currentState = FourBarLinkageState.IDLE;
+        });
   }
 
   /**
@@ -224,7 +229,7 @@ public class FourBarLinkage {
   /**
    * Checks if the linkage is at the goal position.
    *
-   * @param state The state to check goal against.
+   * @param position The state to check goal against.
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
   public boolean atPositionGoal(Rotation2d positionReference) {
@@ -313,10 +318,10 @@ public class FourBarLinkage {
 
     double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, (theta2 + theta1), 0));
-    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, (theta3 + theta1), 0));
-    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, theta5, 0));
-    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, (Math.PI + theta1), 0));
+    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
+    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
+    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
+    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
 
     Rotation2d crankAngle = Rotation2d.fromRadians((theta2 + theta1));
     Rotation2d couplerAngle = Rotation2d.fromRadians((theta3 + theta1));
@@ -339,6 +344,7 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
+        Commands.print("Sys Id being run"),
         characterizationRoutine
             .quasistatic(Direction.kForward)
             .until(() -> atPositionGoal(constants.maxAngle)),
