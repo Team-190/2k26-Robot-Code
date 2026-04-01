@@ -38,7 +38,7 @@ import java.util.Optional;
 import lombok.*;
 import org.littletonrobotics.junction.Logger;
 
-public class V1_DoomSpiralRobotState implements ShotCalculator {
+public class V1_DoomSpiralRobotState {
   private static final AprilTagFieldLayout fieldLayout;
 
   private static final Field2d field;
@@ -248,6 +248,8 @@ public class V1_DoomSpiralRobotState implements ShotCalculator {
             .getAngle()
             .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
 
+    Pose2d shooterPose = getHubZonePose().transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
+
     robotToHubAngleAdjusted =
         ShotCalculator.getAdjustedTargetPose(
                 getHubZonePose(),
@@ -268,7 +270,8 @@ public class V1_DoomSpiralRobotState implements ShotCalculator {
                 },
                 V1_DoomSpiralConstants.SHOOTER_OFFSET)
             .minus(getGlobalPose().getTranslation())
-            .getAngle();
+            .getAngle()
+            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
@@ -281,6 +284,7 @@ public class V1_DoomSpiralRobotState implements ShotCalculator {
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Rotation to Hub",
         new Pose2d(hubPose.getTranslation(), robotToHubAngle));
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Rotation to Hub Adjusted", robotToHubAngleAdjusted);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);

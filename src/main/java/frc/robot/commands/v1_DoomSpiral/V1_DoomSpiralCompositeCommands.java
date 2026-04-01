@@ -39,7 +39,7 @@ public class V1_DoomSpiralCompositeCommands {
                     () ->
                         (shooter.atGoal()
                             && DriveCommands.atAngle(
-                                V1_DoomSpiralRobotState.getRobotToHubAngle()))),
+                                V1_DoomSpiralRobotState.getRobotToHubAngleAdjusted()))),
             spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
   }
 

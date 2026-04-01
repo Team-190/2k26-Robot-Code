@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.function.Function;
+import org.littletonrobotics.junction.Logger;
 
 public interface ShotCalculator {
   static final double phaseDelay = 0.3; // TODO: Change this value based on testing
@@ -25,6 +26,8 @@ public interface ShotCalculator {
       ChassisSpeeds robotVelocityMetersPerSecond,
       Function<Double, Double> distanceToTimeFunction,
       Transform2d centerToShooterCenter) {
+
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Speed", robotVelocityMetersPerSecond);
 
     // Adds phase delay to the initial pose based on robot velocity to account for
     // latency caused by
@@ -46,6 +49,9 @@ public interface ShotCalculator {
             .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
             .times(centerToShooterCenter.getTranslation().getNorm());
 
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Robot Frame", shooterRobotFrameVelocityMetersPerSecond);
+
     Translation2d shooterFieldFrameVelocityMetersPerSecond =
         shooterRobotFrameVelocityMetersPerSecond
             .rotateBy(initialPose.getRotation())
@@ -54,12 +60,27 @@ public interface ShotCalculator {
                     robotVelocityMetersPerSecond.vxMetersPerSecond,
                     robotVelocityMetersPerSecond.vyMetersPerSecond));
 
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Field Frame", shooterFieldFrameVelocityMetersPerSecond);
+
     double deltaT = distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
 
     double correctedX =
         targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
     double correctedY =
         targetPose.getY() - shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
+
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "tX", targetPose.getX());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "tY", targetPose.getY());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "cX", correctedX);
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "cY", correctedY);
+
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Stationary Theta", targetPose.getRotation().getDegrees());
+
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Moving Theta",
+        new Translation2d(correctedX, correctedY).getAngle().getDegrees());
 
     return new Translation2d(correctedX, correctedY);
   }
