@@ -52,8 +52,10 @@ public class V1_DoomSpiralRobotState {
 
   private static final Localization localization;
 
-  @Getter private static Distance distanceToHub;
-  @Getter private static Distance distanceToFeedTranslation;
+  @Getter
+  private static Distance distanceToHub;
+  @Getter
+  private static Distance distanceToFeedTranslation;
 
   private static final InterpolatingTreeMap<Distance, Rotation2d> shootAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> shootSpeedTree;
@@ -61,15 +63,23 @@ public class V1_DoomSpiralRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
-  @Getter private static Rotation2d robotToHubAngle;
-  @Getter private static Rotation2d scoreAngle;
-  @Getter private static double scoreVelocity;
-  @Getter private static Rotation2d feedAngle;
-  @Getter private static double feedVelocity;
+  @Getter
+  private static Rotation2d robotToHubAngle;
+  @Getter
+  private static Rotation2d scoreAngle;
+  @Getter
+  private static double scoreVelocity;
+  @Getter
+  private static Rotation2d feedAngle;
+  @Getter
+  private static double feedVelocity;
 
-  @Getter private static final LEDStates ledStates;
+  @Getter
+  private static final LEDStates ledStates;
 
-  @Setter @Getter private static long headingUpdateTimestamp;
+  @Setter
+  @Getter
+  private static long headingUpdateTimestamp;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -82,73 +92,57 @@ public class V1_DoomSpiralRobotState {
     blueTowerZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.blueTowerTags));
     redTowerZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.redTowerTags));
 
-    localization =
-        new Localization(
-            List.of(globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone),
-            V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
-            2);
+    localization = new Localization(
+        List.of(globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone),
+        V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
+        2);
 
-    distanceToHub =
-        Distance.ofBaseUnits(
-            getHubZonePose()
-                .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-                .getNorm(),
-            Meters);
+    distanceToHub = Distance.ofBaseUnits(
+        getHubZonePose()
+            .getTranslation()
+            .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+            .getNorm(),
+        Meters);
 
-    distanceToFeedTranslation =
-        Distance.ofBaseUnits(
-            getGlobalPose()
-                .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
-                .getNorm(),
-            Meters);
+    distanceToFeedTranslation = Distance.ofBaseUnits(
+        getGlobalPose()
+            .getTranslation()
+            .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
+            .getNorm(),
+        Meters);
 
     ledStates = new LEDStates(false, false, false, false, false, false);
 
-    shootAngleTree =
-        new InterpolatingTreeMap<>(
-            (start, end, q) ->
-                InverseInterpolator.forDouble()
-                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-            Rotation2d::interpolate);
-    shootSpeedTree =
-        new InterpolatingTreeMap<>(
-            (start, end, q) ->
-                InverseInterpolator.forDouble()
-                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-            (start, end, t) ->
-                AngularVelocity.ofBaseUnits(
-                    Interpolator.forDouble()
-                        .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
-                    RadiansPerSecond));
+    shootAngleTree = new InterpolatingTreeMap<>(
+        (start, end, q) -> InverseInterpolator.forDouble()
+            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+        Rotation2d::interpolate);
+    shootSpeedTree = new InterpolatingTreeMap<>(
+        (start, end, q) -> InverseInterpolator.forDouble()
+            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+        (start, end, t) -> AngularVelocity.ofBaseUnits(
+            Interpolator.forDouble()
+                .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
+            RadiansPerSecond));
 
-    timeOfFlightMap =
-        new InterpolatingTreeMap<>(
-            (start, end, q) ->
-                InverseInterpolator.forDouble()
-                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-            (start, end, t) ->
-                Time.ofBaseUnits(
-                    Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
-                    Seconds));
+    timeOfFlightMap = new InterpolatingTreeMap<>(
+        (start, end, q) -> InverseInterpolator.forDouble()
+            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+        (start, end, t) -> Time.ofBaseUnits(
+            Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
+            Seconds));
 
-    feedAngleTree =
-        new InterpolatingTreeMap<>(
-            (start, end, q) ->
-                InverseInterpolator.forDouble()
-                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-            Rotation2d::interpolate);
-    feedSpeedTree =
-        new InterpolatingTreeMap<>(
-            (start, end, q) ->
-                InverseInterpolator.forDouble()
-                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-            (start, end, t) ->
-                AngularVelocity.ofBaseUnits(
-                    Interpolator.forDouble()
-                        .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
-                    RadiansPerSecond));
+    feedAngleTree = new InterpolatingTreeMap<>(
+        (start, end, q) -> InverseInterpolator.forDouble()
+            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+        Rotation2d::interpolate);
+    feedSpeedTree = new InterpolatingTreeMap<>(
+        (start, end, q) -> InverseInterpolator.forDouble()
+            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+        (start, end, t) -> AngularVelocity.ofBaseUnits(
+            Interpolator.forDouble()
+                .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
+            RadiansPerSecond));
 
     shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(5.0));
     shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(340.0));
@@ -183,13 +177,53 @@ public class V1_DoomSpiralRobotState {
     shootAngleTree.put(Meters.of(4.120246303911951), Rotation2d.fromDegrees(20.0));
     shootSpeedTree.put(Meters.of(4.120246303911951), RadiansPerSecond.of(457.0));
 
-    timeOfFlightMap.put(Meters.of(1.539201), Seconds.of(0.83));
-    timeOfFlightMap.put(Meters.of(2.048508), Seconds.of(1.05));
-    timeOfFlightMap.put(Meters.of(3.090565), Seconds.of(1.45));
-    timeOfFlightMap.put(Meters.of(3.705346), Seconds.of(1.4));
-    timeOfFlightMap.put(Meters.of(3.673391), Seconds.of(1.4));
-    timeOfFlightMap.put(Meters.of(4.18452), Seconds.of(1.4));
-    timeOfFlightMap.put(Meters.of(4.2249), Seconds.of(1.35));
+    timeOfFlightMap.put(Meters.of(1.465609), Seconds.of(1.14));
+    timeOfFlightMap.put(Meters.of(1.465609), Seconds.of(1.19));
+    timeOfFlightMap.put(Meters.of(1.465609), Seconds.of(1.12));
+
+    timeOfFlightMap.put(Meters.of(1.723154), Seconds.of(1.11));
+    timeOfFlightMap.put(Meters.of(1.723154), Seconds.of(1.12));
+    timeOfFlightMap.put(Meters.of(1.723154), Seconds.of(1.03));
+
+    timeOfFlightMap.put(Meters.of(1.997918), Seconds.of(1.04));
+    timeOfFlightMap.put(Meters.of(2.003457), Seconds.of(1.04));
+    timeOfFlightMap.put(Meters.of(1.993788), Seconds.of(1.04));
+
+    timeOfFlightMap.put(Meters.of(2.247938), Seconds.of(1.02));
+    timeOfFlightMap.put(Meters.of(2.25919), Seconds.of(1.08));
+    timeOfFlightMap.put(Meters.of(2.246664), Seconds.of(1.10));
+
+    timeOfFlightMap.put(Meters.of(2.485868), Seconds.of(1.09));
+    timeOfFlightMap.put(Meters.of(2.485575), Seconds.of(1.10));
+    timeOfFlightMap.put(Meters.of(2.486227), Seconds.of(1.13));
+
+    timeOfFlightMap.put(Meters.of(2.751185), Seconds.of(1.14));
+    timeOfFlightMap.put(Meters.of(2.738152), Seconds.of(1.14));
+    timeOfFlightMap.put(Meters.of(2.735363), Seconds.of(1.09));
+
+    timeOfFlightMap.put(Meters.of(2.965804), Seconds.of(1.23));
+    timeOfFlightMap.put(Meters.of(2.997758), Seconds.of(1.16));
+    timeOfFlightMap.put(Meters.of(3.003162), Seconds.of(1.20));
+
+    timeOfFlightMap.put(Meters.of(3.234271), Seconds.of(1.19));
+    timeOfFlightMap.put(Meters.of(3.223711), Seconds.of(1.23));
+    timeOfFlightMap.put(Meters.of(3.2486), Seconds.of(1.21));
+
+    timeOfFlightMap.put(Meters.of(3.514255), Seconds.of(1.28));
+    timeOfFlightMap.put(Meters.of(3.493659), Seconds.of(1.25));
+    timeOfFlightMap.put(Meters.of(3.481445), Seconds.of(1.24));
+
+    timeOfFlightMap.put(Meters.of(3.841055), Seconds.of(1.20));
+    timeOfFlightMap.put(Meters.of(3.819408), Seconds.of(1.26));
+    timeOfFlightMap.put(Meters.of(3.81803), Seconds.of(1.26));
+
+    timeOfFlightMap.put(Meters.of(3.95738), Seconds.of(1.35));
+    timeOfFlightMap.put(Meters.of(3.988535), Seconds.of(1.34));
+    timeOfFlightMap.put(Meters.of(4.013547), Seconds.of(1.30));
+
+    timeOfFlightMap.put(Meters.of(4.333429), Seconds.of(1.35));
+    timeOfFlightMap.put(Meters.of(4.361226), Seconds.of(1.34));
+    timeOfFlightMap.put(Meters.of(4.382547), Seconds.of(1.28));
 
     feedAngleTree.put(
         Meters.of(0.0),
@@ -243,36 +277,31 @@ public class V1_DoomSpiralRobotState {
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", hubPose);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
 
-    Translation2d hubTranslation =
-        AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    Translation2d hubTranslation = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
-    Translation2d hubTranslationAdjusted =
-        ShotCalculator.getAdjustedTargetPose(
-            getHubZonePose(),
-            new Pose2d(hubTranslation, new Rotation2d()),
-            drive.getMeasuredChassisSpeeds(),
-            timeOfFlightMap::get,
-            V1_DoomSpiralConstants.SHOOTER_OFFSET);
+    Translation2d hubTranslationAdjusted = ShotCalculator.getAdjustedTargetPose(
+        getHubZonePose(),
+        new Pose2d(hubTranslation, new Rotation2d()),
+        drive.getMeasuredChassisSpeeds(),
+        timeOfFlightMap::get,
+        V1_DoomSpiralConstants.SHOOTER_OFFSET);
 
     Pose2d shooterPosition = hubPose.transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
 
-    distanceToHub =
-        Distance.ofBaseUnits(
-            shooterPosition.getTranslation().minus(hubTranslationAdjusted).getNorm(), Meters);
+    distanceToHub = Distance.ofBaseUnits(
+        shooterPosition.getTranslation().minus(hubTranslationAdjusted).getNorm(), Meters);
 
-    distanceToFeedTranslation =
-        Distance.ofBaseUnits(
-            getGlobalPose()
-                .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
-                .getNorm(),
-            Meters);
+    distanceToFeedTranslation = Distance.ofBaseUnits(
+        getGlobalPose()
+            .getTranslation()
+            .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION))
+            .getNorm(),
+        Meters);
 
-    robotToHubAngle =
-        hubTranslationAdjusted
-            .minus(shooterPosition.getTranslation())
-            .getAngle()
-            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
+    robotToHubAngle = hubTranslationAdjusted
+        .minus(shooterPosition.getTranslation())
+        .getAngle()
+        .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
 
     scoreAngle = shootAngleTree.get(distanceToHub);
     scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
@@ -379,7 +408,8 @@ public class V1_DoomSpiralRobotState {
   }
 
   public record FixedShotParameters(
-      Rotation2d robotAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
+      Rotation2d robotAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {
+  }
 
   @RequiredArgsConstructor
   public enum FixedShots {
@@ -404,7 +434,8 @@ public class V1_DoomSpiralRobotState {
             V1_DoomSpiralShooterConstants.TOWER_SHOT_HOOD_ANGLE,
             V1_DoomSpiralShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
-    @Getter private final FixedShotParameters parameters;
+    @Getter
+    private final FixedShotParameters parameters;
   }
 
   @Data

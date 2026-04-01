@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -14,70 +15,66 @@ import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
 
 public interface ShotCalculator {
-  double phaseDelay = 0.3; // TODO: Change this value based on testing
+    double phaseDelay = 0.3; // TODO: Change this value based on testing
 
-  /**
-   * Calculates a corrected pose for a moving target based on the shooter's current velocity.
-   *
-   * @param initialPose The current pose of the shooter.
-   * @param targetPose The pose of the target.
-   * @param robotVelocityMetersPerSecond The shooter's velocity in meters per second.
-   * @param distanceToTimeFunction A function that converts distance to time.
-   * @return The corrected pose to aim at.
-   */
-  static Translation2d getAdjustedTargetPose(
-      Pose2d initialPose,
-      Pose2d targetPose,
-      ChassisSpeeds robotVelocityMetersPerSecond,
-      Function<Distance, Time> distanceToTimeFunction,
-      Transform2d centerToShooterCenter) {
+    /**
+     * Calculates a corrected pose for a moving target based on the shooter's
+     * current velocity.
+     *
+     * @param initialPose                  The current pose of the shooter.
+     * @param targetPose                   The pose of the target.
+     * @param robotVelocityMetersPerSecond The shooter's velocity in meters per
+     *                                     second.
+     * @param distanceToTimeFunction       A function that converts distance to
+     *                                     time.
+     * @return The corrected pose to aim at.
+     */
+    static Translation2d getAdjustedTargetPose(
+            Pose2d initialPose,
+            Pose2d targetPose,
+            ChassisSpeeds robotVelocityMetersPerSecond,
+            Function<Distance, Time> distanceToTimeFunction,
+            Transform2d centerToShooterCenter) {
 
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "Speed", robotVelocityMetersPerSecond);
+        Logger.recordOutput(NTPrefixes.POSE_DATA + "Speed", robotVelocityMetersPerSecond);
 
-    // Adds phase delay to the initial pose based on robot velocity to account for
-    // latency caused by
-    // target pose calculation
-    initialPose =
-        initialPose.exp(
-            new Twist2d(
-                robotVelocityMetersPerSecond.vxMetersPerSecond * phaseDelay,
-                robotVelocityMetersPerSecond.vyMetersPerSecond * phaseDelay,
-                robotVelocityMetersPerSecond.omegaRadiansPerSecond * phaseDelay));
+        // Adds phase delay to the initial pose based on robot velocity to account for
+        // latency caused by
+        // target pose calculation
+        initialPose = initialPose.exp(
+                new Twist2d(
+                        robotVelocityMetersPerSecond.vxMetersPerSecond * phaseDelay,
+                        robotVelocityMetersPerSecond.vyMetersPerSecond * phaseDelay,
+                        robotVelocityMetersPerSecond.omegaRadiansPerSecond * phaseDelay));
 
-    Pose2d shooterPose = initialPose.plus(centerToShooterCenter);
-    Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
+        Pose2d shooterPose = initialPose.plus(centerToShooterCenter);
+        Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
 
-    Translation2d shooterRobotFrameVelocityMetersPerSecond =
-        new Translation2d(
+        Translation2d shooterRobotFrameVelocityMetersPerSecond = new Translation2d(
                 -centerToShooterCenter.getRotation().getSin(),
                 centerToShooterCenter.getRotation().getCos())
-            .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
-            .times(centerToShooterCenter.getTranslation().getNorm());
+                .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
+                .times(centerToShooterCenter.getTranslation().getNorm());
 
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Robot Frame", shooterRobotFrameVelocityMetersPerSecond);
+        Translation2d shooterFieldFrameVelocityMetersPerSecond = shooterRobotFrameVelocityMetersPerSecond
+                .rotateBy(initialPose.getRotation())
+                .plus(
+                        new Translation2d(
+                                robotVelocityMetersPerSecond.vxMetersPerSecond,
+                                robotVelocityMetersPerSecond.vyMetersPerSecond));
 
-    Translation2d shooterFieldFrameVelocityMetersPerSecond =
-        shooterRobotFrameVelocityMetersPerSecond
-            .rotateBy(initialPose.getRotation())
-            .plus(
-                new Translation2d(
-                    robotVelocityMetersPerSecond.vxMetersPerSecond,
-                    robotVelocityMetersPerSecond.vyMetersPerSecond));
+        double deltaT = distanceToTimeFunction
+                .apply(Meters.of(shooterToTarget.getTranslation().getNorm()))
+                .in(Seconds);
 
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Field Frame", shooterFieldFrameVelocityMetersPerSecond);
+        double correctedX = targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
+        double correctedY = targetPose.getY() + shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
 
-    double deltaT =
-        distanceToTimeFunction
-            .apply(Meters.of(shooterToTarget.getTranslation().getNorm()))
-            .in(Seconds);
+        Logger.recordOutput(NTPrefixes.POSE_DATA + "Target Pose", targetPose);
+        Logger.recordOutput(
+                NTPrefixes.POSE_DATA + "Corrected Pose",
+                new Pose2d(correctedX, correctedY, new Rotation2d()));
 
-    double correctedX =
-        targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
-    double correctedY =
-        targetPose.getY() - shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
-
-    return new Translation2d(correctedX, correctedY);
-  }
+        return new Translation2d(correctedX, correctedY);
+    }
 }
