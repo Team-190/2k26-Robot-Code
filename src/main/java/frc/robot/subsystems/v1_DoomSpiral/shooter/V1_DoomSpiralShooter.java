@@ -14,12 +14,14 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
 import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
+import frc.robot.subsystems.shared.hood.HoodIOInputsAutoLogged;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import java.util.function.DoubleSupplier;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
   private final Hood hood;
+  private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
 
   private final GenericFlywheel flywheel;
 
@@ -114,6 +116,10 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(false);
       V1_DoomSpiralRobotState.getLedStates().setShooterShooting(false);
     }
+  }
+
+  public HoodIOInputsAutoLogged getHoodInputs() {
+    return hoodInputs;
   }
 
   public Command setHoodGoal(HoodGoal goal) {

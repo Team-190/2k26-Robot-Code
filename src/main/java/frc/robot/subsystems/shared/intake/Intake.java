@@ -14,6 +14,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOInputsAutoLogged;
 import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import lombok.Getter;
@@ -25,12 +26,15 @@ public class Intake extends SubsystemBase {
 
   @Getter private IntakeState intakeState;
 
+  private FourBarLinkageIOInputsAutoLogged intakeInputs;
+
   private Rotation2d agitationAngle;
 
   public Intake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
     setName("Intake");
     roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "1");
     linkage = new FourBarLinkage(linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, 0);
+    intakeInputs = new FourBarLinkageIOInputsAutoLogged();
 
     intakeState = IntakeState.STOW;
 
@@ -62,6 +66,10 @@ public class Intake extends SubsystemBase {
         .setSpitting(
             roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
+  }
+
+  public FourBarLinkageIOInputsAutoLogged getIntakeInputs() {
+    return intakeInputs;
   }
 
   /**

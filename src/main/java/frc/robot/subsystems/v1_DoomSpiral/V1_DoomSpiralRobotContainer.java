@@ -53,6 +53,7 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIO;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFX;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerIOTalonFXSim;
 import frc.robot.subsystems.v1_DoomSpiral.swank.*;
+import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
@@ -69,6 +70,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private Vision vision;
   private V1_DoomSpiralCANdle leds;
   private V1_DoomSpiralShooter shooter;
+  private FuelSimulator fuelSimulator;
+  private GenericFlywheelIOInputsAutoLogged shooterInputs = new GenericFlywheelIOInputsAutoLogged();
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
@@ -192,6 +195,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
           leds = new V1_DoomSpiralCANdle();
+          fuelSimulator =
+              new FuelSimulator(shooterInputs, shooter.getHoodInputs(), intake.getIntakeInputs());
 
           break;
 
@@ -479,6 +484,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         "Mechanism 3d",
         V1_DoomSpiralMechanism3d.getPoses(
             spindexer.getSpindexerPosition(), climber.getArmPosition(), intake));
+
+    fuelSimulator.periodic();
+    fuelSimulator.logToAdvantageKit();
   }
 
   @Override
