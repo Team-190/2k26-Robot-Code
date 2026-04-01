@@ -1,15 +1,20 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
 
 public interface ShotCalculator {
-  static final double phaseDelay = 0.3; // TODO: Change this value based on testing
+  double phaseDelay = 0.3; // TODO: Change this value based on testing
 
   /**
    * Calculates a corrected pose for a moving target based on the shooter's current velocity.
@@ -20,11 +25,11 @@ public interface ShotCalculator {
    * @param distanceToTimeFunction A function that converts distance to time.
    * @return The corrected pose to aim at.
    */
-  public static Translation2d getAdjustedTargetPose(
+  static Translation2d getAdjustedTargetPose(
       Pose2d initialPose,
       Pose2d targetPose,
       ChassisSpeeds robotVelocityMetersPerSecond,
-      Function<Double, Double> distanceToTimeFunction,
+      Function<Distance, Time> distanceToTimeFunction,
       Transform2d centerToShooterCenter) {
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Speed", robotVelocityMetersPerSecond);
@@ -63,24 +68,15 @@ public interface ShotCalculator {
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Field Frame", shooterFieldFrameVelocityMetersPerSecond);
 
-    double deltaT = distanceToTimeFunction.apply(shooterToTarget.getTranslation().getNorm());
+    double deltaT =
+        distanceToTimeFunction
+            .apply(Meters.of(shooterToTarget.getTranslation().getNorm()))
+            .in(Seconds);
 
     double correctedX =
         targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
     double correctedY =
         targetPose.getY() - shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
-
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "tX", targetPose.getX());
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "tY", targetPose.getY());
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "cX", correctedX);
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "cY", correctedY);
-
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Stationary Theta", targetPose.getRotation().getDegrees());
-
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Moving Theta",
-        new Translation2d(correctedX, correctedY).getAngle().getDegrees());
 
     return new Translation2d(correctedX, correctedY);
   }
