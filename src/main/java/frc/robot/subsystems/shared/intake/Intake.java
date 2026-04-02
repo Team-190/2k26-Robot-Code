@@ -16,8 +16,8 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -35,16 +35,10 @@ public class Intake extends SubsystemBase {
 
     intakeState = IntakeState.STOW;
 
-    roller =
-        new GenericRoller(
-            rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
+    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
     linkage =
         new FourBarLinkage(
-            linkageIO,
-            IntakeConstants.LINKAGE_CONSTANTS,
-            this,
-            "",
-            IntakeState.STOW.getSetpoint());
+            linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, "", IntakeState.STOW.getSetpoint());
 
     intakeState = IntakeState.STOW;
 
@@ -205,10 +199,8 @@ public class Intake extends SubsystemBase {
 
   public Transform3d getHopperWallTransform() {
     // 1. Calculate Current Pose
-    final double currentY =
-        linkage.getPosition().getSin() * IntakeConstants.PIN_LENGTH;
-    final double currentX0 =
-        linkage.getPosition().getCos() * IntakeConstants.PIN_LENGTH;
+    final double currentY = linkage.getPosition().getSin() * IntakeConstants.PIN_LENGTH;
+    final double currentX0 = linkage.getPosition().getCos() * IntakeConstants.PIN_LENGTH;
     final double currentXOff = calculateXOffset(currentY);
     Pose3d currentPose = new Pose3d(-(currentX0 + currentXOff), 0, 0, new Rotation3d(0, 0, 0));
 

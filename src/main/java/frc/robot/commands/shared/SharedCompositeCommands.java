@@ -18,6 +18,7 @@ import java.util.function.Supplier;
  * A class that holds composite commands, which are sequences of commands for complex robot actions.
  */
 public class SharedCompositeCommands {
+
   /**
    * Creates a command to reset the robot's heading to the alliance-specific zero.
    *
@@ -41,15 +42,18 @@ public class SharedCompositeCommands {
     return Commands.sequence(
         intake.stow(),
         Commands.parallel(
-            Commands.sequence(
-                intake.setRollerVoltage(-12.0),
-                intake.waitUntilIntakeAtGoal(),
-                intake.stopRoller()),
+            Commands.sequence(intake.stopCollect()),
             climber.setPositionGoal(ClimberGoal.L1_POSITION_GOAL.getPosition(), GainSlot.ZERO)));
   }
 
   public static Command unClimbPostAuto(Intake intake, Climber climber) {
     return Commands.parallel(
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
+  }
+
+  public static Command updateCurrentLimits(
+      SwerveDrive drive, double driveCurrentLimit, double turnCurrentLimit) {
+    return Commands.runOnce(() -> drive.updateCurrentLimits(driveCurrentLimit, turnCurrentLimit))
+        .ignoringDisable(true);
   }
 }

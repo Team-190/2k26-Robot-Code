@@ -39,7 +39,7 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
 
                 // Deploy the intake
 
-                intake.deploy().alongWith(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+                intake.deploy().alongWith(intake.setLinkageVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
@@ -55,7 +55,7 @@ public class V1_DoomSpiralAutoLeftTrench2Cycle {
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS))
                     .withTimeout(5.0),
-                intake.deploy().alongWith(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+                intake.deploy().alongWith(intake.setLinkageVoltage(IntakeConstants.INTAKE_VOLTAGE)),
                 LEFT_TRENCH_2_CYCLE_PATH_2.cmd(),
                 Commands.runOnce(() -> drive.stop()),
 

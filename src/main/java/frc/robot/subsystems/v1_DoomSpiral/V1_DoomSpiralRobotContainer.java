@@ -2,16 +2,10 @@ package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
@@ -62,6 +56,8 @@ import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
+import java.util.List;
+import java.util.function.Consumer;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
@@ -75,7 +71,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private V1_DoomSpiralCANdle leds;
   private V1_DoomSpiralShooter shooter;
   private FuelSimulator fuelSimulator;
-  private GenericFlywheelIOInputsAutoLogged shooterInputs = new GenericFlywheelIOInputsAutoLogged();
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
@@ -89,7 +84,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V1_DOOMSPIRAL:
-          gyroIO = new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS, networkTablesTimestampConsumer);
+          gyroIO =
+              new GyroIOPigeon2(
+                  V1_DoomSpiralConstants.DRIVE_CONSTANTS, networkTablesTimestampConsumer);
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
@@ -131,7 +128,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-           vision =
+          vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
                   new CameraLimelight(
@@ -194,8 +191,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
           leds = new V1_DoomSpiralCANdle();
-          fuelSimulator =
-              new FuelSimulator(shooterInputs, shooter.getHoodInputs(), intake.getIntakeInputs());
+        //   fuelSimulator =
+        //       new FuelSimulator(shooterInputs, shooter.getHoodInputs(), intake.getIntakeInputs());
 
           break;
 
@@ -326,6 +323,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 shooter,
                 spindexer,
+                intake,
                 V1_DoomSpiralRobotState.FixedShots.LEFT_TRENCH.getParameters()))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
     driver
@@ -335,13 +333,14 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 shooter,
                 spindexer,
+                intake,
                 V1_DoomSpiralRobotState.FixedShots.RIGHT_TRENCH.getParameters()))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
     driver
         .bottomLeftPaddle()
         .whileTrue(
             V1_DoomSpiralCompositeCommands.fixedShotCommand(
-                drive, shooter, spindexer, V1_DoomSpiralRobotState.FixedShots.HUB.getParameters()))
+                drive, shooter, spindexer, intake, V1_DoomSpiralRobotState.FixedShots.HUB.getParameters()))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
     driver
         .bottomRightPaddle()
@@ -350,6 +349,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 drive,
                 shooter,
                 spindexer,
+                intake,
                 V1_DoomSpiralRobotState.FixedShots.TOWER.getParameters()))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
 
@@ -423,11 +423,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.d2().onTrue(intake.incrementCollectOffset().withName("d2"));
     xkeys
         .e1()
-        .whileTrue(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE).withName("e1"))
+        .whileTrue(intake.setLinkageVoltage(IntakeConstants.INTAKE_VOLTAGE).withName("e1"))
         .onFalse(intake.stopRoller().withName("e1-false"));
     xkeys
         .e2()
-        .whileTrue(intake.setRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
+        .whileTrue(intake.setLinkageVoltage(IntakeConstants.EXTAKE_VOLTAGE).withName("e2"))
         .onFalse(intake.stopRoller().withName("e2"));
     xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("f1"));
     xkeys.f2().onTrue(intake.decreaseSpeedOffset().withName("f2"));
@@ -474,9 +474,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   public void robotPeriodic() {
 
     V1_DoomSpiralRobotState.periodic(
-        drive.getRawGyroRotation(),
-        drive.getYawVelocity(),
-        drive.getModulePositions());
+        drive.getRawGyroRotation(), drive.getYawVelocity(), drive.getModulePositions());
 
     Logger.recordOutput(
         "Mechanism 3d",

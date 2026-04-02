@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.arm.Arm;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
+import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -212,8 +212,7 @@ public class Climber extends SubsystemBase {
   }
 
   public Command setPositionDefault() {
-    return setPositionGoal(
-        ClimberConstants.ClimberGoal.DEFAULT.getPosition(), GainSlot.ZERO);
+    return setPositionGoal(ClimberConstants.ClimberGoal.DEFAULT.getPosition(), GainSlot.ZERO);
   }
 
   public Command setPositionL1() {

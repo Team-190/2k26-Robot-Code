@@ -39,7 +39,7 @@ public class V1_DoomSpiralAutoRightTrench2Cycle {
 
                 // Deploy the intake
 
-                intake.deploy().alongWith(intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+                intake.deploy().alongWith(intake.setLinkageVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
@@ -60,7 +60,7 @@ public class V1_DoomSpiralAutoRightTrench2Cycle {
                     .deploy()
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                        intake.setRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setLinkageVoltage(IntakeConstants.INTAKE_VOLTAGE)),
                 RIGHT_TRENCH_2_CYCLE_PATH_2.cmd(),
                 Commands.runOnce(() -> drive.stop()),
 

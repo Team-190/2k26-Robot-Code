@@ -75,23 +75,23 @@ public class V2_DeltaShooter extends SubsystemBase {
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFeedVelocity());
           break;
         case OVERRIDE_TURRET:
-          turret.setVoltageGoal(overrideTurretVoltage);
+          turret.setVoltage(overrideFlywheelVoltage);
           hood.setVoltageGoal(Volts.of(0.0));
           flywheel.setVoltageGoal(Volts.of(0.0));
           break;
         case OVERRIDE_HOOD:
-          turret.setVoltageGoal(Volts.of(0.0));
+          turret.setVoltage(overrideFlywheelVoltage);
           hood.setVoltageGoal(overrideHoodVoltage);
           flywheel.setVoltageGoal(Volts.of(0.0));
           break;
         case OVERRIDE_FLYWHEEL:
-          turret.setVoltageGoal(Volts.of(0.0));
+          turret.setVoltage(overrideFlywheelVoltage);
           hood.setVoltageGoal(Volts.of(0.0));
           flywheel.setVoltageGoal(overrideFlywheelVoltage);
           break;
         case SYSID:
         default:
-          turret.setVoltageGoal(Volts.of(0.0));
+          turret.setVoltage(overrideFlywheelVoltage);
           hood.setVoltageGoal(Volts.of(0.0));
           flywheel.setVoltageGoal(Volts.of(0.0));
           break;
@@ -132,11 +132,11 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command turretSysId() {
-    return Commands.sequence(preSysId(), turret.runSysIdRoutine());
+    return Commands.sequence(preSysId(), turret.runSysId());
   }
 
   public Command hoodSysId() {
-    return Commands.sequence(preSysId(), hood.runSysIdRoutine());
+    return Commands.sequence(preSysId(), hood.runSysId());
   }
 
   public Command flywheelSysId() {

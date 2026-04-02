@@ -14,7 +14,6 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
-import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
@@ -191,7 +190,6 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer =
         switch (RobotConfig.ROBOT) {
-          case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
           case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
           default -> new RobotContainer() {};
         };

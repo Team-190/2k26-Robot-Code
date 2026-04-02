@@ -11,9 +11,12 @@ import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.List;
 
 /**
@@ -24,7 +27,7 @@ import java.util.List;
  */
 public class FieldConstants {
 
-  public static AprilTagLayoutType tagLayoutType = AprilTagLayoutType.WELDED;
+  public static AprilTagLayoutType tagLayoutType = AprilTagLayoutType.ANDYMARK;
 
   // AprilTag related constants
   public static final int aprilTagCount = tagLayoutType.getLayout().getTags().size();
@@ -126,6 +129,12 @@ public class FieldConstants {
     public static final Pose2d rightFace =
         tagLayoutType.getLayout().getTagPose(18).get().toPose2d();
     public static final Pose2d leftFace = tagLayoutType.getLayout().getTagPose(21).get().toPose2d();
+
+    public static final Rectangle2d FEED_KEEPOUT =
+        new Rectangle2d(
+            new Pose2d(fieldLength / 2.0, fieldWidth / 2.0, new Rotation2d()),
+            Math.abs(farRightCorner.getX() - oppNearLeftCorner.getX()) / 2,
+            width / 2);
   }
 
   /** Left Bump related constants */
@@ -197,6 +206,25 @@ public class FieldConstants {
         new Translation3d(LinesVertical.oppHubCenter, fieldWidth, openingHeight);
     public static final Translation3d oppOpeningTopRight =
         new Translation3d(LinesVertical.oppHubCenter, fieldWidth - openingWidth, openingHeight);
+
+    public static final Rectangle2d BLUE_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.hubCenter,
+                    LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingWidth / 2,
+            openingWidth / 2);
+    public static final Rectangle2d RED_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.oppHubCenter,
+                    LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingWidth / 2,
+            openingWidth / 2);
   }
 
   public static class RightTrench {
@@ -219,6 +247,25 @@ public class FieldConstants {
         new Translation3d(LinesVertical.oppHubCenter, openingWidth, openingHeight);
     public static final Translation3d oppOpeningTopRight =
         new Translation3d(LinesVertical.oppHubCenter, 0, openingHeight);
+
+    public static final Rectangle2d BLUE_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.hubCenter,
+                    LinesHorizontal.rightTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingHeight,
+            openingHeight);
+    public static final Rectangle2d RED_TRENCH =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(
+                    LinesVertical.oppHubCenter,
+                    LinesHorizontal.rightTrenchOpenEnd + (openingWidth / 2)),
+                new Rotation2d()),
+            openingHeight,
+            openingHeight);
   }
 
   /** Tower related constants */
@@ -269,6 +316,22 @@ public class FieldConstants {
             (tagLayoutType.getLayout().getTagPose(15).get().getY())
                 - innerOpeningWidth / 2
                 - Units.inchesToMeters(0.75));
+
+    public static final Rectangle2d BLUE_TOWER =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(centerPoint.getX() - depth / 2, centerPoint.getY()),
+                new Rotation2d()),
+            depth / 2,
+            depth / 2);
+
+    public static final Rectangle2d RED_TOWER =
+        new Rectangle2d(
+            new Pose2d(
+                new Translation2d(oppCenterPoint.getX() + depth / 2, oppCenterPoint.getY()),
+                new Rotation2d()),
+            depth / 2,
+            depth / 2);
   }
 
   public static class Depot {
@@ -285,6 +348,10 @@ public class FieldConstants {
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY + (width / 2), height);
     public static final Translation3d rightCorner =
         new Translation3d(depth, (fieldWidth / 2) + distanceFromCenterY - (width / 2), height);
+
+    public static final Translation2d BLUE_FEED_TRANSLATION = new Translation2d(3.5, 5.5);
+    public static final Translation2d RED_FEED_TRANSLATION =
+        AllianceFlipUtil.overrideApply(new Translation2d(3.5, 5.5));
   }
 
   public static class Outpost {
@@ -297,7 +364,9 @@ public class FieldConstants {
     public static final Translation2d centerPoint =
         new Translation2d(0, tagLayoutType.getLayout().getTagPose(29).get().getY());
 
-    public static final Translation2d FEED_TRANSLATION = new Translation2d(0, 0);
+    public static final Translation2d BLUE_FEED_TRANSLATION = new Translation2d(3.5, 2.5);
+    public static final Translation2d RED_FEED_TRANSLATION =
+        AllianceFlipUtil.overrideApply(new Translation2d(3.5, 2.5));
   }
 
   public enum AprilTagLayoutType {
@@ -339,5 +408,14 @@ public class FieldConstants {
         FieldConstants.tagLayoutType.getLayout().getTags().stream()
             .filter((AprilTag tag) -> List.of(15, 16).contains(tag.ID))
             .toList();
+  }
+
+  public static class Zones {
+    public static final Rectangle2d[] PROHIBIT_LAUNCH_ZONES = {
+      Tower.BLUE_TOWER, Tower.RED_TOWER, Hub.FEED_KEEPOUT
+    };
+    public static final Rectangle2d[] HOOD_TUCK_ZONES = {
+      LeftTrench.BLUE_TRENCH, LeftTrench.RED_TRENCH, RightTrench.BLUE_TRENCH, RightTrench.RED_TRENCH
+    };
   }
 }
