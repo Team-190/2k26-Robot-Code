@@ -254,7 +254,7 @@ public final class DriveCommands {
 
   public static boolean atAngle(Rotation2d targetRotation) {
     return Math.abs(V1_DoomSpiralRobotState.getHeading().minus(targetRotation).getRadians())
-        <= Units.degreesToRadians(1.0);
+        <= Units.degreesToRadians(2.0);
   }
 
   public static Command inchMovement(SwerveDrive drive, double velocity, double time) {
