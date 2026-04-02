@@ -17,7 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
@@ -99,7 +99,7 @@ public class V1_DoomSpiralShooterConstants {
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
-              AngularConstraints.builder()
+              AngularPositionConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))

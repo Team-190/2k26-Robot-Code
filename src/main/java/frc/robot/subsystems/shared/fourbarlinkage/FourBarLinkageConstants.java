@@ -9,7 +9,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
 
 @Builder(setterPrefix = "with")
@@ -36,7 +36,7 @@ public class FourBarLinkageConstants {
   public final Rotation2d startAngle;
 
   public final Gains gains;
-  public final AngularConstraints constraints;
+  public final AngularPositionConstraints constraints;
 
   public final LinkLengths linkLengths;
   public final LinkBounds linkBounds;

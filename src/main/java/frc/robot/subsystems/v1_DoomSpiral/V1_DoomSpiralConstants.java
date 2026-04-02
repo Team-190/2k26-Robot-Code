@@ -14,8 +14,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
-import edu.wpi.team190.gompeilib.core.utility.control.LinearConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.LinearConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
@@ -127,8 +127,8 @@ public class V1_DoomSpiralConstants {
           .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.2))
           .build();
 
-  public static final AngularConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
-      AngularConstraints.builder()
+  public static final AngularPositionConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
+      AngularPositionConstraints.builder()
           .withMaxVelocity(
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/Theta/Max Velocity", RadiansPerSecond.of(Math.PI)))

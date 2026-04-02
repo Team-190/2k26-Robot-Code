@@ -36,7 +36,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     hoodGoal = HoodGoal.STOW;
 
-    flywheel.getVelocityGoalRadiansPerSecond().decrement(RadiansPerSecond.of(30));
+    flywheel.getVelocityGoal().decrement(RadiansPerSecond.of(30));
   }
 
   @Trace
@@ -54,10 +54,10 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     //     String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Offset",
-        flywheel.getVelocityGoalRadiansPerSecond().getOffset().in(RadiansPerSecond));
+        flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Magnitude",
-        (int) Math.abs(flywheel.getVelocityGoalRadiansPerSecond().getSetpoint().in(RadiansPerSecond)));
+        (int) Math.abs(flywheel.getVelocityGoal().getSetpoint().in(RadiansPerSecond)));
 
     if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
@@ -105,28 +105,23 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return hood.resetHoodZero();
   }
 
-  public Command setFlywheelGoal(DoubleSupplier velocityGoal) {
+  public Command setFlywheelGoal(AngularVelocity velocityGoal) {
     return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal));
   }
 
-  public Command setFlywheelGoal(double velocityGoal, double feedforward) {
-    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal, feedforward));
+  public Command setFlywheelGoal(AngularVelocity velocityGoal, Current current) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal, current));
   }
 
-  public Command setFlywheelVoltage(double volts) {
-    return Commands.runOnce(() -> flywheel.setVoltage(volts));
+  public Command setFlywheelVoltage(AngularVelocity volts) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(volts));
   }
 
   public Command stopFlywheel() {
     return Commands.runOnce(flywheel::stop);
   }
 
-  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond, double feedforward) {
-    return Commands.parallel(
-        setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, feedforward));
-  }
-
-  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond, double feedforward) {
+  public Command setGoal(HoodGoal hoodGoal, AngularVelocity velocityRadiansPerSecond, Current current) {
     return Commands.parallel(
         Commands.run(
             () -> {
@@ -136,11 +131,11 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         Commands.run(
             () ->
                 flywheel.setVelocityGoal(
-                    velocityRadiansPerSecond.getAsDouble(), feedforward)));
+                    velocityRadiansPerSecond, current)));
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheel.atGoal();
+    return hood.atPositionGoal() && flywheel.atVelocityGoal();
   }
 
   public Command waitUntilAtGoal() {
@@ -160,18 +155,18 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command incrementFlywheelVelocity() {
-    return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::increment);
+    return Commands.runOnce(flywheel.getVelocityGoal()::increment);
   }
 
   public Command decrementFlywheelVelocity() {
-    return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::decrement);
+    return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
   }
 
-  // public Command incrementHoodAngle() {
-  //   return Commands.runOnce(hood.getPositionGoal()::increment);
-  // }
+  public Command incrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::increment);
+  }
 
-  // public Command decrementHoodAngle() {
-  //   return Commands.runOnce(hood.getPositionGoal()::decrement);
-  // }
+  public Command decrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::decrement);
+  }
 }

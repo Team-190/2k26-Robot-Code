@@ -66,7 +66,6 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucks {
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
-<<<<<<< HEAD
                         Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
     routine

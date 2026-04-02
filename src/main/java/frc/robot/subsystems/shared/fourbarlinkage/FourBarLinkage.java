@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
+import static edu.wpi.first.units.Units.Radian;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -15,8 +16,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import lombok.Getter;
@@ -163,7 +165,7 @@ public class FourBarLinkage {
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
     Logger.recordOutput(
-        aKitTopic + "/Offset Degrees", String.format("%.1f", positionGoal.getOffset().in(Radians)));
+        aKitTopic + "/Offset Degrees", String.format("%.1f", positionGoal.getOffset().in(Radian)));
   }
 
   /**

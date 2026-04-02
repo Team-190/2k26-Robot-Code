@@ -16,9 +16,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
@@ -146,7 +145,7 @@ public class HoodIOTalonFX implements HoodIO {
   }
 
   @Override
-  public void setProfile(AngularConstraints constraints) {
+  public void setProfile(AngularPositionConstraints constraints) {
     config.MotionMagic.MotionMagicCruiseVelocity =
         constraints.maxVelocity().get(RotationsPerSecond);
     config.MotionMagic.MotionMagicAcceleration =

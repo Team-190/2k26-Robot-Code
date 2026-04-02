@@ -1,20 +1,25 @@
 package frc.robot.subsystems.shared.intake;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.intake.IntakeState;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
@@ -30,15 +35,25 @@ public class Intake extends SubsystemBase {
   private double overrideVoltage;
   private boolean overrideRoller;
 
-  public Intake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
+  @Getter private Setpoint<AngleUnit> positionGoal;
+  @Getter private Setpoint<VoltageUnit> voltageGoal;
+
+  public Intake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, FourBarLinkageConstants constants) {
     setName("Intake");
 
     intakeState = IntakeState.STOW;
 
     roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
+    positionGoal =
+        new Setpoint<>(
+            Radians.zero(),
+            constants.positionOffsetStep.getMeasure(),
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure());
+    voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
     linkage =
         new FourBarLinkage(
-            linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, "", IntakeState.STOW.getAngle());
+            linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, "", IntakeState.STOW.getAngle(), positionGoal, voltageGoal);
 
     intakeState = IntakeState.STOW;
 
@@ -51,22 +66,22 @@ public class Intake extends SubsystemBase {
     roller.periodic();
     linkage.periodic();
 
-    if (overrideRoller) roller.setVoltage(Volts.of(overrideVoltage));
+    if (overrideRoller) roller.setVoltageGoal(Volts.of(overrideVoltage));
     else
       switch (intakeState) {
         case STOW:
           if (!linkage.atPositionGoal())
-            roller.setVoltage(Volts.of(IntakeConstants.EXTAKE_VOLTAGE));
-          else roller.setVoltage(Volts.of(0.0));
+            roller.setVoltageGoal(Volts.of(IntakeConstants.EXTAKE_VOLTAGE));
+          else roller.setVoltageGoal(Volts.of(0.0));
           break;
         case INTAKE:
         case BUMP:
           if (intakeOnInIntakeState)
-            roller.setVoltage(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
-          else roller.setVoltage(Volts.of(0.0));
+            roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
+          else roller.setVoltageGoal(Volts.of(0.0));
           break;
         case AGITATE:
-          roller.setVoltage(Volts.of(3.0));
+          roller.setVoltageGoal(Volts.of(3.0));
           break;
         default:
           break;
@@ -78,7 +93,7 @@ public class Intake extends SubsystemBase {
     if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
       V1_DoomSpiralRobotState.getLedStates()
           .setIntakeCollecting(
-              roller.getVoltageGoalVolts().getNewSetpoint().baseUnitMagnitude()
+              roller.getVoltageGoal().getNewSetpoint().baseUnitMagnitude()
                   == IntakeConstants.INTAKE_VOLTAGE);
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     } else {
@@ -87,7 +102,7 @@ public class Intake extends SubsystemBase {
     }
     V1_DoomSpiralRobotState.getLedStates()
         .setSpitting(
-            roller.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()
+            roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
     Logger.recordOutput(
@@ -95,11 +110,11 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput(
         "Intake/Linkage0/Angle Degrees", linkage.getPosition().getDegrees());
     Logger.recordOutput(
-        "Intake/Roller/Voltage Offset", roller.getVoltageGoalVolts().getOffset().in(Volts));
+        "Intake/Roller/Voltage Offset", roller.getVoltageGoal().getOffset().in(Volts));
     Logger.recordOutput(
-        "Intake/Roller/AppliedVolts", roller.getVoltageGoalVolts().getSetpoint().in(Volts));
+        "Intake/Roller/AppliedVolts", roller.getVoltageGoal().getSetpoint().in(Volts));
     Logger.recordOutput(
-        "Intake/Roller/Voltage Magnitude", roller.getVoltageGoalVolts().getNewSetpoint().in(Volts));
+        "Intake/Roller/Voltage Magnitude", roller.getVoltageGoal().getNewSetpoint().in(Volts));
   }
 
   /**
@@ -276,11 +291,11 @@ public class Intake extends SubsystemBase {
   // }
 
   public Command increaseSpeedOffset() {
-    return Commands.runOnce(roller.getVoltageGoalVolts()::increment);
+    return Commands.runOnce(roller.getVoltageGoal()::increment);
   }
 
   public Command decreaseSpeedOffset() {
-    return Commands.runOnce(roller.getVoltageGoalVolts()::decrement);
+    return Commands.runOnce(roller.getVoltageGoal()::decrement);
   }
 
   public Command defaultCommand() {

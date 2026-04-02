@@ -64,10 +64,10 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     Logger.recordOutput(getName() + "/Voltage Goal", voltageGoal.getSetpoint());
     Logger.recordOutput(
         "Spindexer/RollerFeeder/Voltage Magnitude",
-        Math.abs(feeder.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()));
+        Math.abs(feeder.getVoltageGoal().getSetpoint().baseUnitMagnitude()));
     Logger.recordOutput(
         "Spindexer/RollerFeeder/Voltage Offset",
-        feeder.getVoltageGoalVolts().getOffset().baseUnitMagnitude());
+        feeder.getVoltageGoal().getOffset().baseUnitMagnitude());
     Logger.recordOutput(
         getName() + "/Voltage Goal Magnitude",
         String.format("%.1f", Math.abs(voltageGoal.getSetpoint().baseUnitMagnitude())));
@@ -133,8 +133,8 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () -> {
           state = SPINDEXER_ONLY_VOLTAGE;
           voltageGoal.setSetpoint(Volts.of(volts));
-          kicker.setVoltage(Volts.zero());
-          feeder.setVoltage(Volts.zero());
+          kicker.setVoltageGoal(Volts.zero());
+          feeder.setVoltageGoal(Volts.zero());
         });
   }
 
@@ -142,8 +142,8 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     return Commands.runOnce(
         () -> {
           state = STOP;
-          kicker.setVoltage(Volts.zero());
-          feeder.setVoltage(Volts.zero());
+          kicker.setVoltageGoal(Volts.zero());
+          feeder.setVoltageGoal(Volts.zero());
         });
   }
 

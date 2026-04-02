@@ -15,9 +15,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
@@ -175,7 +174,7 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
   }
 
   @Override
-  public void setProfile(AngularConstraints constraints) {
+  public void setProfile(AngularPositionConstraints constraints) {
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
         constraints.maxVelocity().get(RotationsPerSecond);
     talonFXConfig.MotionMagic.MotionMagicAcceleration =
