@@ -8,23 +8,21 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
-import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
-import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
-import frc.robot.subsystems.shared.hood.HoodConstants.HoodGoal;
 import frc.robot.subsystems.shared.hood.HoodIO;
-import frc.robot.subsystems.shared.hood.HoodIOInputsAutoLogged;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
   private final Hood hood;
-  private final HoodIOInputsAutoLogged hoodInputs = new HoodIOInputsAutoLogged();
+
+  private HoodGoal hoodGoal;
 
   private final GenericFlywheel flywheel;
 
@@ -33,84 +31,34 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     flywheel =
         new GenericFlywheel(flywheelIO, this, V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS, "");
-    hood =
-        new Hood(
-            hoodIO,
-            V1_DoomSpiralShooterConstants.HOOD_CONSTANTS,
-            this,
-            "",
-            V1_DoomSpiralRobotState::getScoreAngle,
-            V1_DoomSpiralRobotState::getFeedAngle);
+    hood = new Hood(hoodIO, V1_DoomSpiralShooterConstants.HOOD_CONSTANTS, this, "");
+
+    hoodGoal = HoodGoal.STOW;
+
+    flywheel.getVelocityGoal().decrement(RadiansPerSecond.of(30));
   }
 
-  @Override
+  @Trace
   public void periodic() {
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> {
-          flywheel.updateGains(
-              Gains.builder()
-                  .withKP(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kP())
-                  .withKD(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kD())
-                  .withKS(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kS())
-                  .withKV(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kV())
-                  .withKA(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kA())
-                  .build(),
-                  GainSlot.ZERO);
-        },
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kP(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kD(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kS(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kV(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kA());
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> {
-          flywheel.updateGains(
-              Gains.builder()
-                  .withKP(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kP())
-                  .withKD(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kD())
-                  .withKS(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kS())
-                  .withKV(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kV())
-                  .withKA(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.voltageGains.kA())
-                  .build(),
-                  GainSlot.ZERO);
-        },
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kP(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kD(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kS(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kV(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.torqueGains.kA());
-
-    LoggedTunableMeasure.ifChanged(
-        hashCode(),
-        () ->
-            flywheel.setProfile(
-                V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
-                    .constraints
-                    .maxAcceleration()
-                    .get()
-                    .in(RadiansPerSecondPerSecond),
-                V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
-                    .constraints
-                    .maxVelocity()
-                    .get()
-                    .in(RadiansPerSecond),
-                V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS
-                    .constraints
-                    .goalTolerance()
-                    .get()
-                    .in(Radians)),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.maxAcceleration(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.maxVelocity(),
-        V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS.constraints.goalTolerance());
-
     hood.periodic();
     flywheel.periodic();
 
-    if (hood.getHoodGoal().equals(HoodGoal.SCORE) || hood.getHoodGoal().equals(HoodGoal.FEED)) {
+    Logger.recordOutput("Shooter/Hood/Goal", hoodGoal);
+
+    Logger.recordOutput(
+        "Shooter/Hood/Goal Degrees",
+        String.format("%.1f", hood.getPositionGoal().getSetpoint().in(Degrees)));
+    Logger.recordOutput(
+        "Shooter/Hood/Offset Degrees",
+        String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
+    Logger.recordOutput(
+        "Shooter/Flywheel/Velocity Offset",
+        flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond));
+    Logger.recordOutput(
+        "Shooter/Flywheel/Velocity Magnitude",
+        (int) Math.abs(flywheel.getVelocityGoal().getSetpoint().in(RadiansPerSecond)));
+
+    if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
       V1_DoomSpiralRobotState.getLedStates().setShooterShooting(atGoal());
     } else {
@@ -119,77 +67,79 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     }
   }
 
-  public HoodIOInputsAutoLogged getHoodInputs() {
-    return hoodInputs;
+  public Command setHoodGoal(HoodGoal goal) {
+    return Commands.runOnce(
+        () -> {
+          hoodGoal = goal;
+          hood.setPositionGoal(getHoodGoal(goal));
+        });
   }
 
-  public Command setHoodGoal(HoodGoal goal) {
-    return Commands.runOnce(() -> hood.setGoal(goal));
+  private Rotation2d getHoodGoal(HoodGoal goal) {
+    Rotation2d rotation =
+        switch (goal) {
+          case SCORE -> V1_DoomSpiralRobotState.getScoreAngle();
+          case FEED -> V1_DoomSpiralRobotState.getFeedAngle();
+          default -> Rotation2d.kZero;
+        };
+    Logger.recordOutput("Shooter/Hood/DebugGoal", rotation);
+    Logger.recordOutput("Shooter/Hood/debugGoal1", goal);
+    return rotation;
   }
 
   public Command setOverrideHoodGoal(Rotation2d position) {
-    return Commands.runOnce(() -> hood.setOverridePosition(position))
-        .andThen(Commands.runOnce(() -> hood.setGoal(HoodGoal.OVERRIDE)));
+    return Commands.runOnce(() -> hood.setPositionGoal(position))
+        .andThen(Commands.runOnce(() -> hoodGoal = HoodGoal.OVERRIDE));
   }
 
   public Command setHoodVoltage(double volts) {
-    return Commands.runOnce(() -> hood.setVoltage(Volts.of(volts)));
+    return Commands.runOnce(() -> hood.setVoltageGoal(Volts.of(volts)));
   }
 
   public Command stopHood() {
-    return Commands.runOnce(() -> hood.setVoltage(Volts.zero()));
+    return Commands.runOnce(() -> hood.setVoltageGoal(Volts.zero()));
   }
 
   public Command zeroHood() {
     return hood.resetHoodZero();
   }
 
-  public Command setFlywheelGoal(AngularVelocity velocityRadiansPerSecond) {
-    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityRadiansPerSecond));
+  public Command setFlywheelGoal(AngularVelocity velocityGoal) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal));
   }
 
-  public Command setFlywheelGoal(AngularVelocity velocityRadiansPerSecond, Current current) {
-    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityRadiansPerSecond, current));
-  }
-
-  public Command incrementFlywheelVelocity() {
-    return Commands.runOnce(() -> flywheel.incrementVelocityOffset());
-  }
-
-  public Command decrementFlywheelVelocity() {
-    return Commands.runOnce(() -> flywheel.decrementVelocityOffset());
+  public Command setFlywheelGoal(AngularVelocity velocityGoal, Current feedforward) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal, feedforward));
   }
 
   public Command setFlywheelVoltage(double volts) {
-    return Commands.runOnce(() -> flywheel.setVoltage(Volts.of(volts)));
-  }
-
-  public Command setFlywheelVelocity(double velocityRadiansPerSecond) {
-    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityRadiansPerSecond));
+    return Commands.runOnce(() -> flywheel.setVoltageGoal(Volts.of(volts)));
   }
 
   public Command stopFlywheel() {
-    return Commands.runOnce(() -> flywheel.stop());
+    return Commands.runOnce(flywheel::stop);
   }
 
-  public Command setGoal(
-      HoodGoal hoodGoal, double velocityRadiansPerSecond) { // TODO: Figure out why it doesnt work
-    return Commands.parallel(setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond));
+  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
+    return Commands.parallel(
+        setHoodGoal(hoodGoal), setFlywheelGoal(RadiansPerSecond.of(velocityRadiansPerSecond)));
   }
 
   public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond) {
     return Commands.parallel(
-        setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond));
-  }
-
-  public Command setGoal(
-      HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond, DoubleSupplier feedforward) {
-    return Commands.parallel(
-        setHoodGoal(hoodGoal), flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward));
+        Commands.run(
+            () -> {
+              this.hoodGoal = hoodGoal;
+              hood.setPositionGoal(getHoodGoal(hoodGoal));
+            }),
+        Commands.run(
+            () ->
+                flywheel.setVelocityGoal(
+                    RadiansPerSecond.of(velocityRadiansPerSecond.getAsDouble()))));
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheel.atGoal();
+    return hood.atPositionGoal() && flywheel.atVelocityGoal();
   }
 
   public Command waitUntilAtGoal() {
@@ -206,5 +156,21 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   public Command flywheelSysId() {
     return flywheel.sysIdRoutineTorque();
+  }
+
+  public Command incrementFlywheelVelocity() {
+    return Commands.runOnce(flywheel.getVelocityGoal()::increment);
+  }
+
+  public Command decrementFlywheelVelocity() {
+    return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
+  }
+
+  public Command incrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::increment);
+  }
+
+  public Command decrementHoodAngle() {
+    return Commands.runOnce(hood.getPositionGoal()::decrement);
   }
 }

@@ -9,13 +9,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 
 public class HoodIOSim implements HoodIO {
   private final SingleJointedArmSim motorSim;
@@ -90,26 +88,20 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void setPID(double kp, double ki, double kd) {
-    feedback.setPID(kp, ki, kd);
+  public void setGains(Gains gains) {
+    feedback.setPID(gains.kP().get(), 0.0, gains.kD().get());
+    feedforward.setKa(gains.kA().get());
+    feedforward.setKv(gains.kV().get());
+    feedforward.setKs(gains.kS().get());
   }
 
   @Override
-  public void setFeedforward(double ks, double kv, double ka) {
-    feedforward.setKa(ka);
-    feedforward.setKs(ks);
-    feedforward.setKv(kv);
-  }
-
-  @Override
-  public void setProfile(
-      Measure<AngularVelocityUnit> maxVelocity,
-      Measure<AngularAccelerationUnit> maxAcceleration,
-      Measure<AngleUnit> goalTolerance) {
+  public void setProfile(AngularPositionConstraints constraints) {
     feedback.setConstraints(
         new Constraints(
-            maxVelocity.in(RadiansPerSecond), maxAcceleration.in(RadiansPerSecondPerSecond)));
-    feedback.setTolerance(goalTolerance.in(Radians));
+            constraints.maxVelocity().get(RadiansPerSecond),
+            constraints.maxAcceleration().get(RadiansPerSecondPerSecond)));
+    feedback.setTolerance(constraints.goalTolerance().get(Radians));
   }
 
   @Override

@@ -3,8 +3,6 @@ package frc.robot.subsystems.v1_DoomSpiral.shooter;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
-import static edu.wpi.first.units.Units.Radian;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -12,12 +10,13 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
@@ -74,7 +73,8 @@ public class V1_DoomSpiralShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
+                      new LoggedTunableMeasure<>(
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
           .withVelocityOffsetStep(RadiansPerSecond.of(10))
@@ -98,7 +98,7 @@ public class V1_DoomSpiralShooterConstants {
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
-              AngularVelocityConstraints.builder()
+              AngularPositionConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))
@@ -106,7 +106,7 @@ public class V1_DoomSpiralShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Hood/GoalTolerance", RadiansPerSecond.of(1.0)))
+                      new LoggedTunableMeasure<>("Shooter/Hood/GoalTolerance", Degrees.of(1.0)))
                   .build())
           .withGains(
               Gains.builder()
@@ -116,5 +116,16 @@ public class V1_DoomSpiralShooterConstants {
                   .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
                   .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
                   .build())
+          .withVoltageStep(Volts.of(0.5))
           .build();
+
+  public static Transform2d SHOOTER_POSE =
+      new Transform2d(0.015, 0.255299, Rotation2d.fromDegrees(-90.0));
+
+  public enum HoodGoal {
+    SCORE,
+    FEED,
+    STOW,
+    OVERRIDE
+  }
 }

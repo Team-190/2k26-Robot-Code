@@ -1,6 +1,5 @@
 package frc.robot.subsystems.shared.fourbarlinkage;
 
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -8,29 +7,36 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
-import java.util.function.Supplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class FourBarLinkage {
-  public final FourBarLinkageIO io;
-  public final String aKitTopic;
+  private final FourBarLinkageIO io;
+  private final String aKitTopic;
   private final FourBarLinkageIOInputsAutoLogged inputs;
 
-  private Supplier<Rotation2d> positionOffset;
-
   private FourBarLinkageState currentState;
-  private FourBarLinkageState.Output currentOutput;
-  public final FourBarLinkageConstants constants;
+
+  @Getter private Setpoint<VoltageUnit> voltageGoal;
+  @Getter private Setpoint<AngleUnit> positionGoal;
+
+  private final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
@@ -49,27 +55,33 @@ public class FourBarLinkage {
    * @param constants The constants file for FourBarLinkage.{@link
    *     frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants}
    * @param subsystem The subsystem this linkage belongs to.
-   * @param index The index of multiple linkages in the same subsystem.
+   * @param name The name of multiple linkages in the same subsystem.
    */
   public FourBarLinkage(
-      FourBarLinkageIO io, FourBarLinkageConstants constants, Subsystem subsystem, int index) {
+      FourBarLinkageIO io,
+      FourBarLinkageConstants constants,
+      Subsystem subsystem,
+      String name,
+      Setpoint<AngleUnit> positionGoal,
+      Setpoint<VoltageUnit> voltageGoal) {
 
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
     this.constants = constants;
-    this.mechanism2d = new LoggedMechanism2d(1, 1);
-    aKitTopic = subsystem.getName() + "/Linkage" + index;
+    this.mechanism2d =
+        new LoggedMechanism2d(constants.linkageOffset.getX(), constants.linkageOffset.getZ());
+    aKitTopic = subsystem.getName() + "/Linkage" + name;
 
     this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
 
     this.crank =
-        root2d.append(new LoggedMechanismLigament2d("Crank", constants.LINK_LENGTHS.AB(), 0));
+        root2d.append(new LoggedMechanismLigament2d("Crank", constants.linkLengths.AB(), 0));
     this.coupler =
-        crank.append(new LoggedMechanismLigament2d("Coupler", constants.LINK_LENGTHS.BC(), 0));
+        crank.append(new LoggedMechanismLigament2d("Coupler", constants.linkLengths.BC(), 0));
     this.follower =
-        coupler.append(new LoggedMechanismLigament2d("Follower", constants.LINK_LENGTHS.CD(), 0));
+        coupler.append(new LoggedMechanismLigament2d("Follower", constants.linkLengths.CD(), 0));
     this.ground =
-        follower.append(new LoggedMechanismLigament2d("Ground", constants.LINK_LENGTHS.DA(), 0));
+        follower.append(new LoggedMechanismLigament2d("Ground", constants.linkLengths.DA(), 0));
 
     characterizationRoutine =
         new SysIdRoutine(
@@ -78,46 +90,79 @@ public class FourBarLinkage {
                 Volts.of(3.5),
                 Seconds.of(10),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
-            new SysIdRoutine.Mechanism(
-                (voltage) -> io.setVoltage(voltage.in(Volts)), null, subsystem));
+            new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
     currentState = FourBarLinkageState.IDLE;
-    currentOutput = currentState.set(Volts.of(0));
-    positionOffset = () -> Rotation2d.kZero;
+
+    this.voltageGoal = voltageGoal;
+    this.positionGoal = positionGoal;
+  }
+
+  public FourBarLinkage(
+      FourBarLinkageIO io, FourBarLinkageConstants constants, Subsystem subsystem, String name) {
+    this(
+        io,
+        constants,
+        subsystem,
+        name,
+        new Setpoint<>(
+            constants.minAngle.getMeasure(),
+            constants.positionOffsetStep.getMeasure(),
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure()),
+        new Setpoint<>(Volts.of(0), constants.voltageOffsetStep, Volts.of(-12), Volts.of(12)));
+  }
+
+  public FourBarLinkage(
+      FourBarLinkageIO io,
+      FourBarLinkageConstants constants,
+      Subsystem subsystem,
+      String name,
+      Setpoint<AngleUnit> positionGoal) {
+    this(
+        io,
+        constants,
+        subsystem,
+        name,
+        positionGoal,
+        new Setpoint<>(Volts.of(0), constants.voltageOffsetStep, Volts.of(-12), Volts.of(12)));
   }
 
   public void periodic() {
     io.updateInputs(inputs);
+
     Logger.processInputs(aKitTopic, inputs);
 
-    Logger.recordOutput(aKitTopic + "/At Goal", atGoal());
+    Logger.recordOutput(aKitTopic + "/Position Goal", positionGoal.getSetpoint());
+    Logger.recordOutput(aKitTopic + "/Voltage Goal", voltageGoal.getSetpoint());
+    Logger.recordOutput(aKitTopic + "/Position Offset", positionGoal.getOffset());
+    Logger.recordOutput(aKitTopic + "/Voltage Offset", voltageGoal.getOffset());
+    Logger.recordOutput(aKitTopic + "/At Position Goal", atPositionGoal());
+    Logger.recordOutput(aKitTopic + "/At Voltage Goal", atVoltageGoal());
+    Logger.recordOutput(aKitTopic + "/State", currentState);
 
     switch (currentState) {
       case OPEN_LOOP_VOLTAGE_CONTROL -> {
-        io.setVoltage(currentOutput.volts().in(Volts));
+        io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       }
-      case CLOSED_LOOP_POSITION_CONTROL -> {
-        io.setPositionGoal(currentOutput.position());
-      }
+      case CLOSED_LOOP_POSITION_CONTROL ->
+          io.setPositionGoal(new Rotation2d(positionGoal.getNewSetpoint().baseUnitMagnitude()));
       default -> {}
     }
 
-    List<Rotation2d> currentPoses =
-        getLinkagePoses().stream().map((LinkageState state) -> state.rotation()).toList();
+    List<Rotation2d> currentPoses = getLinkagePoses().stream().map(LinkageState::rotation).toList();
 
     Rotation2d crankAngle = currentPoses.get(0);
     Rotation2d couplerAngle = currentPoses.get(1);
     Rotation2d followerAngle = currentPoses.get(2);
     Rotation2d groundAngle = currentPoses.get(3);
 
-    crank.setAngle(crankAngle);
-    coupler.setAngle(couplerAngle.minus(crankAngle));
-    follower.setAngle(followerAngle.minus(couplerAngle));
-    ground.setAngle(groundAngle.minus(followerAngle));
+    crank.setAngle(crankAngle.unaryMinus());
+    coupler.setAngle(couplerAngle.minus(crankAngle).unaryMinus());
+    follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
+    ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
-    Logger.recordOutput(
-        aKitTopic + "/Offset Degrees", String.format("%.1f", positionOffset.get().getDegrees()));
   }
 
   /**
@@ -129,18 +174,22 @@ public class FourBarLinkage {
     return inputs.position;
   }
 
+  public Command setIdle() {
+    return Commands.runOnce(
+        () -> {
+          currentState = FourBarLinkageState.IDLE;
+        });
+  }
+
   /**
    * Sets the voltage being passed into the linkage subsystem.
    *
-   * @param volts the voltage passed into the linkage.
+   * @param voltage the voltage passed into the linkage.
    * @return A command that sets the specified voltage.
    */
-  public Command setVoltage(double volts) {
-    return Commands.runOnce(
-        () -> {
-          currentState = FourBarLinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
-          currentOutput = currentState.set(Volts.of(volts));
-        });
+  public void setVoltageGoal(Voltage voltage) {
+    currentState = FourBarLinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
+    voltageGoal.setSetpoint(voltage);
   }
 
   /**
@@ -149,33 +198,23 @@ public class FourBarLinkage {
    * @param position the goal
    * @return A command to set the goal to the specified value.
    */
-  public Command setPositionGoal(Rotation2d position, Supplier<Rotation2d> positionOffset) {
-    return Commands.runOnce(
-        () -> {
-          currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
-          currentOutput = currentState.set(position.plus(positionOffset.get()));
-          this.positionOffset = positionOffset;
-        });
+  public void setPositionGoal(Rotation2d position) {
+    currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
+    positionGoal.setSetpoint(position.getMeasure());
   }
 
-  /**
-   * Set the goal for the linkage.
-   *
-   * @param position the goal
-   * @return A command to set the goal to the specified value.
-   */
-  public Command setPositionGoal(
-      Supplier<Rotation2d> position, Supplier<Rotation2d> positionOffset) {
-    return Commands.runOnce(
-        () -> {
-          currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
-          currentOutput = currentState.set(position.get().plus(positionOffset.get()));
-          this.positionOffset = positionOffset;
-        });
+  public void setVoltageGoal(Setpoint<VoltageUnit> voltageGoal) {
+    currentState = FourBarLinkageState.OPEN_LOOP_VOLTAGE_CONTROL;
+    this.voltageGoal = voltageGoal;
   }
 
-  public Command setPosition(Rotation2d position) {
-    return Commands.runOnce(() -> io.setPosition(position));
+  public void setPositionGoal(Setpoint<AngleUnit> positionGoal) {
+    currentState = FourBarLinkageState.CLOSED_LOOP_POSITION_CONTROL;
+    this.positionGoal = positionGoal;
+  }
+
+  public void setPosition(Rotation2d position) {
+    io.setPosition(position);
   }
 
   /**
@@ -183,19 +222,26 @@ public class FourBarLinkage {
    *
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
-  public boolean atGoal() {
-    return io.atGoal();
+  public boolean atPositionGoal() {
+    return io.atPositionGoal(new Rotation2d(positionGoal.getNewSetpoint().baseUnitMagnitude()));
   }
 
   /**
    * Checks if the linkage is at the goal position.
    *
-   * @param state The state to check goal against.
+   * @param position The state to check goal against.
    * @return If the linkage is within tolerance of the goal (true) or not (false).
    */
-  public boolean atGoal(Rotation2d position) {
-    return Math.abs(inputs.position.minus(position).getRadians())
-        <= constants.CONSTRAINTS.goalTolerance().get(Radians);
+  public boolean atPositionGoal(Rotation2d positionReference) {
+    return io.atPositionGoal(positionReference);
+  }
+
+  public boolean atVoltageGoal() {
+    return io.atVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
+  }
+
+  public boolean atVoltageGoal(Voltage voltageReference) {
+    return io.atVoltageGoal(voltageReference);
   }
 
   /**
@@ -204,32 +250,25 @@ public class FourBarLinkage {
    * @return A command that waits until the linkage is at the goal.
    */
   public Command waitUntilLinkageAtGoal() {
-    return Commands.waitUntil(this::atGoal);
+    return Commands.waitUntil(this::atPositionGoal);
   }
 
   /**
    * Updates the PID values for the linkage.
    *
-   * @param kp the proportional gain
-   * @param kd the derivative gain
+   * @param gains The proportional gain, derivative gain, and feedforward gains.
    */
-  public void setPID(double kp, double kd) {
-    io.setPID(kp, 0.0, kd);
+  public void setGains(Gains gains) {
+    io.setGains(gains);
   }
 
   /**
    * Updates the profile constraints.
    *
-   * @param maxVelocityRadiansPerSecond Maximum velocity (rad/sec)
-   * @param maxAccelerationRadiansPerSecondSquared Maximum acceleration (rad/sec^2)
-   * @param goalToleranceRadians Tolerance (rad)
+   * @param constraints the new profile constraints to set.
    */
-  public void setProfile(
-      double maxVelocityRadiansPerSecond,
-      double maxAccelerationRadiansPerSecondSquared,
-      double goalToleranceRadians) {
-    io.setProfile(
-        maxVelocityRadiansPerSecond, maxAccelerationRadiansPerSecondSquared, goalToleranceRadians);
+  public void setProfile(AngularPositionConstraints constraints) {
+    io.setProfile(constraints);
   }
 
   /**
@@ -238,13 +277,13 @@ public class FourBarLinkage {
    * @return List of LinkageStates representing the 3d poses and 2d rotations of each link.
    */
   public List<LinkageState> getLinkagePoses() {
-    double crankLength = constants.LINK_LENGTHS.AB();
-    double couplerLength = constants.LINK_LENGTHS.BC();
-    double followerLength = constants.LINK_LENGTHS.CD();
-    double groundLength = constants.LINK_LENGTHS.DA();
+    double crankLength = constants.linkLengths.AB();
+    double couplerLength = constants.linkLengths.BC();
+    double followerLength = constants.linkLengths.CD();
+    double groundLength = constants.linkLengths.DA();
 
-    double theta1 = constants.INTAKE_ANGLE_OFFSET.getRadians();
-    double theta2 = -inputs.position.minus(Rotation2d.kPi).getRadians() - theta1;
+    double theta1 = constants.intakeAngleOffset.getRadians();
+    double theta2 = -inputs.position.minus(constants.zeroOffset).getRadians() - theta1;
 
     double k1 = groundLength / crankLength;
     double k4 = groundLength / couplerLength;
@@ -279,15 +318,15 @@ public class FourBarLinkage {
 
     double theta5 = Math.atan2(z4 - z3, x4 - x3);
 
-    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, (theta2 + theta1), 0));
-    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, (theta3 + theta1), 0));
-    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, theta5, 0));
-    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, (Math.PI + theta1), 0));
+    Pose3d crankPose = new Pose3d(point1, new Rotation3d(0, -(theta2 + theta1), 0));
+    Pose3d couplerPose = new Pose3d(point2, new Rotation3d(0, -(theta3 + theta1), 0));
+    Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
+    Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
 
-    Rotation2d crankAngle = Rotation2d.fromRadians((theta2 + theta1));
-    Rotation2d couplerAngle = Rotation2d.fromRadians((theta3 + theta1));
-    Rotation2d followerAngle = Rotation2d.fromRadians(theta5);
-    Rotation2d groundAngle = Rotation2d.fromRadians((Math.PI + theta1));
+    Rotation2d crankAngle = Rotation2d.fromRadians(-(theta2 + theta1));
+    Rotation2d couplerAngle = Rotation2d.fromRadians(-(theta3 + theta1));
+    Rotation2d followerAngle = Rotation2d.fromRadians(-theta5);
+    Rotation2d groundAngle = Rotation2d.fromRadians(-(Math.PI + theta1));
 
     LinkageState link1 = new LinkageState(crankPose, crankAngle);
     LinkageState link2 = new LinkageState(couplerPose, couplerAngle);
@@ -305,20 +344,21 @@ public class FourBarLinkage {
   public Command runSysId() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = FourBarLinkageState.IDLE),
+        Commands.print("Sys Id being run"),
         characterizationRoutine
             .quasistatic(Direction.kForward)
-            .until(() -> atGoal(constants.MAX_ANGLE)),
+            .until(() -> atPositionGoal(constants.maxAngle)),
         Commands.waitSeconds(3),
         characterizationRoutine
             .quasistatic(Direction.kReverse)
-            .until(() -> atGoal(constants.MIN_ANGLE)),
+            .until(() -> atPositionGoal(constants.minAngle)),
         Commands.waitSeconds(3),
         characterizationRoutine
             .dynamic(Direction.kForward)
-            .until(() -> atGoal(constants.MAX_ANGLE)),
+            .until(() -> atPositionGoal(constants.maxAngle)),
         Commands.waitSeconds(3),
         characterizationRoutine
             .dynamic(Direction.kReverse)
-            .until(() -> atGoal(constants.MIN_ANGLE)));
+            .until(() -> atPositionGoal(constants.minAngle)));
   }
 }
