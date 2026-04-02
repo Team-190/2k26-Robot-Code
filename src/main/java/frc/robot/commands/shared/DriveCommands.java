@@ -158,6 +158,7 @@ public final class DriveCommands {
       Supplier<Rotation2d> rotationSupplier,
       BooleanSupplier pointAtHub,
       DoubleSupplier hubSetpoint,
+      DoubleSupplier hubFeedforward,
       BooleanSupplier cardinalDirectionAlign,
       BooleanSupplier climbSlowMode) {
 
@@ -203,10 +204,11 @@ public final class DriveCommands {
                     pointAtHub,
                     () ->
                         AutoAlignCommand.calculate(
-                            omegaController,
-                            hubSetpoint.getAsDouble(),
-                            rotationSupplier.get().getRadians(),
-                            drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
+                                omegaController,
+                                hubSetpoint.getAsDouble(),
+                                rotationSupplier.get().getRadians(),
+                                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)
+                            + hubFeedforward.getAsDouble()),
                 Pair.of(
                     cardinalDirectionAlign,
                     () ->

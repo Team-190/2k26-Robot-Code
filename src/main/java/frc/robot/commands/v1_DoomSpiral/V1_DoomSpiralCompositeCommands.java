@@ -36,7 +36,10 @@ public class V1_DoomSpiralCompositeCommands {
         intake.stopRoller(),
         shooter.setGoal(
             HoodGoal.SCORE,
-                ()->V1_DoomSpiralRobotState.getShootingParameters().flywheelSpeed().in(RadiansPerSecond)),
+            () ->
+                V1_DoomSpiralRobotState.getShootingParameters()
+                    .flywheelSpeed()
+                    .in(RadiansPerSecond)),
         new ContinuousConditionalCommand(
             spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE),
             spindexer.agitateSpindexer(),

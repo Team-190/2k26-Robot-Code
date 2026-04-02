@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -274,7 +275,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> -driver.getRightX(),
                 V1_DoomSpiralRobotState::getHeading,
                 driver.rightTrigger(),
-                () -> V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
+                () -> V1_DoomSpiralRobotState.getShootingParameters().chassisAngle().getRadians(),
+                () ->
+                    V1_DoomSpiralRobotState.getShootingParameters()
+                        .chassisVelocity()
+                        .in(RadiansPerSecond),
                 driver.leftTrigger().or(driver.x()),
                 driver.x())
             .withName("joystickDriveRotationLock"));

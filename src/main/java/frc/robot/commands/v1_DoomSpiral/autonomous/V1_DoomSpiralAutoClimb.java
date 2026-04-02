@@ -47,7 +47,10 @@ public class V1_DoomSpiralAutoClimb {
                         intake.stopRoller(),
                         shooter.setGoal(
                             V1_DoomSpiralShooterConstants.HoodGoal.SCORE,
-                                ()->V1_DoomSpiralRobotState.getShootingParameters().flywheelSpeed().in(RadiansPerSecond)),
+                            () ->
+                                V1_DoomSpiralRobotState.getShootingParameters()
+                                    .flywheelSpeed()
+                                    .in(RadiansPerSecond)),
                         Commands.sequence(
                             spindexer.agitateSpindexer().until(shooter::atGoal),
                             spindexer.setVoltage(
