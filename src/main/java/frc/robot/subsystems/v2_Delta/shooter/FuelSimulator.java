@@ -100,8 +100,8 @@ public class FuelSimulator {
     this.hoodInputs = hoodInputs;
     this.intakeInputs = intakeInputs;
 
-    thetaStart = flywheelInputs.positionRadians.getDegrees();
-    shooterVelocity = flywheelInputs.velocityRadiansPerSecond;
+    thetaStart = flywheelInputs.position.getDegrees();
+    shooterVelocity = flywheelInputs.velocity.baseUnitMagnitude();
     hoodPitch = hoodInputs.position;
     intakeVelocity = intakeInputs.velocity.baseUnitMagnitude();
   }
@@ -134,7 +134,7 @@ public class FuelSimulator {
 
   public void periodic() {
 
-    shooterVelocity = flywheelInputs.velocityRadiansPerSecond;
+    shooterVelocity = flywheelInputs.velocity.baseUnitMagnitude();
     intakeVelocity = intakeInputs.velocity.baseUnitMagnitude();
 
     hoodPitch = hoodInputs.position;
@@ -142,7 +142,7 @@ public class FuelSimulator {
     while (flywheelInputs.torqueCurrentAmps[0] >= 10) {
       double startTime = Timer.getTimestamp();
       double endTime = 0;
-      thetaStart = flywheelInputs.positionRadians.getRadians();
+      thetaStart = flywheelInputs.position.getRadians();
       if (flywheelInputs.torqueCurrentAmps[0] < 10) {
         endTime = Timer.getTimestamp();
       }

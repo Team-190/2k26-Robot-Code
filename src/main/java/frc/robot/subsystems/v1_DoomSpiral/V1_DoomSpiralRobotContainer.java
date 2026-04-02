@@ -2,10 +2,15 @@ package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import choreo.auto.AutoChooser;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -57,7 +62,6 @@ import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
-import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
@@ -77,6 +81,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private final XKeysInput xkeys = new XKeysInput(1);
 
   private final AutoChooser autoChooser = new AutoChooser();
+  private Consumer<Long> networkTablesTimestampConsumer = timestamp -> Logger.getTimestamp();
 
   //   private final FuelSimulator fuelSimulator;
 
@@ -84,7 +89,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V1_DOOMSPIRAL:
-          gyroIO = new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS);
+          gyroIO = new GyroIOPigeon2(V1_DoomSpiralConstants.DRIVE_CONSTANTS, networkTablesTimestampConsumer);
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
@@ -126,22 +131,16 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-          vision =
+           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
-                      V1_DoomSpiralRobotState::getHeading,
-                      NetworkTablesJNI::now,
-                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-                      List.of()),
                   new CameraLimelight(
                       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
                       V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
-                      NetworkTablesJNI::now,
-                      List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+                      drive::getMeasuredChassisSpeeds,
+                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+                      List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
                       List.of()));
           //   new CameraLimelight(
           //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
@@ -476,7 +475,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     V1_DoomSpiralRobotState.periodic(
         drive.getRawGyroRotation(),
-        NetworkTablesJNI.now(),
         drive.getYawVelocity(),
         drive.getModulePositions());
 

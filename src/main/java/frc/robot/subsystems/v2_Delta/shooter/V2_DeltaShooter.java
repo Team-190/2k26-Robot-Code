@@ -2,9 +2,13 @@ package frc.robot.subsystems.v2_Delta.shooter;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.subsystems.shared.hood.Hood;
@@ -14,6 +18,7 @@ import frc.robot.subsystems.shared.turret.Turret;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class V2_DeltaShooter extends SubsystemBase {
 
@@ -64,21 +69,21 @@ public class V2_DeltaShooter extends SubsystemBase {
     return Commands.runOnce(() -> hood.setGoal(goal));
   }
 
-  public Command setFlywheelGoal(double velocityRadiansPerSecond) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond);
+  public Command setFlywheelGoal(AngularVelocity velocityRadiansPerSecond) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityRadiansPerSecond));
   }
 
-  public Command setFlywheelGoal(double velocityRadiansPerSecond, double feedforward) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward);
+  public Command setFlywheelGoal(Setpoint<AngularVelocityUnit> goal) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(goal));
   }
 
-  public Command setFlywheelGoal(DoubleSupplier velocityRadiansPerSecond) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond);
+  public Command setFlywheelGoal(Supplier<AngularVelocity> velocityRadiansPerSecond) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityRadiansPerSecond));
   }
 
   public Command setFlywheelGoal(
-      DoubleSupplier velocityRadiansPerSecond, DoubleSupplier feedforward) {
-    return flywheel.setVelocityGoal(velocityRadiansPerSecond, feedforward);
+      AngularVelocity velocityRadiansPerSecond, Current current) {
+    return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityRadiansPerSecond, current));
   }
 
   public Command setHoodGoal(Rotation2d goal) {
@@ -98,29 +103,18 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command setShooterGoal(
-      DoubleSupplier velocityRadiansPerSecond,
-      DoubleSupplier feedforward,
+      AngularVelocity velocityRadiansPerSecond,
+      Current current,
       Rotation2d hoodGoal,
       Translation2d turretGoal) {
     return Commands.parallel(
         setHoodGoal(hoodGoal),
-        setFlywheelGoal(velocityRadiansPerSecond, feedforward),
-        setTurretGoal(turretGoal));
-  }
-
-  public Command setShooterGoal(
-      DoubleSupplier velocityRadiansPerSecond,
-      DoubleSupplier feedforward,
-      HoodGoal hoodGoal,
-      Translation2d turretGoal) {
-    return Commands.parallel(
-        setHoodGoal(hoodGoal),
-        setFlywheelGoal(velocityRadiansPerSecond, feedforward),
+        setFlywheelGoal(velocityRadiansPerSecond, current),
         setTurretGoal(turretGoal));
   }
 
   public boolean atGoal() {
-    return flywheel.atGoal() && hood.atPositionGoal() && turret.atPositionGoal();
+    return flywheel.atCurrentGoal() && flywheel.atVelocityGoal() && hood.atPositionGoal() && turret.atPositionGoal();
   }
 
   public Command waitUntilAtGoal() {

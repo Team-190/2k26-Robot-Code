@@ -7,12 +7,16 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants.GenericFlywheelConstantsBuilder;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import lombok.Builder;
 import lombok.NonNull;
 
-@Builder(setterPrefix = "with")
+@Builderpublic GenericFlywheelConstantsBuilder withVoltageStep(Voltage of) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'withVoltageStep'");
+  }(setterPrefix = "with")
 public class HoodConstants {
   @NonNull public final Integer motorCanId;
   @NonNull public final CANBus canBus;
@@ -31,7 +35,7 @@ public class HoodConstants {
   @NonNull public final Current zeroCurrentEpsilon;
 
   @NonNull public final Gains gains;
-  @NonNull public final AngularConstraints constraints;
+  @NonNull public final AngularPositionConstraints constraints;
 
   @NonNull public final Angle offsetStep;
 
@@ -41,4 +45,9 @@ public class HoodConstants {
     STOW,
     OVERRIDE
   }
+
+public static Object builder() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'builder'");
+}
 }
