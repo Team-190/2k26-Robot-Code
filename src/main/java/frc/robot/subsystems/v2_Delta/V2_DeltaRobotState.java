@@ -255,11 +255,11 @@ public class V2_DeltaRobotState {
 
     field.setRobotPose(getGlobalPose());
 
-    shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
-    prohibitShot =
-        isTurretWrapping
-            || shouldHoodTuck
-            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
+    // shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
+    // prohibitShot =
+    //     isTurretWrapping
+    //         || shouldHoodTuck
+    //         || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
@@ -280,27 +280,27 @@ public class V2_DeltaRobotState {
         (int) HubActivePeriod.getShiftTimeRemaining());
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Current Shift", HubActivePeriod.getCurrentShift());
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "Trench Zones/Left Blue Trench",
-        GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.BLUE_TRENCH));
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "Trench Zones/Left Red Trench",
-        GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH));
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "Trench Zones/Right Blue Trench",
-        GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH));
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "Trench Zones/Right Red Trench",
-        GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH));
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "Tower Zones/Blue Tower Zone",
-        GeometryUtil.rectanglePose2ds(FieldConstants.Tower.BLUE_TOWER));
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "Tower Zones/Red Tower Zone",
-        GeometryUtil.rectanglePose2ds(FieldConstants.Tower.RED_TOWER));
-    Logger.recordOutput(
-        NTPrefixes.ROBOT_STATE + "No Feed Zone",
-        GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "Trench Zones/Left Blue Trench",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.BLUE_TRENCH));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "Trench Zones/Left Red Trench",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "Trench Zones/Right Blue Trench",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "Trench Zones/Right Red Trench",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "Tower Zones/Blue Tower Zone",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.Tower.BLUE_TOWER));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "Tower Zones/Red Tower Zone",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.Tower.RED_TOWER));
+    // Logger.recordOutput(
+    //     NTPrefixes.ROBOT_STATE + "No Feed Zone",
+    //     GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {

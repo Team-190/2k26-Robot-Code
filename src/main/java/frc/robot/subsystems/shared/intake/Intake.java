@@ -245,35 +245,35 @@ public class Intake extends SubsystemBase {
         .andThen(linkage.waitUntilLinkageAtGoal());
   }
 
-  public Command incrementStowOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.STOW.getAngle().increment()), stow());
-  }
+  // public Command incrementStowOffset() {
+  //   return Commands.sequence(
+  //       Commands.runOnce(() -> IntakeState.STOW.getAngle().increment()), stow());
+  // }
 
-  public Command decrementStowOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.STOW.getAngle().decrement()), stow());
-  }
+  // public Command decrementStowOffset() {
+  //   return Commands.sequence(
+  //       Commands.runOnce(() -> IntakeState.STOW.getAngle().decrement()), stow());
+  // }
 
-  public Command incrementBumpOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.BUMP.getAngle().increment()), bump());
-  }
+  // public Command incrementBumpOffset() {
+  //   return Commands.sequence(
+  //       Commands.runOnce(() -> IntakeState.BUMP.getAngle().increment()), bump());
+  // }
 
-  public Command decrementBumpOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.BUMP.getAngle().decrement()), bump());
-  }
+  // public Command decrementBumpOffset() {
+  //   return Commands.sequence(
+  //       Commands.runOnce(() -> IntakeState.BUMP.getAngle().decrement()), bump());
+  // }
 
-  public Command incrementCollectOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().increment()), deploy());
-  }
+  // public Command incrementCollectOffset() {
+  //   return Commands.sequence(
+  //       Commands.runOnce(() -> IntakeState.INTAKE.getAngle().increment()), deploy());
+  // }
 
-  public Command decrementCollectOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getAngle().decrement()), deploy());
-  }
+  // public Command decrementCollectOffset() {
+  //   return Commands.sequence(
+  //       Commands.runOnce(() -> IntakeState.INTAKE.getAngle().decrement()), deploy());
+  // }
 
   public Command increaseSpeedOffset() {
     return Commands.runOnce(roller.getVoltageGoalVolts()::increment);

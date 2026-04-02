@@ -16,7 +16,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class TurretIOTalonFX implements TurretIO {
@@ -192,17 +192,17 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public void updateGains(Gains gains) {
-    config.Slot0.kP = gains.getKP();
-    config.Slot0.kI = gains.getKI();
-    config.Slot0.kD = gains.getKD();
-    config.Slot0.kS = gains.getKS();
-    config.Slot0.kV = gains.getKV();
-    config.Slot0.kA = gains.getKA();
+    config.Slot0.kP = gains.kP().getAsDouble();
+    config.Slot0.kI = gains.kI().getAsDouble();
+    config.Slot0.kD = gains.kD().getAsDouble();
+    config.Slot0.kS = gains.kS().getAsDouble();
+    config.Slot0.kV = gains.kV().getAsDouble();
+    config.Slot0.kA = gains.kA().getAsDouble();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
   }
 
   @Override
-  public void updateConstraints(AngularPositionConstraints constraints) {
+  public void updateConstraints(AngularConstraints constraints) {
     config.MotionMagic.MotionMagicCruiseVelocity =
         constraints.maxVelocity().get(RotationsPerSecond);
     config.MotionMagic.MotionMagicAcceleration =

@@ -45,7 +45,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         case V2_DELTA:
           gyroIO =
               new GyroIOPigeon2(
-                  V2_DeltaConstants.DRIVE_CONSTANTS, V2_DeltaRobotState::setHeadingUpdateTimestamp);
+                  V2_DeltaConstants.DRIVE_CONSTANTS);
           drive =
               new SwerveDrive(
                   V2_DeltaConstants.DRIVE_CONSTANTS,

@@ -46,12 +46,12 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     Logger.recordOutput("Shooter/Hood/Goal", hoodGoal);
 
-    Logger.recordOutput(
-        "Shooter/Hood/Goal Degrees",
-        String.format("%.1f", hood.getInputs().position.getDegrees()));
-    Logger.recordOutput(
-        "Shooter/Hood/Offset Degrees",
-        String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
+    // Logger.recordOutput(
+    //     "Shooter/Hood/Goal Degrees",
+    //     String.format("%.1f", hood.getInputs().position.getDegrees()));
+    // Logger.recordOutput(
+    //     "Shooter/Hood/Offset Degrees",
+    //     String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Offset",
         flywheel.getVelocityGoalRadiansPerSecond().getOffset().in(RadiansPerSecond));
@@ -160,18 +160,18 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command incrementFlywheelVelocity() {
-    return Commands.runOnce(flywheel.getVelocityGoal()::increment);
+    return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::increment);
   }
 
   public Command decrementFlywheelVelocity() {
-    return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
+    return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::decrement);
   }
 
-  public Command incrementHoodAngle() {
-    return Commands.runOnce(hood.getPositionGoal()::increment);
-  }
+  // public Command incrementHoodAngle() {
+  //   return Commands.runOnce(hood.getPositionGoal()::increment);
+  // }
 
-  public Command decrementHoodAngle() {
-    return Commands.runOnce(hood.getPositionGoal()::decrement);
-  }
+  // public Command decrementHoodAngle() {
+  //   return Commands.runOnce(hood.getPositionGoal()::decrement);
+  // }
 }

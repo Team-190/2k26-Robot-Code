@@ -5,7 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for V0 (Funky)'s turret subsystem */
@@ -60,7 +60,7 @@ public interface TurretIO {
 
   default void updateGains(Gains gains) {}
 
-  default void updateConstraints(AngularPositionConstraints constraints) {}
+  default void updateConstraints(AngularConstraints constraints) {}
 
   /**
    * Sets the turret's current position to a value.

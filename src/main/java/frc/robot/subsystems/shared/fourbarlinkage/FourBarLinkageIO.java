@@ -4,8 +4,9 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface FourBarLinkageIO {
@@ -41,7 +42,7 @@ public interface FourBarLinkageIO {
   default void setGains(Gains gains) {}
 
   /** Sets motor profile. */
-  default void setProfile(AngularPositionConstraints constraints) {}
+  default void setProfile(AngularConstraints constraints) {}
 
   /** Checks if the linkage is at the goal position. */
   default boolean atPositionGoal(Rotation2d positionReference) {

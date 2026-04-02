@@ -151,13 +151,13 @@ public class V2_DeltaShooter extends SubsystemBase {
     return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::decrement);
   }
 
-  public Command incrementHoodAngle() {
-    return Commands.runOnce(hood.getPositionGoal()::increment);
-  }
+  // public Command incrementHoodAngle() {
+  //   return Commands.runOnce(hood.getPositionGoal()::increment);
+  // }
 
-  public Command decrementHoodAngle() {
-    return Commands.runOnce(hood.getPositionGoal()::decrement);
-  }
+  // public Command decrementHoodAngle() {
+  //   return Commands.runOnce(hood.getPositionGoal()::decrement);
+  // }
 
   public Rotation2d getTurretRotation() {
     return turret.getPosition();

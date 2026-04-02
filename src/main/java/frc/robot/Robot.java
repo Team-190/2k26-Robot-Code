@@ -14,8 +14,6 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
-import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
-import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotContainer;
 import frc.robot.util.*;
@@ -212,7 +210,6 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
 
-    TunableUpdaterRegistry.periodic();
     PhoenixUtil.refreshAll();
     VirtualSubsystem.periodicAll();
     robotContainer.robotPeriodic();

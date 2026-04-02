@@ -31,7 +31,7 @@ public class V2_DeltaHopper extends SubsystemBase {
   }
 
   public Command setRollerFloorVoltage(Voltage voltage) {
-    return Commands.runOnce(() -> rollerFloor.setVoltageGoal(voltage));
+    return Commands.runOnce(() -> rollerFloor.setVoltage(voltage));
   }
 
   public Command feedShooterRollerFloor() {
@@ -47,7 +47,7 @@ public class V2_DeltaHopper extends SubsystemBase {
   }
 
   public Command setBallTunnelVoltage(Voltage voltage) {
-    return Commands.runOnce(() -> ballTunnel.setVoltageGoal(voltage));
+    return Commands.runOnce(() -> ballTunnel.setVoltage(voltage));
   }
 
   public Command feedShooterBallTunnel() {

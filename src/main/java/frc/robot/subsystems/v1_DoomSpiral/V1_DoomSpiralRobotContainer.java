@@ -83,10 +83,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
         case V1_DOOMSPIRAL:
-          gyroIO =
-              new GyroIOPigeon2(
-                  V1_DoomSpiralConstants.DRIVE_CONSTANTS,
-                  V1_DoomSpiralRobotState::setHeadingUpdateTimestamp);
+        //   gyroIO =
+        //       new GyroIOPigeon2(
+        //           V1_DoomSpiralConstants.DRIVE_CONSTANTS,
+        //           V1_DoomSpiralRobotState::setHeadingUpdateTimestamp);
           drive =
               new SwerveDrive(
                   V1_DoomSpiralConstants.DRIVE_CONSTANTS,
@@ -128,25 +128,25 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-          vision =
-              new Vision(
-                  () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
-                      V1_DoomSpiralRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
-                      List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraLimelight(
-                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
-                      V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
-                      V1_DoomSpiralRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
-                      List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
-                      List.of()));
+        //   vision =
+        //       new Vision(
+        //           () -> FieldConstants.tagLayoutType.getLayout(),
+        //           new CameraLimelight(
+        //               new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
+        //               V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
+        //               V1_DoomSpiralRobotState::getHeading,
+        //               drive::getMeasuredChassisSpeeds,
+        //               V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+        //               List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
+        //               List.of()),
+        //           new CameraLimelight(
+        //               new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
+        //               V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
+        //               V1_DoomSpiralRobotState::getHeading,
+        //               drive::getMeasuredChassisSpeeds,
+        //               V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+        //               List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
+        //               List.of()));
           //   new CameraLimelight(
           //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
           //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
@@ -395,8 +395,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     xkeys.f5().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-f5-true"));
     xkeys.f6().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-f6-true"));
-    xkeys.g5().onTrue(shooter.incrementHoodAngle().withName("xkeys-g5-true"));
-    xkeys.g6().onTrue(shooter.decrementHoodAngle().withName("xkeys-g6-true"));
+    // xkeys.g5().onTrue(shooter.incrementHoodAngle().withName("xkeys-g5-true"));
+    // xkeys.g6().onTrue(shooter.decrementHoodAngle().withName("xkeys-g6-true"));
 
     xkeys.d8().onTrue(climber.setPositionDefault().withName("xkeys-d8-true"));
     xkeys.d9().onTrue(climber.setPositionL1().withName("xkeys-d9-true"));
@@ -434,10 +434,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 .withName("xkeys-b6-while"))
         .onFalse(spindexer.setVoltage(0).withName("xkeys-b6-false"));
 
-    xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage().withName("xkeys-c5-true"));
-    xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage().withName("xkeys-c6-true"));
-    xkeys.d5().onTrue(spindexer.increaseFeederVoltage().withName("xkeys-d5-true"));
-    xkeys.d5().onTrue(spindexer.decreaseFeederVoltage().withName("xkeys-d5b-true"));
+    // xkeys.c5().onTrue(spindexer.increaseSpindexerVoltage().withName("xkeys-c5-true"));
+    // xkeys.c6().onTrue(spindexer.decreaseSpindexerVoltage().withName("xkeys-c6-true"));
+    // xkeys.d5().onTrue(spindexer.increaseFeederVoltage().withName("xkeys-d5-true"));
+    // xkeys.d5().onTrue(spindexer.decreaseFeederVoltage().withName("xkeys-d5b-true"));
 
     xkeys.h8().onTrue(climber.resetClimberZero().withName("xkeys-h8-true"));
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
@@ -464,17 +464,17 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     V1_DoomSpiralRobotState.getGlobalPose()::getTranslation)
                 .withName("xkeys-b10-while"));
 
-    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
-    xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
-    xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
+    // xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
+    // xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
+    // xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
 
-    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
-    xkeys.c3().onTrue(intake.decrementBumpOffset().withName("xkeys-c3-true"));
-    xkeys.c2().onTrue(intake.incrementBumpOffset().withName("xkeys-c2-true"));
+    // xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
+    // xkeys.c3().onTrue(intake.decrementBumpOffset().withName("xkeys-c3-true"));
+    // xkeys.c2().onTrue(intake.incrementBumpOffset().withName("xkeys-c2-true"));
 
-    xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-d1-true"));
-    xkeys.d3().onTrue(intake.decrementCollectOffset().withName("xkeys-d3-true"));
-    xkeys.d2().onTrue(intake.incrementCollectOffset().withName("xkeys-d2-true"));
+    // xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-d1-true"));
+    // xkeys.d3().onTrue(intake.decrementCollectOffset().withName("xkeys-d3-true"));
+    // xkeys.d2().onTrue(intake.incrementCollectOffset().withName("xkeys-d2-true"));
 
     xkeys
         .e1()

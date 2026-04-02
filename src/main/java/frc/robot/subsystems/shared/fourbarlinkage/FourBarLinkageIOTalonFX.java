@@ -15,8 +15,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 
 public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
@@ -164,17 +165,17 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
   @Override
   public void setGains(Gains gains) {
-    talonFXConfig.Slot0.kP = gains.getKP();
-    talonFXConfig.Slot0.kI = gains.getKI();
-    talonFXConfig.Slot0.kD = gains.getKD();
-    talonFXConfig.Slot0.kS = gains.getKS();
-    talonFXConfig.Slot0.kV = gains.getKV();
-    talonFXConfig.Slot0.kA = gains.getKA();
+    talonFXConfig.Slot0.kP = gains.kP().getAsDouble();
+    talonFXConfig.Slot0.kI = gains.kI().getAsDouble();
+    talonFXConfig.Slot0.kD = gains.kD().getAsDouble();
+    talonFXConfig.Slot0.kS = gains.kS().getAsDouble();
+    talonFXConfig.Slot0.kV = gains.kV().getAsDouble();
+    talonFXConfig.Slot0.kA = gains.kA().getAsDouble();
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
   }
 
   @Override
-  public void setProfile(AngularPositionConstraints constraints) {
+  public void setProfile(AngularConstraints constraints) {
     talonFXConfig.MotionMagic.MotionMagicCruiseVelocity =
         constraints.maxVelocity().get(RotationsPerSecond);
     talonFXConfig.MotionMagic.MotionMagicAcceleration =

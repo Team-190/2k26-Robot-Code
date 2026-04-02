@@ -46,7 +46,6 @@ public class V2_DeltaHopperConstants {
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(0.20))
                 .withCanBus(CANBus.roboRIO())
-                .withEnableFOC(false)
                 .build();
         BALLTUNNEL_CONSTANTS =
             GenericRollerConstants.builder()
@@ -64,7 +63,6 @@ public class V2_DeltaHopperConstants {
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(0.20))
                 .withCanBus(CANBus.roboRIO())
-                .withEnableFOC(false)
                 .build();
         break;
     }

@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import java.util.Random;
 
 public class TurretIOSim implements TurretIO {
@@ -127,14 +127,14 @@ public class TurretIOSim implements TurretIO {
 
   @Override
   public void updateGains(Gains gains) {
-    feedback.setPID(gains.getKP(), 0.0, gains.getKD());
-    feedforward.setKs(gains.getKS());
-    feedforward.setKv(gains.getKV());
-    feedforward.setKa(gains.getKA());
+    feedback.setPID(gains.kP().getAsDouble(), 0.0, gains.kD().getAsDouble());
+    feedforward.setKs(gains.kS().getAsDouble());
+    feedforward.setKv(gains.kV().getAsDouble());
+    feedforward.setKa(gains.kA().getAsDouble());
   }
 
   @Override
-  public void updateConstraints(AngularPositionConstraints constraints) {
+  public void updateConstraints(AngularConstraints constraints) {
     feedback.setConstraints(
         new TrapezoidProfile.Constraints(
             constraints.maxVelocity().get(RadiansPerSecond),

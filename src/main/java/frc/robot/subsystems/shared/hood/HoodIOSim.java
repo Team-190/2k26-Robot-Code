@@ -13,7 +13,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 
 public class HoodIOSim implements HoodIO {
   private final SingleJointedArmSim motorSim;
@@ -96,7 +96,7 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void setProfile(AngularPositionConstraints constraints) {
+  public void setProfile(AngularConstraints constraints) {
     feedback.setConstraints(
         new Constraints(
             constraints.maxVelocity().get(RadiansPerSecond),

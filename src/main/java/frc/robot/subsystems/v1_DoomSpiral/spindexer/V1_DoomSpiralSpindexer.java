@@ -64,10 +64,10 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     Logger.recordOutput(getName() + "/Voltage Goal", voltageGoal.getSetpoint());
     Logger.recordOutput(
         "Spindexer/RollerFeeder/Voltage Magnitude",
-        Math.abs(feeder.getVoltageGoal().getSetpoint().baseUnitMagnitude()));
+        Math.abs(feeder.getVoltageGoalVolts().getSetpoint().baseUnitMagnitude()));
     Logger.recordOutput(
         "Spindexer/RollerFeeder/Voltage Offset",
-        feeder.getVoltageGoal().getOffset().baseUnitMagnitude());
+        feeder.getVoltageGoalVolts().getOffset().baseUnitMagnitude());
     Logger.recordOutput(
         getName() + "/Voltage Goal Magnitude",
         String.format("%.1f", Math.abs(voltageGoal.getSetpoint().baseUnitMagnitude())));
@@ -133,8 +133,8 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
         () -> {
           state = SPINDEXER_ONLY_VOLTAGE;
           voltageGoal.setSetpoint(Volts.of(volts));
-          kicker.setVoltageGoal(Volts.zero());
-          feeder.setVoltageGoal(Volts.zero());
+          kicker.setVoltage(Volts.zero());
+          feeder.setVoltage(Volts.zero());
         });
   }
 
@@ -142,26 +142,26 @@ public class V1_DoomSpiralSpindexer extends SubsystemBase {
     return Commands.runOnce(
         () -> {
           state = STOP;
-          kicker.setVoltageGoal(Volts.zero());
-          feeder.setVoltageGoal(Volts.zero());
+          kicker.setVoltage(Volts.zero());
+          feeder.setVoltage(Volts.zero());
         });
   }
 
-  public Command increaseSpindexerVoltage() {
-    return Commands.runOnce(voltageGoal::increment);
-  }
+  // public Command increaseSpindexerVoltage() {
+  //   return Commands.runOnce(voltageGoal::increment);
+  // }
 
-  public Command decreaseSpindexerVoltage() {
-    return Commands.runOnce(voltageGoal::decrement);
-  }
+  // public Command decreaseSpindexerVoltage() {
+  //   return Commands.runOnce(voltageGoal::decrement);
+  // }
 
-  public Command increaseFeederVoltage() {
-    return Commands.runOnce(feeder.getVoltageGoal()::increment);
-  }
+  // public Command increaseFeederVoltage() {
+  //   return Commands.runOnce(feeder.getVoltageGoal()::increment);
+  // }
 
-  public Command decreaseFeederVoltage() {
-    return Commands.runOnce(feeder.getVoltageGoal()::decrement);
-  }
+  // public Command decreaseFeederVoltage() {
+  //   return Commands.runOnce(feeder.getVoltageGoal()::decrement);
+  // }
 
   public Command agitateSpindexer() {
     return Commands.sequence(

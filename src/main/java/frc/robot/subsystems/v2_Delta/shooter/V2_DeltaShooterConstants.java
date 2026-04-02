@@ -3,6 +3,7 @@ package frc.robot.subsystems.v2_Delta.shooter;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -16,8 +17,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelConstants;
@@ -58,7 +58,7 @@ public class V2_DeltaShooterConstants {
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0.11882))
                   .build())
           .withConstraints(
-              AngularVelocityConstraints.builder()
+              AngularConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/MaxVelocity", RadiansPerSecond.of(1000)))
@@ -67,7 +67,7 @@ public class V2_DeltaShooterConstants {
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
+                          "Shooter/Flywheel/GoalTolerance", Radians.of(5)))
                   .build())
           .withOpposedFollowerCANID(30)
           .withVelocityOffsetStep(RadiansPerSecond.of(5))
@@ -91,7 +91,7 @@ public class V2_DeltaShooterConstants {
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
-              AngularPositionConstraints.builder()
+              AngularConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))
@@ -99,7 +99,7 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Hood/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Hood/GoalTolerance", Degrees.of(1.0)))
+                      new LoggedTunableMeasure<>("Shooter/Hood/GoalTolerance", Radians.of(1.0)))
                   .build())
           .withGains(
               Gains.builder()
@@ -141,7 +141,7 @@ public class V2_DeltaShooterConstants {
                   .withKA(new LoggedTunableNumber("Turret/Ka", 0.0031713))
                   .build())
           .withConstraints(
-              AngularPositionConstraints.builder()
+              AngularConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
                           "Shooter/Turret/MaxAcceleration",
@@ -150,7 +150,7 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
+                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Radians.of(3)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
