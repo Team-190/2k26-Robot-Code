@@ -191,10 +191,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
           leds = new V1_DoomSpiralCANdle();
-          fuelSimulator =
-              new FuelSimulator(
-                  shooterInputs, shooter.getHood().getInputs(), intake.getLinkage().getInputs());
-
+            fuelSimulator =
+                new FuelSimulator(shooter.getFlywheel().getInputs(), shooter.getHood().getInputs(), intake.getLinkage().getInputs());
           break;
 
         default:
