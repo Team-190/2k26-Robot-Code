@@ -16,15 +16,16 @@ import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import java.util.function.DoubleSupplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
-  private final Hood hood;
+  @Getter private final Hood hood;
 
   private HoodGoal hoodGoal;
 
-  private final GenericFlywheel flywheel;
+  @Getter private final GenericFlywheel flywheel;
 
   public V1_DoomSpiralShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
     setName("Shooter");

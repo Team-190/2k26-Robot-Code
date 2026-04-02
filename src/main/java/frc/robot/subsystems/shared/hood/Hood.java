@@ -23,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 public class Hood {
   private final HoodIO io;
   private final String aKitTopic;
-  private final HoodIOInputsAutoLogged inputs;
+  @Getter private final HoodIOInputsAutoLogged inputs;
 
   private final SysIdRoutine characterizationRoutine;
 

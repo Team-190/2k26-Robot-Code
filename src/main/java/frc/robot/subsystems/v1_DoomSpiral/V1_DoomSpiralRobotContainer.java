@@ -191,8 +191,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Vision(
                   () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
           leds = new V1_DoomSpiralCANdle();
-        //   fuelSimulator =
-        //       new FuelSimulator(shooterInputs, shooter.getHoodInputs(), intake.getIntakeInputs());
+          fuelSimulator =
+              new FuelSimulator(
+                  shooterInputs, shooter.getHood().getInputs(), intake.getLinkage().getInputs());
 
           break;
 
@@ -340,7 +341,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .bottomLeftPaddle()
         .whileTrue(
             V1_DoomSpiralCompositeCommands.fixedShotCommand(
-                drive, shooter, spindexer, intake, V1_DoomSpiralRobotState.FixedShots.HUB.getParameters()))
+                drive,
+                shooter,
+                spindexer,
+                intake,
+                V1_DoomSpiralRobotState.FixedShots.HUB.getParameters()))
         .onFalse(V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer));
     driver
         .bottomRightPaddle()

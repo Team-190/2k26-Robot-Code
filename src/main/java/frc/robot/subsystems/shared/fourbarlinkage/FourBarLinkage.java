@@ -29,7 +29,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 public class FourBarLinkage {
   private final FourBarLinkageIO io;
   private final String aKitTopic;
-  private final FourBarLinkageIOInputsAutoLogged inputs;
+  @Getter private final FourBarLinkageIOInputsAutoLogged inputs;
 
   private FourBarLinkageState currentState;
 

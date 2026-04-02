@@ -18,13 +18,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
-import lombok.Getter;
-
 import java.util.function.Supplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Turret {
-    private final TurretIO io;
+  private final TurretIO io;
   private final String aKitTopic;
   private final TurretIOInputsAutoLogged inputs;
 
@@ -64,7 +63,7 @@ public class Turret {
                 Volts.of(2),
                 Seconds.of(5),
                 (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
-            new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
+            new SysIdRoutine.Mechanism((Voltage v) -> io.setVoltage(v), null, subsystem));
 
     this.robotPoseSupplier = robotPoseSupplier;
 
@@ -244,6 +243,17 @@ public class Turret {
 
     // Not possible... return target angle (io handles this by going to the closest bound)
     return target;
+  }
+
+  public Rotation2d fieldToTurret(Pose2d robotPose) {
+    Transform2d robotToTurretTransform =
+        new Transform2d(
+            constants.robotToTurretTransform.getX(),
+            constants.robotToTurretTransform.getY(),
+            Rotation2d.kZero);
+    Pose2d turretPose = robotPose.transformBy(robotToTurretTransform);
+    Translation2d turretToTarget = translationGoal.minus(turretPose.getTranslation());
+    return turretToTarget.getAngle().minus(turretPose.getRotation());
   }
 
   /**
