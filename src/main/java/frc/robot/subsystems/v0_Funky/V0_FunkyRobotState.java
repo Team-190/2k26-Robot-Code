@@ -5,6 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
@@ -12,6 +13,7 @@ import frc.robot.util.NTPrefixes;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -29,6 +31,9 @@ public class V0_FunkyRobotState {
 
   private static final FieldZone globalZone;
 
+  @Setter private static long networktablesTimestamp;
+  @Setter @Getter private static boolean turretWrapping;
+
   static {
     fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
@@ -39,6 +44,8 @@ public class V0_FunkyRobotState {
             List.of(globalZone), V0_FunkyConstants.DRIVE_CONSTANTS.driveConfig.kinematics(), 2);
     scoreAngle = Rotation2d.kZero;
     feedAngle = Rotation2d.kZero;
+
+    networktablesTimestamp = NetworkTablesJNI.now();
   }
 
   public static void periodic(Rotation2d heading, SwerveModulePosition[] modulePositions) {

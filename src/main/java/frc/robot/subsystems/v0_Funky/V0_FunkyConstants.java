@@ -137,7 +137,7 @@ public class V0_FunkyConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/Theta/Max Acceleration", RadiansPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Max Velocity", Radians.of(0.0)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Goal Tolerance", Radians.zero()))
           .build();
 
   public static final SwerveDriveConstants.AutoAlignConstants AUTO_ALIGN_CONSTANTS =

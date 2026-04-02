@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shared.climber;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -69,7 +70,7 @@ public class Climber extends SubsystemBase {
    * @return A command that sets the specified voltage.
    */
   public Command setVoltage(double voltage) {
-    return Commands.runOnce(() -> arm.setVoltageGoal(Volt.of(voltage)));
+    return Commands.runOnce(() -> arm.setVoltageGoal(Volts.of(voltage)));
   }
 
   /**

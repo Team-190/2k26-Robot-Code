@@ -67,33 +67,33 @@ public class V2_DeltaShooter extends SubsystemBase {
           turret.setFieldRelativeGoal(
               AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()));
           hood.setPositionGoal(V2_DeltaRobotState.getScoreAngle());
-          flywheel.setVelocityGoal(V2_DeltaRobotState.getScoreVelocity());
+          flywheel.setVelocityGoal(V2_DeltaRobotState.getScoreVelocity().baseUnitMagnitude(), 0.0);
           break;
         case FEED:
           turret.setFieldRelativeGoal(V2_DeltaRobotState.getFeedTranslation());
           hood.setPositionGoal(V2_DeltaRobotState.getFeedAngle());
-          flywheel.setVelocityGoal(V2_DeltaRobotState.getFeedVelocity());
+          flywheel.setVelocityGoal(V2_DeltaRobotState.getFeedVelocity().baseUnitMagnitude(), 0.0);
           break;
         case OVERRIDE_TURRET:
-          turret.setVoltage(overrideFlywheelVoltage);
+          turret.setVoltageGoal(overrideTurretVoltage);
           hood.setVoltageGoal(Volts.of(0.0));
-          flywheel.setVoltageGoal(Volts.of(0.0));
+          flywheel.setVoltage(0.0);
           break;
         case OVERRIDE_HOOD:
-          turret.setVoltage(overrideFlywheelVoltage);
+          turret.setVoltageGoal(Volts.of(0.0));
           hood.setVoltageGoal(overrideHoodVoltage);
-          flywheel.setVoltageGoal(Volts.of(0.0));
+          flywheel.setVoltage(0.0);
           break;
         case OVERRIDE_FLYWHEEL:
-          turret.setVoltage(overrideFlywheelVoltage);
+          turret.setVoltageGoal(Volts.of(0.0));
           hood.setVoltageGoal(Volts.of(0.0));
-          flywheel.setVoltageGoal(overrideFlywheelVoltage);
+          flywheel.setVoltage(overrideFlywheelVoltage.baseUnitMagnitude());
           break;
         case SYSID:
         default:
-          turret.setVoltage(overrideFlywheelVoltage);
+          turret.setVoltageGoal(Volts.of(0.0));
           hood.setVoltageGoal(Volts.of(0.0));
-          flywheel.setVoltageGoal(Volts.of(0.0));
+          flywheel.setVoltage(0.0);
           break;
       }
 
@@ -110,7 +110,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheel.atVelocityGoal();
+    return hood.atPositionGoal() && flywheel.atGoal();
   }
 
   public Command waitUntilAtGoal() {
@@ -132,11 +132,11 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command turretSysId() {
-    return Commands.sequence(preSysId(), turret.runSysId());
+    return Commands.sequence(preSysId(), turret.runSysIdRoutine());
   }
 
   public Command hoodSysId() {
-    return Commands.sequence(preSysId(), hood.runSysId());
+    return Commands.sequence(preSysId(), hood.runSysIdRoutine());
   }
 
   public Command flywheelSysId() {
@@ -144,11 +144,11 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command incrementFlywheelVelocity() {
-    return Commands.runOnce(flywheel.getVelocityGoal()::increment);
+    return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::increment);
   }
 
   public Command decrementFlywheelVelocity() {
-    return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
+    return Commands.runOnce(flywheel.getVelocityGoalRadiansPerSecond()::decrement);
   }
 
   public Command incrementHoodAngle() {

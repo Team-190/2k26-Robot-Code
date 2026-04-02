@@ -12,9 +12,10 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerConstants;
@@ -48,7 +49,6 @@ public class IntakeConstants {
           .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
           .withVoltageOffsetStep(Volts.of(0.25))
           .withCanBus(CANBus.roboRIO())
-          .withEnableFOC(false)
           .build();
 
   public static final Translation3d LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
@@ -72,8 +72,6 @@ public class IntakeConstants {
   public static final Rotation2d MAX_ANGLE = Rotation2d.fromDegrees(190);
   // points A and D on the intake.
 
-  public static final double PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
-
   public static final Gains GAINS =
       Gains.builder()
           .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
@@ -83,8 +81,8 @@ public class IntakeConstants {
           .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
           .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
           .build();
-  public static final AngularPositionConstraints CONSTRAINTS =
-      AngularPositionConstraints.builder()
+  public static final AngularConstraints CONSTRAINTS =
+      AngularConstraints.builder()
           .withMaxVelocity(
               new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(50.0)))
           .withMaxAcceleration(
@@ -141,6 +139,353 @@ public class IntakeConstants {
           .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
           .withCanCoderOffset(CAN_CODER_OFFSET)
           .build();
+
+        LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
+        LINKAGE_SLOW_VOLTAGE = 1.5;
+
+        INTAKE_ROLLER_CONSTANTS_TOP =
+            GenericRollerConstants.builder()
+                .withLeaderCANID(20)
+                .withCurrentLimits(
+                    CurrentLimits.builder()
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(40.0))
+                        .build())
+                .withNeutralMode(NeutralModeValue.Coast)
+                .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+                .withRollerMotorGearRatio(8.0 / 3.0)
+                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+                .withOpposedFollowerCANID(21)
+                .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
+                .withVoltageOffsetStep(Volts.of(0.25))
+                .withCanBus(CANBus.roboRIO())
+                .build();
+
+        LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
+
+        MOTOR_CAN_ID = 22;
+        CAN_CODER_CAN_ID = 23;
+        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
+
+        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
+        GEAR_RATIO = 50.79235079;
+        SUPPLY_CURRENT_LIMIT = 40;
+        STATOR_CURRENT_LIMIT = 40;
+
+        MOMENT_OF_INERTIA = 0.004;
+        MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
+
+        ZERO_OFFSET = Rotation2d.kPi;
+        MIN_ANGLE = Rotation2d.fromDegrees(9);
+        MAX_ANGLE = Rotation2d.fromDegrees(190);
+        // points A and D on the intake.
+
+        PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
+
+        GAINS =
+            Gains.builder()
+                .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
+                .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
+                .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+                .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
+                .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+                .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
+                .build();
+        CONSTRAINTS =
+            AngularPositionConstraints.builder()
+                .withMaxVelocity(
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                .withMaxAcceleration(
+                    new LoggedTunableMeasure<>(
+                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                .withGoalTolerance(
+                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+                .build();
+
+        LINK_LENGTHS =
+            new LinkLengths(
+                Units.Inches.of(6.943050).in(Units.Meters),
+                Units.Inches.of(8.809879).in(Units.Meters),
+                Units.Inches.of(8.284456).in(Units.Meters),
+                Units.Inches.of(6.4213032).in(Units.Meters));
+
+        LINK_BOUNDS =
+            new LinkBounds(
+                Units.Inches.of(0.810921).in(Units.Meters),
+                Units.Inches.of(2.86545).in(Units.Meters),
+                Units.Inches.of(4.752162).in(Units.Meters),
+                Units.Inches.of(6.46545).in(Units.Meters));
+
+        LINK_CONST =
+            new LinkConstants(
+                Units.Inches.of(6.092560).in(Units.Meters),
+                Units.Inches.of(2.446682).in(Units.Meters),
+                Units.Inches.of(5.376661).in(Units.Meters));
+
+        LINKAGE_CONSTANTS =
+            FourBarLinkageConstants.builder()
+                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withConstraints(CONSTRAINTS)
+                .withGains(GAINS)
+                .withGearRatio(GEAR_RATIO)
+                .withStartAngle(Rotation2d.fromDegrees(9.0))
+                .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
+                .withLinkageOffset(LINKAGE_OFFSET)
+                .withLinkBounds(LINK_BOUNDS)
+                .withLinkConstants(LINK_CONST)
+                .withLinkLengths(LINK_LENGTHS)
+                .withMaxAngle(MAX_ANGLE)
+                .withMinAngle(MIN_ANGLE)
+                .withMomentOfInertia(MOMENT_OF_INERTIA)
+                .withMotorCanId(MOTOR_CAN_ID)
+                .withMotorConfig(MOTOR_CONFIG)
+                .withPinLength(PIN_LENGTH)
+                .withCurrentLimits(
+                    CurrentLimits.fromDoubles()
+                        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                        .build())
+                .withZeroOffset(ZERO_OFFSET)
+                .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .build();
+        break;
+
+      case V1_DOOMSPIRAL_SIM:
+        INTAKE_VOLTAGE = 11.0;
+        EXTAKE_VOLTAGE = -4.0;
+
+        LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
+        LINKAGE_SLOW_VOLTAGE = 1.5;
+
+        INTAKE_ROLLER_CONSTANTS_TOP =
+            GenericRollerConstants.builder()
+                .withLeaderCANID(20)
+                .withCurrentLimits(
+                    CurrentLimits.builder()
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(40.0))
+                        .build())
+                .withNeutralMode(NeutralModeValue.Coast)
+                .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+                .withRollerMotorGearRatio(8.0 / 3.0)
+                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+                .withOpposedFollowerCANID(21)
+                .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
+                .withVoltageOffsetStep(Volts.of(0.25))
+                .withCanBus(CANBus.roboRIO())
+                .build();
+
+        LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
+
+        MOTOR_CAN_ID = 22;
+        CAN_CODER_CAN_ID = 23;
+        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
+
+        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
+        GEAR_RATIO = 50.79235079;
+        SUPPLY_CURRENT_LIMIT = 40;
+        STATOR_CURRENT_LIMIT = 40;
+
+        MOMENT_OF_INERTIA = 0.004;
+        MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
+
+        ZERO_OFFSET = Rotation2d.kPi;
+        MIN_ANGLE = Rotation2d.fromDegrees(9);
+        MAX_ANGLE = Rotation2d.fromDegrees(190);
+        // points A and D on the intake.
+
+        PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
+
+        GAINS =
+            Gains.builder()
+                .withKP(new LoggedTunableNumber("Linkage/KP", 20.0))
+                .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
+                .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+                .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
+                .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+                .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
+                .build();
+        CONSTRAINTS =
+            AngularPositionConstraints.builder()
+                .withMaxVelocity(
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                .withMaxAcceleration(
+                    new LoggedTunableMeasure<>(
+                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                .withGoalTolerance(
+                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+                .build();
+
+        LINK_LENGTHS =
+            new LinkLengths(
+                Units.Inches.of(6.943050).in(Units.Meters),
+                Units.Inches.of(8.809879).in(Units.Meters),
+                Units.Inches.of(8.284456).in(Units.Meters),
+                Units.Inches.of(6.4213032).in(Units.Meters));
+
+        LINK_BOUNDS =
+            new LinkBounds(
+                Units.Inches.of(0.810921).in(Units.Meters),
+                Units.Inches.of(2.86545).in(Units.Meters),
+                Units.Inches.of(4.752162).in(Units.Meters),
+                Units.Inches.of(6.46545).in(Units.Meters));
+
+        LINK_CONST =
+            new LinkConstants(
+                Units.Inches.of(6.092560).in(Units.Meters),
+                Units.Inches.of(2.446682).in(Units.Meters),
+                Units.Inches.of(5.376661).in(Units.Meters));
+
+        LINKAGE_CONSTANTS =
+            FourBarLinkageConstants.builder()
+                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withConstraints(CONSTRAINTS)
+                .withGains(GAINS)
+                .withGearRatio(GEAR_RATIO)
+                .withStartAngle(Rotation2d.fromDegrees(9.0))
+                .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
+                .withLinkageOffset(LINKAGE_OFFSET)
+                .withLinkBounds(LINK_BOUNDS)
+                .withLinkConstants(LINK_CONST)
+                .withLinkLengths(LINK_LENGTHS)
+                .withMaxAngle(MAX_ANGLE)
+                .withMinAngle(MIN_ANGLE)
+                .withMomentOfInertia(MOMENT_OF_INERTIA)
+                .withMotorCanId(MOTOR_CAN_ID)
+                .withMotorConfig(MOTOR_CONFIG)
+                .withPinLength(PIN_LENGTH)
+                .withCurrentLimits(
+                    CurrentLimits.fromDoubles()
+                        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                        .build())
+                .withZeroOffset(ZERO_OFFSET)
+                .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .build();
+      default:
+        INTAKE_VOLTAGE = 11.0;
+        EXTAKE_VOLTAGE = -4.0;
+
+        LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
+        LINKAGE_SLOW_VOLTAGE = 1.5;
+
+        INTAKE_ROLLER_CONSTANTS_TOP =
+            GenericRollerConstants.builder()
+                .withLeaderCANID(20)
+                .withCurrentLimits(
+                    CurrentLimits.builder()
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(40.0))
+                        .build())
+                .withNeutralMode(NeutralModeValue.Coast)
+                .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+                .withRollerMotorGearRatio(8.0 / 3.0)
+                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+                .withOpposedFollowerCANID(21)
+                .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
+                .withVoltageOffsetStep(Volts.of(0.25))
+                .withCanBus(CANBus.roboRIO())
+                .build();
+
+        LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
+
+        MOTOR_CAN_ID = 22;
+        CAN_CODER_CAN_ID = 23;
+        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
+
+        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
+        GEAR_RATIO = 50.79235079;
+        SUPPLY_CURRENT_LIMIT = 40;
+        STATOR_CURRENT_LIMIT = 40;
+
+        MOMENT_OF_INERTIA = 0.004;
+        MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
+        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
+
+        ZERO_OFFSET = Rotation2d.kPi;
+        MIN_ANGLE = Rotation2d.fromDegrees(9);
+        MAX_ANGLE = Rotation2d.fromDegrees(190);
+        // points A and D on the intake.
+
+        PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
+
+        GAINS =
+            Gains.builder()
+                .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
+                .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
+                .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+                .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
+                .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+                .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
+                .build();
+        CONSTRAINTS =
+            AngularPositionConstraints.builder()
+                .withMaxVelocity(
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                .withMaxAcceleration(
+                    new LoggedTunableMeasure<>(
+                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                .withGoalTolerance(
+                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+                .build();
+
+        LINK_LENGTHS =
+            new LinkLengths(
+                Units.Inches.of(6.943050).in(Units.Meters),
+                Units.Inches.of(8.809879).in(Units.Meters),
+                Units.Inches.of(8.284456).in(Units.Meters),
+                Units.Inches.of(6.4213032).in(Units.Meters));
+
+        LINK_BOUNDS =
+            new LinkBounds(
+                Units.Inches.of(0.810921).in(Units.Meters),
+                Units.Inches.of(2.86545).in(Units.Meters),
+                Units.Inches.of(4.752162).in(Units.Meters),
+                Units.Inches.of(6.46545).in(Units.Meters));
+
+        LINK_CONST =
+            new LinkConstants(
+                Units.Inches.of(6.092560).in(Units.Meters),
+                Units.Inches.of(2.446682).in(Units.Meters),
+                Units.Inches.of(5.376661).in(Units.Meters));
+
+        LINKAGE_CONSTANTS =
+            FourBarLinkageConstants.builder()
+                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
+                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withConstraints(CONSTRAINTS)
+                .withGains(GAINS)
+                .withGearRatio(GEAR_RATIO)
+                .withStartAngle(Rotation2d.fromDegrees(9.0))
+                .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
+                .withLinkageOffset(LINKAGE_OFFSET)
+                .withLinkBounds(LINK_BOUNDS)
+                .withLinkConstants(LINK_CONST)
+                .withLinkLengths(LINK_LENGTHS)
+                .withMaxAngle(MAX_ANGLE)
+                .withMinAngle(MIN_ANGLE)
+                .withMomentOfInertia(MOMENT_OF_INERTIA)
+                .withMotorCanId(MOTOR_CAN_ID)
+                .withMotorConfig(MOTOR_CONFIG)
+                .withPinLength(PIN_LENGTH)
+                .withCurrentLimits(
+                    CurrentLimits.fromDoubles()
+                        .withSupplyCurrentLimit(SUPPLY_CURRENT_LIMIT)
+                        .withStatorCurrentLimit(STATOR_CURRENT_LIMIT)
+                        .build())
+                .withZeroOffset(ZERO_OFFSET)
+                .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .build();
+        break;
+    }
+  }
 
   @Getter
   public enum IntakeState {

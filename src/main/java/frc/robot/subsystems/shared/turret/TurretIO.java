@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import org.littletonrobotics.junction.AutoLog;
 
 /** Interface for V0 (Funky)'s turret subsystem */
@@ -18,9 +20,9 @@ public interface TurretIO {
     public Current supplyCurrent = Amps.zero();
     public Current torqueCurrent = Amps.zero();
     public Temperature temperature = Celsius.zero();
-    public Rotation2d turretGoal = new Rotation2d();
-    public Rotation2d turretPositionSetpoint = new Rotation2d();
-    public Rotation2d turretPositionError = new Rotation2d();
+    public Rotation2d positionGoal = new Rotation2d();
+    public Rotation2d positionSetpoint = new Rotation2d();
+    public Rotation2d positionError = new Rotation2d();
 
     public Rotation2d encoder1Position = new Rotation2d();
     public Rotation2d encoder2Position = new Rotation2d();
@@ -38,14 +40,14 @@ public interface TurretIO {
    *
    * @param volts The voltage to set the turret motor to.
    */
-  default void setVoltage(Voltage volts) {}
+  default void setVoltageGoal(Voltage volts) {}
 
   /**
    * Sets the turret goal.
    *
    * @param goal The turret goal as a Pose3d type.
    */
-  default void setGoal(Rotation2d goal) {}
+  default void setPositionGoal(Rotation2d goal) {}
 
   /** Checks whether the turret is within the tolerance of its goal and returns a boolean. */
   default boolean atPositionGoal(Rotation2d positionReference) {
@@ -56,10 +58,9 @@ public interface TurretIO {
     return false;
   }
 
-  default void updateGains(double kP, double kD, double kS, double kV, double kA) {}
+  default void updateGains(Gains gains) {}
 
-  default void updateConstraints(
-      double maxAcceleration, double maxVelocity, double goalTolerance) {}
+  default void updateConstraints(AngularPositionConstraints constraints) {}
 
   /**
    * Sets the turret's current position to a value.

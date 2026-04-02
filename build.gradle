@@ -54,6 +54,12 @@ gradle.projectsEvaluated {
     }
 }
 
+// Exclude aspectjtools from the aspect configuration to prevent it from being included in the deploy artifact and to
+// avoid conflicts with the aspectj runtime. The aspectjtools library is only needed at compile time for weaving.
+configurations.aspect {
+    exclude group: 'org.aspectj', module: 'aspectjtools'
+}
+
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
@@ -108,10 +114,10 @@ deploy {
 def getGompeiVersionFromSource() {
     def configFile = file("src/main/java/frc/robot/RobotConfig.java")
     if (!configFile.exists()) {
-        logger.warn("WARNING: No RobotConfig.java class found, falling back to latest GompeiLib package");
-        return "2026+";
+        logger.warn("WARNING: No RobotConfig.java class found, falling back to latest GompeiLib package")
+        return "2026+"
     } else {
-        logger.info("INFO: RobotConfig.java class found");
+        logger.info("INFO: RobotConfig.java class found")
     }
 
     def content = configFile.text
@@ -327,6 +333,7 @@ dependencies {
     // This is required for the @Tracer annotations to work at runtime
     implementation 'org.aspectj:aspectjrt:1.9.21'
     implementation 'org.aspectj:aspectjtools:1.9.21'
+    aspect GLibRepoPath
 
     roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)
     roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)

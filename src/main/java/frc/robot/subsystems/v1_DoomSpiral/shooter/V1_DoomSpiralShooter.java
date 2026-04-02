@@ -16,8 +16,8 @@ import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.HoodGoal;
 import java.util.function.DoubleSupplier;
-import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import lombok.Getter;
 
 public class V1_DoomSpiralShooter extends SubsystemBase {
 
@@ -25,7 +25,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
   private HoodGoal hoodGoal;
 
-  @Getter private final GenericFlywheel flywheel;
+  private final GenericFlywheel flywheel;
 
   public V1_DoomSpiralShooter(GenericFlywheelIO flywheelIO, HoodIO hoodIO) {
     setName("Shooter");
@@ -36,7 +36,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     hoodGoal = HoodGoal.STOW;
 
-    flywheel.getVelocityGoal().decrement(RadiansPerSecond.of(30));
+    flywheel.getVelocityGoalRadiansPerSecond().decrement(RadiansPerSecond.of(30));
   }
 
   @Trace
@@ -48,16 +48,16 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     Logger.recordOutput(
         "Shooter/Hood/Goal Degrees",
-        String.format("%.1f", hood.getPositionGoal().getSetpoint().in(Degrees)));
+        String.format("%.1f", hood.getInputs().position.getDegrees()));
     Logger.recordOutput(
         "Shooter/Hood/Offset Degrees",
         String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Offset",
-        flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond));
+        flywheel.getVelocityGoalRadiansPerSecond().getOffset().in(RadiansPerSecond));
     Logger.recordOutput(
         "Shooter/Flywheel/Velocity Magnitude",
-        (int) Math.abs(flywheel.getVelocityGoal().getSetpoint().in(RadiansPerSecond)));
+        (int) Math.abs(flywheel.getVelocityGoalRadiansPerSecond().getSetpoint().in(RadiansPerSecond)));
 
     if (hoodGoal.equals(HoodGoal.SCORE) || hoodGoal.equals(HoodGoal.FEED)) {
       V1_DoomSpiralRobotState.getLedStates().setShooterPrepping(true);
@@ -105,28 +105,28 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
     return hood.resetHoodZero();
   }
 
-  public Command setFlywheelGoal(AngularVelocity velocityGoal) {
+  public Command setFlywheelGoal(DoubleSupplier velocityGoal) {
     return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal));
   }
 
-  public Command setFlywheelGoal(AngularVelocity velocityGoal, Current feedforward) {
+  public Command setFlywheelGoal(double velocityGoal, double feedforward) {
     return Commands.runOnce(() -> flywheel.setVelocityGoal(velocityGoal, feedforward));
   }
 
   public Command setFlywheelVoltage(double volts) {
-    return Commands.runOnce(() -> flywheel.setVoltageGoal(Volts.of(volts)));
+    return Commands.runOnce(() -> flywheel.setVoltage(volts));
   }
 
   public Command stopFlywheel() {
     return Commands.runOnce(flywheel::stop);
   }
 
-  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond) {
+  public Command setGoal(HoodGoal hoodGoal, double velocityRadiansPerSecond, double feedforward) {
     return Commands.parallel(
-        setHoodGoal(hoodGoal), setFlywheelGoal(RadiansPerSecond.of(velocityRadiansPerSecond)));
+        setHoodGoal(hoodGoal), setFlywheelGoal(velocityRadiansPerSecond, feedforward));
   }
 
-  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond) {
+  public Command setGoal(HoodGoal hoodGoal, DoubleSupplier velocityRadiansPerSecond, double feedforward) {
     return Commands.parallel(
         Commands.run(
             () -> {
@@ -136,11 +136,11 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
         Commands.run(
             () ->
                 flywheel.setVelocityGoal(
-                    RadiansPerSecond.of(velocityRadiansPerSecond.getAsDouble()))));
+                    velocityRadiansPerSecond.getAsDouble(), feedforward)));
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheel.atVelocityGoal();
+    return hood.atPositionGoal() && flywheel.atGoal();
   }
 
   public Command waitUntilAtGoal() {
@@ -152,7 +152,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command hoodSysId() {
-    return hood.runSysId();
+    return hood.runSysIdRoutine();
   }
 
   public Command flywheelSysId() {

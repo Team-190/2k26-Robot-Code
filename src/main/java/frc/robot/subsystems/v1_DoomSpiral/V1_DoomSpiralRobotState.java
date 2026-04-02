@@ -231,7 +231,7 @@ public class V1_DoomSpiralRobotState {
         Distance.ofBaseUnits(
             getGlobalPose()
                 .getTranslation()
-                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.RED_FEED_TRANSLATION))
+                .minus(AllianceFlipUtil.apply(FieldConstants.Outpost.BLUE_FEED_TRANSLATION))
                 .getNorm(),
             Meters);
 

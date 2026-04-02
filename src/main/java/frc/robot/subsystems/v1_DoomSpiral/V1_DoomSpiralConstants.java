@@ -22,7 +22,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
-import frc.robot.subsystems.v0_Funky.V0_FunkyTunerConstants;
 
 public class V1_DoomSpiralConstants {
   public static final DriveConfig DRIVE_CONFIG =
@@ -46,32 +45,32 @@ public class V1_DoomSpiralConstants {
       Gains.builder()
           .withKP(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kp", V0_FunkyTunerConstants.driveGains.kP))
+                  "Drive/Teleoperated/Drive Kp", V1_DoomSpiralTunerConstants.driveGains.kP))
           .withKD(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kd", V0_FunkyTunerConstants.driveGains.kD))
+                  "Drive/Teleoperated/Drive Kd", V1_DoomSpiralTunerConstants.driveGains.kD))
           .withKS(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Ks", V0_FunkyTunerConstants.driveGains.kS))
+                  "Drive/Teleoperated/Drive Ks", V1_DoomSpiralTunerConstants.driveGains.kS))
           .withKV(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
+                  "Drive/Teleoperated/Drive Kv", V1_DoomSpiralTunerConstants.driveGains.kV))
           .build();
 
   public static final Gains TURN_GAINS =
       Gains.builder()
           .withKP(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kp", V0_FunkyTunerConstants.steerGains.kP))
+                  "Drive/Teleoperated/Turn Kp", V1_DoomSpiralTunerConstants.steerGains.kP))
           .withKD(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kd", V0_FunkyTunerConstants.steerGains.kD))
+                  "Drive/Teleoperated/Turn Kd", V1_DoomSpiralTunerConstants.steerGains.kD))
           .withKS(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Ks", V0_FunkyTunerConstants.steerGains.kS))
+                  "Drive/Teleoperated/Turn Ks", V1_DoomSpiralTunerConstants.steerGains.kS))
           .withKV(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kv", V0_FunkyTunerConstants.steerGains.kV))
+                  "Drive/Teleoperated/Turn Kv", V1_DoomSpiralTunerConstants.steerGains.kV))
           .build();
 
   public static final Gains TRANSLATION_AUTO_GAINS =
@@ -101,7 +100,7 @@ public class V1_DoomSpiralConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/X/Max Acceleration", MetersPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/X/Max Velocity", Meters.of(0.03)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/X/Goal Tolerance", Meters.of(0.03)))
           .build();
 
   public static final Gains AUTO_ALIGN_Y_GAINS =
@@ -124,8 +123,8 @@ public class V1_DoomSpiralConstants {
 
   public static final Gains AUTO_ALIGN_THETA_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 2.0 * Math.PI))
-          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.05))
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 6.5))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.2))
           .build();
 
   public static final AngularPositionConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
@@ -137,7 +136,7 @@ public class V1_DoomSpiralConstants {
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/Theta/Max Acceleration", RadiansPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Max Velocity", Degrees.of(0.5)))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Goal Tolerance", Degrees.of(0.5)))
           .build();
 
   public static final SwerveDriveConstants.AutoAlignConstants AUTO_ALIGN_CONSTANTS =
@@ -178,7 +177,7 @@ public class V1_DoomSpiralConstants {
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.primaryThetaStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
@@ -189,6 +188,7 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(90 - 62.000),
                       Units.degreesToRadians(-90.000))))
+          .enableRewind(true)
           .build();
 
   public static final LimelightConfig LIMELIGHT_CLIMBER_CONFIG =
@@ -198,7 +198,7 @@ public class V1_DoomSpiralConstants {
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.primaryThetaStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
@@ -209,25 +209,6 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(0),
                       Units.degreesToRadians(90.409532))))
-          .build();
-
-  public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =
-      LimelightConfig.builder()
-          .key("right")
-          .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
-          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
-          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(
-              new Transform3d(
-                  -0.264,
-                  0.337,
-                  0.484,
-                  // camera is upside down so need to build the angles sequentially
-                  new Rotation3d(0.0, 0.0, Units.degreesToRadians(180 - 21.6))
-                      .rotateBy(new Rotation3d(0.0, Units.degreesToRadians(2.79), 0.0))
-                      .rotateBy(new Rotation3d(Math.PI, 0, 0))))
+          .enableRewind(true)
           .build();
 }

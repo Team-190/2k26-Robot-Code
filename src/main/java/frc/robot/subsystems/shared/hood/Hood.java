@@ -205,7 +205,7 @@ public class Hood {
    *
    * @return runs a sysID charecterization routine command
    */
-  public Command runSysId() {
+  public Command runSysIdRoutine() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = HoodState.IDLE),
         characterizationRoutine.quasistatic(Direction.kForward),

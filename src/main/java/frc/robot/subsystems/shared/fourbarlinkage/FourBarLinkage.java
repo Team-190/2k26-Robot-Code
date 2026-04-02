@@ -15,9 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.AngularConstraints;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import java.util.List;
 import lombok.Getter;
@@ -27,16 +26,16 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class FourBarLinkage {
-  private final FourBarLinkageIO io;
-  private final String aKitTopic;
-  @Getter private final FourBarLinkageIOInputsAutoLogged inputs;
+  public final FourBarLinkageIO io;
+  public final String aKitTopic;
+  private final FourBarLinkageIOInputsAutoLogged inputs;
 
   private FourBarLinkageState currentState;
 
   @Getter private Setpoint<VoltageUnit> voltageGoal;
   @Getter private Setpoint<AngleUnit> positionGoal;
 
-  private final FourBarLinkageConstants constants;
+  public final FourBarLinkageConstants constants;
 
   private final SysIdRoutine characterizationRoutine;
   private final LoggedMechanism2d mechanism2d;
@@ -163,6 +162,8 @@ public class FourBarLinkage {
     ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
+    Logger.recordOutput(
+        aKitTopic + "/Offset Degrees", String.format("%.1f", positionGoal.getOffset().in(Radians)));
   }
 
   /**
