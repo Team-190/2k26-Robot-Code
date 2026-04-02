@@ -61,9 +61,7 @@ public class V1_DoomSpiralRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
-  @Getter private static Rotation2d robotToHubAngle;
-  @Getter private static Rotation2d scoreAngle;
-  @Getter private static double scoreVelocity;
+  @Getter private static final ShotCalculator.ShotParameters shootingParameters;
   @Getter private static Rotation2d feedAngle;
   @Getter private static double feedVelocity;
 
@@ -256,8 +254,15 @@ public class V1_DoomSpiralRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
-    scoreAngle = new Rotation2d();
-    scoreVelocity = 0;
+    shootingParameters =
+        new ShotCalculator.ShotParameters(
+            false,
+            new Pose2d(),
+            new Rotation2d(),
+            new Rotation2d(),
+            RadiansPerSecond.zero(),
+            RadiansPerSecond.zero(),
+            RadiansPerSecond.zero());
     feedAngle = new Rotation2d();
     feedVelocity = 0;
 
@@ -291,7 +296,7 @@ public class V1_DoomSpiralRobotState {
             hubTranslation,
             V1_DoomSpiralShooterConstants.SHOOTER_POSE,
             drive.getMeasuredChassisSpeeds(),
-            Seconds.of(0.05),
+            Seconds.of(0.04),
             timeOfFlightMap::get,
             shootAngleTree::get,
             shootSpeedTree::get);
@@ -308,27 +313,19 @@ public class V1_DoomSpiralRobotState {
                 .getDistance(AllianceFlipUtil.apply(FieldConstants.Outpost.FEED_TRANSLATION)),
             Meters);
 
-    robotToHubAngle = shotParameters.adjustedRobotPose().getRotation();
-    scoreAngle = shotParameters.hoodAngle();
-    scoreVelocity = shotParameters.flywheelSpeed().in(RadiansPerSecond);
-
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
     feedVelocity = feedSpeedTree.get(distanceToFeedTranslation).in(RadiansPerSecond);
 
     field.setRobotPose(getGlobalPose());
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Rotation to Hub",
-        new Pose2d(hubPose.getTranslation(), robotToHubAngle));
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shot Parameters", shotParameters);
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Hub Translation", new Pose2d(hubTranslation, new Rotation2d()));
     Logger.recordOutput(
         NTPrefixes.POSE_DATA + "Hub Pose Adjusted", shotParameters.adjustedRobotPose());
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity", scoreVelocity);
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Active", HubActivePeriod.isHubActive());

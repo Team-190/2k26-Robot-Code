@@ -36,6 +36,14 @@ public class ShotCalculator {
   private static Rotation2d lastChassisAngle;
   private static Rotation2d lastHoodAngle;
 
+  public static void clear() {
+    smoothedChassisAngle = null;
+    lastChassisAngle = null;
+    lastHoodAngle = null;
+    chassisVelocityFilter.reset();
+    hoodVelocityFilter.reset();
+  }
+
   public static ShotParameters getShotParameters(
       Pose2d robotPose,
       Translation2d targetPose,
@@ -65,7 +73,6 @@ public class ShotCalculator {
           ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, robotPose.getRotation())
                   .vyMetersPerSecond
               * timeOfFlight.in(Seconds);
-
       lookaheadRobotPosition = robotPosition.plus(new Translation2d(offsetX, offsetY));
 
       double newLookaheadDistance = targetPose.getDistance(lookaheadRobotPosition);
@@ -121,7 +128,7 @@ public class ShotCalculator {
     AngularVelocity chassisVelocity =
         RadiansPerSecond.of(
             chassisVelocityFilter.calculate(
-                currentChassisAngle.minus(lastChassisAngle).getRadians()
+                MathUtil.angleModulus(currentChassisAngle.minus(lastChassisAngle).getRadians())
                     / GompeiLib.getLoopPeriod()));
     AngularVelocity hoodVelocity =
         RadiansPerSecond.of(
