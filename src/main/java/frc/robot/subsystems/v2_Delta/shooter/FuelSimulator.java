@@ -1,4 +1,5 @@
 package frc.robot.subsystems.v2_Delta.shooter;
+
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
@@ -19,7 +20,6 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import frc.robot.FieldConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class FuelSimulator {
@@ -349,7 +349,6 @@ public class FuelSimulator {
       }
     }
   }
-
 
   /** Clears the field of fuel */
   public void clearFuel() {

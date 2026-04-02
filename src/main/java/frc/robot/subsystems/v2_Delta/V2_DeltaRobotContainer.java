@@ -17,14 +17,21 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import frc.robot.Constants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
+import frc.robot.subsystems.shared.intake.Intake;
+import frc.robot.subsystems.shared.intake.IntakeConstants;
+import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
@@ -35,20 +42,19 @@ import frc.robot.subsystems.v2_Delta.shooter.SimFuelCount;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
-import edu.wpi.team190.gompeilib.core.robot.RobotState;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
   private SwerveDrive drive;
   private V2_DeltaClopper hopper;
   private V2_DeltaShooter shooter;
+  private Intake intake;
   private FuelSimulator fuelSimulator;
   private SimFuelCount simFuelCount;
 
   private final BetterAutoChooser autoChooser;
 
   public V2_DeltaRobotContainer() {
-
 
     if (Constants.getMode() != RobotMode.REPLAY) {
       switch (RobotConfig.ROBOT) {
@@ -83,6 +89,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+          intake =
+              new Intake(
+                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
           break;
         case V2_DELTA_SIM:
           drive =
@@ -112,6 +122,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFXSim(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+          intake =
+              new Intake(
+                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
           break;
         default:
       }
@@ -134,6 +148,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     if (shooter == null) {
       shooter = new V2_DeltaShooter(new TurretIO() {}, new HoodIO() {}, new GenericFlywheelIO() {});
     }
+    if (intake == null) {
+      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
+    }
 
     autoChooser = new BetterAutoChooser();
     configureAutos();
@@ -145,37 +162,34 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   private void configureButtonBindings() {
     //
-  
+
   }
- 
-  
 
   private void configureFuelSim() {
-    
+
     fuelSimulator = new FuelSimulator("FuelSim");
     simFuelCount = new SimFuelCount(8);
-    configureFuelSim(); 
-    
-    
+    configureFuelSim();
+
     fuelSimulator.registerRobot(
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
         V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
+        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
         Units.inchesToMeters(6.0),
         V2_DeltaRobotState::getGlobalPose,
-        drive::getMeasuredChassisSpeeds); 
+        drive::getMeasuredChassisSpeeds);
 
     fuelSimulator.registerIntake(
-        V2_DeltaConstants.intakeNearX,
-        V2_DeltaConstants.intakeFarX,
-        V2_DeltaConstants.fuyullWidthY / 2,
-        V2_DeltaConstants.fullWidthY / 2,
+        IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
+        IntakeConstants.LINKAGE_OFFSET.getX(),
+        -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
         () ->
-            intake.getIntakState().equals(IntakeState.INTAKE)
+            intake.getIntakeState().equals(IntakeState.INTAKE)
                 && intake.atGoal()
-                && simFuelCount.getFuelStored() < SimFuelCount.capacity,
+                && simFuelCount.getFuelStored() < SimFuelCount.getCapacity(),
         () ->
             simFuelCount.setFuelStored(
-                Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.capacity)));
+                Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.getCapacity())));
 
     fuelSimulator.setSubticks(1);
     fuelSimulator.start();
@@ -191,8 +205,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 }));
   }
 
-
-
   private void configureAutos() {
     autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
     SmartDashboard.putData("Autonomous Chooser", autoChooser);
@@ -205,8 +217,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         drive.getYawVelocity(),
         drive.getModulePositions(),
         shooter.getTurretRotation(),
-        shooter.isTurretWrapping()
-        );
+        shooter.isTurretWrapping());
   }
 
   @Override

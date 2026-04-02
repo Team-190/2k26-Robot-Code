@@ -237,7 +237,7 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return linkage.atPositionGoal();
+    return linkage.atPositionGoal() && roller.atVoltageGoal();
   }
 
   public Command waitUntilIntakeAtGoal() {
