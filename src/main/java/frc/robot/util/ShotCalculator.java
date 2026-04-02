@@ -1,80 +1,150 @@
 package frc.robot.util;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.team190.gompeilib.core.GompeiLib;
+import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import java.util.function.Function;
-import org.littletonrobotics.junction.Logger;
+import lombok.experimental.ExtensionMethod;
 
-public interface ShotCalculator {
-    double phaseDelay = 0.3; // TODO: Change this value based on testing
+@ExtensionMethod({GeometryUtil.class})
+public class ShotCalculator {
+  private static final LinearFilter chassisVelocityFilter = LinearFilter.movingAverage(5);
+  private static final LinearFilter hoodVelocityFilter = LinearFilter.movingAverage(5);
 
-    /**
-     * Calculates a corrected pose for a moving target based on the shooter's
-     * current velocity.
-     *
-     * @param initialPose                  The current pose of the shooter.
-     * @param targetPose                   The pose of the target.
-     * @param robotVelocityMetersPerSecond The shooter's velocity in meters per
-     *                                     second.
-     * @param distanceToTimeFunction       A function that converts distance to
-     *                                     time.
-     * @return The corrected pose to aim at.
-     */
-    static Translation2d getAdjustedTargetPose(
-            Pose2d initialPose,
-            Pose2d targetPose,
-            ChassisSpeeds robotVelocityMetersPerSecond,
-            Function<Distance, Time> distanceToTimeFunction,
-            Transform2d centerToShooterCenter) {
+  private static final double SETPOINT_TIME_CONSTANT_SECS = 0.06;
+  private static final LinearFilter hoodSetpointFilter =
+      LinearFilter.singlePoleIIR(SETPOINT_TIME_CONSTANT_SECS, GompeiLib.getLoopPeriod());
+  private static Rotation2d smoothedChassisAngle;
 
-        Logger.recordOutput(NTPrefixes.POSE_DATA + "Speed", robotVelocityMetersPerSecond);
+  private static final double CONVERGENCE_THRESHOLD_METERS = 0.005;
+  private static final int MAX_ITERATIONS = 20;
+  private static final double MIN_ALIGN_DISTANCE_METERS = 0.5;
 
-        // Adds phase delay to the initial pose based on robot velocity to account for
-        // latency caused by
-        // target pose calculation
-        initialPose = initialPose.exp(
-                new Twist2d(
-                        robotVelocityMetersPerSecond.vxMetersPerSecond * phaseDelay,
-                        robotVelocityMetersPerSecond.vyMetersPerSecond * phaseDelay,
-                        robotVelocityMetersPerSecond.omegaRadiansPerSecond * phaseDelay));
+  private static Rotation2d lastChassisAngle;
+  private static Rotation2d lastHoodAngle;
 
-        Pose2d shooterPose = initialPose.plus(centerToShooterCenter);
-        Transform2d shooterToTarget = new Transform2d(shooterPose, targetPose);
+  public static ShotParameters getShotParameters(
+      Pose2d robotPose,
+      Translation2d targetPose,
+      Transform2d robotToShooterTransform,
+      ChassisSpeeds robotRelativeVelocity,
+      ChassisSpeeds fieldRelativeSetpointVelocity,
+      Time phaseDelay,
+      Function<Distance, Time> distanceToTimeFunction,
+      Function<Distance, Rotation2d> distanceToHoodFunction,
+      Function<Distance, AngularVelocity> distanceToFlywheelFunction) {
 
-        Translation2d shooterRobotFrameVelocityMetersPerSecond = new Translation2d(
-                -centerToShooterCenter.getRotation().getSin(),
-                centerToShooterCenter.getRotation().getCos())
-                .times(robotVelocityMetersPerSecond.omegaRadiansPerSecond)
-                .times(centerToShooterCenter.getTranslation().getNorm());
+    Pose2d phaseDelayedPose =
+        robotPose.exp(robotRelativeVelocity.toTwist2d(phaseDelay.in(Seconds)));
+    Translation2d robotPosition = phaseDelayedPose.getTranslation();
 
-        Translation2d shooterFieldFrameVelocityMetersPerSecond = shooterRobotFrameVelocityMetersPerSecond
-                .rotateBy(initialPose.getRotation())
-                .plus(
-                        new Translation2d(
-                                robotVelocityMetersPerSecond.vxMetersPerSecond,
-                                robotVelocityMetersPerSecond.vyMetersPerSecond));
+    double robotVx = fieldRelativeSetpointVelocity.vxMetersPerSecond;
+    double robotVy = fieldRelativeSetpointVelocity.vyMetersPerSecond;
 
-        double deltaT = distanceToTimeFunction
-                .apply(Meters.of(shooterToTarget.getTranslation().getNorm()))
-                .in(Seconds);
+    Translation2d lookaheadRobotPosition = robotPosition;
+    double lookaheadDistance = targetPose.getDistance(robotPosition);
 
-        double correctedX = targetPose.getX() - shooterFieldFrameVelocityMetersPerSecond.getX() * deltaT;
-        double correctedY = targetPose.getY() + shooterFieldFrameVelocityMetersPerSecond.getY() * deltaT;
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+      double clampedDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
+      Time timeOfFlight = distanceToTimeFunction.apply(Meters.of(clampedDistance));
 
-        Logger.recordOutput(NTPrefixes.POSE_DATA + "Target Pose", targetPose);
-        Logger.recordOutput(
-                NTPrefixes.POSE_DATA + "Corrected Pose",
-                new Pose2d(correctedX, correctedY, new Rotation2d()));
+      double offsetX = robotVx * timeOfFlight.in(Seconds);
+      double offsetY = robotVy * timeOfFlight.in(Seconds);
 
-        return new Translation2d(correctedX, correctedY);
+      lookaheadRobotPosition = robotPosition.plus(new Translation2d(offsetX, offsetY));
+
+      double newLookaheadDistance = targetPose.getDistance(lookaheadRobotPosition);
+
+      if (Math.abs(newLookaheadDistance - lookaheadDistance) < CONVERGENCE_THRESHOLD_METERS) {
+        lookaheadDistance = newLookaheadDistance;
+        break;
+      }
+
+      lookaheadDistance = newLookaheadDistance;
     }
+
+    boolean isDistanceValid = lookaheadDistance >= MIN_ALIGN_DISTANCE_METERS;
+    Rotation2d rawChassisAngle;
+
+    if (!isDistanceValid) {
+      rawChassisAngle = lastChassisAngle != null ? lastChassisAngle : robotPose.getRotation();
+    } else {
+      Rotation2d fieldToTargetAngle = targetPose.minus(lookaheadRobotPosition).getAngle();
+      double shooterOffsetY = robotToShooterTransform.getTranslation().getY();
+
+      Rotation2d lateralOffsetAngle =
+          new Rotation2d(Math.asin(MathUtil.clamp(shooterOffsetY / lookaheadDistance, -1.0, 1.0)));
+
+      rawChassisAngle =
+          fieldToTargetAngle.minus(lateralOffsetAngle).minus(robotToShooterTransform.getRotation());
+    }
+
+    double clampedLookaheadDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
+    Rotation2d rawHoodAngle = distanceToHoodFunction.apply(Meters.of(clampedLookaheadDistance));
+
+    Rotation2d currentHoodAngle =
+        Rotation2d.fromRadians(hoodSetpointFilter.calculate(rawHoodAngle.getRadians()));
+
+    Rotation2d currentChassisAngle;
+    if (smoothedChassisAngle == null) {
+      smoothedChassisAngle = rawChassisAngle;
+      currentChassisAngle = rawChassisAngle;
+    } else {
+      double dt = GompeiLib.getLoopPeriod();
+      double alpha = dt / (SETPOINT_TIME_CONSTANT_SECS + dt);
+      double angleErrorRads =
+          MathUtil.angleModulus(rawChassisAngle.minus(smoothedChassisAngle).getRadians());
+
+      smoothedChassisAngle =
+          smoothedChassisAngle.plus(Rotation2d.fromRadians(angleErrorRads * alpha));
+      currentChassisAngle = smoothedChassisAngle;
+    }
+
+    if (lastChassisAngle == null) lastChassisAngle = currentChassisAngle;
+    if (lastHoodAngle == null) lastHoodAngle = currentHoodAngle;
+
+    AngularVelocity chassisVelocity =
+        RadiansPerSecond.of(
+            chassisVelocityFilter.calculate(
+                currentChassisAngle.minus(lastChassisAngle).getRadians()
+                    / GompeiLib.getLoopPeriod()));
+    AngularVelocity hoodVelocity =
+        RadiansPerSecond.of(
+            hoodVelocityFilter.calculate(
+                currentHoodAngle.minus(lastHoodAngle).getRadians() / GompeiLib.getLoopPeriod()));
+
+    lastChassisAngle = currentChassisAngle;
+    lastHoodAngle = currentHoodAngle;
+
+    return new ShotParameters(
+        isDistanceValid,
+        new Pose2d(lookaheadRobotPosition, currentChassisAngle),
+        currentChassisAngle,
+        currentHoodAngle,
+        chassisVelocity,
+        hoodVelocity,
+        distanceToFlywheelFunction.apply(Meters.of(clampedLookaheadDistance)));
+  }
+
+  public record ShotParameters(
+      boolean isValid,
+      Pose2d adjustedRobotPose,
+      Rotation2d chassisAngle,
+      Rotation2d hoodAngle,
+      AngularVelocity chassisVelocity,
+      AngularVelocity hoodVelocity,
+      AngularVelocity flywheelSpeed) {}
 }

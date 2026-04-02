@@ -120,7 +120,7 @@ public class V1_DoomSpiralShooterConstants {
           .build();
 
   public static Transform2d SHOOTER_POSE =
-      new Transform2d(0.015, 0.255299, Rotation2d.fromDegrees(-90.0));
+      new Transform2d(-0.015, 0.255299, Rotation2d.fromDegrees(-90.0));
 
   public enum HoodGoal {
     SCORE,
