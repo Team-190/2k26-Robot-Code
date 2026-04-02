@@ -22,7 +22,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
-import frc.robot.subsystems.v0_Funky.V0_FunkyTunerConstants;
 
 public class V2_DeltaConstants {
   public static final DriveConfig DRIVE_CONFIG =
@@ -46,32 +45,32 @@ public class V2_DeltaConstants {
       Gains.builder()
           .withKP(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kp", V0_FunkyTunerConstants.driveGains.kP))
+                  "Drive/Teleoperated/Drive Kp", V2_DeltaTunerConstants.driveGains.kP))
           .withKD(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kd", V0_FunkyTunerConstants.driveGains.kD))
+                  "Drive/Teleoperated/Drive Kd", V2_DeltaTunerConstants.driveGains.kD))
           .withKS(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Ks", V0_FunkyTunerConstants.driveGains.kS))
+                  "Drive/Teleoperated/Drive Ks", V2_DeltaTunerConstants.driveGains.kS))
           .withKV(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Drive Kv", V0_FunkyTunerConstants.driveGains.kV))
+                  "Drive/Teleoperated/Drive Kv", V2_DeltaTunerConstants.driveGains.kV))
           .build();
 
   public static final Gains TURN_GAINS =
       Gains.builder()
           .withKP(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kp", V0_FunkyTunerConstants.steerGains.kP))
+                  "Drive/Teleoperated/Turn Kp", V2_DeltaTunerConstants.steerGains.kP))
           .withKD(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kd", V0_FunkyTunerConstants.steerGains.kD))
+                  "Drive/Teleoperated/Turn Kd", V2_DeltaTunerConstants.steerGains.kD))
           .withKS(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Ks", V0_FunkyTunerConstants.steerGains.kS))
+                  "Drive/Teleoperated/Turn Ks", V2_DeltaTunerConstants.steerGains.kS))
           .withKV(
               new LoggedTunableNumber(
-                  "Drive/Teleoperated/Turn Kv", V0_FunkyTunerConstants.steerGains.kV))
+                  "Drive/Teleoperated/Turn Kv", V2_DeltaTunerConstants.steerGains.kV))
           .build();
 
   public static final Gains TRANSLATION_AUTO_GAINS =

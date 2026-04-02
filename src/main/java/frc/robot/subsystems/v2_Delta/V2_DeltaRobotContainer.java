@@ -25,8 +25,8 @@ import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
-import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopper;
-import frc.robot.subsystems.v2_Delta.hopper.V2_DeltaHopperConstants;
+import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
+import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
@@ -34,7 +34,7 @@ import frc.robot.util.BetterAutoChooser;
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
   private SwerveDrive drive;
-  private V2_DeltaHopper hopper;
+  private V2_DeltaClopper hopper;
   private V2_DeltaShooter shooter;
 
   private final BetterAutoChooser autoChooser;
@@ -65,9 +65,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   V2_DeltaRobotState::getGlobalPose,
                   V2_DeltaRobotState::resetPose);
           hopper =
-              new V2_DeltaHopper(
-                  new GenericRollerIOTalonFX(V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS));
+              new V2_DeltaClopper(
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
           shooter =
               new V2_DeltaShooter(
                   new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
@@ -94,9 +94,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   V2_DeltaRobotState::getGlobalPose,
                   V2_DeltaRobotState::resetPose);
           hopper =
-              new V2_DeltaHopper(
-                  new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.ROLLERFLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFXSim(V2_DeltaHopperConstants.BALLTUNNEL_CONSTANTS));
+              new V2_DeltaClopper(
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
           shooter =
               new V2_DeltaShooter(
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
@@ -119,7 +119,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               V2_DeltaRobotState::resetPose);
     }
     if (hopper == null) {
-      hopper = new V2_DeltaHopper(new GenericRollerIO() {}, new GenericRollerIO() {});
+      hopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
     }
     if (shooter == null) {
       shooter = new V2_DeltaShooter(new TurretIO() {}, new HoodIO() {}, new GenericFlywheelIO() {});
