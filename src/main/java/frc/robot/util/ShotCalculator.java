@@ -41,7 +41,6 @@ public class ShotCalculator {
       Translation2d targetPose,
       Transform2d robotToShooterTransform,
       ChassisSpeeds robotRelativeVelocity,
-      ChassisSpeeds fieldRelativeSetpointVelocity,
       Time phaseDelay,
       Function<Distance, Time> distanceToTimeFunction,
       Function<Distance, Rotation2d> distanceToHoodFunction,
@@ -51,9 +50,6 @@ public class ShotCalculator {
         robotPose.exp(robotRelativeVelocity.toTwist2d(phaseDelay.in(Seconds)));
     Translation2d robotPosition = phaseDelayedPose.getTranslation();
 
-    double robotVx = fieldRelativeSetpointVelocity.vxMetersPerSecond;
-    double robotVy = fieldRelativeSetpointVelocity.vyMetersPerSecond;
-
     Translation2d lookaheadRobotPosition = robotPosition;
     double lookaheadDistance = targetPose.getDistance(robotPosition);
 
@@ -61,8 +57,14 @@ public class ShotCalculator {
       double clampedDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
       Time timeOfFlight = distanceToTimeFunction.apply(Meters.of(clampedDistance));
 
-      double offsetX = robotVx * timeOfFlight.in(Seconds);
-      double offsetY = robotVy * timeOfFlight.in(Seconds);
+      double offsetX =
+          ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, robotPose.getRotation())
+                  .vxMetersPerSecond
+              * timeOfFlight.in(Seconds);
+      double offsetY =
+          ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, robotPose.getRotation())
+                  .vyMetersPerSecond
+              * timeOfFlight.in(Seconds);
 
       lookaheadRobotPosition = robotPosition.plus(new Translation2d(offsetX, offsetY));
 

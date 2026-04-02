@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
@@ -288,11 +287,10 @@ public class V1_DoomSpiralRobotState {
 
     ShotCalculator.ShotParameters shotParameters =
         ShotCalculator.getShotParameters(
-            getHubZonePose(),
+            hubPose,
             hubTranslation,
             V1_DoomSpiralShooterConstants.SHOOTER_POSE,
             drive.getMeasuredChassisSpeeds(),
-            ChassisSpeeds.fromRobotRelativeSpeeds(drive.getSetpointChassisSpeeds(), getHeading()),
             Seconds.of(0.05),
             timeOfFlightMap::get,
             shootAngleTree::get,
