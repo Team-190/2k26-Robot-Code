@@ -185,7 +185,10 @@ public class Turret {
       SimpleMotorFeedforward feedforwardController,
       Translation2d translationGoal,
       Pose2d robotPose,
-      ChassisSpeeds fieldVelocity) {
+      ChassisSpeeds robotVelocity) {
+
+    ChassisSpeeds fieldVelocity =
+        ChassisSpeeds.fromRobotRelativeSpeeds(robotVelocity, robotPose.getRotation());
 
     double rx = translationGoal.getX() - robotPose.getX();
     double ry = translationGoal.getY() - robotPose.getY();
@@ -199,7 +202,7 @@ public class Turret {
     double targetOmega =
         (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond) / distanceSq;
 
-    return -feedforwardController.calculate(
+    return feedforwardController.calculate(
         fieldVelocity.omegaRadiansPerSecond - targetOmega); // still needs testing
   }
 
