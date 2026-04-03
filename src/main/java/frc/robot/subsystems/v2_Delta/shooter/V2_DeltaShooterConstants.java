@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -24,6 +25,8 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 import frc.robot.subsystems.shared.hood.HoodConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 public class V2_DeltaShooterConstants {
 
@@ -134,7 +137,7 @@ public class V2_DeltaShooterConstants {
               Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
           .withGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Turret/Kp", 2.8624920))
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 0.28624920))
                   .withKD(new LoggedTunableNumber("Turret/Kd", 0.0))
                   .withKS(new LoggedTunableNumber("Turret/Ks", 0.158040))
                   .withKV(new LoggedTunableNumber("Turret/Kv", 0.11377))
@@ -162,7 +165,16 @@ public class V2_DeltaShooterConstants {
               new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d()))
           .withVoltageStep(Volts.of(0.5))
           .withAngleStep(Rotation2d.fromDegrees(1.0))
+          .withAimingFeedforwardGains(
+              Gains.fromDoubles()
+                  .withPrefix("Turret/Aiming")
+                  .withKS(0.5)
+                  .withKV(0.1)
+                  .withKA(0.025)
+                  .build())
           .build();
+
+  public static final Translation2d TURRET_TRANSLATION = new Translation2d(0.163513, -0.017463);
 
   public enum ShooterGoal {
     SCORE,
@@ -172,5 +184,12 @@ public class V2_DeltaShooterConstants {
     OVERRIDE_HOOD,
     OVERRIDE_FLYWHEEL,
     SYSID
+  }
+
+  @RequiredArgsConstructor
+  @Getter
+  public enum ShooterState {
+    MOVING,
+    STATIONARY;
   }
 }

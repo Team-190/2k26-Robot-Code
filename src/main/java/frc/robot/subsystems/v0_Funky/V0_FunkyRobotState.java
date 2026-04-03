@@ -4,11 +4,14 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
+import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.util.NTPrefixes;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +23,7 @@ import org.littletonrobotics.junction.Logger;
 public class V0_FunkyRobotState {
   private static final AprilTagFieldLayout fieldLayout;
   private static final Localization localization;
+  @Getter private static ChassisSpeeds chassisSpeeds;
 
   @AutoLogOutput(key = NTPrefixes.ROBOT_STATE + "Hood/Score Angle")
   @Getter
@@ -31,7 +35,7 @@ public class V0_FunkyRobotState {
 
   private static final FieldZone globalZone;
 
-  @Setter private static long networktablesTimestamp;
+  @Setter @Getter private static long networktablesTimestamp;
   @Setter @Getter private static boolean turretWrapping;
 
   static {
@@ -45,13 +49,22 @@ public class V0_FunkyRobotState {
     scoreAngle = Rotation2d.kZero;
     feedAngle = Rotation2d.kZero;
 
+    chassisSpeeds = new ChassisSpeeds();
+
     networktablesTimestamp = NetworkTablesJNI.now();
   }
 
-  public static void periodic(Rotation2d heading, SwerveModulePosition[] modulePositions) {
+  public static void periodic(
+      Rotation2d heading, SwerveModulePosition[] modulePositions, ChassisSpeeds chassisSpeeds) {
 
     localization.addOdometryObservation(Timer.getTimestamp(), heading, modulePositions);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "/Global Pose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Global Pose", getGlobalPose());
+    V0_FunkyRobotState.chassisSpeeds = chassisSpeeds;
+  }
+
+  public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
+    if (Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= Units.degreesToRadians(120.0))
+      localization.addPoseObservations(observations);
   }
 
   public static void resetPose(Pose2d pose) {

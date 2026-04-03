@@ -6,6 +6,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -62,7 +63,6 @@ public class V0_FunkyShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
-          .withOpposedFollowerCANID(31)
           .withVelocityOffsetStep(RadiansPerSecond.of(5))
           .withVoltageOffsetStep(Volts.of(1))
           .withEnableFOC(false)
@@ -72,22 +72,24 @@ public class V0_FunkyShooterConstants {
       TurretConstants.builder()
           .withMotorConfig(DCMotor.getKrakenX60Foc(1))
           .withMomentOfInertia(0.004)
-          .withTurretCANID(2)
-          .withMotorInversion(InvertedValue.CounterClockwise_Positive)
+          .withTurretCANID(18)
+          .withMotorInversion(InvertedValue.Clockwise_Positive)
           .withEncoderInversion(SensorDirectionValue.Clockwise_Positive)
           .withCanBus(CANBus.roboRIO())
-          .withEncoder1ID(16)
-          .withEncoder2ID(15)
+          .withEncoder1ID(17)
+          .withEncoder2ID(16)
           .withMaxAngle(Rotation2d.fromRadians(2 * Math.PI))
           .withMinAngle(Rotation2d.fromRadians(-2 * Math.PI))
           .withGearRatio(120.0 / 20)
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
+          .withRobotToTurretTransform(new Transform3d())
           .withE1Offset(
               Rotation2d.fromRotations(-0.521973)
-                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
+                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172 + 88.681641)))
           .withE2Offset(
-              Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
+              Rotation2d.fromRotations(-0.44458)
+                  .minus(Rotation2d.fromDegrees(325.371094 + 233.261719)))
           .withGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 28.624920))
@@ -100,19 +102,25 @@ public class V0_FunkyShooterConstants {
               AngularPositionConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Turret/MaxAcceleration",
-                          RadiansPerSecondPerSecond.of(35.566371)))
+                          "Turret/MaxAcceleration", RadiansPerSecondPerSecond.of(35.566371)))
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
+                          "Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
+                      new LoggedTunableMeasure<>("Turret/GoalTolerance", Degrees.of(3)))
+                  .build())
+          .withAimingFeedforwardGains(
+              Gains.fromDoubles()
+                  .withPrefix("Turret/Aiming")
+                  .withKS(0.5)
+                  .withKV(0.1)
+                  .withKA(0.025)
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
                   .withGear0ToothCount(120)
-                  .withGear1ToothCount(16)
-                  .withGear2ToothCount(17)
+                  .withGear1ToothCount(17)
+                  .withGear2ToothCount(16)
                   .build())
           .withVoltageStep(Volts.of(0.5))
           .withAngleStep(Rotation2d.fromDegrees(1.0))

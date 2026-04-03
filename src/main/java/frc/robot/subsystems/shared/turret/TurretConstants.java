@@ -39,6 +39,8 @@ public class TurretConstants {
   @NonNull public final Voltage voltageStep;
   @NonNull public final Rotation2d angleStep;
 
+  @NonNull public final Gains aimingFeedforwardGains;
+
   @NonNull public final CANBus canBus;
 
   @Builder(setterPrefix = "with")
