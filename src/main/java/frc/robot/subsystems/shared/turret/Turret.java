@@ -128,18 +128,21 @@ public class Turret {
 
     switch (state) {
       case UNWRAPPING -> {
-        double midPointAbsoluteDeg =
-            (constants.maxAngle.getDegrees() + constants.minAngle.getDegrees()) / 2.0;
+        double midPointAbsoluteRad =
+            (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
 
-        double relativeDeg =
-            Math.IEEEremainder(midPointAbsoluteDeg - inputs.angle.getDegrees(), 360.0);
         Rotation2d safeRelativeTarget =
-            Rotation2d.fromDegrees(inputs.angle.getDegrees() + relativeDeg);
+            Rotation2d.fromRadians(
+                midPointAbsoluteRad
+                    + Math.IEEEremainder(
+                        positionGoal.getNewSetpoint().in(Radians) - midPointAbsoluteRad,
+                        2.0 * Math.PI));
 
         io.setPositionGoal(safeRelativeTarget, 0.0);
 
-        if (Math.abs(inputs.angle.getDegrees() - safeRelativeTarget.getDegrees()) < 5.0) {
+        if (Math.abs(inputs.angle.getDegrees() - safeRelativeTarget.getDegrees()) < 5) {
           state = (previousState == TurretState.UNWRAPPING) ? TurretState.IDLE : previousState;
+          previousState = TurretState.UNWRAPPING;
         }
       }
       case CLOSED_LOOP_POSITION_CONTROL ->

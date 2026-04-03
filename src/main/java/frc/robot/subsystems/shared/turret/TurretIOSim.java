@@ -113,7 +113,7 @@ public class TurretIOSim implements TurretIO {
         feedback.calculate(sim.getAngularPositionRad(), goal.getRadians())
             + feedforward.calculate(feedback.getSetpoint().velocity + velocity.baseUnitMagnitude());
 
-    appliedVolts = Math.copySign(appliedVolts, feedforwardVoltage);
+    appliedVolts += Math.copySign(feedforwardVoltage, appliedVolts);
     positionGoal = goal;
   }
 
