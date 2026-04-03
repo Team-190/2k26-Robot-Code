@@ -169,7 +169,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     fuelSimulator = new FuelSimulator("FuelSim");
     simFuelCount = new SimFuelCount(8);
-    configureFuelSim();
 
     fuelSimulator.registerRobot(
         V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),

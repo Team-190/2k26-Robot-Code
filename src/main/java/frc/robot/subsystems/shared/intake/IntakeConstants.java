@@ -327,6 +327,7 @@ public class IntakeConstants {
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
                 .withVoltageOffsetStep(Volts.of(0.25))
                 .withCanBus(CANBus.roboRIO())
+                .withEnableFOC(true)
                 .build();
 
         LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
