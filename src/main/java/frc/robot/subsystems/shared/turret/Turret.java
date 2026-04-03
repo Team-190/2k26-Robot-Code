@@ -46,7 +46,7 @@ public class Turret {
   @Getter private boolean isWrapping;
 
   private final Supplier<Pose2d> robotPoseSupplier;
-  Supplier<ChassisSpeeds> fieldVelocitySupplier;
+  Supplier<ChassisSpeeds> robotVelocitySuppiler;
 
   private final TurretConstants constants;
 
@@ -72,7 +72,7 @@ public class Turret {
             new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
     this.robotPoseSupplier = robotPoseSupplier;
-    this.fieldVelocitySupplier = fieldVelocitySupplier;
+    this.robotVelocitySuppiler = fieldVelocitySupplier;
 
     translationGoal = new Translation2d();
 
@@ -154,26 +154,17 @@ public class Turret {
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
         positionGoal.setSetpoint(
-            angleToGoal(
-                    translationGoal,
-                    robotPoseSupplier.get(),
-                    constants.robotToTurretTransform.getTranslation().toTranslation2d())
-                .getMeasure());
+            angleToGoal(translationGoal, robotPoseSupplier.get()).getMeasure());
         io.setPositionGoal(
             findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
             (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
-            calculateFeedforwardVoltage(
-                feedforwardController,
-                translationGoal,
-                robotPoseSupplier.get(),
-                fieldVelocitySupplier.get()));
+            calculateFeedforwardVoltage(translationGoal));
       }
       default -> {}
     }
   }
 
-  private Rotation2d angleToGoal(
-      Translation2d translationGoal, Pose2d robotPose, Translation2d turretOffset) {
+  private Rotation2d angleToGoal(Translation2d translationGoal, Pose2d robotPose) {
 
     Transform2d robotToTurretTransform =
         new Transform2d(
@@ -185,29 +176,27 @@ public class Turret {
     return turretToTarget.getAngle().minus(turretPose.getRotation());
   }
 
-  private static double calculateFeedforwardVoltage(
-      SimpleMotorFeedforward feedforwardController,
-      Translation2d translationGoal,
-      Pose2d robotPose,
-      ChassisSpeeds robotVelocity) {
+  private double calculateFeedforwardVoltage(Translation2d translationGoal) {
 
     ChassisSpeeds fieldVelocity =
-        ChassisSpeeds.fromRobotRelativeSpeeds(robotVelocity, robotPose.getRotation());
+        ChassisSpeeds.fromRobotRelativeSpeeds(
+            robotVelocitySuppiler.get(), robotPoseSupplier.get().getRotation());
 
-    double rx = translationGoal.getX() - robotPose.getX();
-    double ry = translationGoal.getY() - robotPose.getY();
+    double rx = translationGoal.getX() - robotPoseSupplier.get().getX();
+    double ry = translationGoal.getY() - robotPoseSupplier.get().getY();
 
     double distanceSq = (rx * rx) + (ry * ry);
 
+    double targetOmega;
     if (distanceSq < 0.01) {
-      return 0.0;
+      targetOmega = 0.0;
+    } else {
+      targetOmega =
+          (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond)
+              / distanceSq;
     }
 
-    double targetOmega =
-        (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond) / distanceSq;
-
-    return feedforwardController.calculate(
-        fieldVelocity.omegaRadiansPerSecond - targetOmega); // still needs testing
+    return feedforwardController.calculate(targetOmega - fieldVelocity.omegaRadiansPerSecond);
   }
 
   public boolean outOfRange(Rotation2d angle) {
