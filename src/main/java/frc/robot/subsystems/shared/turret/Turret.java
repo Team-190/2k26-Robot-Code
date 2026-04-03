@@ -131,7 +131,6 @@ public class Turret {
         double midPointAbsoluteDeg =
             (constants.maxAngle.getDegrees() + constants.minAngle.getDegrees()) / 2.0;
 
-        // Compute the target relative to previousPosition and wrap to [-180, 180]
         double relativeDeg =
             Math.IEEEremainder(midPointAbsoluteDeg - inputs.angle.getDegrees(), 360.0);
         Rotation2d safeRelativeTarget =
@@ -205,8 +204,8 @@ public class Turret {
   }
 
   public boolean outOfRange(Rotation2d angle) {
-    return angle.getMeasure().isNear(constants.minAngle.getMeasure(), Degrees.of(6.7))
-        || angle.getMeasure().isNear(constants.maxAngle.getMeasure(), Degrees.of(6.7));
+    return angle.getMeasure().lte(constants.minAngle.getMeasure().plus(Degrees.of(10)))
+        || angle.getMeasure().gte(constants.maxAngle.getMeasure().minus(Degrees.of(10)));
   }
 
   public void setVoltageGoal(Voltage volts) {
