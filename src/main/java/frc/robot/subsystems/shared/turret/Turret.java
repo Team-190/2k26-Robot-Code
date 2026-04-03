@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.AngleUnit;
@@ -171,17 +172,17 @@ public class Turret {
     }
   }
 
-  private static Rotation2d angleToGoal(
+  private Rotation2d angleToGoal(
       Translation2d translationGoal, Pose2d robotPose, Translation2d turretOffset) {
 
-    Translation2d turretPosition =
-        robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation()));
-
-    return translationGoal
-        .minus(turretPosition)
-        .getAngle()
-        .minus(robotPose.getRotation())
-        .unaryMinus();
+    Transform2d robotToTurretTransform =
+        new Transform2d(
+            constants.robotToTurretTransform.getX(),
+            constants.robotToTurretTransform.getY(),
+            Rotation2d.kZero);
+    Pose2d turretPose = robotPose.transformBy(robotToTurretTransform);
+    Translation2d turretToTarget = translationGoal.minus(turretPose.getTranslation());
+    return turretToTarget.getAngle().minus(turretPose.getRotation());
   }
 
   private static double calculateFeedforwardVoltage(
@@ -215,19 +216,25 @@ public class Turret {
   }
 
   public void setVoltageGoal(Voltage volts) {
-    if (state != TurretState.UNWRAPPING) state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
-    voltageGoal.setSetpoint(volts);
+    if (state != TurretState.UNWRAPPING) {
+      state = TurretState.OPEN_LOOP_VOLTAGE_CONTROL;
+      voltageGoal.setSetpoint(volts);
+    }
   }
 
   public void setPositionGoal(Rotation2d goal) {
-    if (state != TurretState.UNWRAPPING) state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
-    positionGoal.setSetpoint(goal.getMeasure());
+    if (state != TurretState.UNWRAPPING) {
+      state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
+      positionGoal.setSetpoint(goal.getMeasure());
+    }
   }
 
   public void setPositionGoal(Rotation2d goal, AngularVelocity velocity) {
-    if (state != TurretState.UNWRAPPING) state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
-    positionGoal.setSetpoint(goal.getMeasure());
-    angularVelocityGoal.setSetpoint(velocity);
+    if (state != TurretState.UNWRAPPING) {
+      state = TurretState.CLOSED_LOOP_POSITION_CONTROL;
+      positionGoal.setSetpoint(goal.getMeasure());
+      angularVelocityGoal.setSetpoint(velocity);
+    }
   }
 
   public void setPosition(Rotation2d position) {
