@@ -428,7 +428,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys
         .b6()
         .whileTrue(
-            spindexer
+            spindexer 
                 .setVoltage(-V1_DoomSpiralSpindexerConstants.SPINDEXER_SLOW_VOLTAGE)
                 .withName("xkeys-b6-while"))
         .onFalse(spindexer.setVoltage(0).withName("xkeys-b6-false"));
