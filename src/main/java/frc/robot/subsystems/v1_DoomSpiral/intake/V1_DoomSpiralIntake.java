@@ -181,7 +181,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
             Commands.runOnce(
                 () -> {
                   linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
-                  linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0));
+                  linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 5.0));
                 }),
             linkage.waitUntilLinkageAtGoal())
         .repeatedly();

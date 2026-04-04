@@ -30,7 +30,7 @@ public class V1_DoomSpiralIntakeConstants {
   public static final double EXTAKE_VOLTAGE = -4.0;
 
   public static final Rotation2d LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
-  public static final double LINKAGE_SLOW_VOLTAGE = 1.5;
+  public static final double LINKAGE_SLOW_VOLTAGE = 3.0;
 
   public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP =
       GenericRollerConstants.builder()
@@ -59,9 +59,9 @@ public class V1_DoomSpiralIntakeConstants {
 
   public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION =
       SensorDirectionValue.Clockwise_Positive;
-  public static final double GEAR_RATIO = 50.79235079;
+  public static final double GEAR_RATIO = 50.79235079 * 18 / 17;
   public static final int SUPPLY_CURRENT_LIMIT = 40;
-  public static final int STATOR_CURRENT_LIMIT = 40;
+  public static final int STATOR_CURRENT_LIMIT = 60;
 
   public static final double MOMENT_OF_INERTIA = 0.004;
   public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
@@ -89,7 +89,7 @@ public class V1_DoomSpiralIntakeConstants {
               new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(50.0)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
-                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(10.0)))
+                  "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(15.0)))
           .withGoalTolerance(new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
           .build();
 
@@ -145,9 +145,9 @@ public class V1_DoomSpiralIntakeConstants {
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(168.134766 + 8.0)),
+    INTAKE(Rotation2d.fromDegrees(168.134766 + 5)),
     BUMP(Rotation2d.fromDegrees(145)),
-    AGITATE(Rotation2d.fromDegrees(168.134766 + 8));
+    AGITATE(Rotation2d.fromDegrees(168.134766 + 5));
 
     private final Rotation2d angle;
 
