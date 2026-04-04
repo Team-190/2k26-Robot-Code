@@ -181,10 +181,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                 }),
             linkage
                 .waitUntilLinkageAtGoal()
-                .until(
-                    () ->
-                        linkage.getTorqueCurrent().isNear(Amps.of(35), Milliamps.of(500))
-                            || linkage.getTorqueCurrent().isNear(Amps.of(-35), Milliamps.of(500))),
+                .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(35), Milliamps.of(500))),
             Commands.runOnce(
                 () -> {
                   linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
@@ -198,10 +195,7 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                 }),
             linkage
                 .waitUntilLinkageAtGoal()
-                .until(
-                    () ->
-                        linkage.getTorqueCurrent().isNear(Amps.of(45), Milliamps.of(500))
-                            || linkage.getTorqueCurrent().isNear(Amps.of(-45), Milliamps.of(500))))
+                .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(-45), Milliamps.of(500))))
         .repeatedly();
   }
 
