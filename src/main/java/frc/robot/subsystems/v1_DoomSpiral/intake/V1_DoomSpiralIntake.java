@@ -69,9 +69,9 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
           break;
         case INTAKE:
         case BUMP:
-          if (intakeOnInIntakeState)
-            roller.setVoltageGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
-          else roller.setVoltageGoal(Volts.of(0.0));
+        
+          roller.setVoltageGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
+          
           break;
         case AGITATE:
           roller.setVoltageGoal(Volts.of(3.0));
