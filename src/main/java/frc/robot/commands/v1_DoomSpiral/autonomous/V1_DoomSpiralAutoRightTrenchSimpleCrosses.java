@@ -4,7 +4,6 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
@@ -18,6 +17,8 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
 
 public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
+  private static boolean RETURN_TO_MID = false;
+
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
       V1_DoomSpiralIntake intake,
@@ -31,6 +32,10 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
 
     AutoTrajectory RIGHT_TRENCH_SIMPLE_CROSSES =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE_CROSSES);
+    AutoTrajectory RIGHT_RETURN =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_RETURN_TO_MID);
+    V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.onTrue(
+        Commands.runOnce(() -> RETURN_TO_MID = true));
 
     routine
         .active()
@@ -62,16 +67,13 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
                 V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
                     .alongWith(
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
-                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
-
-    RobotModeTriggers.autonomous()
-        .negate()
-        .onTrue(
-            Commands.parallel(
-                    V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                    intake.stopRoller(),
-                    intake.deploy())
-                .ignoringDisable(true));
+                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))
+                    .until(() -> RETURN_TO_MID),
+                RIGHT_RETURN
+                    .cmd()
+                    .alongWith(
+                        V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                        intake.collect())));
 
     return new BetterAutoChooser.AutoRoutineConfiguration(
         () -> routine,
@@ -82,7 +84,8 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
                   drive.setAutoControllers(
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(RIGHT_TRENCH_SIMPLE_CROSSES);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(
+                      RIGHT_TRENCH_SIMPLE_CROSSES, RIGHT_RETURN);
                 }));
   }
 }
