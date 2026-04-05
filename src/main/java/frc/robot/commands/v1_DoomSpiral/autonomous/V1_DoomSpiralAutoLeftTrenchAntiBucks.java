@@ -21,12 +21,12 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
   private static boolean RETURN_TO_MID = false;
 
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
-          SwerveDrive drive,
-          V1_DoomSpiralIntake intake,
-          V1_DoomSpiralShooter shooter,
-          V1_DoomSpiralSpindexer spindexer,
-          V1_DoomSpiralClimber climber,
-          LoggedNetworkBoolean returnToMid) {
+      SwerveDrive drive,
+      V1_DoomSpiralIntake intake,
+      V1_DoomSpiralShooter shooter,
+      V1_DoomSpiralSpindexer spindexer,
+      V1_DoomSpiralClimber climber,
+      LoggedNetworkBoolean returnToMid) {
 
     // Create the routine and the trajectory
 
