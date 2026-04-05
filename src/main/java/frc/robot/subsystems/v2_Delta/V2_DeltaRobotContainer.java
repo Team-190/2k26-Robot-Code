@@ -115,8 +115,14 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   V2_DeltaRobotState::getHeadingUpdateTimestamp,
                   List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
                   List.of());
-          vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), camera);
-          break;
+vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), new CameraLimelight(
+                  new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
+                  V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                  V2_DeltaRobotState::getHeading,
+                  drive::getMeasuredChassisSpeeds,
+                  V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                  List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                  List.of()));          break;
         case V2_DELTA_SIM:
           drive =
               new SwerveDrive(
@@ -157,16 +163,15 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
                   List.of()));
           leds = new V2_DeltaCANdle();
-          camera =
-              new CameraLimelight(
+              
+          vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), new CameraLimelight(
                   new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
                   V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
                   V2_DeltaRobotState::getHeading,
                   drive::getMeasuredChassisSpeeds,
                   V2_DeltaRobotState::getHeadingUpdateTimestamp,
                   List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                  List.of());
-          vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), camera);
+                  List.of()));
           shooter =
               new V2_DeltaShooter(
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),

@@ -124,8 +124,8 @@ public class V2_DeltaShooterConstants {
           .withEncoder1ID(16)
           .withEncoder2ID(15)
           .withMaxAngle(Rotation2d.fromDegrees(300))
-          .withMinAngle(Rotation2d.fromRadians(-300))
-          .withGearRatio(120.0 / 20)
+          .withMinAngle(Rotation2d.fromDegrees(-300))
+          .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
           .withE1Offset(
