@@ -56,7 +56,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private Climber climber;
   private Intake intake;
   private V2_DeltaClopper clopper;
-  private CameraLimelight camera;
   private Vision vision;
   private V2_DeltaCANdle leds;
   private V2_DeltaShooter shooter;
@@ -106,23 +105,19 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
           leds = new V2_DeltaCANdle();
-          camera =
-              new CameraLimelight(
-                  new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                  V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
-                  V2_DeltaRobotState::getHeading,
-                  drive::getMeasuredChassisSpeeds,
-                  V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                  List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                  List.of());
-vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), new CameraLimelight(
-                  new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                  V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
-                  V2_DeltaRobotState::getHeading,
-                  drive::getMeasuredChassisSpeeds,
-                  V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                  List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                  List.of()));          break;
+
+          vision =
+              new Vision(
+                  () -> FieldConstants.tagLayoutType.getLayout(),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()));
+          break;
         case V2_DELTA_SIM:
           drive =
               new SwerveDrive(
@@ -152,26 +147,30 @@ vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), new CameraLi
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
 
-          new Vision(
-              () -> FieldConstants.tagLayoutType.getLayout(),
-              new CameraLimelight(
-                  new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                  V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
-                  V2_DeltaRobotState::getHeading,
-                  drive::getMeasuredChassisSpeeds,
-                  V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                  List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                  List.of()));
+          vision =
+              new Vision(
+                  () -> FieldConstants.tagLayoutType.getLayout(),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()));
           leds = new V2_DeltaCANdle();
-              
-          vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout(), new CameraLimelight(
-                  new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                  V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
-                  V2_DeltaRobotState::getHeading,
-                  drive::getMeasuredChassisSpeeds,
-                  V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                  List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                  List.of()));
+
+          vision =
+              new Vision(
+                  () -> FieldConstants.tagLayoutType.getLayout(),
+                  new CameraLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()));
           shooter =
               new V2_DeltaShooter(
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
