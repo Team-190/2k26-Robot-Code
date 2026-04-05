@@ -59,6 +59,7 @@ import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private SwerveDrive drive;
@@ -75,6 +76,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private final XKeysInput xkeys = new XKeysInput(1);
 
   private final BetterAutoChooser autoChooser;
+  private final LoggedNetworkBoolean returnToMidChooser;
 
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -257,6 +259,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);
+    returnToMidChooser = new LoggedNetworkBoolean("ReturnToNeutralZone", true);
 
     configureButtonBindings();
     configureAutos();
@@ -522,19 +525,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutineConfig(
         "Left Trench Simple",
         V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks",
         V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Simple",
         V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks",
         V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Depot And Back Hub",
         V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
@@ -544,19 +547,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutineConfig(
         "Left Trench Simple Crosses",
         V1_DoomSpiralAutoLeftTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Simple Crosses",
         V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber));
+            drive, intake, shooter, spindexer, climber, returnToMidChooser));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
     RobotModeTriggers.autonomous()

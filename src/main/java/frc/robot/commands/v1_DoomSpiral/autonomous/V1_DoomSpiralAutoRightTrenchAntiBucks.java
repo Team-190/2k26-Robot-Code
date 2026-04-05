@@ -15,6 +15,7 @@ import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V1_DoomSpiralAutoRightTrenchAntiBucks {
   private static boolean RETURN_TO_MID = false;
@@ -24,7 +25,8 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucks {
       V1_DoomSpiralIntake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
-      V1_DoomSpiralClimber climber) {
+      V1_DoomSpiralClimber climber,
+      LoggedNetworkBoolean returnToMid) {
 
     // Create the routine and the trajectory
 
@@ -36,7 +38,7 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucks {
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_RETURN_TO_MID);
 
     V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.onTrue(
-        Commands.runOnce(() -> RETURN_TO_MID = true));
+        Commands.runOnce(() -> RETURN_TO_MID = returnToMid.get()));
 
     routine
         .active()
