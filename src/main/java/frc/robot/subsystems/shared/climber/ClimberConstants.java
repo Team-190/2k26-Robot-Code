@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -190,6 +191,8 @@ public class ClimberConstants {
                 .withEnableFOC(FOC_ENABLE)
                 .withInvertedValue(InvertedValue.Clockwise_Positive)
                 .withCanBus(CANBus.roboRIO())
+                .withVoltageOffsetStep(Volts.of(0.0))
+                .withPositionOffsetStep(Rotation2d.fromRadians(0.0))
                 .build();
         break;
     }
