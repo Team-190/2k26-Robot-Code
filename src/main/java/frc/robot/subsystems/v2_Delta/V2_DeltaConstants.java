@@ -179,54 +179,12 @@ public class V2_DeltaConstants {
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(
-              new Transform3d(
-                  -0.055,
-                  -0.054,
-                  0.538,
-                  new Rotation3d(
-                      Units.degreesToRadians(0),
-                      Units.degreesToRadians(90 - 62.000),
-                      Units.degreesToRadians(-90.000))))
+          .robotToCameraTransform(Transform3d.kZero)
+          .enableRewind(true)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_CLIMBER_CONFIG =
-      LimelightConfig.builder()
-          .key("climber")
-          .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
-          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
-          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(
-              new Transform3d(
-                  -0.060142,
-                  -0.398769,
-                  0.305,
-                  new Rotation3d(
-                      Units.degreesToRadians(0),
-                      Units.degreesToRadians(0),
-                      Units.degreesToRadians(90.409532))))
-          .build();
-
-  public static final LimelightConfig LIMELIGHT_RIGHT_CONFIG =
-      LimelightConfig.builder()
-          .key("right")
-          .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
-          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
-          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
-          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(
-              new Transform3d(
-                  -0.264,
-                  0.337,
-                  0.484,
-                  // camera is upside down so need to build the angles sequentially
-                  new Rotation3d(0.0, 0.0, Units.degreesToRadians(180 - 21.6))
-                      .rotateBy(new Rotation3d(0.0, Units.degreesToRadians(2.79), 0.0))
-                      .rotateBy(new Rotation3d(Math.PI, 0, 0))))
-          .build();
+  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
+      new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d());
+  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
+      new Transform3d(0.003008, -0.149135, -0.161329, new Rotation3d());
 }
