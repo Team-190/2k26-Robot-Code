@@ -3,6 +3,7 @@ package frc.robot.subsystems.v2_Delta.shooter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -13,11 +14,18 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import edu.wpi.first.units.measure.LinearVelocity;
+
+
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.littletonrobotics.junction.Logger;
@@ -48,6 +56,9 @@ public class FuelSimulator {
   // https://en.wikipedia.org/wiki/Drag_coefficient#/media/File:14ilf1l.svg
   protected static final double DRAG_COF = 0.47; // dimensionless
   protected static final double DRAG_FORCE_FACTOR = 0.5 * AIR_DENSITY * DRAG_COF * FUEL_CROSS_AREA;
+  protected static final double FLYWHEEL_MASS = 4.5; // Get Value from CAD
+  protected static final double FLYWHEEL_RADIUS = 2.3; // Get Value from CAD
+  protected static final double FLYWHEEL_MOI = 0.5 * FLYWHEEL_MASS * FLYWHEEL_RADIUS * FLYWHEEL_RADIUS;
 
   protected static final Translation3d[] FIELD_XZ_LINE_STARTS = {
     new Translation3d(0, 0, 0),
@@ -333,6 +344,7 @@ public class FuelSimulator {
   protected double robotLength; // size along the robot's x axis
   protected double bumperHeight;
   protected ArrayList<SimIntake> intakes = new ArrayList<>();
+  protected ArrayList<SimShooter> shooters = new ArrayList<>();
   protected int subticks = 5;
 
   /**
@@ -688,6 +700,12 @@ public class FuelSimulator {
     intakes.add(new SimIntake(xMin, xMax, yMin, yMax, ableToIntake, intakeCallback));
   }
 
+  public void registerShooter(
+    BooleanSupplier ableToShoot, Supplier<Angle> hoodAngleSupplier, Supplier<Angle> turretYawSupplier, Supplier<AngularVelocity> launchVelocitySupplier, Distance launchHeight) {
+
+    shooters.add(new SimShooter(ableToShoot, this, hoodAngleSupplier, turretYawSupplier, launchVelocitySupplier, launchHeight));
+  }
+
   /**
    * Registers an intake with the fuel simulator. This intake will remove fuel from the field based
    * on the `ableToIntake` parameter.
@@ -931,4 +949,42 @@ public class FuelSimulator {
       return result;
     }
   }
+
+  @AllArgsConstructor
+  protected class SimShooter {
+    private final BooleanSupplier ableToShoot;
+    private final FuelSimulator sim;
+    private final Supplier<Angle> hoodAngleSupplier, turretYawSupplier;    
+    private final Supplier<AngularVelocity> launchVelocitySupplier;
+    private final Distance launchHeight;
+
+    protected void shoot() {
+      if (!ableToShoot.getAsBoolean()) return;
+    
+    double initialFuelVel = 5.6; // get actual value
+    double launchVel = launchVelocitySupplier.get().baseUnitMagnitude();
+    double linearVelocity = Math.sqrt(FLYWHEEL_MOI * Math.pow(launchVel, 2) + (FUEL_MASS * Math.pow(initialFuelVel, 2)) - ((MU_ROLLER / MU_DIFF) * COMPRESSION * DISPLACEMENT * 0.25 * FLYWHEEL_RADIUS + (FUEL_MASS * Math.pow(initialFuelVel, 2))) * (Math.exp(2 * MU_DIFF * thetaEnd) - 1));
+    
+    sim.launchFuel(
+          MetersPerSecond.of(linearVelocity),
+          hoodAngleSupplier.get(),
+          turretYawSupplier.get(),
+          launchHeight
+          );
+  }
+
+  protected void shootBurst(int count, int delayMs) {
+    new Thread(() -> {
+      for (int i = 0; i < count; i++) {
+        shoot();
+        try {
+          Thread.sleep(delayMs);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+      }
+     }).start();
+ }
+}
 }
