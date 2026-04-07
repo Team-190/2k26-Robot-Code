@@ -20,7 +20,7 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V2_DeltaConstants {
@@ -170,8 +170,8 @@ public class V2_DeltaConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_SHOOTER_CONFIG =
-      LimelightConfig.builder()
+  public static final StaticLimelightConfig LIMELIGHT_SHOOTER_CONFIG =
+      StaticLimelightConfig.builder()
           .key("shooter")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
