@@ -38,7 +38,11 @@ public class Intake extends SubsystemBase {
     roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
     linkage =
         new FourBarLinkage(
-            linkageIO, IntakeConstants.LINKAGE_CONSTANTS, this, "", IntakeState.STOW.getSetpoint());
+            linkageIO,
+            IntakeConstants.LINKAGE_CONSTANTS,
+            this,
+            "",
+            IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
 
     intakeState = IntakeState.STOW;
 
@@ -60,7 +64,6 @@ public class Intake extends SubsystemBase {
           else roller.setVoltageGoal(Volts.of(0.0));
           break;
         case INTAKE:
-        case BUMP:
           if (intakeOnInIntakeState)
             roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
           else roller.setVoltageGoal(Volts.of(0.0));
@@ -75,7 +78,7 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput("Intake/Intake State", intakeState);
 
     V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
-    if (intakeState.equals(IntakeState.INTAKE) || intakeState.equals(IntakeState.BUMP)) {
+    if (intakeState.equals(IntakeState.INTAKE)) {
       V1_DoomSpiralRobotState.getLedStates()
           .setIntakeCollecting(
               roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
@@ -141,7 +144,7 @@ public class Intake extends SubsystemBase {
             () -> {
               intakeState = IntakeState.INTAKE;
               intakeOnInIntakeState = true;
-              linkage.setPositionGoal(IntakeState.INTAKE.getSetpoint());
+              linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.INTAKE));
             }));
   }
 
@@ -150,16 +153,7 @@ public class Intake extends SubsystemBase {
         () -> {
           intakeState = IntakeState.STOW;
           intakeOnInIntakeState = true;
-          linkage.setPositionGoal(IntakeState.STOW.getSetpoint());
-        });
-  }
-
-  public Command bump() {
-    return Commands.runOnce(
-        () -> {
-          intakeState = IntakeState.BUMP;
-          intakeOnInIntakeState = true;
-          linkage.setPositionGoal(IntakeState.BUMP.getSetpoint());
+          linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
         });
   }
 
@@ -168,13 +162,11 @@ public class Intake extends SubsystemBase {
             Commands.runOnce(
                 () -> {
                   intakeState = IntakeState.AGITATE;
-                  linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
-                  linkage.setPositionGoal(IntakeState.AGITATE.getAngle());
+                  linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
                 }),
             linkage.waitUntilLinkageAtGoal(),
             Commands.runOnce(
                 () -> {
-                  linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
                   linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 8.0));
                 }),
             linkage.waitUntilLinkageAtGoal())
@@ -247,32 +239,26 @@ public class Intake extends SubsystemBase {
 
   public Command incrementStowOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.STOW.getSetpoint().increment()), stow());
+        Commands.runOnce(() -> IntakeConstants.INTAKE_STATES.get(IntakeState.STOW).increment()),
+        stow());
   }
 
   public Command decrementStowOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.STOW.getSetpoint().decrement()), stow());
-  }
-
-  public Command incrementBumpOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.BUMP.getSetpoint().increment()), bump());
-  }
-
-  public Command decrementBumpOffset() {
-    return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.BUMP.getSetpoint().decrement()), bump());
+        Commands.runOnce(() -> IntakeConstants.INTAKE_STATES.get(IntakeState.STOW).decrement()),
+        stow());
   }
 
   public Command incrementCollectOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getSetpoint().increment()), deploy());
+        Commands.runOnce(() -> IntakeConstants.INTAKE_STATES.get(IntakeState.INTAKE).increment()),
+        deploy());
   }
 
   public Command decrementCollectOffset() {
     return Commands.sequence(
-        Commands.runOnce(() -> IntakeState.INTAKE.getSetpoint().decrement()), deploy());
+        Commands.runOnce(() -> IntakeConstants.INTAKE_STATES.get(IntakeState.INTAKE).decrement()),
+        deploy());
   }
 
   public Command increaseSpeedOffset() {

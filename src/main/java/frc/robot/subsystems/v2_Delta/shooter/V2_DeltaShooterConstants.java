@@ -11,9 +11,6 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
@@ -25,6 +22,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelCons
 import frc.robot.subsystems.shared.hood.HoodConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants;
 import frc.robot.subsystems.shared.turret.TurretConstants.TurretAngleCalculation;
+import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -42,11 +40,11 @@ public class V2_DeltaShooterConstants {
                   .withStatorCurrentLimit(Amps.of(80.0))
                   .build())
           .withMomentOfInertia(0.05)
-          .withGearRatio(28.0 / 24.0)
+          .withGearRatio((24.0 / 30.0))
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", .5))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 0.5))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0.0))
                   .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", 0.21467))
                   .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.14015))
@@ -81,7 +79,7 @@ public class V2_DeltaShooterConstants {
       HoodConstants.builder()
           .withMotorCanId(32)
           .withCurrentLimits(40.0)
-          .withGearRatio((36.0 / 12.0) * (24.0 / 18.0) * (296.0 / 14.0))
+          .withGearRatio((18.0 / 12.0) * (28.0 / 8.0) * (324.0 / 14.0))
           .withMomentOfInertia(0.0001)
           .withInvertedValue(InvertedValue.CounterClockwise_Positive)
           .withMotorConfig(DCMotor.getKrakenX44Foc(1))
@@ -125,9 +123,9 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(16)
           .withEncoder2ID(15)
-          .withMaxAngle(Rotation2d.fromRadians(2 * Math.PI))
-          .withMinAngle(Rotation2d.fromRadians(-2 * Math.PI))
-          .withGearRatio(120.0 / 20)
+          .withMaxAngle(Rotation2d.fromDegrees(300))
+          .withMinAngle(Rotation2d.fromDegrees(-300))
+          .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
           .withE1Offset(
@@ -157,12 +155,11 @@ public class V2_DeltaShooterConstants {
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()
-                  .withGear0ToothCount(120)
-                  .withGear1ToothCount(16)
-                  .withGear2ToothCount(17)
+                  .withGear0ToothCount(86)
+                  .withGear1ToothCount(13)
+                  .withGear2ToothCount(14)
                   .build())
-          .withRobotToTurretTransform(
-              new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d()))
+          .withRobotToTurretTransform(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM)
           .withVoltageStep(Volts.of(0.5))
           .withAngleStep(Rotation2d.fromDegrees(1.0))
           .withAimingFeedforwardGains(
@@ -173,8 +170,6 @@ public class V2_DeltaShooterConstants {
                   .withKA(0.025)
                   .build())
           .build();
-
-  public static final Translation2d TURRET_TRANSLATION = new Translation2d(0.163513, -0.017463);
 
   public enum ShooterGoal {
     SCORE,

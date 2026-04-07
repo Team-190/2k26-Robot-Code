@@ -464,10 +464,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
     xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
 
-    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
-    xkeys.c3().onTrue(intake.decrementBumpOffset().withName("xkeys-c3-true"));
-    xkeys.c2().onTrue(intake.incrementBumpOffset().withName("xkeys-c2-true"));
-
     xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-d1-true"));
     xkeys.d3().onTrue(intake.decrementCollectOffset().withName("xkeys-d3-true"));
     xkeys.d2().onTrue(intake.incrementCollectOffset().withName("xkeys-d2-true"));
