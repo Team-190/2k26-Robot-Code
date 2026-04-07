@@ -2,7 +2,10 @@ package frc.robot.subsystems.v2_Delta.shooter;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -45,6 +48,7 @@ public class V2_DeltaShooter extends SubsystemBase {
             this,
             "",
             V2_DeltaRobotState::getHubZonePose,
+            ChassisSpeeds::new,
             V2_DeltaShooterConstants.TURRET_CONSTANTS);
 
     shooterGoal = ShooterGoal.STOW;
@@ -103,6 +107,17 @@ public class V2_DeltaShooter extends SubsystemBase {
     }
 
     Logger.recordOutput("Shooter/Goal", shooterGoal);
+    Logger.recordOutput(
+        "Shooter/Pose2d",
+        new Pose2d(
+            V2_DeltaRobotState.getGlobalPose()
+                .transformBy(
+                    new Transform2d(
+                        V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
+                        V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
+                        Rotation2d.kZero))
+                .getTranslation(),
+            turret.getPosition().plus(V2_DeltaRobotState.getGlobalPose().getRotation())));
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {
