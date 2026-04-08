@@ -216,4 +216,8 @@ public class Hood {
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kReverse));
   }
+
+  public Rotation2d getAngle() {
+    return inputs.position;
+  }
 }

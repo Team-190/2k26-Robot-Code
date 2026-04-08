@@ -3,7 +3,6 @@ package frc.robot.subsystems.v2_Delta.shooter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -17,17 +16,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import edu.wpi.first.units.measure.LinearVelocity;
-
-
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.littletonrobotics.junction.Logger;
 
 public class FuelSimulator {
@@ -58,11 +52,12 @@ public class FuelSimulator {
   protected static final double DRAG_FORCE_FACTOR = 0.5 * AIR_DENSITY * DRAG_COF * FUEL_CROSS_AREA;
   protected static final double FLYWHEEL_MASS = 4.5; // Get Value from CAD
   protected static final double FLYWHEEL_RADIUS = 2.3; // Get Value from CAD
-  protected static final double FLYWHEEL_MOI = 0.5 * FLYWHEEL_MASS * FLYWHEEL_RADIUS * FLYWHEEL_RADIUS;
+  protected static final double FLYWHEEL_MOI =
+      0.5 * FLYWHEEL_MASS * FLYWHEEL_RADIUS * FLYWHEEL_RADIUS;
   protected static final double MU_ROLLER = 0.55;
   protected static final double COMPRESSION = 0.0402;
   protected static final double MU_DIFF = 0.15; // diff between mu of hood and mu of roller
-  
+
   protected static final Translation3d[] FIELD_XZ_LINE_STARTS = {
     new Translation3d(0, 0, 0),
     new Translation3d(3.96, 1.57, 0),
@@ -704,9 +699,22 @@ public class FuelSimulator {
   }
 
   public void registerShooter(
-    BooleanSupplier ableToShoot, Supplier<Angle> hoodAngleSupplier, Supplier<Angle> turretYawSupplier, Supplier<AngularVelocity> launchVelocitySupplier, Distance launchHeight) {
+      BooleanSupplier ableToShoot,
+      Runnable callback,
+      Supplier<Angle> hoodAngleSupplier,
+      Supplier<Angle> turretYawSupplier,
+      Supplier<AngularVelocity> launchVelocitySupplier,
+      Distance launchHeight) {
 
-    shooters.add(new SimShooter(ableToShoot, this, hoodAngleSupplier, turretYawSupplier, launchVelocitySupplier, launchHeight));
+    shooters.add(
+        new SimShooter(
+            ableToShoot,
+            callback,
+            this,
+            hoodAngleSupplier,
+            turretYawSupplier,
+            launchVelocitySupplier,
+            launchHeight));
   }
 
   /**
@@ -955,40 +963,51 @@ public class FuelSimulator {
 
   @AllArgsConstructor
   protected class SimShooter {
-    private final BooleanSupplier ableToShoot;
-    private final FuelSimulator sim;
-    private final Supplier<Angle> hoodAngleSupplier, turretYawSupplier;    
-    private final Supplier<AngularVelocity> launchVelocitySupplier;
-    private final Distance launchHeight;
+    BooleanSupplier ableToShoot;
+    Runnable callback;
+
+    FuelSimulator sim;
+    Supplier<Angle> hoodAngleSupplier, turretYawSupplier;
+    Supplier<AngularVelocity> launchVelocitySupplier;
+    Distance launchHeight;
 
     protected void shoot() {
       if (!ableToShoot.getAsBoolean()) return;
 
-    double dX = FLYWHEEL_RADIUS * Math.PI / 4;
-    double initialFuelVel = 5.6; // get actual value
-    double launchVel = launchVelocitySupplier.get().baseUnitMagnitude();
-    double linearVelocity = Math.sqrt(FLYWHEEL_MOI * Math.pow(launchVel, 2) + (FUEL_MASS * Math.pow(initialFuelVel, 2)) - ((MU_ROLLER / MU_DIFF) * COMPRESSION * dX * 0.25 * FLYWHEEL_RADIUS + (FUEL_MASS * Math.pow(initialFuelVel, 2))) * (Math.exp(2 * MU_DIFF * Math.PI / 4) - 1)) / ((4 * FLYWHEEL_MOI / FLYWHEEL_RADIUS) + FUEL_MASS + (FLYWHEEL_MOI / FUEL_RADIUS));
-    
-    sim.launchFuel(
+      double dX = FLYWHEEL_RADIUS * Math.PI / 4;
+      double initialFuelVel = 5.6; // get actual value
+      double launchVel = launchVelocitySupplier.get().baseUnitMagnitude();
+      double linearVelocity =
+          Math.sqrt(
+                  FLYWHEEL_MOI * Math.pow(launchVel, 2)
+                      + (FUEL_MASS * Math.pow(initialFuelVel, 2))
+                      - ((MU_ROLLER / MU_DIFF) * COMPRESSION * dX * 0.25 * FLYWHEEL_RADIUS
+                              + (FUEL_MASS * Math.pow(initialFuelVel, 2)))
+                          * (Math.exp(2 * MU_DIFF * Math.PI / 4) - 1))
+              / ((4 * FLYWHEEL_MOI / FLYWHEEL_RADIUS) + FUEL_MASS + (FLYWHEEL_MOI / FUEL_RADIUS));
+
+      sim.launchFuel(
           MetersPerSecond.of(linearVelocity),
           hoodAngleSupplier.get(),
           turretYawSupplier.get(),
-          launchHeight
-          );
-  }
+          launchHeight);
+      callback.run();
+    }
 
-  protected void shootBurst(int count, int delayMs) {
-    new Thread(() -> {
-      for (int i = 0; i < count; i++) {
-        shoot();
-        try {
-          Thread.sleep(delayMs);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          break;
-        }
-      }
-     }).start();
- }
-}
+    protected void shootBurst(int count, int delayMs) {
+      new Thread(
+              () -> {
+                for (int i = 0; i < count; i++) {
+                  shoot();
+                  try {
+                    Thread.sleep(delayMs);
+                  } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                  }
+                }
+              })
+          .start();
+    }
+  }
 }
