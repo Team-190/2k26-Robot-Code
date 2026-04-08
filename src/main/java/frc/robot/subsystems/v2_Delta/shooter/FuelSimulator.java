@@ -513,6 +513,10 @@ public class FuelSimulator {
       if (robotPoseSupplier != null) {
         handleRobotCollisions(fuels);
         handleIntakes(fuels);
+
+        for (SimShooter shooter : shooters) {
+          shooter.shoot();
+        }
       }
     }
 

@@ -273,8 +273,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.getCapacity())));
 
     fuelSimulator.registerShooter(
-        () -> false,
-        () -> {},
+        () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
+        () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
         shooter.getHoodAngle()::getMeasure,
         shooter.getTurretRotation()::getMeasure,
         shooter::getFlywheelVelocity,
