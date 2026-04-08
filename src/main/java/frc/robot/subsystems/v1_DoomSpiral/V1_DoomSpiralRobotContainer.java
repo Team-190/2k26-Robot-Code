@@ -109,7 +109,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   gyroIO.getRoll().asSupplier());
           intake =
               new Intake(
-                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -177,7 +177,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Climber(new ArmIOTalonFXSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
               new Intake(
-                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
