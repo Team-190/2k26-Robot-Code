@@ -352,7 +352,7 @@ public class IntakeConstants {
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-                .withRollerMotorGearRatio(8.0 / 3.0)
+                .withRollerMotorGearRatio((16.0 / 40.0) * (52.0))
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withOpposedFollowerCANID(42)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
@@ -361,7 +361,7 @@ public class IntakeConstants {
                 .withEnableFOC(false)
                 .build();
 
-        LINKAGE_OFFSET = new Translation3d(0, 0, 0); // wrong for testing
+        LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276); //TODO: Anshu says he doesn't really care
 
         MOTOR_CAN_ID = 40; // Pivot
 
@@ -406,7 +406,7 @@ public class IntakeConstants {
                 Units.Inches.of(8.945053).in(Units.Meters),
                 Units.Inches.of(7.500000).in(Units.Meters),
                 Units.Inches.of(6.823672).in(Units.Meters));
-
+//
         // These don't matter for V2
         LINK_BOUNDS =
             new LinkBounds(
@@ -486,7 +486,7 @@ public class IntakeConstants {
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-                .withRollerMotorGearRatio(8.0 / 3.0)
+                .withRollerMotorGearRatio((16.0 / 40.0) * (52.0))
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withOpposedFollowerCANID(21)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
