@@ -2,8 +2,12 @@ package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
@@ -28,6 +32,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
+import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
@@ -48,7 +53,9 @@ import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
+import java.io.IOException;
 import java.util.List;
+import org.json.simple.parser.ParseException;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
@@ -227,6 +234,30 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    AdjustPathCommand adjustPathCommand = null;
+    try {
+      adjustPathCommand =
+          new AdjustPathCommand(
+              () -> new Pose2d(new Translation2d(3.45, 4.23), Rotation2d.fromDegrees(40)),
+              1.0,
+              2.0,
+              drive);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+
+    AdjustPathCommand finalAdjustPathCommand = adjustPathCommand;
+
+    return Commands.sequence(
+        Commands.runOnce(
+            () ->
+                V2_DeltaRobotState.resetPose(
+                    new Pose2d(new Translation2d(4.5, 6.7), Rotation2d.fromDegrees(90)))),
+        Commands.print("Finished Reset Pose"),
+        finalAdjustPathCommand.withTimeout(3),
+        Commands.print("Finished Adjust Path Command"));
+    // return autoChooser.selectedCommand();
   }
 }
