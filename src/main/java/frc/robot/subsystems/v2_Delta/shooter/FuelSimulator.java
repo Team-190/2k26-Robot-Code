@@ -420,6 +420,9 @@ public class FuelSimulator {
     Logger.recordOutput(
         "FuelSim/FuelPoses",
         fuels.stream().map(f -> new Pose3d(f.pos, Rotation3d.kZero)).toArray(Pose3d[]::new));
+
+    Logger.recordOutput("FuelSim/RedHubScore", Hub.RED_HUB.getScore());
+    Logger.recordOutput("FuelSim/BlueHubScore", Hub.BLUE_HUB.getScore());
   }
 
   /** Returns the list of fuels in the simulation */

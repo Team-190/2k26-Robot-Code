@@ -57,6 +57,7 @@ import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
@@ -315,6 +316,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         shooter.isTurretWrapping());
 
     fuelSimulator.updateSim();
+    Logger.recordOutput("FuelSim/FuelCount", simFuelCount.getFuelStored());
   }
 
   @Override
