@@ -12,59 +12,75 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.LinearConstraints;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
-import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
-import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
 
 public class AdjustPathCommand extends Command {
-  private final Supplier<Pose2d> targetPoseSupplier;
-  private double maxAccelerationMetersPerSecondSquared;
-  private double maxAngularAccelerationMetersPerSecondSquared;
-  private PathPlannerPath adjustedPath;
-  private Command followCommand;
-  private Consumer<Pose2d> resetPose;
-  private final SwerveDrive drive;
 
-  /*
-   * Creates a command that generates and follows a corrective path back to the target path if the robot has deviated using PathPlanner
-   * @param targetPoseSupplier A supplier that provides the target pose to which the robot should adjust
-   * @param maxAccelerationMetersPerSecondSquared The maximum acceleration to use when generating the path
-   * @param maxAngularAccelerationMetersPerSecondSquared The maximum angular acceleration to use when generating
+  public record DriveConstraints(
+      double maxLinearVelocityMetersPerSecond,
+      double maxAngularVelocityRadiansPerSecond) {}
+
+  private final Supplier<Pose2d> currentPoseSupplier;
+  private final Supplier<Pose2d> targetPoseSupplier;
+  private final double maxAccelerationMPS2;
+  private final double maxAngularAccelerationRPS2;
+  private final double goalEndVelocity;
+  private final LinearConstraints linearConstraints;
+  private final AngularVelocityConstraints angularVelocityConstraints;
+  private final SwerveDrive drive;
+  private Command followCommand;
+
+  /**
+   * Creates a command that generates and follows a corrective path to a target pose using PathPlanner.
+   *
+   * @param currentPoseSupplier              
+   * @param targetPoseSupplier               
+   * @param translationGains                 
+   * @param rotationGains                    
+   * @param driveConstraints                 
+   * @param maxAccelerationMPS2              
+   * @param maxAngularAccelerationRPS2       
+   * @param goalEndVelocity                  
+   * @param drive                           
    */
   public AdjustPathCommand(
+      Supplier<Pose2d> currentPoseSupplier,
       Supplier<Pose2d> targetPoseSupplier,
-      double maxAccelerationMetersPerSecondSquared,
-      double maxAngularAccelerationMetersPerSecondSquared,
-      SwerveDrive drive)
-      throws IOException, ParseException {
-    this.targetPoseSupplier = targetPoseSupplier;
-    this.maxAccelerationMetersPerSecondSquared = maxAccelerationMetersPerSecondSquared;
-    this.maxAngularAccelerationMetersPerSecondSquared =
-        maxAngularAccelerationMetersPerSecondSquared;
-    this.drive = drive;
+      Gains translationGains,
+      Gains rotationGains,
+      DriveConstraints driveConstraints,
+      double maxAccelerationMPS2,
+      double maxAngularAccelerationRPS2,
+      double goalEndVelocity,
+      LinearConstraints linearConstraints,
+      AngularVelocityConstraints angularVelocityConstraints,
+      SwerveDrive drive) {
 
-    this.resetPose = pose -> V2_DeltaRobotState.resetPose(pose);
+    this.currentPoseSupplier = currentPoseSupplier;
+    this.targetPoseSupplier = targetPoseSupplier;
+    this.linearConstraints = linearConstraints;
+    this.angularVelocityConstraints = angularVelocityConstraints;
+    this.maxAccelerationMPS2 = maxAccelerationMPS2;
+    this.maxAngularAccelerationRPS2 = maxAngularAccelerationRPS2;
+    this.goalEndVelocity = goalEndVelocity;
+    this.drive = drive;
 
     try {
       AutoBuilder.configure(
-          () -> V2_DeltaRobotState.getGlobalPose(),
-          V2_DeltaRobotState::resetPose,
+          currentPoseSupplier,
+          pose -> {}, 
           drive::getMeasuredChassisSpeeds,
           (speeds, feedforwards) -> drive.runVelocity(speeds),
           new PPHolonomicDriveController(
-              new PIDConstants(
-                  V2_DeltaConstants.TRANSLATION_AUTO_GAINS.getKP(),
-                  V2_DeltaConstants.TRANSLATION_AUTO_GAINS.getKI(),
-                  V2_DeltaConstants.TRANSLATION_AUTO_GAINS.getKD()),
-              new PIDConstants(
-                  V2_DeltaConstants.ROTATION_AUTO_GAINS.getKP(),
-                  V2_DeltaConstants.ROTATION_AUTO_GAINS.getKI(),
-                  V2_DeltaConstants.ROTATION_AUTO_GAINS.getKD())),
+              new PIDConstants(translationGains.getKP(), translationGains.getKI(), translationGains.getKD()),
+              new PIDConstants(rotationGains.getKP(), rotationGains.getKI(), rotationGains.getKD())),
           RobotConfig.fromGUISettings(),
           () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
           drive);
@@ -75,24 +91,26 @@ public class AdjustPathCommand extends Command {
 
   @Override
   public void initialize() {
-    Pose2d targetPose2d = targetPoseSupplier.get();
-    List<Waypoint> waypoints =
-        PathPlannerPath.waypointsFromPoses(V2_DeltaRobotState.getGlobalPose(), targetPose2d);
+    Pose2d targetPose = targetPoseSupplier.get();
+    Pose2d currentPose = currentPoseSupplier.get();
 
-    PathConstraints constraints =
-        new PathConstraints(
-            V2_DeltaConstants.DRIVE_CONFIG.maxLinearVelocityMetersPerSecond().doubleValue(),
-            maxAccelerationMetersPerSecondSquared,
-            V2_DeltaConstants.DRIVE_CONFIG.maxAngularVelocity().doubleValue(),
-            maxAngularAccelerationMetersPerSecondSquared);
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(currentPose, targetPose);
 
-    PathPlannerPath adjustedPath =
-        new PathPlannerPath(
-            waypoints, constraints, null, new GoalEndState(5.0, targetPose2d.getRotation()));
+    PathConstraints constraints = new PathConstraints(
+        linearConstraints.maxVelocity().getRawValue(),
+        maxAccelerationMPS2,
+        angularVelocityConstraints.maxVelocity().getRawValue(),
+        maxAngularAccelerationRPS2);
 
-    adjustedPath.preventFlipping = true;
+    PathPlannerPath path = new PathPlannerPath(
+        waypoints,
+        constraints,
+        null,
+        new GoalEndState(goalEndVelocity, targetPose.getRotation()));
 
-    followCommand = AutoBuilder.followPath(adjustedPath);
+    path.preventFlipping = true;
+
+    followCommand = AutoBuilder.followPath(path);
     followCommand.initialize();
   }
 
@@ -102,8 +120,8 @@ public class AdjustPathCommand extends Command {
   }
 
   @Override
-  public void end(boolean endUninterrupted) {
-    followCommand.end(endUninterrupted);
+  public void end(boolean interrupted) {
+    followCommand.end(interrupted);
   }
 
   @Override

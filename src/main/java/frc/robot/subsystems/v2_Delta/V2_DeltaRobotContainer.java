@@ -12,6 +12,7 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
@@ -234,30 +235,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    AdjustPathCommand adjustPathCommand = null;
-    try {
-      adjustPathCommand =
-          new AdjustPathCommand(
-              () -> new Pose2d(new Translation2d(3.45, 4.23), Rotation2d.fromDegrees(40)),
-              1.0,
-              2.0,
-              drive);
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (ParseException e) {
-      e.printStackTrace();
-    }
-
-    AdjustPathCommand finalAdjustPathCommand = adjustPathCommand;
-
-    return Commands.sequence(
-        Commands.runOnce(
-            () ->
-                V2_DeltaRobotState.resetPose(
-                    new Pose2d(new Translation2d(4.5, 6.7), Rotation2d.fromDegrees(90)))),
-        Commands.print("Finished Reset Pose"),
-        finalAdjustPathCommand.withTimeout(3),
-        Commands.print("Finished Adjust Path Command"));
-    // return autoChooser.selectedCommand();
+    return autoChooser.selectedCommand();
   }
 }
