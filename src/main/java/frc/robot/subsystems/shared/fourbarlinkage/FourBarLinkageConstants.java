@@ -18,18 +18,18 @@ public class FourBarLinkageConstants {
 
   @Builder.Default public final CANBus canBus = CANBus.roboRIO();
 
-  @NonNull public final int motorCanId;
+  @NonNull public final Integer motorCanId;
 
-  public final int canCoderCanId;
+  public final Integer canCoderCanId;
   public final Rotation2d canCoderOffset;
   public final SensorDirectionValue cancoderSensorDirection;
 
   @NonNull public final Rotation2d intakeAngleOffset;
   @NonNull public final Rotation2d zeroOffset;
 
-  @NonNull public final double gearRatio;
+  @NonNull public final Double gearRatio;
   @NonNull public final CurrentLimits currentLimits;
-  @NonNull public final double momentOfInertia;
+  @NonNull public final Double momentOfInertia;
   @NonNull public final DCMotor motorConfig;
 
   @NonNull public final Rotation2d minAngle;
@@ -44,10 +44,10 @@ public class FourBarLinkageConstants {
 
   @NonNull public final LinkConstants linkConstants;
 
-  @NonNull public final double pinLength;
+  @NonNull public final Double pinLength;
   @NonNull public final Translation3d linkageOffset;
 
-  @NonNull public final boolean enableFoc;
+  @NonNull public final Boolean enableFoc;
 
   public final Rotation2d positionOffsetStep;
   public final Voltage voltageOffsetStep;

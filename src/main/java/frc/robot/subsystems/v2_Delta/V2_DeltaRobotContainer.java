@@ -8,6 +8,7 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
+import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
@@ -209,9 +210,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     if (vision == null) {
       vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
     }
-    if (leds == null) {
-      leds = new V2_DeltaCANdle();
-    }
     if (shooter == null) {
       shooter = new V2_DeltaShooter(new TurretIO() {}, new HoodIO() {}, new GenericFlywheelIO() {});
     }
@@ -219,6 +217,25 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
     configureButtonBindings();
     configureAutos();
+
+    TunableUpdaterRegistry.registerGains(
+        V2_DeltaConstants.DRIVE_GAINS,
+        g -> {
+          drive.setPIDGains(
+              g.getKP(),
+              g.getKD(),
+              V2_DeltaConstants.TURN_GAINS.getKP(),
+              V2_DeltaConstants.TURN_GAINS.getKD());
+          drive.setFFGains(g.getKS(), g.getKV());
+        });
+    TunableUpdaterRegistry.registerGains(
+        V2_DeltaConstants.TURN_GAINS,
+        g ->
+            drive.setPIDGains(
+                V2_DeltaConstants.DRIVE_GAINS.getKP(),
+                V2_DeltaConstants.DRIVE_GAINS.getKD(),
+                g.getKP(),
+                g.getKD()));
   }
 
   private void configureButtonBindings() {
@@ -243,6 +260,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   private void configureAutos() {
     autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
+    autoChooser.addCmd(
+        "Drive Feedforward Characterization",
+        () -> DriveCommands.feedforwardCharacterization(drive));
+    autoChooser.addCmd(
+        "Wheel Radius Characterization",
+        () -> DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
     SmartDashboard.putData("Autonomous Chooser", autoChooser);
   }
 

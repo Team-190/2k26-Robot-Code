@@ -18,9 +18,9 @@ public class V2_DeltaTunerConstants {
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   public static final Slot0Configs steerGains =
       new Slot0Configs()
-          .withKP(4200)
+          .withKP(4900)
           .withKI(0)
-          .withKD(25)
+          .withKD(27.5)
           .withKS(.12411800000000221)
           .withKV(0.0)
           .withKA(0)
@@ -28,7 +28,7 @@ public class V2_DeltaTunerConstants {
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   public static final Slot0Configs driveGains =
-      new Slot0Configs().withKP(55.0).withKI(0).withKD(0).withKS(0).withKV(0.124);
+      new Slot0Configs().withKP(77).withKI(0).withKD(0.0).withKS(6.6223346).withKV(0);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
@@ -52,7 +52,7 @@ public class V2_DeltaTunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  public static final Current kSlipCurrent = Amps.of(80);
+  public static final Current kSlipCurrent = Amps.of(95);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -76,7 +76,7 @@ public class V2_DeltaTunerConstants {
 
   // Theoretical free speed (m/s) at 12 V applied output;
   // This needs to be tuned to your individual robot
-  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.39);
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.38912 * 0.85);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
@@ -84,7 +84,7 @@ public class V2_DeltaTunerConstants {
 
   public static final double kDriveGearRatio = 7.03125;
   public static final double kSteerGearRatio = 26.09090909090909;
-  public static final Distance kWheelRadius = Inches.of(2);
+  public static final Distance kWheelRadius = Inches.of(1.974);
 
   public static final boolean kInvertLeftSide = false;
   public static final boolean kInvertRightSide = true;

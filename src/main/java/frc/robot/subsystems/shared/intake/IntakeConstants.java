@@ -177,6 +177,7 @@ public class IntakeConstants {
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(Rotation2d.fromRadians(-92.285156))
+                .withEnableFoc(false)
                 .build();
 
         INTAKE_STATES =
@@ -312,6 +313,7 @@ public class IntakeConstants {
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(Rotation2d.fromRadians(92.285156))
+                .withEnableFoc(false)
                 .build();
         INTAKE_STATES =
             Map.of(
@@ -446,6 +448,7 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withEnableFoc(true)
                 .build();
 
         INTAKE_STATES =
@@ -579,6 +582,7 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withEnableFoc(true)
                 .build();
         INTAKE_STATES =
             Map.of(
@@ -607,6 +611,6 @@ public class IntakeConstants {
   public enum IntakeState {
     STOW,
     INTAKE,
-    AGITATE;
+    AGITATE
   }
 }
