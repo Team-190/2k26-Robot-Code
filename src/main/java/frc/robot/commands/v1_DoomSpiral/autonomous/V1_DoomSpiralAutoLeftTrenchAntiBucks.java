@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.FieldConstants;
 import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
@@ -62,13 +63,17 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
                 // Follow the path
 
                 LEFT_TRENCH_ANTI_BUCKS.cmd(),
+                Commands.runOnce(
+                    () -> V1_DoomSpiralRobotState.resetPose(FieldConstants.Hub.farFace)),
                 followCommand.onlyWhile(
                     () -> {
                       Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
                       Pose2d targetPose = LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get();
                       double distanceToTarget =
                           currentPose.getTranslation().getDistance(targetPose.getTranslation());
-                      boolean isFinished = distanceToTarget < 0.5;
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
                       return !isFinished;
                     }),
 

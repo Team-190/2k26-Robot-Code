@@ -110,7 +110,7 @@ public class AdjustPathCommand extends Command {
 
     path.preventFlipping = true;
 
-    followCommand = AutoBuilder.followPath(path);
+    followCommand = AutoBuilder.pathfindToPose(targetPose, constraints);
     followCommand.initialize();
   }
 
