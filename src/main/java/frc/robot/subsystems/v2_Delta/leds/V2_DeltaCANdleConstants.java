@@ -4,7 +4,7 @@ import com.ctre.phoenix6.CANBus;
 
 public class V2_DeltaCANdleConstants {
 
-  public static final int CAN_ID = 51;
+  public static final int CAN_ID = 60;
   public static final CANBus CAN_LOOP = CANBus.roboRIO();
   public static final int LED_COUNT = 50;
 
