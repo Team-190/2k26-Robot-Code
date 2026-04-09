@@ -26,7 +26,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
-import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
+import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
@@ -128,7 +128,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraLimelight(
+                  new CameraStaticLimelight(
                       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
@@ -136,7 +136,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
                       List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
                       List.of()),
-                  new CameraLimelight(
+                  new CameraStaticLimelight(
                       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
                       V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
                       V1_DoomSpiralRobotState::getHeading,
@@ -144,7 +144,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
                       List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
                       List.of()));
-          //   new CameraLimelight(
+          //   new CameraStaticLimelight(
           //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
           //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
           //       V1_DoomSpiralRobotState::getHeading,

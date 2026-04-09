@@ -23,7 +23,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
-import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
+import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
@@ -109,7 +109,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraLimelight(
+                  new CameraStaticLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V2_DeltaRobotState::getHeading,
@@ -150,7 +150,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraLimelight(
+                  new CameraStaticLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V2_DeltaRobotState::getHeading,
@@ -163,7 +163,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraLimelight(
+                  new CameraStaticLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
                       V2_DeltaRobotState::getHeading,
