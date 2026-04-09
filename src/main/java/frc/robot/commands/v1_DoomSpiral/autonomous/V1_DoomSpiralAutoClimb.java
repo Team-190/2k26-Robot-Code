@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.climber.Climber;
@@ -36,6 +37,19 @@ public class V1_DoomSpiralAutoClimb {
 
     AutoTrajectory CLIMB = routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.CLIMB);
 
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(
+            () -> V1_DoomSpiralRobotState.getGlobalPose(),
+            () -> CLIMB.getFinalPose().get(),
+            V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+            V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
+            0.0,
+            V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
+            V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
+            () -> true,
+            () -> false,
+            drive);
+
     routine
         .active()
         .onTrue(
@@ -58,6 +72,19 @@ public class V1_DoomSpiralAutoClimb {
                     .cmd()
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer)),
+                followCommand
+                    .onlyWhile(
+                        () -> {
+                          Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                          Pose2d targetPose = CLIMB.getFinalPose().get();
+                          double distanceToTarget =
+                              currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                          boolean isFinished =
+                              distanceToTarget
+                                  < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                          return !isFinished;
+                        })
+                    .withTimeout(3.5),
                 climber.setPositionGoal(ClimberGoal.L1_AUTO_POSITION_GOAL),
                 DriveCommands.autoAlignPoseCommand(
                         drive,

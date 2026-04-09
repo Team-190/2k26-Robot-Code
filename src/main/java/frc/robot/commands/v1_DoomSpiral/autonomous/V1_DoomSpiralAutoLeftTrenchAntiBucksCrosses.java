@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.FieldConstants;
+import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -30,6 +32,19 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses {
     AutoTrajectory LEFT_TRENCH_ANTI_BUCKS_CROSSES =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS_CROSSES);
 
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(
+            () -> V1_DoomSpiralRobotState.getGlobalPose(),
+            () -> LEFT_TRENCH_ANTI_BUCKS_CROSSES.getFinalPose().get(),
+            V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+            V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
+            0.0,
+            V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
+            V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
+            () -> true,
+            () -> false,
+            drive);
+
     routine
         .active()
         .onTrue(
@@ -48,6 +63,19 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses {
                 // Follow the path
 
                 LEFT_TRENCH_ANTI_BUCKS_CROSSES.cmd(),
+                Commands.runOnce(
+                    () -> V1_DoomSpiralRobotState.resetPose(FieldConstants.Hub.farFace)),
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = LEFT_TRENCH_ANTI_BUCKS_CROSSES.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                      return !isFinished;
+                    }),
 
                 // Stop drive
 

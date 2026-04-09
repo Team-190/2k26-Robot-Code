@@ -3,6 +3,8 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
@@ -38,11 +40,11 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
             () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(),
             V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
             V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
-            V1_DoomSpiralConstants.DRIVE_CONFIG.maxLinearVelocityMetersPerSecond().doubleValue(),
-            V1_DoomSpiralConstants.DRIVE_CONFIG.maxAngularVelocity().doubleValue(),
             0.0,
             V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
             V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
+            () -> true,
+            () -> false,
             drive);
 
     routine
@@ -64,7 +66,10 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
                 LEFT_TRENCH_ANTI_BUCKS.cmd(),
                 Commands.runOnce(
-                    () -> V1_DoomSpiralRobotState.resetPose(FieldConstants.Hub.farFace)),
+                    () ->
+                        V1_DoomSpiralRobotState.resetPose(
+                            FieldConstants.Hub.farFace.plus(
+                                new Transform2d(1, 2, new Rotation2d(67))))),
                 followCommand.onlyWhile(
                     () -> {
                       Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
