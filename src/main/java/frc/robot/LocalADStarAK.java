@@ -1,5 +1,7 @@
 package frc.robot;
 
+// Link to source: https://gist.githubusercontent.com/mjansen4857/a8024b55eb427184dbd10ae8923bd57d/raw/2ea47f2f601b2aebc6d2066bb43700c2b8059ded/LocalADStarAK.java
+
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
