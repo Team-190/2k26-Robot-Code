@@ -11,42 +11,43 @@ import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
+import lombok.NonNull;
 
 @Builder(setterPrefix = "with")
 public class FourBarLinkageConstants {
 
   @Builder.Default public final CANBus canBus = CANBus.roboRIO();
 
-  public final int motorCanId;
+  @NonNull public final int motorCanId;
 
   public final int canCoderCanId;
   public final Rotation2d canCoderOffset;
   public final SensorDirectionValue cancoderSensorDirection;
 
-  public final Rotation2d intakeAngleOffset;
-  public final Rotation2d zeroOffset;
+  @NonNull public final Rotation2d intakeAngleOffset;
+  @NonNull public final Rotation2d zeroOffset;
 
-  public final double gearRatio;
-  public final CurrentLimits currentLimits;
-  public final double momentOfInertia;
-  public final DCMotor motorConfig;
+  @NonNull public final double gearRatio;
+  @NonNull public final CurrentLimits currentLimits;
+  @NonNull public final double momentOfInertia;
+  @NonNull public final DCMotor motorConfig;
 
-  public final Rotation2d minAngle;
-  public final Rotation2d maxAngle;
-  public final Rotation2d startAngle;
+  @NonNull public final Rotation2d minAngle;
+  @NonNull public final Rotation2d maxAngle;
+  @NonNull public final Rotation2d startAngle;
 
-  public final Gains gains;
-  public final AngularPositionConstraints constraints;
+  @NonNull public final Gains gains;
+  @NonNull public final AngularPositionConstraints constraints;
 
-  public final LinkLengths linkLengths;
-  public final LinkBounds linkBounds;
+  @NonNull public final LinkLengths linkLengths;
+  @NonNull public final LinkBounds linkBounds;
 
-  public final LinkConstants linkConstants;
+  @NonNull public final LinkConstants linkConstants;
 
-  public final double pinLength;
-  public final Translation3d linkageOffset;
+  @NonNull public final double pinLength;
+  @NonNull public final Translation3d linkageOffset;
 
-  @Builder.Default public final boolean enableFoc = false;
+  @NonNull public final boolean enableFoc;
 
   public final Rotation2d positionOffsetStep;
   public final Voltage voltageOffsetStep;

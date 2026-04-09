@@ -10,17 +10,14 @@ import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
-import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
@@ -28,26 +25,26 @@ import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
+import frc.robot.commands.shared.DriveCommands;
+import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
-import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
-import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
-import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
+import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
@@ -61,6 +58,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private V2_DeltaShooter shooter;
 
   private final BetterAutoChooser autoChooser;
+
+  private final XboxElite2Input driver = new XboxElite2Input(0);
 
   public V2_DeltaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -87,24 +86,27 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V2_DeltaRobotState::getGlobalPose,
                   V2_DeltaRobotState::resetPose);
-          climber =
-              new Climber(
-                  new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
-                  gyroIO.getRoll().asSupplier());
-          intake =
-              new Intake(
-                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
-          clopper =
-              new V2_DeltaClopper(
-                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
-          shooter =
-              new V2_DeltaShooter(
-                  new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
-                  new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-                  new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
-          leds = new V2_DeltaCANdle();
+          //          climber =
+          //              new Climber(
+          //                  new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
+          //                  gyroIO.getRoll().asSupplier());
+          //          intake =
+          //              new Intake(
+          //                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
+          //                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
+          //          clopper =
+          //              new V2_DeltaClopper(
+          //                  new
+          // GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+          //                  new
+          // GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+          //          shooter =
+          //              new V2_DeltaShooter(
+          //                  new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
+          //                  new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
+          //                  new
+          // GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+          //          leds = new V2_DeltaCANdle();
 
           vision =
               new Vision(
@@ -215,11 +217,28 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     }
 
     autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
+    configureButtonBindings();
     configureAutos();
   }
 
   private void configureButtonBindings() {
     //
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            V2_DeltaConstants.DRIVE_CONSTANTS,
+            () -> -driver.getLeftY(),
+            () -> -driver.getLeftX(),
+            () -> -driver.getRightX(),
+            V2_DeltaRobotState::getHeading));
+
+    driver
+        .povDown()
+        .onTrue(
+            SharedCompositeCommands.resetHeading(
+                drive,
+                V2_DeltaRobotState::resetPose,
+                () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
   }
 
   private void configureAutos() {

@@ -76,15 +76,20 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfig, 0.25));
 
-    canCoder = new CANcoder(constants.canCoderCanId, constants.canBus);
+    if (constants.canCoderOffset != null) {
+      canCoder = new CANcoder(constants.canCoderCanId, constants.canBus);
 
-    canCoderConfig = new CANcoderConfiguration();
+      canCoderConfig = new CANcoderConfiguration();
 
-    canCoderConfig.MagnetSensor.SensorDirection = constants.cancoderSensorDirection;
-    canCoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
-    canCoderConfig.MagnetSensor.MagnetOffset = constants.canCoderOffset.getRotations();
+      canCoderConfig.MagnetSensor.SensorDirection = constants.cancoderSensorDirection;
+      canCoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+      canCoderConfig.MagnetSensor.MagnetOffset = constants.canCoderOffset.getRotations();
 
-    PhoenixUtil.tryUntilOk(5, () -> canCoder.getConfigurator().apply(canCoderConfig, 0.25));
+      PhoenixUtil.tryUntilOk(5, () -> canCoder.getConfigurator().apply(canCoderConfig, 0.25));
+    } else {
+      canCoder = null;
+      canCoderConfig = null;
+    }
 
     // talonFX.setPosition(canCoder.getAbsolutePosition().getValueAsDouble());
 
@@ -97,7 +102,8 @@ public class FourBarLinkageIOTalonFX implements FourBarLinkageIO {
     appliedVolts = talonFX.getMotorVoltage();
     positionSetpointRotations = talonFX.getClosedLoopReference();
     positionErrorRotations = talonFX.getClosedLoopError();
-    absolutePositionRotations = canCoder.getAbsolutePosition();
+    absolutePositionRotations =
+        constants.canCoderOffset != null ? canCoder.getAbsolutePosition() : talonFX.getPosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
