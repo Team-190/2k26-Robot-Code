@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -30,6 +31,19 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
     AutoTrajectory LEFT_TRENCH_ANTI_BUCKS =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS);
 
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(
+            () -> V1_DoomSpiralRobotState.getGlobalPose(),
+            () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(),
+            V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+            V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
+            V1_DoomSpiralConstants.DRIVE_CONFIG.maxLinearVelocityMetersPerSecond().doubleValue(),
+            V1_DoomSpiralConstants.DRIVE_CONFIG.maxAngularVelocity().doubleValue(),
+            0.0,
+            V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
+            V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
+            drive);
+
     routine
         .active()
         .onTrue(
@@ -48,6 +62,15 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
                 // Follow the path
 
                 LEFT_TRENCH_ANTI_BUCKS.cmd(),
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished = distanceToTarget < 0.5;
+                      return !isFinished;
+                    }),
 
                 // Stop drive
 

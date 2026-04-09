@@ -111,6 +111,8 @@ public class ClimberConstants {
                 .withEnableFOC(FOC_ENABLE)
                 .withInvertedValue(InvertedValue.Clockwise_Positive)
                 .withCanBus(CANBus.roboRIO())
+                .withVoltageOffsetStep(Volts.of(5.0))
+                .withPositionOffsetStep(new Rotation2d(5 * Math.PI / 180))
                 .build();
         break;
 

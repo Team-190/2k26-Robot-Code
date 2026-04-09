@@ -2,17 +2,12 @@ package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.Radians;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
-import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOTalonFX;
@@ -33,7 +28,6 @@ import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
-import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
@@ -54,9 +48,7 @@ import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
-import java.io.IOException;
 import java.util.List;
-import org.json.simple.parser.ParseException;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
