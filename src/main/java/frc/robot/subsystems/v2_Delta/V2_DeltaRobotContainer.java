@@ -250,33 +250,29 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
-    autoChooser.addCmd(
-        "Drive Feedforward Characterization",
-        () -> DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addCmd(
-        "Wheel Radius Characterization",
-        () -> DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
-    autoChooser.addCmd("Intake Linkage SysID", () -> intake.linkageSysId());
+    final boolean BRING_UP = true;
+
+    if (BRING_UP) {
+
+      autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
+      autoChooser.addCmd(
+          "Drive Feedforward Characterization",
+          () -> DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addCmd(
+          "Wheel Radius Characterization",
+          () ->
+              DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
+      autoChooser.addCmd("Intake Linkage SysID", () -> intake.linkageSysId());
+      autoChooser.addCmd(
+          "Intake Agitate",
+          intake
+                  .deploy()
+                  .andThen(
+                      intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
+              ::repeatedly);
+    }
+
     SmartDashboard.putData("Autonomous Chooser", autoChooser);
-  }
-
-  @Override
-  public void robotPeriodic() {
-    V2_DeltaRobotState.periodic(
-        drive.getRawGyroRotation(),
-        drive.getYawVelocity(),
-        drive.getModulePositions(),
-        shooter.getTurretRotation(),
-        shooter.isTurretWrapping());
-  }
-
-  @Override
-  public Command getAutonomousCommand() {
-    return intake
-        .deploy()
-        .andThen(intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
-        .repeatedly();
   }
 
   @Trace
@@ -578,5 +574,20 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
     xkeys.h10().whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"));
+  }
+
+  @Override
+  public void robotPeriodic() {
+    V2_DeltaRobotState.periodic(
+        drive.getRawGyroRotation(),
+        drive.getYawVelocity(),
+        drive.getModulePositions(),
+        shooter.getTurretRotation(),
+        shooter.isTurretWrapping());
+  }
+
+  @Override
+  public Command getAutonomousCommand() {
+    return autoChooser.selectedCommand();
   }
 }
