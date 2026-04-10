@@ -2,6 +2,7 @@ package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -51,6 +52,8 @@ import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
+import frc.robot.util.input.XKeysInput;
+import static edu.wpi.first.units.Units.Volts;
 
 import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.input.XboxElite2Input;
@@ -69,6 +72,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private final BetterAutoChooser autoChooser;
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
+private final XKeysInput xkeys = new XKeysInput(1);
 
   public V2_DeltaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -435,5 +439,127 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .onFalse(
             V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
                 .withName("driver-bottomRightPaddle-false"));
+
+    xkeys.f4().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-f4-true"));
+    xkeys.f5().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-f5-true"));
+    xkeys.f6().onTrue(shooter.incrementHoodAngle().withName("xkeys-f6-true"));
+    xkeys.f7().onTrue(shooter.decrementHoodAngle().withName("xkeys-f7-true"));
+
+    xkeys.g4().onTrue(shooter.setGoal(HoodGoal.STOW).withName("xkeys-g4-true"));
+    /////////
+    xkeys.g6().onTrue(shooter.setPosition().withName("xkeys-g6-true"));
+    xkeys.g7().onTrue(shooter.setPosition().withName("xkeys-g7-true"));
+
+
+
+    xkeys.d8().onTrue(climber.setPositionDefault().withName("xkeys-d8-true"));
+    xkeys.d9().onTrue(climber.setPositionL1().withName("xkeys-d9-true"));
+    xkeys.d10().onTrue(climber.climbSequenceL3().withName("xkeys-d10-true"));
+
+    xkeys
+        .e9()
+        .whileTrue(climber.clockwiseSlow().withName("xkeys-e9-while"))
+        .onFalse(climber.setVoltage(0).withName("xkeys-e9-false"));
+
+    xkeys
+        .e8()
+        .whileTrue(climber.counterClockwiseSlow().withName("xkeys-e8-while"))
+        .onFalse(climber.setVoltage(0).withName("xkeys-e8-false"));
+
+    xkeys
+        .e10()
+        .onTrue(
+            V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber)
+                .withName("xkeys-e10-true"));
+
+    xkeys
+        .b5()
+        .whileTrue(
+            clopper.setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
+                .withName("xkeys-b5-while"))
+        .onFalse(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b5-false"));
+
+    xkeys
+        .b6()
+        .whileTrue(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b6-true"));
+
+    xkeys
+        .b7()
+        .whileTrue(clopper.setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
+        .withName("xkeys-b7-true"));
+    xkeys
+        .b8()
+        .whileTrue(clopper.setBallTunnelVoltage(Volts.of(0).minus(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE))
+        .withName("xkeys-b8-true"));
+
+
+    xkeys.c4().onTrue(clopper.increaseRollerFloorSpeed().withName("xkeys-c4-true"));
+    xkeys.c5().onTrue(clopper.decreaseRollerFloorSpeed().withName("xkeys-c5-true"));
+
+    xkeys.c6().onTrue(clopper.increaseBallTunnelSpeed().withName("xkeys-c6-true"));
+    xkeys.d5().onTrue(clopper.decreaseBallTunnelSpeed().withName("xkeys-c7-true"));
+
+    xkeys.g9().onTrue(climber.resetClimberZero().withName("xkeys-g9-true"));
+    xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
+    xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
+    xkeys.h10().whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"));
+
+    xkeys
+        .b10()
+        .whileTrue(
+            SharedCompositeCommands.resetHeading(
+                    drive,
+                    V1_DoomSpiralRobotState::resetPose,
+                    V1_DoomSpiralRobotState.getGlobalPose()::getTranslation)
+                .withName("xkeys-b10-while"));
+
+    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
+    xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
+    xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
+
+    xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
+    xkeys.c3().onTrue(intake.decrementCollectOffset().withName("xkeys-c3-true"));
+    xkeys.c2().onTrue(intake.incrementCollectOffset().withName("xkeys-c2-true"));
+
+    xkeys
+        .d1()
+        .whileTrue(
+            intake
+                .setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
+                .withName("xkeys-d1-while"))
+        .onFalse(intake.stopRoller().withName("xkeys-d1-false"));
+
+    xkeys
+        .d2()
+        .whileTrue(
+            intake
+                .setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
+                .withName("xkeys-d2-while"))
+        .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
+
+    xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
+    xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
+
+    xkeys
+        .f1()
+        .whileTrue(
+            intake
+                .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("xkeys-f1-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f1-false"));
+
+    xkeys
+        .f2()
+        .whileTrue(
+            intake
+                .setLinkageVoltage(IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("xkeys-f2-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f2-false"));
+
+    xkeys
+        .g1()
+        .or(xkeys.g2().or(xkeys.g3()))
+        .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
+  
   }
 }

@@ -181,4 +181,12 @@ public class V2_DeltaShooter extends SubsystemBase {
   public boolean isTurretWrapping() {
     return turret.isWrapping();
   }
+
+  public Command resetTurretZero(){
+    return Commands.runOnce(() -> turret.setPosition(new Rotation2d(0)));
+  }
+
+  public Command resetHoodZero(){
+    return hood.resetHoodZero();
+  }
 }

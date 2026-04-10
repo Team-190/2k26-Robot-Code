@@ -16,6 +16,7 @@ import frc.robot.RobotConfig;
 public class V2_DeltaClopperConstants {
   public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE;
   public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
+    public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE_SLOW;
   public static final Voltage OUTTAKE_VOLTAGE;
 
   public static final GenericRollerConstants ROLLER_FLOOR_CONSTANTS;
@@ -30,6 +31,7 @@ public class V2_DeltaClopperConstants {
       default:
         ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(11.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
+        ROLLER_FLOOR_FEED_VOLTAGE_SLOW = Volts.of(6.0);
         OUTTAKE_VOLTAGE = Volts.of(-11.0);
         BEAM_BREAK_ID = 0;
 
