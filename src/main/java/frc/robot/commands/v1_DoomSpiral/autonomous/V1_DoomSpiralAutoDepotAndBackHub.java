@@ -2,6 +2,7 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -34,17 +35,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.DEPOT_AND_BACK_HUB_PATH_2);
 
     AdjustPathCommand followCommand =
-        new AdjustPathCommand(
-            () -> V1_DoomSpiralRobotState.getGlobalPose(),
-            () -> DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get(),
-            V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-            V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
-            0.0,
-            V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
-            V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
-            () -> true,
-            () -> false,
-            drive);
+        new AdjustPathCommand(() -> DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get());
 
     routine
         .active()
@@ -108,12 +99,13 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         () -> DEPOT_AND_BACK_HUB_PATH_1.getInitialPose().orElse(new Pose2d()),
         () ->
             Commands.runOnce(
-                () -> {
-                  drive.setAutoControllers(
-                      V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-                      V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(
-                      DEPOT_AND_BACK_HUB_PATH_1, DEPOT_AND_BACK_HUB_PATH_2);
-                }));
+                    () -> {
+                      drive.setAutoControllers(
+                          V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+                          V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
+                      V1_DoomSpiralRobotState.setAutoTrajectory(
+                          DEPOT_AND_BACK_HUB_PATH_1, DEPOT_AND_BACK_HUB_PATH_2);
+                    })
+                .alongWith(PathfindingCommand.warmupCommand()));
   }
 }

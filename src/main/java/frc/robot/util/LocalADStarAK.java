@@ -1,13 +1,11 @@
-package frc.robot;
+package frc.robot.util;
 
-// Link to source:
 // https://gist.githubusercontent.com/mjansen4857/a8024b55eb427184dbd10ae8923bd57d/raw/2ea47f2f601b2aebc6d2066bb43700c2b8059ded/LocalADStarAK.java
 
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPoint;
-import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinder;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -102,7 +100,7 @@ public class LocalADStarAK implements Pathfinder {
   }
 
   private static class ADStarIO implements LoggableInputs {
-    public LocalADStar adStar = new LocalADStar();
+    public CustomLocalADStar adStar = new CustomLocalADStar();
     public boolean isNewPathAvailable = false;
     public List<PathPoint> currentPathPoints = Collections.emptyList();
 

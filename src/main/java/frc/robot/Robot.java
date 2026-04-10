@@ -73,7 +73,6 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
-    Pathfinding.setPathfinder(new LocalADStarAK());
     SignalLogger.enableAutoLogging(false);
     LiveWindow.disableAllTelemetry();
     // Record metadata
@@ -170,6 +169,9 @@ public class Robot extends LoggedRobot {
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
+
+    Pathfinding.setPathfinder(new LocalADStarAK());
+
     // Log active commands
     Map<String, Integer> commandCounts = new HashMap<>();
     BiConsumer<Command, Boolean> logCommandFunction =
