@@ -175,7 +175,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     super();
     leds = new CANdle(V1_DoomSpiralCANdleConstants.CAN_ID, V1_DoomSpiralCANdleConstants.CAN_LOOP);
     config = new CANdleConfiguration();
-    config.LED.BrightnessScalar = 1.00;
+    config.LED.BrightnessScalar = 0.75;
     config.LED.StripType = GRB;
     config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
     PhoenixUtil.tryUntilOk(5, () -> leds.getConfigurator().apply(config, 0.25));
@@ -197,6 +197,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
               .withColor(new RGBWColor(Color.kRed)));
     }
     lightType = AnimationType.JITTING;
+    leds.optimizeBusUtilization();
   }
 
   private void clearSlots(int startSlot, int endSlot) {

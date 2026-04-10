@@ -1,6 +1,8 @@
 package frc.robot.subsystems.v1_DoomSpiral.intake;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Milliamps;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -67,9 +69,8 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
           break;
         case INTAKE:
         case BUMP:
-          if (intakeOnInIntakeState)
-            roller.setVoltageGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
-          else roller.setVoltageGoal(Volts.of(0.0));
+          roller.setVoltageGoal(Volts.of(V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE));
+
           break;
         case AGITATE:
           roller.setVoltageGoal(Volts.of(3.0));
@@ -177,13 +178,23 @@ public class V1_DoomSpiralIntake extends SubsystemBase {
                   linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
                   linkage.setPositionGoal(IntakeState.AGITATE.getAngle());
                 }),
-            linkage.waitUntilLinkageAtGoal(),
+            linkage
+                .waitUntilLinkageAtGoal()
+                .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(35), Milliamps.of(500))),
             Commands.runOnce(
                 () -> {
                   linkage.setPositionGoal(IntakeState.AGITATE.getSetpoint());
-                  linkage.setPositionGoal(Rotation2d.fromDegrees(90 + 5.0));
+                  linkage.setPositionGoal(
+                      linkage
+                          .getPosition()
+                          .minus(
+                              IntakeState.AGITATE
+                                  .getAngle()
+                                  .minus(Rotation2d.fromDegrees(90 + 5.0))));
                 }),
-            linkage.waitUntilLinkageAtGoal())
+            linkage
+                .waitUntilLinkageAtGoal()
+                .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(-45), Milliamps.of(500))))
         .repeatedly();
   }
 
