@@ -35,7 +35,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
 
     hoodGoal = HoodGoal.STOW;
 
-    flywheel.getVelocityGoal().decrement(RadiansPerSecond.of(30));
+    flywheel.getVelocityGoal().decrement(RadiansPerSecond.of(20));
   }
 
   @Trace
