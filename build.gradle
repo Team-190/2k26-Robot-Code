@@ -20,14 +20,12 @@ java {
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
-gradle.projectsEvaluated {
-    def buildDir = new File("${project.buildDir}/classes/java/main")
-    if (!buildDir.exists()) {
-        logger.warn("⚠️ WARNING: compiled classes not found. Make sure compileJava runs first")
-        project.ext.deploySrcDir = "src/main/deploy"
-        return
-    }
 
+def buildDir = new File("${project.buildDir}/classes/java/main")
+if (!buildDir.exists()) {
+    logger.warn("⚠️ WARNING: compiled classes not found. Make sure compileJava runs first")
+    project.ext.deploySrcDir = "src/main/deploy"
+} else {
     try {
         def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
         def constantsClass = loader.loadClass("frc.robot.RobotConfig")
