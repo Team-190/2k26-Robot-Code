@@ -9,7 +9,7 @@ import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.climber.Climber;
+import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.v1_DoomSpiral.intake.Intake;
 import frc.robot.subsystems.v1_DoomSpiral.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
