@@ -355,7 +355,7 @@ public class IntakeConstants {
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
                 .withRollerMotorGearRatio((16.0 / 40.0) * (52.0))
-                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+                .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
                 .withOpposedFollowerCANID(42)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
                 .withVoltageOffsetStep(Volts.of(0.25))
@@ -400,7 +400,7 @@ public class IntakeConstants {
                     new LoggedTunableMeasure<>(
                         "Linkage/Max Acceleration", RotationsPerSecondPerSecond.of(85)))
                 .withGoalTolerance(
-                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(2.0)))
                 .build();
 
         LINK_LENGTHS =
