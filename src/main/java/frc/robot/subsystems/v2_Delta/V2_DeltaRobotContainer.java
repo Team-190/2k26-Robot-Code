@@ -1,11 +1,14 @@
 package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
+import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
@@ -29,6 +32,7 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
+import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
@@ -47,6 +51,7 @@ import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
+import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 
@@ -63,6 +68,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private final BetterAutoChooser autoChooser;
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   public V2_DeltaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -243,26 +249,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         IntakeConstants.LINKAGE_CONSTANTS.gains, intake.getLinkage()::setGains);
   }
 
-  private void configureButtonBindings() {
-    //
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            V2_DeltaConstants.DRIVE_CONSTANTS,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
-            V2_DeltaRobotState::getHeading));
-
-    driver
-        .povDown()
-        .onTrue(
-            SharedCompositeCommands.resetHeading(
-                drive,
-                V2_DeltaRobotState::resetPose,
-                () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
-  }
-
   private void configureAutos() {
     autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
     autoChooser.addCmd(
@@ -291,5 +277,306 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .deploy()
         .andThen(intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
         .repeatedly();
+  }
+
+  @Trace
+  private void configureButtonBindings() {
+    //    drive.setDefaultCommand(
+    //        DriveCommands.joystickDrive(
+    //            drive,
+    //            V2_DeltaConstants.DRIVE_CONSTANTS,
+    //            () -> -driver.getLeftY(),
+    //            () -> -driver.getLeftX(),
+    //            () -> -driver.getRightX(),
+    //            V2_DeltaRobotState::getHeading));
+
+    driver
+        .povDown()
+        .onTrue(
+            SharedCompositeCommands.resetHeading(
+                drive,
+                V2_DeltaRobotState::resetPose,
+                () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
+
+    drive.setDefaultCommand(
+        DriveCommands.joystickDriveRotationLock(
+                drive,
+                V2_DeltaConstants.DRIVE_CONSTANTS,
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX(),
+                V2_DeltaRobotState::getHeading,
+                driver.rightTrigger(),
+                () -> V2_DeltaRobotState.getRobotToHubAngle().getRadians(),
+                driver.leftTrigger().or(driver.x()),
+                driver.x(),
+                0.5)
+            .withName("joystickDriveRotationLock"));
+
+    driver
+        .leftTrigger()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        DriveCommands.setLastCardinalDirection(
+                            Math.round(
+                                    V2_DeltaRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                                * (Math.PI / 2.0)))
+                .withName("cardinal-direction-set"));
+
+    driver
+        .povDown()
+        .onTrue(
+            SharedCompositeCommands.resetHeading(
+                    drive,
+                    V2_DeltaRobotState::resetPose,
+                    () -> V2_DeltaRobotState.getGlobalPose().getTranslation())
+                .withName("driver-povDown-true"));
+
+    driver.leftBumper().onTrue(intake.collect().withName("driver-leftBumper-true"));
+
+    driver
+        .rightBumper()
+        .whileTrue(
+            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"));
+
+    driver
+        .x()
+        .onTrue(V2_DeltaCompositeCommands.deployClimber(intake, climber).withName("driver-x-true"));
+
+    driver
+        .y()
+        .whileTrue(climber.climbSequenceL3().withName("driver-y-while"))
+        .onFalse(climber.stop().withName("driver-y-false"));
+
+    driver
+        .rightTrigger()
+        .whileTrue(
+            V2_DeltaCompositeCommands.scoreCommand(shooter, intake, clopper)
+                .withName("driver-rightTrigger-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-rightTrigger-false"));
+
+    driver
+        .topLeftPaddle()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    drive,
+                    shooter,
+                    clopper,
+                    intake,
+                    V2_DeltaRobotState.FixedShots.LEFT_TRENCH.getParameters())
+                .withName("driver-topLeftPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-topLeftPaddle-false"));
+
+    driver
+        .topRightPaddle()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    drive,
+                    shooter,
+                    clopper,
+                    intake,
+                    V2_DeltaRobotState.FixedShots.RIGHT_TRENCH.getParameters())
+                .withName("driver-topRightPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-topRightPaddle-false"));
+
+    driver
+        .bottomLeftPaddle()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    drive,
+                    shooter,
+                    clopper,
+                    intake,
+                    V2_DeltaRobotState.FixedShots.LEFT_CORNER.getParameters())
+                .withName("driver-topLeftPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-topLeftPaddle-false"));
+
+    driver
+        .bottomRightPaddle()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    drive,
+                    shooter,
+                    clopper,
+                    intake,
+                    V2_DeltaRobotState.FixedShots.RIGHT_CORNER.getParameters())
+                .withName("driver-topRightPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-topRightPaddle-false"));
+
+    driver
+        .a()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    drive,
+                    shooter,
+                    clopper,
+                    intake,
+                    V2_DeltaRobotState.FixedShots.HUB.getParameters())
+                .withName("driver-bottomLeftPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-bottomLeftPaddle-false"));
+
+    driver
+        .b()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    drive,
+                    shooter,
+                    clopper,
+                    intake,
+                    V2_DeltaRobotState.FixedShots.TOWER.getParameters())
+                .withName("driver-bottomRightPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+                .withName("driver-bottomRightPaddle-false"));
+
+    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
+    xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
+    xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
+
+    xkeys
+        .b4()
+        .whileTrue(
+            clopper
+                .setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
+                .withName("xkeys-b5-while"))
+        .onFalse(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b5-false"));
+
+    xkeys.b5().whileTrue(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b6-true"));
+
+    xkeys
+        .b6()
+        .whileTrue(
+            clopper
+                .setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
+                .withName("xkeys-b7-true"));
+    xkeys
+        .b7()
+        .whileTrue(
+            clopper
+                .setBallTunnelVoltage(
+                    Volts.of(0).minus(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE))
+                .withName("xkeys-b8-true"));
+
+    xkeys
+        .b10()
+        .whileTrue(
+            SharedCompositeCommands.resetHeading(
+                    drive,
+                    V2_DeltaRobotState::resetPose,
+                    V2_DeltaRobotState.getGlobalPose()::getTranslation)
+                .withName("xkeys-b10-while"));
+
+    xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
+    xkeys.c2().onTrue(intake.decrementCollectOffset().withName("xkeys-c2-true"));
+    xkeys.c3().onTrue(intake.incrementCollectOffset().withName("xkeys-c3-true"));
+
+    xkeys.c4().onTrue(clopper.incrementRollerFloorVelocity().withName("xkeys-c4-true"));
+    xkeys.c5().onTrue(clopper.decrementRollerFloorVelocity().withName("xkeys-c5-true"));
+
+    xkeys.c6().onTrue(clopper.incrementBallTunnelVelocity().withName("xkeys-c6-true"));
+    xkeys.c7().onTrue(clopper.decrementBallTunnelVelocity().withName("xkeys-c7-true"));
+
+    xkeys
+        .d1()
+        .whileTrue(
+            intake
+                .setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
+                .withName("xkeys-d1-while"))
+        .onFalse(intake.stopRoller().withName("xkeys-d1-false"));
+
+    xkeys
+        .d2()
+        .whileTrue(
+            intake
+                .setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
+                .withName("xkeys-d2-while"))
+        .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
+
+    xkeys.d8().onTrue(climber.setPositionDefault().withName("xkeys-d8-true"));
+    xkeys.d9().onTrue(climber.setPositionL1().withName("xkeys-d9-true"));
+    xkeys.d10().onTrue(climber.climbSequenceL3().withName("xkeys-d10-true"));
+
+    xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
+    xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
+
+    xkeys
+        .e8()
+        .whileTrue(climber.clockwiseSlow().withName("xkeys-e8-while"))
+        .onFalse(climber.setVoltage(0).withName("xkeys-e8-false"));
+
+    xkeys
+        .e9()
+        .whileTrue(climber.counterClockwiseSlow().withName("xkeys-e9-while"))
+        .onFalse(climber.setVoltage(0).withName("xkeys-e9-false"));
+
+    xkeys
+        .e10()
+        .onTrue(
+            V2_DeltaCompositeCommands.unClimbPostAuto(intake, climber).withName("xkeys-e10-true"));
+
+    xkeys
+        .f1()
+        .whileTrue(
+            intake
+                .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("xkeys-f1-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f1-false"));
+
+    xkeys
+        .f2()
+        .whileTrue(
+            intake
+                .setLinkageVoltage(IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("xkeys-f2-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f2-false"));
+
+    xkeys.f4().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-f4-true"));
+    xkeys.f5().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-f5-true"));
+    xkeys.f6().onTrue(shooter.incrementHoodAngle().withName("xkeys-f6-true"));
+    xkeys.f7().onTrue(shooter.decrementHoodAngle().withName("xkeys-f7-true"));
+
+    xkeys
+        .g1()
+        .or(xkeys.g2().or(xkeys.g3()))
+        .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
+
+    xkeys
+        .g4()
+        .onTrue(
+            shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.STOW).withName("xkeys-g4-true"));
+
+    xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
+    xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
+
+    xkeys.g9().onTrue(climber.resetClimberZero().withName("xkeys-g9-true"));
+    xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
+
+    // xkeys.h4().onTrue(); SLOW WRAP MODE
+    // xkeys.h5().onTrue(); FAST WRAP MODE
+
+    xkeys
+        .h6()
+        .whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h6-false"));
+    xkeys
+        .h7()
+        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h7-false"));
+
+    xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
+    xkeys.h10().whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"));
   }
 }

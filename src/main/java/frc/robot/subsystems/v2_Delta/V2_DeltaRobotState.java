@@ -403,23 +403,33 @@ public class V2_DeltaRobotState {
     LEFT_TRENCH(
         new FixedShotParameters(
             Rotation2d.fromDegrees(-170.0 + 180),
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
     RIGHT_TRENCH(
         new FixedShotParameters(
             Rotation2d.fromDegrees(350.0 + 180),
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
+    LEFT_CORNER( //TODO: Change to actual values.
+        new FixedShotParameters(
+            Rotation2d.fromDegrees(-170.0 + 180),
+            V2_DeltaShooterConstants.CORNER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.CORNER_SHOT_FLYWHEEL_SPEED)),
+    RIGHT_CORNER( //TODO: Change to actual values.
+        new FixedShotParameters(
+            Rotation2d.fromDegrees(350.0 + 180),
+            V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.CORNER_SHOT_FLYWHEEL_SPEED)),
     HUB(
         new FixedShotParameters(
             Rotation2d.fromDegrees(-90.0 + 180),
-            V1_DoomSpiralShooterConstants.HUB_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.HUB_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
     TOWER(
         new FixedShotParameters(
             Rotation2d.fromDegrees(-90.0 + 180),
-            V1_DoomSpiralShooterConstants.TOWER_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
+            V2_DeltaShooterConstants.TOWER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
     @Getter private final FixedShotParameters parameters;
   }
