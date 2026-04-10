@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
+import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.FieldConstants;
@@ -164,7 +167,18 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command flywheelSysId() {
-    return Commands.sequence(preSysId(), flywheel.sysIdRoutineVoltage());
+    return Commands.sequence(preSysId(), flywheel.sysIdRoutineVoltage())
+        .alongWith(
+            Commands.run(
+                () -> {
+                  Logger.recordOutput(
+                      "Shooter/Flywheel/Sysid/position",
+                      flywheel.getFlywheelPosition().getRotations());
+
+                  Logger.recordOutput(
+                      "Shooter/Flywheel/Sysid/velocity",
+                      flywheel.getFlywheelVelocity().in(RotationsPerSecond));
+                }));
   }
 
   public Command incrementFlywheelVelocity() {
@@ -249,5 +263,18 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public void setHoodConstraints(AngularPositionConstraints constraints) {
     hood.setProfile(constraints);
+  }
+
+  public void setFlywheelGains(Gains flywheelGains) {
+    flywheel.updateGains(flywheelGains, GainSlot.ZERO);
+  }
+
+  public void setFlywheelConstraints(AngularVelocityConstraints constraints) {
+    flywheel.updateConstraints(constraints);
+  }
+
+  public Command setFlywheelVelocity(AngularVelocity velocity) {
+    return setGoal(ShooterGoal.IDLE)
+        .andThen(Commands.runOnce(() -> flywheel.setVelocityGoal(velocity)));
   }
 }

@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v2_Delta;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,6 +11,7 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
@@ -20,7 +20,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
-import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
@@ -114,7 +114,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new V2_DeltaShooter(
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-                  new GenericFlywheelIOSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+                  new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
           leds = new V2_DeltaCANdle();
 
           vision =
@@ -253,6 +253,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     TunableUpdaterRegistry.registerConstraints(
         V2_DeltaShooterConstants.HOOD_CONSTANTS.constraints,
         c -> shooter.setHoodConstraints((AngularPositionConstraints) c));
+
+    TunableUpdaterRegistry.registerConstraints(
+        V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints,
+        c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
+    TunableUpdaterRegistry.registerGains(
+        V2_DeltaShooterConstants.SHOOT_CONSTANTS.voltageGains, shooter::setFlywheelGains);
   }
 
   private void configureAutos() {
@@ -284,6 +290,17 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   shooter.waitUntilHoodAtGoal(),
                   shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.maxAngle),
                   shooter.waitUntilHoodAtGoal())
+              ::repeatedly);
+
+      autoChooser.addCmd("Shooter Flywheel SysID", shooter::flywheelSysId);
+      autoChooser.addCmd(
+          "Shooter Flywheel Agitate",
+          shooter
+                  .setFlywheelVelocity(RadiansPerSecond.of(680))
+                  .andThen(
+                      shooter.waitUntilFlywheelAtGoal(),
+                      shooter.setFlywheelVelocity(RadiansPerSecond.of(-400)),
+                      shooter.waitUntilFlywheelAtGoal())
               ::repeatedly);
     }
 
