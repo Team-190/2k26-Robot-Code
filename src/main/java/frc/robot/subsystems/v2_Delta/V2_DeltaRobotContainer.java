@@ -11,6 +11,7 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
 import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
@@ -19,6 +20,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleI
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
+import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
@@ -40,6 +42,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
+import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
@@ -107,13 +110,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
-          //          shooter =
-          //              new V2_DeltaShooter(
-          //                  new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
-          //                  new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-          //                  new
-          // GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
-          //          leds = new V2_DeltaCANdle();
+          shooter =
+              new V2_DeltaShooter(
+                  new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
+                  new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
+                  new GenericFlywheelIOSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+          leds = new V2_DeltaCANdle();
 
           vision =
               new Vision(
@@ -245,6 +247,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     TunableUpdaterRegistry.registerGains(
         IntakeConstants.LINKAGE_CONSTANTS.gains, intake.getLinkage()::setGains);
+
+    TunableUpdaterRegistry.registerGains(
+        V2_DeltaShooterConstants.HOOD_CONSTANTS.gains, shooter::setHoodGains);
+    TunableUpdaterRegistry.registerConstraints(
+        V2_DeltaShooterConstants.HOOD_CONSTANTS.constraints,
+        c -> shooter.setHoodConstraints((AngularPositionConstraints) c));
   }
 
   private void configureAutos() {
@@ -267,6 +275,15 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   .deploy()
                   .andThen(
                       intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
+              ::repeatedly);
+      autoChooser.addCmd("Shooter Hood SysID", shooter::hoodSysId);
+      autoChooser.addCmd(
+          "Shooter Hood Agitate",
+          Commands.sequence(
+                  shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.minAngle),
+                  shooter.waitUntilHoodAtGoal(),
+                  shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.maxAngle),
+                  shooter.waitUntilHoodAtGoal())
               ::repeatedly);
     }
 

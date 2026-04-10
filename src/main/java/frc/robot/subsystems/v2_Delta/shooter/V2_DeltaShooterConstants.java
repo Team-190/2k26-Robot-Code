@@ -54,7 +54,7 @@ public class V2_DeltaShooterConstants {
                   .build())
           .withMomentOfInertia(0.05)
           .withGearRatio((24.0 / 30.0))
-          .withMotorConfig(DCMotor.getKrakenX60Foc(2))
+          .withMotorConfig(DCMotor.getKrakenX60Foc(4))
           .withVoltageGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 0.5))
@@ -83,11 +83,11 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
-          .withOpposedFollowerCANID(22)
+          .withAlignedFollowerCANID(22)
           .withOpposedFollowerCANID(23)
           .withOpposedFollowerCANID(24)
           .withVelocityOffsetStep(RadiansPerSecond.of(5))
-          .withVoltageOffsetStep(Volts.of(1))
+          .withVoltageOffsetStep(Volts.of(0.25))
           .build();
 
   public static final HoodConstants HOOD_CONSTANTS =
@@ -101,7 +101,7 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withLengthMeters(0.101596)
           .withMinAngle(Rotation2d.fromDegrees(0.1))
-          .withMaxAngle(Rotation2d.fromDegrees(20))
+          .withMaxAngle(Rotation2d.fromDegrees(30.549609))
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
@@ -110,20 +110,20 @@ public class V2_DeltaShooterConstants {
               AngularPositionConstraints.builder()
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(200)))
+                          "Shooter/Hood/MaxVelocity", RadiansPerSecond.of(400)))
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Hood/MaxAcceleration", RadiansPerSecondPerSecond.of(1000)))
+                          "Shooter/Hood/MaxAcceleration", RadiansPerSecondPerSecond.of(2000)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>("Shooter/Hood/GoalTolerance", Degrees.of(1.0)))
                   .build())
           .withGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Hood/Kp", 600))
-                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 2))
-                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", 0.32492))
-                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 1.406))
-                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0))
+                  .withKP(new LoggedTunableNumber("Shooter/Hood/Kp", 1000))
+                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 5))
+                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", 0.13629))
+                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 15.786))
+                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0.17393))
                   .build())
           .withVoltageStep(Volts.of(0.5))
           .build();
@@ -143,11 +143,8 @@ public class V2_DeltaShooterConstants {
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(
-              Rotation2d.fromRotations(-0.521973)
-                  .minus(Rotation2d.fromDegrees(309.726563 + 301.201172)))
-          .withE2Offset(
-              Rotation2d.fromRotations(-0.44458).minus(Rotation2d.fromDegrees(325.371094)))
+          .withE1Offset(new Rotation2d())
+          .withE2Offset(new Rotation2d())
           .withGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 0.28624920))
@@ -193,13 +190,14 @@ public class V2_DeltaShooterConstants {
     OVERRIDE_TURRET,
     OVERRIDE_HOOD,
     OVERRIDE_FLYWHEEL,
-    SYSID
+    SYSID,
+    IDLE
   }
 
   @RequiredArgsConstructor
   @Getter
   public enum ShooterState {
     MOVING,
-    STATIONARY;
+    STATIONARY
   }
 }

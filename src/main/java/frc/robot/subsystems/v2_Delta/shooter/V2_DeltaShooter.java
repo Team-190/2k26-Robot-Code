@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v2_Delta.shooter;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.control.Gains;
+import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheel;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import frc.robot.FieldConstants;
@@ -81,24 +84,15 @@ public class V2_DeltaShooter extends SubsystemBase {
           break;
         case OVERRIDE_TURRET:
           turret.setVoltageGoal(overrideTurretVoltage);
-          hood.setVoltageGoal(Volts.of(0.0));
-          flywheel.setVoltageGoal(Volts.of(0.0));
           break;
         case OVERRIDE_HOOD:
-          turret.setVoltageGoal(Volts.of(0.0));
           hood.setVoltageGoal(overrideHoodVoltage);
-          flywheel.setVoltageGoal(Volts.of(0.0));
           break;
         case OVERRIDE_FLYWHEEL:
-          turret.setVoltageGoal(Volts.of(0.0));
-          hood.setVoltageGoal(Volts.of(0.0));
           flywheel.setVoltageGoal(overrideFlywheelVoltage);
           break;
         case SYSID:
         default:
-          turret.setVoltageGoal(Volts.of(0.0));
-          hood.setVoltageGoal(Volts.of(0.0));
-          flywheel.setVoltageGoal(Volts.of(0.0));
           break;
       }
 
@@ -126,11 +120,17 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheel.atVelocityGoal();
+    return hood.atPositionGoal() && flywheel.atVelocityGoal() && turret.atPositionGoal();
   }
 
   public Command waitUntilAtGoal() {
-    return hood.waitUntilAtGoal().alongWith(flywheel.waitUntilAtGoal());
+    return hood.waitUntilAtGoal()
+        .alongWith(flywheel.waitUntilAtGoal())
+        .alongWith(turret.waitUntilAtGoal());
+  }
+
+  public Command waitUntilHoodAtGoal() {
+    return hood.waitUntilAtGoal();
   }
 
   public Command waitUntilFlywheelAtGoal() {
@@ -152,7 +152,15 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command hoodSysId() {
-    return Commands.sequence(preSysId(), hood.runSysIdRoutine());
+    return Commands.sequence(preSysId(), hood.runSysIdRoutine())
+        .alongWith(
+            Commands.run(
+                () -> {
+                  Logger.recordOutput(
+                      "Shooter/Hood/Sysid/position", hood.getPosition().getRotations());
+                  Logger.recordOutput(
+                      "Shooter/Hood/Sysid/Velocity", hood.getVelocity().in(RotationsPerSecond));
+                }));
   }
 
   public Command flywheelSysId() {
@@ -211,7 +219,7 @@ public class V2_DeltaShooter extends SubsystemBase {
           shooterGoal = ShooterGoal.OVERRIDE_TURRET;
           overrideTurretVoltage = Volts.of(3);
         },
-        () -> overrideHoodVoltage = Volts.of(0));
+        () -> overrideTurretVoltage = Volts.of(0));
   }
 
   public Command stopTurret() {
@@ -228,6 +236,18 @@ public class V2_DeltaShooter extends SubsystemBase {
           shooterGoal = ShooterGoal.OVERRIDE_TURRET;
           overrideTurretVoltage = Volts.of(-3);
         },
-        () -> overrideHoodVoltage = Volts.of(0));
+        () -> overrideTurretVoltage = Volts.of(0));
+  }
+
+  public Command setHoodAngle(Rotation2d angle) {
+    return setGoal(ShooterGoal.IDLE).andThen(Commands.runOnce(() -> hood.setPositionGoal(angle)));
+  }
+
+  public void setHoodGains(Gains hoodGains) {
+    hood.setGains(hoodGains);
+  }
+
+  public void setHoodConstraints(AngularPositionConstraints constraints) {
+    hood.setProfile(constraints);
   }
 }
