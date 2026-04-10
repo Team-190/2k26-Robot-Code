@@ -7,11 +7,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.subsystems.shared.intake.Intake;
+import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.shared.climber.Climber;
-import frc.robot.subsystems.v1_DoomSpiral.intake.Intake;
-import frc.robot.subsystems.v1_DoomSpiral.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
@@ -51,9 +50,7 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
 
                 intake
                     .deploy()
-                    .alongWith(
-                        intake.setOverrideRollerVoltage(
-                            IntakeConstants.INTAKE_VOLTAGE)),
+                    .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 

@@ -111,8 +111,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   gyroIO.getRoll().asSupplier());
           intake =
               new Intake(
-                  new GenericRollerIOTalonFX(
-                      IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -177,12 +176,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   V1_DoomSpiralRobotState::resetPose);
           //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
-              new Climber(
-                  new ArmIOTalonFXSim(ClimberConstants.CLIMBER_CONSTANTS),
-                  Radians::zero);
+              new Climber(new ArmIOTalonFXSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
               new Intake(
-                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
           spindexer =
               new V1_DoomSpiralSpindexer(
@@ -470,10 +467,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
     xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
 
-    xkeys.c1().onTrue(intake.bump().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
-    xkeys.c3().onTrue(intake.decrementBumpOffset().withName("xkeys-c3-true"));
-    xkeys.c2().onTrue(intake.incrementBumpOffset().withName("xkeys-c2-true"));
-
     xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-d1-true"));
     xkeys.d3().onTrue(intake.decrementCollectOffset().withName("xkeys-d3-true"));
     xkeys.d2().onTrue(intake.incrementCollectOffset().withName("xkeys-d2-true"));
@@ -540,26 +533,25 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Depot And Back Hub",
-        V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(
-            drive, intake, shooter, spindexer));
+        V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(drive, intake, shooter, spindexer));
     autoChooser.addRoutineConfig(
         "Climb", V1_DoomSpiralAutoClimb.getAutoRoutine(drive, intake, shooter, spindexer, climber));
     autoChooser.addRoutineConfig(
         "Left Trench Simple Crosses",
         V1_DoomSpiralAutoLeftTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Simple Crosses",
         V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, climber, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
     RobotModeTriggers.autonomous()
