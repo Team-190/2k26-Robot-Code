@@ -183,6 +183,25 @@ public class V2_DeltaConstants {
           .enableRewind(true)
           .build();
 
+  public static final Transform3d ROBOT_TO_INTAKE_LIMELIGHT =
+      new Transform3d(
+          Meters.convertFrom(-6.540012, Inches),
+          Meters.convertFrom(7.176137, Inches),
+          Meters.convertFrom(20.459907, Inches),
+          new Rotation3d(0, Radians.convertFrom(90 - 57.826644, Degrees), 0));
+
+  public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =
+      StaticLimelightConfig.builder()
+          .key("intake")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(ROBOT_TO_INTAKE_LIMELIGHT)
+          .enableRewind(true)
+          .build();
+
   public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
       new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d());
   public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =

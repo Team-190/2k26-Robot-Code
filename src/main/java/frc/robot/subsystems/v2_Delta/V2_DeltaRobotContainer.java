@@ -19,6 +19,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.flywheel.GenericFlywheelIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
+import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
@@ -33,6 +34,7 @@ import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
+import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIO;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -91,10 +93,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           //              new Climber(
           //                  new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
           //                  gyroIO.getRoll().asSupplier());
-          //          intake =
-          //              new Intake(
-          //                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-          //                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
+          intake =
+              new Intake(
+                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
+                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
           //          clopper =
           //              new V2_DeltaClopper(
           //                  new
@@ -113,8 +115,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
                   new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
                       V2_DeltaRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
@@ -154,8 +156,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
                   new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
                       V2_DeltaRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
@@ -266,6 +268,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     autoChooser.addCmd(
         "Wheel Radius Characterization",
         () -> DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
+    autoChooser.addCmd("Intake Linkage SysID", () -> intake.linkageSysId());
     SmartDashboard.putData("Autonomous Chooser", autoChooser);
   }
 

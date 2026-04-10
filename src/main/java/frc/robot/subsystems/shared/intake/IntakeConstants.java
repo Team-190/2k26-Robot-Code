@@ -385,9 +385,9 @@ public class IntakeConstants {
 
         GAINS =
             Gains.builder()
-                .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
+                .withKP(new LoggedTunableNumber("Linkage/KP", 0))
                 .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
-                .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
+                .withKS(new LoggedTunableNumber("Linkage/KS", 0))
                 .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
                 .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
                 .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
@@ -395,10 +395,10 @@ public class IntakeConstants {
         CONSTRAINTS =
             AngularPositionConstraints.builder()
                 .withMaxVelocity(
-                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(0)))
                 .withMaxAcceleration(
                     new LoggedTunableMeasure<>(
-                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(0)))
                 .withGoalTolerance(
                     new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
                 .build();
