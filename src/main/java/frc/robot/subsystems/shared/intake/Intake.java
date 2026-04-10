@@ -1,15 +1,16 @@
 package frc.robot.subsystems.shared.intake;
 
+import static edu.wpi.first.units.Units.*;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
 import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -176,8 +177,11 @@ public class Intake extends SubsystemBase {
                       linkage
                           .getPosition()
                           .minus(
-                              IntakeState.AGITATE
-                                  .getAngle()
+                              new Rotation2d(
+                                      (Angle)
+                                          IntakeConstants.INTAKE_STATES
+                                              .get(IntakeState.AGITATE)
+                                              .getNewSetpoint())
                                   .minus(Rotation2d.fromDegrees(90 + 5.0))));
                 }),
             linkage

@@ -410,12 +410,12 @@ public class V2_DeltaRobotState {
             Rotation2d.fromDegrees(350.0 + 180),
             V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
             V2_DeltaShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
-    LEFT_CORNER( //TODO: Change to actual values.
+    LEFT_CORNER( // TODO: Change to actual values.
         new FixedShotParameters(
             Rotation2d.fromDegrees(-170.0 + 180),
             V2_DeltaShooterConstants.CORNER_SHOT_HOOD_ANGLE,
             V2_DeltaShooterConstants.CORNER_SHOT_FLYWHEEL_SPEED)),
-    RIGHT_CORNER( //TODO: Change to actual values.
+    RIGHT_CORNER( // TODO: Change to actual values.
         new FixedShotParameters(
             Rotation2d.fromDegrees(350.0 + 180),
             V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,

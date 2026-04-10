@@ -159,10 +159,10 @@ public class FourBarLinkage {
     Rotation2d followerAngle = currentPoses.get(2);
     Rotation2d groundAngle = currentPoses.get(3);
 
-      crank.setAngle(crankAngle);
-      coupler.setAngle(couplerAngle.minus(crankAngle));
-      follower.setAngle(followerAngle.minus(couplerAngle));
-      ground.setAngle(groundAngle.minus(followerAngle));
+    crank.setAngle(crankAngle);
+    coupler.setAngle(couplerAngle.minus(crankAngle));
+    follower.setAngle(followerAngle.minus(couplerAngle));
+    ground.setAngle(groundAngle.minus(followerAngle));
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
   }

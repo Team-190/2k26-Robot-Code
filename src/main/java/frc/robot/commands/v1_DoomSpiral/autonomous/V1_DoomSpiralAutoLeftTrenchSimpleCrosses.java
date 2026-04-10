@@ -9,9 +9,9 @@ import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
+import frc.robot.subsystems.v1_DoomSpiral.climber.Climber;
+import frc.robot.subsystems.v1_DoomSpiral.intake.Intake;
+import frc.robot.subsystems.v1_DoomSpiral.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
@@ -22,10 +22,9 @@ public class V1_DoomSpiralAutoLeftTrenchSimpleCrosses {
 
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
-      V1_DoomSpiralIntake intake,
+      Intake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
-      V1_DoomSpiralClimber climber,
       LoggedNetworkBoolean returnToMid) {
 
     // Create the routine and the trajectory
@@ -55,7 +54,7 @@ public class V1_DoomSpiralAutoLeftTrenchSimpleCrosses {
                     .deploy()
                     .alongWith(
                         intake.setOverrideRollerVoltage(
-                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                            IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 

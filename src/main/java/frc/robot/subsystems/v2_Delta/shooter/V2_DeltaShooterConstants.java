@@ -28,20 +28,20 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 public class V2_DeltaShooterConstants {
-    public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(420.0);
-    public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(20.0);
+  public static final AngularVelocity TRENCH_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(420.0);
+  public static final Rotation2d TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(20.0);
 
-    public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(350);
-    public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(5.0);
+  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(350);
+  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(5.0);
 
-    public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(402.00);
-    public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(18.5);
+  public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(402.00);
+  public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(18.5);
 
-    //TODO: Change to actual values.
-    public static final AngularVelocity CORNER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(402.00);
-    public static final Rotation2d CORNER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(18.5);
+  // TODO: Change to actual values.
+  public static final AngularVelocity CORNER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(402.00);
+  public static final Rotation2d CORNER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(18.5);
 
-    public static final GenericFlywheelConstants SHOOT_CONSTANTS =
+  public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(21)
           .withCanBus(CANBus.roboRIO())
@@ -202,6 +202,4 @@ public class V2_DeltaShooterConstants {
     MOVING,
     STATIONARY;
   }
-
-  
 }

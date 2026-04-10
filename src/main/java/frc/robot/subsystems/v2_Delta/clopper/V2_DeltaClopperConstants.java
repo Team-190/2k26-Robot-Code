@@ -16,7 +16,7 @@ import frc.robot.RobotConfig;
 public class V2_DeltaClopperConstants {
   public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE;
   public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
-    public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE_SLOW;
+  public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE_SLOW;
   public static final Voltage OUTTAKE_VOLTAGE;
 
   public static final GenericRollerConstants ROLLER_FLOOR_CONSTANTS;

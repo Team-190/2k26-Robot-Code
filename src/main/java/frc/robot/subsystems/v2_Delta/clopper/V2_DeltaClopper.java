@@ -49,10 +49,13 @@ public class V2_DeltaClopper extends SubsystemBase {
     return setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
   }
 
-  public Command incrementRollerFloorVelocity() {return Commands.runOnce(rollerFloor.getVoltageGoal()::increment);}
+  public Command incrementRollerFloorVelocity() {
+    return Commands.runOnce(rollerFloor.getVoltageGoal()::increment);
+  }
 
-  public Command decrementRollerFloorVelocity() {return Commands.runOnce(rollerFloor.getVoltageGoal()::decrement);}
-
+  public Command decrementRollerFloorVelocity() {
+    return Commands.runOnce(rollerFloor.getVoltageGoal()::decrement);
+  }
 
   public Command stopRollerFloor() {
     return setRollerFloorVoltage(Volts.of(0.0));
@@ -62,9 +65,13 @@ public class V2_DeltaClopper extends SubsystemBase {
     return Commands.runOnce(() -> ballTunnel.setVoltageGoal(voltage));
   }
 
-  public Command incrementBallTunnelVelocity() {return Commands.runOnce(ballTunnel.getVoltageGoal()::increment);}
+  public Command incrementBallTunnelVelocity() {
+    return Commands.runOnce(ballTunnel.getVoltageGoal()::increment);
+  }
 
-  public Command decrementBallTunnelVelocity() {return Commands.runOnce(ballTunnel.getVoltageGoal()::decrement);}
+  public Command decrementBallTunnelVelocity() {
+    return Commands.runOnce(ballTunnel.getVoltageGoal()::decrement);
+  }
 
   public Command feedShooterBallTunnel() {
     return setBallTunnelVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
