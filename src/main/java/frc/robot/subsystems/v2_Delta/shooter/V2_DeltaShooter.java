@@ -183,22 +183,51 @@ public class V2_DeltaShooter extends SubsystemBase {
     return turret.isWrapping();
   }
 
-  public Command resetTurretZero(){
+  public Command resetTurretZero() {
     return Commands.runOnce(() -> turret.setPosition(new Rotation2d(0)));
   }
 
-  public Command incrementTurretZero() { return Commands.runOnce(() -> turret.setPosition(turret.getPosition().plus(new Rotation2d(Units.degreesToRadians(1))))); }
+  public Command incrementTurretZero() {
+    return Commands.runOnce(
+        () ->
+            turret.setPosition(
+                turret.getPosition().plus(new Rotation2d(Units.degreesToRadians(1)))));
+  }
 
-  public Command decrementTurretZero() { return Commands.runOnce(() -> turret.setPosition(turret.getPosition().minus(new Rotation2d(Units.degreesToRadians(1))))); }
+  public Command decrementTurretZero() {
+    return Commands.runOnce(
+        () ->
+            turret.setPosition(
+                turret.getPosition().minus(new Rotation2d(Units.degreesToRadians(1)))));
+  }
 
-  public Command resetHoodZero(){
+  public Command resetHoodZero() {
     return hood.resetHoodZero();
   }
 
-  public Command counterClockwiseSlow() { return Commands.runOnce(() -> overrideTurretVoltage = Volts.of(3)); }
+  public Command counterClockwiseSlow() {
+    return Commands.runEnd(
+        () -> {
+          shooterGoal = ShooterGoal.OVERRIDE_TURRET;
+          overrideTurretVoltage = Volts.of(3);
+        },
+        () -> overrideHoodVoltage = Volts.of(0));
+  }
 
-  public Command stopTurret() { return Commands.runOnce(() -> overrideTurretVoltage = Volts.of(0)); }
+  public Command stopTurret() {
+    return Commands.runOnce(
+        () -> {
+          overrideTurretVoltage = Volts.of(0);
+          shooterGoal = ShooterGoal.OVERRIDE_TURRET;
+        });
+  }
 
-  public Command clockwiseSlow() { return Commands.runOnce(() -> overrideTurretVoltage = Volts.of(-3)); }
-
+  public Command clockwiseSlow() {
+    return Commands.runEnd(
+        () -> {
+          shooterGoal = ShooterGoal.OVERRIDE_TURRET;
+          overrideTurretVoltage = Volts.of(-3);
+        },
+        () -> overrideHoodVoltage = Volts.of(0));
+  }
 }

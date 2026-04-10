@@ -99,14 +99,20 @@ public final class DriveCommands {
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeXVel * 0.1) : fieldRelativeXVel);
+                  .orElse(
+                      slowMode.getAsBoolean()
+                          ? (fieldRelativeXVel * slowFactor)
+                          : fieldRelativeXVel);
 
           fieldRelativeYVel =
               hijackYSuppliers.stream()
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeYVel * 0.1) : fieldRelativeYVel);
+                  .orElse(
+                      slowMode.getAsBoolean()
+                          ? (fieldRelativeYVel * slowFactor)
+                          : fieldRelativeYVel);
 
           angular =
               hijackOmegaSuppliers.stream()
@@ -114,76 +120,6 @@ public final class DriveCommands {
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
                   .orElse(slowMode.getAsBoolean() ? (angular * slowFactor) : angular);
-
-          ChassisSpeeds chassisSpeeds =
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  fieldRelativeXVel,
-                  fieldRelativeYVel,
-                  angular,
-                  AllianceFlipUtil.apply(rotationSupplier.get()));
-
-          Logger.recordOutput("Drive/JoystickDrive/chassisSpeeds", chassisSpeeds);
-
-          drive.runVelocity(chassisSpeeds);
-        },
-        drive);
-  }
-
-@Trace
- public static Command joystickDrive(
-      SwerveDrive drive,
-      SwerveDriveConstants driveConstants,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier,
-      Supplier<Rotation2d> rotationSupplier,
-      List<Pair<BooleanSupplier, DoubleSupplier>> hijackXSuppliers,
-      List<Pair<BooleanSupplier, DoubleSupplier>> hijackYSuppliers,
-      List<Pair<BooleanSupplier, DoubleSupplier>> hijackOmegaSuppliers,
-      BooleanSupplier slowMode) {
-    return Commands.run(
-        () -> {
-          // Apply deadband
-          double linearMagnitude =
-              MathUtil.applyDeadband(
-                  Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble()),
-                  driveConstants.driverDeadband);
-          Rotation2d linearDirection =
-              new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-
-          double omega =
-              MathUtil.applyDeadband(omegaSupplier.getAsDouble(), driveConstants.driverDeadband);
-          linearMagnitude *= linearMagnitude;
-
-          // Calculate new linear velocities
-
-          double fieldRelativeXVel =
-              linearMagnitude * linearDirection.getCos() * drive.getMaxLinearSpeedMetersPerSec();
-          double fieldRelativeYVel =
-              linearMagnitude * linearDirection.getSin() * drive.getMaxLinearSpeedMetersPerSec();
-
-          double angular = omega * drive.getMaxAngularSpeedRadPerSec();
-
-          fieldRelativeXVel =
-              hijackXSuppliers.stream()
-                  .filter(pair -> pair.getFirst().getAsBoolean())
-                  .map(pair -> pair.getSecond().getAsDouble())
-                  .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeXVel * 0.1) : fieldRelativeXVel);
-
-          fieldRelativeYVel =
-              hijackYSuppliers.stream()
-                  .filter(pair -> pair.getFirst().getAsBoolean())
-                  .map(pair -> pair.getSecond().getAsDouble())
-                  .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeYVel * 0.1) : fieldRelativeYVel);
-
-          angular =
-              hijackOmegaSuppliers.stream()
-                  .filter(pair -> pair.getFirst().getAsBoolean())
-                  .map(pair -> pair.getSecond().getAsDouble())
-                  .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (angular * 0.1) : angular);
 
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -216,7 +152,8 @@ public final class DriveCommands {
         List.of(),
         List.of(),
         List.of(),
-        () -> false);
+        () -> false,
+        1);
   }
 
   public static Command joystickDriveRotationLock(
@@ -283,7 +220,8 @@ public final class DriveCommands {
                         lastCardinalDirection,
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-        climbSlowMode);
+        climbSlowMode,
+        .1);
   }
 
   public static Command joystickDriveRotationLock(
@@ -351,7 +289,8 @@ public final class DriveCommands {
                         lastCardinalDirection,
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-        climbSlowMode, slowFactor);
+        climbSlowMode,
+        slowFactor);
   }
 
   public static Command rotateToAngle(

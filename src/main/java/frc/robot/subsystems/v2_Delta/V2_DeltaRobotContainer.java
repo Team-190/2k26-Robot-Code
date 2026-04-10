@@ -1,8 +1,8 @@
 package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,7 +31,7 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
-import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
@@ -43,19 +43,13 @@ import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
-import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
-import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
-import frc.robot.util.input.XKeysInput;
-import static edu.wpi.first.units.Units.Volts;
-
 import frc.robot.util.BetterAutoChooser;
+import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 
@@ -72,7 +66,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private final BetterAutoChooser autoChooser;
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
-private final XKeysInput xkeys = new XKeysInput(1);
+  private final XKeysInput xkeys = new XKeysInput(1);
 
   public V2_DeltaRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -250,7 +244,6 @@ private final XKeysInput xkeys = new XKeysInput(1);
                 g.getKD()));
   }
 
-
   private void configureAutos() {
     autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
     autoChooser.addCmd(
@@ -279,14 +272,14 @@ private final XKeysInput xkeys = new XKeysInput(1);
 
   @Trace
   private void configureButtonBindings() {
-      drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            V2_DeltaConstants.DRIVE_CONSTANTS,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
-            V2_DeltaRobotState::getHeading));
+    //    drive.setDefaultCommand(
+    //        DriveCommands.joystickDrive(
+    //            drive,
+    //            V2_DeltaConstants.DRIVE_CONSTANTS,
+    //            () -> -driver.getLeftY(),
+    //            () -> -driver.getLeftX(),
+    //            () -> -driver.getRightX(),
+    //            V2_DeltaRobotState::getHeading));
 
     driver
         .povDown()
@@ -295,30 +288,30 @@ private final XKeysInput xkeys = new XKeysInput(1);
                 drive,
                 V2_DeltaRobotState::resetPose,
                 () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
-                
+
     drive.setDefaultCommand(
         DriveCommands.joystickDriveRotationLock(
                 drive,
-                V1_DoomSpiralConstants.DRIVE_CONSTANTS,
+                V2_DeltaConstants.DRIVE_CONSTANTS,
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX(),
-                V1_DoomSpiralRobotState::getHeading,
+                V2_DeltaRobotState::getHeading,
                 driver.rightTrigger(),
-                () -> V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
+                () -> V2_DeltaRobotState.getRobotToHubAngle().getRadians(),
                 driver.leftTrigger().or(driver.x()),
                 driver.x(),
                 0.5)
             .withName("joystickDriveRotationLock"));
 
-    driver.leftTrigger()
+    driver
+        .leftTrigger()
         .onTrue(
             Commands.runOnce(
                     () ->
                         DriveCommands.setLastCardinalDirection(
                             Math.round(
-                                    V1_DoomSpiralRobotState.getHeading().getRadians()
-                                        / (Math.PI / 2.0))
+                                    V2_DeltaRobotState.getHeading().getRadians() / (Math.PI / 2.0))
                                 * (Math.PI / 2.0)))
                 .withName("cardinal-direction-set"));
 
@@ -327,20 +320,20 @@ private final XKeysInput xkeys = new XKeysInput(1);
         .onTrue(
             SharedCompositeCommands.resetHeading(
                     drive,
-                    V1_DoomSpiralRobotState::resetPose,
-                    () -> V1_DoomSpiralRobotState.getGlobalPose().getTranslation())
+                    V2_DeltaRobotState::resetPose,
+                    () -> V2_DeltaRobotState.getGlobalPose().getTranslation())
                 .withName("driver-povDown-true"));
 
     driver.leftBumper().onTrue(intake.collect().withName("driver-leftBumper-true"));
 
-
-    driver.rightBumper().whileTrue(V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"));
+    driver
+        .rightBumper()
+        .whileTrue(
+            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"));
 
     driver
         .x()
-        .onTrue(
-            V2_DeltaCompositeCommands.deployClimber(intake, climber)
-                .withName("driver-x-true"));
+        .onTrue(V2_DeltaCompositeCommands.deployClimber(intake, climber).withName("driver-x-true"));
 
     driver
         .y()
@@ -440,39 +433,42 @@ private final XKeysInput xkeys = new XKeysInput(1);
             V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
                 .withName("driver-bottomRightPaddle-false"));
 
-
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
     xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
     xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
 
     xkeys
-            .b4()
-            .whileTrue(
-                    clopper.setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
-                            .withName("xkeys-b5-while"))
-            .onFalse(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b5-false"));
+        .b4()
+        .whileTrue(
+            clopper
+                .setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
+                .withName("xkeys-b5-while"))
+        .onFalse(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b5-false"));
+
+    xkeys.b5().whileTrue(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b6-true"));
 
     xkeys
-            .b5()
-            .whileTrue(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b6-true"));
+        .b6()
+        .whileTrue(
+            clopper
+                .setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
+                .withName("xkeys-b7-true"));
+    xkeys
+        .b7()
+        .whileTrue(
+            clopper
+                .setBallTunnelVoltage(
+                    Volts.of(0).minus(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE))
+                .withName("xkeys-b8-true"));
 
     xkeys
-            .b6()
-            .whileTrue(clopper.setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
-                    .withName("xkeys-b7-true"));
-    xkeys
-            .b7()
-            .whileTrue(clopper.setBallTunnelVoltage(Volts.of(0).minus(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE))
-                    .withName("xkeys-b8-true"));
-
-    xkeys
-            .b10()
-            .whileTrue(
-                    SharedCompositeCommands.resetHeading(
-                                    drive,
-                                    V1_DoomSpiralRobotState::resetPose,
-                                    V1_DoomSpiralRobotState.getGlobalPose()::getTranslation)
-                            .withName("xkeys-b10-while"));
+        .b10()
+        .whileTrue(
+            SharedCompositeCommands.resetHeading(
+                    drive,
+                    V2_DeltaRobotState::resetPose,
+                    V2_DeltaRobotState.getGlobalPose()::getTranslation)
+                .withName("xkeys-b10-while"));
 
     xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
     xkeys.c2().onTrue(intake.decrementCollectOffset().withName("xkeys-c2-true"));
@@ -500,8 +496,6 @@ private final XKeysInput xkeys = new XKeysInput(1);
                 .withName("xkeys-d2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
 
-
-
     xkeys.d8().onTrue(climber.setPositionDefault().withName("xkeys-d8-true"));
     xkeys.d9().onTrue(climber.setPositionL1().withName("xkeys-d9-true"));
     xkeys.d10().onTrue(climber.climbSequenceL3().withName("xkeys-d10-true"));
@@ -510,20 +504,19 @@ private final XKeysInput xkeys = new XKeysInput(1);
     xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
 
     xkeys
-            .e8()
-            .whileTrue(climber.clockwiseSlow().withName("xkeys-e8-while"))
-            .onFalse(climber.setVoltage(0).withName("xkeys-e8-false"));
+        .e8()
+        .whileTrue(climber.clockwiseSlow().withName("xkeys-e8-while"))
+        .onFalse(climber.setVoltage(0).withName("xkeys-e8-false"));
 
     xkeys
-            .e9()
-            .whileTrue(climber.counterClockwiseSlow().withName("xkeys-e9-while"))
-            .onFalse(climber.setVoltage(0).withName("xkeys-e9-false"));
+        .e9()
+        .whileTrue(climber.counterClockwiseSlow().withName("xkeys-e9-while"))
+        .onFalse(climber.setVoltage(0).withName("xkeys-e9-false"));
 
     xkeys
-            .e10()
-            .onTrue(
-                    V1_DoomSpiralCompositeCommands.unClimbPostAuto(intake, climber)
-                            .withName("xkeys-e10-true"));
+        .e10()
+        .onTrue(
+            V2_DeltaCompositeCommands.unClimbPostAuto(intake, climber).withName("xkeys-e10-true"));
 
     xkeys
         .f1()
@@ -551,7 +544,10 @@ private final XKeysInput xkeys = new XKeysInput(1);
         .or(xkeys.g2().or(xkeys.g3()))
         .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
 
-    xkeys.g4().onTrue(shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.STOW).withName("xkeys-g4-true"));
+    xkeys
+        .g4()
+        .onTrue(
+            shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.STOW).withName("xkeys-g4-true"));
 
     xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
     xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
@@ -563,13 +559,13 @@ private final XKeysInput xkeys = new XKeysInput(1);
     // xkeys.h5().onTrue(); FAST WRAP MODE
 
     xkeys
-            .h6()
-            .whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"))
-            .onFalse(shooter.stopTurret().withName("xkeys-h6-false"));
+        .h6()
+        .whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h6-false"));
     xkeys
-            .h7()
-            .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"))
-            .onFalse(shooter.stopTurret().withName("xkeys-h7-false"));
+        .h7()
+        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h7-false"));
 
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
     xkeys.h10().whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"));
