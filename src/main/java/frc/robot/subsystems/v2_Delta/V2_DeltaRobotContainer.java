@@ -103,12 +103,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new Intake(
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
-          //          clopper =
-          //              new V2_DeltaClopper(
-          //                  new
-          // GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-          //                  new
-          // GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+          clopper =
+              new V2_DeltaClopper(
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
           //          shooter =
           //              new V2_DeltaShooter(
           //                  new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
@@ -457,14 +455,16 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .whileTrue(
             clopper
                 .setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
-                .withName("xkeys-b7-true"));
+                .withName("xkeys-b6-true"))
+        .onFalse(clopper.setBallTunnelVoltage(Volts.zero()).withName("xkeys-b6-false"));
     xkeys
         .b7()
         .whileTrue(
             clopper
                 .setBallTunnelVoltage(
-                    Volts.of(0).minus(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE))
-                .withName("xkeys-b8-true"));
+                    V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
+                .withName("xkeys-b7-true"))
+        .onFalse(clopper.setBallTunnelVoltage(Volts.zero()).withName("xkeys-b7-false"));
 
     xkeys
         .b10()
