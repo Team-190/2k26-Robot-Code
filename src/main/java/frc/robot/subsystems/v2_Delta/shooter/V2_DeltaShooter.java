@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -186,7 +187,18 @@ public class V2_DeltaShooter extends SubsystemBase {
     return Commands.runOnce(() -> turret.setPosition(new Rotation2d(0)));
   }
 
+  public Command incrementTurretZero() { return Commands.runOnce(() -> turret.setPosition(turret.getPosition().plus(new Rotation2d(Units.degreesToRadians(1))))); }
+
+  public Command decrementTurretZero() { return Commands.runOnce(() -> turret.setPosition(turret.getPosition().minus(new Rotation2d(Units.degreesToRadians(1))))); }
+
   public Command resetHoodZero(){
     return hood.resetHoodZero();
   }
+
+  public Command counterClockwiseSlow() { return Commands.runOnce(() -> overrideTurretVoltage = Volts.of(3)); }
+
+  public Command stopTurret() { return Commands.runOnce(() -> overrideTurretVoltage = Volts.of(0)); }
+
+  public Command clockwiseSlow() { return Commands.runOnce(() -> overrideTurretVoltage = Volts.of(-3)); }
+
 }
