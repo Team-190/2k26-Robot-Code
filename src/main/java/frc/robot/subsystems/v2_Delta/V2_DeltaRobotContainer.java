@@ -238,6 +238,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 V2_DeltaConstants.DRIVE_GAINS.getKD(),
                 g.getKP(),
                 g.getKD()));
+
+    TunableUpdaterRegistry.registerGains(
+        IntakeConstants.LINKAGE_CONSTANTS.gains, intake.getLinkage()::setGains);
   }
 
   private void configureButtonBindings() {
@@ -284,6 +287,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return intake
+        .deploy()
+        .andThen(intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
+        .repeatedly();
   }
 }

@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -85,9 +86,9 @@ public class FourBarLinkage {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(1).per(Seconds),
+                Volts.of(5),
+                Seconds.of(8),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
@@ -171,6 +172,10 @@ public class FourBarLinkage {
    */
   public Rotation2d getPosition() {
     return inputs.position;
+  }
+
+  public AngularVelocity getVelocity() {
+    return inputs.velocity;
   }
 
   public Command setIdle() {

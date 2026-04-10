@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shared.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -280,6 +279,14 @@ public class Intake extends SubsystemBase {
   }
 
   public Command linkageSysId() {
-    return linkage.runSysId();
+    return linkage
+        .runSysId()
+        .alongWith(
+            Commands.run(
+                () -> {
+                  Logger.recordOutput("SysID/Position", linkage.getPosition().getRotations());
+                  Logger.recordOutput(
+                      "SysID/Velocity", linkage.getVelocity().in(RotationsPerSecond));
+                }));
   }
 }
