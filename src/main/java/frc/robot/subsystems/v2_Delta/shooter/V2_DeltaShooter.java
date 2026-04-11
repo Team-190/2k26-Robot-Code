@@ -286,4 +286,20 @@ public class V2_DeltaShooter extends SubsystemBase {
     return setGoal(ShooterGoal.IDLE)
         .andThen(Commands.runOnce(() -> flywheel.setVelocityGoal(velocity)));
   }
+
+  public void setTurretGains(Gains turretGains) {
+    turret.updateGains(turretGains);
+  }
+
+  public void setTurretConstraints(AngularPositionConstraints constraints) {
+    turret.updateConstraints(constraints);
+  }
+
+  public Command setTurretGoal(Rotation2d goal) {
+    return setGoal(ShooterGoal.IDLE).andThen(Commands.runOnce(() -> turret.setPositionGoal(goal)));
+  }
+
+  public Command waitUntilTurretAtGoal() {
+    return turret.waitUntilAtGoal();
+  }
 }

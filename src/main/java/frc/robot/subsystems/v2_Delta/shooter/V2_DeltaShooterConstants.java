@@ -147,8 +147,8 @@ public class V2_DeltaShooterConstants {
           .withE2Offset(Rotation2d.fromRotations(.452880859375))
           .withGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Turret/Kp", 0.28624920))
-                  .withKD(new LoggedTunableNumber("Turret/Kd", 0.0))
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 2727.5))
+                  .withKD(new LoggedTunableNumber("Turret/Kd", 200))
                   .withKS(new LoggedTunableNumber("Turret/Ks", 0.29684))
                   .withKV(new LoggedTunableNumber("Turret/Kv", 6.7445))
                   .withKA(new LoggedTunableNumber("Turret/Ka", 0.10718))
@@ -158,11 +158,10 @@ public class V2_DeltaShooterConstants {
               AngularPositionConstraints.builder()
                   .withMaxAcceleration(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Turret/MaxAcceleration",
-                          RadiansPerSecondPerSecond.of(35.566371)))
+                          "Shooter/Turret/MaxAcceleration", RadiansPerSecondPerSecond.of(250)))
                   .withMaxVelocity(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(89.566371)))
+                          "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(50)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
                   .build())

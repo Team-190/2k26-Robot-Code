@@ -260,6 +260,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
     TunableUpdaterRegistry.registerGains(
         V2_DeltaShooterConstants.SHOOT_CONSTANTS.voltageGains, shooter::setFlywheelGains);
+
+    TunableUpdaterRegistry.registerConstraints(
+        V2_DeltaShooterConstants.TURRET_CONSTANTS.constraints,
+        c -> shooter.setTurretConstraints((AngularPositionConstraints) c));
+    TunableUpdaterRegistry.registerGains(
+        V2_DeltaShooterConstants.TURRET_CONSTANTS.gains, shooter::setTurretGains);
   }
 
   private void configureAutos() {
@@ -304,6 +310,16 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       shooter.waitUntilFlywheelAtGoal())
               ::repeatedly);
       autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
+
+      autoChooser.addCmd(
+          "Shooter Turret Agitate",
+          shooter
+                  .setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.maxAngle)
+                  .andThen(
+                      shooter.waitUntilTurretAtGoal(),
+                      shooter.setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.minAngle),
+                      shooter.waitUntilTurretAtGoal())
+              ::repeatedly);
     }
 
     SmartDashboard.putData("Autonomous Chooser", autoChooser);

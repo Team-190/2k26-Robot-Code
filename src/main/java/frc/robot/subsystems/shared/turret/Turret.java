@@ -262,7 +262,7 @@ public class Turret {
   }
 
   public boolean atPositionGoal() {
-    return io.atPositionGoal(new Rotation2d((Angle) positionGoal.getNewSetpoint()));
+    return io.atPositionGoal(inputs.positionGoal);
   }
 
   public boolean atPositionGoal(Rotation2d positionReference) {
