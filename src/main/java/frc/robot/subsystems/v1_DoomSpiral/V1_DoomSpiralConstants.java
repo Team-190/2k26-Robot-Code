@@ -182,7 +182,7 @@ public class V1_DoomSpiralConstants {
           .robotToCameraTransform(
               new Transform3d(
                   -0.055,
-                  -0.054,
+                  0.054,
                   0.538,
                   new Rotation3d(
                       Units.degreesToRadians(0),
@@ -203,7 +203,7 @@ public class V1_DoomSpiralConstants {
           .robotToCameraTransform(
               new Transform3d(
                   -0.060142,
-                  -0.398769,
+                  0.398769,
                   0.305,
                   new Rotation3d(
                       Units.degreesToRadians(0),

@@ -147,8 +147,8 @@ public class V2_DeltaShooterConstants {
           .withE2Offset(Rotation2d.fromRotations(.452880859375))
           .withGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Turret/Kp", 2727.5))
-                  .withKD(new LoggedTunableNumber("Turret/Kd", 200))
+                  .withKP(new LoggedTunableNumber("Turret/Kp", 250))
+                  .withKD(new LoggedTunableNumber("Turret/Kd", 2.5))
                   .withKS(new LoggedTunableNumber("Turret/Ks", 0.29684))
                   .withKV(new LoggedTunableNumber("Turret/Kv", 6.7445))
                   .withKA(new LoggedTunableNumber("Turret/Ka", 0.10718))

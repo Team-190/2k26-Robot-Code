@@ -27,6 +27,7 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
+import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraMovingLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
@@ -123,6 +124,15 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
+                  new CameraMovingLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      shooter::getTurretRotation,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()),
                   new CameraStaticLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
@@ -162,25 +172,23 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
 
-          vision =
-              new Vision(
-                  () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()));
           leds = new V2_DeltaCANdle();
 
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraStaticLimelight(
+                  new CameraMovingLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      shooter::getTurretRotation,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
                       V2_DeltaRobotState::getHeading,
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
@@ -391,6 +399,13 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     driver
         .rightBumper()
         .whileTrue(
+            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
+                .withName("driver-rightBumper-false"));
+    xkeys
+        .b8()
+        .onTrue(
             V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
         .onFalse(
             V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)

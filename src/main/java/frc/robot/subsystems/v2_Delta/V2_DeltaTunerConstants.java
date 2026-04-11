@@ -18,9 +18,9 @@ public class V2_DeltaTunerConstants {
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   public static final Slot0Configs steerGains =
       new Slot0Configs()
-          .withKP(4900)
+          .withKP(4300)
           .withKI(0)
-          .withKD(27.5)
+          .withKD(20)
           .withKS(.12411800000000221)
           .withKV(0.0)
           .withKA(0)
@@ -28,7 +28,7 @@ public class V2_DeltaTunerConstants {
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   public static final Slot0Configs driveGains =
-      new Slot0Configs().withKP(77).withKI(0).withKD(0.0).withKS(6.6223346).withKV(0);
+      new Slot0Configs().withKP(60).withKI(0).withKD(0.0).withKS(6.6223346).withKV(0);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors

@@ -197,8 +197,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new GenericFlywheelIOTalonFXSim(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFXSim(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
           vision =
-              new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+              new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark));
           leds = new V1_DoomSpiralCANdle();
 
           break;

@@ -20,6 +20,7 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.MovingLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
@@ -170,8 +171,8 @@ public class V2_DeltaConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final StaticLimelightConfig LIMELIGHT_SHOOTER_CONFIG =
-      StaticLimelightConfig.builder()
+  public static final MovingLimelightConfig LIMELIGHT_SHOOTER_CONFIG =
+      MovingLimelightConfig.builder()
           .key("shooter")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
@@ -179,16 +180,13 @@ public class V2_DeltaConstants {
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(Transform3d.kZero)
+          .robotToRotationAxisTransform(
+              new Transform3d(
+                  -.017463, .163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90))))
+          .rotationAxisToLensTransform(
+              new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0)))
           .enableRewind(true)
           .build();
-
-  public static final Transform3d ROBOT_TO_INTAKE_LIMELIGHT =
-      new Transform3d(
-          Meters.convertFrom(-6.540012, Inches),
-          Meters.convertFrom(7.176137, Inches),
-          Meters.convertFrom(20.459907, Inches),
-          new Rotation3d(0, Radians.convertFrom(90 - 57.826644, Degrees), 0));
 
   public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =
       StaticLimelightConfig.builder()
@@ -198,7 +196,12 @@ public class V2_DeltaConstants {
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(ROBOT_TO_INTAKE_LIMELIGHT)
+          .robotToCameraTransform(
+              new Transform3d(
+                  Inches.of(-6.540012),
+                  Inches.of(-7.176137),
+                  Inches.of(20.459907),
+                  new Rotation3d(0.0, Units.degreesToRadians(90 - 57.826644), 0)))
           .enableRewind(true)
           .build();
 
