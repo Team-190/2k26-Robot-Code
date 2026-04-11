@@ -627,7 +627,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         drive.getYawVelocity(),
         drive.getModulePositions(),
         shooter.getTurretRotation(),
-        shooter.isTurretWrapping());
+        shooter.isTurretWrapping(),
+        drive.getMeasuredChassisSpeeds());
   }
 
   @Override

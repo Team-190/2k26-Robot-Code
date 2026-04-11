@@ -21,8 +21,8 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignConstants;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v1_DoomSpiral.shooter.ShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.util.ShotCalculator;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -226,7 +226,7 @@ public final class DriveCommands {
                             rotationSupplier.get().getRadians(),
                             drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
             climbSlowMode,
-        .1);
+        .1));
   }
 
   public static Command joystickDriveWithCardinalDirection(
@@ -285,7 +285,7 @@ public final class DriveCommands {
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
         slowMode,
-        slowFactor));
+        slowFactor);
   }
 
   public static Command rotateToAngle(

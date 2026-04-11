@@ -59,7 +59,7 @@ public class V2_DeltaShooter extends SubsystemBase {
             turretIO,
             this,
             "",
-            V2_DeltaRobotState::getHubZonePose,
+            V2_DeltaRobotState::getLookaheadPose,
             chassisSpeedsSupplier,
             V2_DeltaShooterConstants.TURRET_CONSTANTS);
 
@@ -85,7 +85,8 @@ public class V2_DeltaShooter extends SubsystemBase {
           break;
         case SCORE:
           turret.setFieldRelativeGoal(
-              AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()));
+              AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+              V2_DeltaRobotState.getTurretVelocity());
           hood.setPositionGoal(V2_DeltaRobotState.getScoreAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getScoreVelocity());
           break;

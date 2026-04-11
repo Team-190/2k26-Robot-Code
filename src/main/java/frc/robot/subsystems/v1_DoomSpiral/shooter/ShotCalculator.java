@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.subsystems.v1_DoomSpiral.shooter;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;

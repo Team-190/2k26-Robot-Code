@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v2_Delta;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -9,6 +8,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
@@ -27,6 +27,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
@@ -52,7 +53,7 @@ public class V2_DeltaRobotState {
 
   private static final Localization localization;
 
-  @Getter private static Distance distanceToHub;
+  @Getter private static final Distance distanceToHub;
   @Getter private static Distance distanceToFeedTranslation;
 
   private static final InterpolatingTreeMap<Distance, Rotation2d> shootAngleTree;
@@ -60,8 +61,10 @@ public class V2_DeltaRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
-  @Getter private static Rotation2d robotToHubAngle;
   @Getter private static Rotation2d scoreAngle;
+  @Getter private static Pose2d lookaheadPose;
+
+  @Getter private static AngularVelocity turretVelocity;
   @Getter private static AngularVelocity scoreVelocity;
   @Getter private static Rotation2d feedAngle;
   @Getter private static AngularVelocity feedVelocity;
@@ -196,6 +199,7 @@ public class V2_DeltaRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
+    lookaheadPose = new Pose2d();
     scoreAngle = new Rotation2d();
     scoreVelocity = RadiansPerSecond.of(0.0);
     feedAngle = new Rotation2d();
@@ -217,7 +221,8 @@ public class V2_DeltaRobotState {
       double robotYawVelocity,
       SwerveModulePosition[] modulePositions,
       Rotation2d turretRotation,
-      boolean isTurretWrapping) {
+      boolean isTurretWrapping,
+      ChassisSpeeds robotVelocity) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -238,33 +243,42 @@ public class V2_DeltaRobotState {
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
                 turretRotation));
 
-    distanceToHub =
-        Distance.ofBaseUnits(
-            shooterPosition.getTranslation().minus(hubTranslation).getNorm(), Meters);
-
     Translation2d feedTranslation = getFeedTranslation();
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
             getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
-    robotToHubAngle =
-        hubTranslation
-            .minus(shooterPosition.getTranslation())
-            .getAngle()
-            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
+    turretVelocity = RadiansPerSecond.zero();
 
-    scoreAngle = shootAngleTree.get(distanceToHub);
-    scoreVelocity = shootSpeedTree.get(distanceToHub);
+    V2_DeltaShotCalculator.ShotParameters shotParameters =
+        V2_DeltaShotCalculator.getShotParameters(
+            hubPose,
+            hubTranslation,
+            new Transform2d(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
+                turretRotation),
+            robotVelocity,
+            Seconds.of(0.03),
+            d -> Seconds.zero(),
+            shootAngleTree::get,
+            shootSpeedTree::get);
+
+    scoreAngle = shotParameters.hoodAngle();
+    scoreVelocity = shotParameters.flywheelSpeed();
+    turretVelocity = shotParameters.turretVelocity();
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
     feedVelocity = feedSpeedTree.get(distanceToFeedTranslation);
 
+    lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
 
     shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
     prohibitShot =
         isTurretWrapping
             || shouldHoodTuck
-            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
+            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose())
+            || !shotParameters.isValid();
 
     Rectangle2d allianceZone =
         new Rectangle2d(
@@ -279,9 +293,6 @@ public class V2_DeltaRobotState {
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Rotation to Hub",
-        new Pose2d(hubPose.getTranslation(), robotToHubAngle));
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);

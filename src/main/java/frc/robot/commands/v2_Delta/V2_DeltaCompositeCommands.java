@@ -10,21 +10,28 @@ import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoal;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.command.ContinuousConditionalCommand;
 
 public class V2_DeltaCompositeCommands {
 
   public static Command hold(V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
     return Commands.parallel(
-        clopper.stopBallTunnel(), clopper.stopRollerFloor(), shooter.setGoal(ShooterGoal.STOW));
+        clopper.stopBallTunnel(),
+        clopper.stopRollerFloor(),
+        shooter.setGoal(ShooterGoal.STOW),
+        Commands.runOnce(V2_DeltaShotCalculator::clear));
   }
 
   public static Command feedCommand(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
-    return shooter
-        .setGoal(ShooterGoal.FEED)
-        .until(shooter::atGoal)
-        .andThen(
-            Commands.parallel(clopper.feedShooterBallTunnel(), clopper.feedShooterRollerFloor()));
+    return Commands.parallel(
+        shooter
+            .setGoal(ShooterGoal.FEED)
+            .until(shooter::atGoal)
+            .andThen(
+                Commands.parallel(
+                    clopper.feedShooterBallTunnel(), clopper.feedShooterRollerFloor())),
+        Commands.runOnce(V2_DeltaShotCalculator::clear));
   }
 
   public static Command scoreCommand(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
@@ -47,6 +54,7 @@ public class V2_DeltaCompositeCommands {
   public static Command fixedShotCommand(
       V2_DeltaShooter shooter, V2_DeltaClopper clopper, V2_DeltaRobotState.FixedShots fixedShot) {
     return Commands.parallel(
+        Commands.runOnce(V2_DeltaShotCalculator::clear),
         shooter.runFixedShot(fixedShot),
         new ContinuousConditionalCommand(
             clopper.feedShooterRollerFloor().alongWith(clopper.feedShooterBallTunnel()),

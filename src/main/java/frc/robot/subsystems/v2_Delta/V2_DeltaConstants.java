@@ -25,6 +25,13 @@ import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelig
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V2_DeltaConstants {
+
+  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
+      new Transform3d(
+          -.017463, .163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90)));
+  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
+      new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0));
+
   public static final DriveConfig DRIVE_CONFIG =
       new DriveConfig(
           V2_DeltaTunerConstants.kCANBus,
@@ -180,11 +187,8 @@ public class V2_DeltaConstants {
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToRotationAxisTransform(
-              new Transform3d(
-                  -.017463, .163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90))))
-          .rotationAxisToLensTransform(
-              new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0)))
+          .robotToRotationAxisTransform(ROBOT_TO_SHOOTER_TRANSFORM)
+          .rotationAxisToLensTransform(SHOOTER_TO_LIMELIGHT_TRANSFORM)
           .enableRewind(true)
           .build();
 
@@ -204,9 +208,4 @@ public class V2_DeltaConstants {
                   new Rotation3d(0.0, Units.degreesToRadians(90 - 57.826644), 0)))
           .enableRewind(true)
           .build();
-
-  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
-      new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d());
-  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
-      new Transform3d(0.003008, -0.149135, -0.161329, new Rotation3d());
 }
