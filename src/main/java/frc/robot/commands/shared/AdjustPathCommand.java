@@ -25,7 +25,8 @@ public class AdjustPathCommand extends Command {
   private Command followCommand;
 
   /**
-   * Creates a command that generates and follows a corrective path to a target pose using
+   * Creates a command that generates and follows a corrective path to a target
+   * pose using
    * PathPlanner.
    *
    * @param targetPoseSupplier
@@ -54,9 +55,8 @@ public class AdjustPathCommand extends Command {
 
   @Override
   public void initialize() {
-    followCommand =
-        AutoBuilder.pathfindToPose(
-            targetPoseSupplier.get(), PathConstraints.unlimitedConstraints(12), goalEndVelocity);
+    followCommand = AutoBuilder.pathfindToPose(
+        targetPoseSupplier.get(), PathConstraints.unlimitedConstraints(12), goalEndVelocity);
 
     adjustmentMode = adjustmentModeSupplier.get();
     targetPose = targetPoseSupplier.get();
@@ -77,9 +77,8 @@ public class AdjustPathCommand extends Command {
     if (!targetPose.equals(targetPoseSupplier.get())) {
       targetPose = targetPoseSupplier.get();
       followCommand.end(true);
-      followCommand =
-          AutoBuilder.pathfindToPose(
-              targetPose, PathConstraints.unlimitedConstraints(12), goalEndVelocity);
+      followCommand = AutoBuilder.pathfindToPose(
+          targetPose, PathConstraints.unlimitedConstraints(12), goalEndVelocity);
       followCommand.initialize();
     }
     followCommand.execute();
@@ -132,9 +131,9 @@ public class AdjustPathCommand extends Command {
                     .getTranslation(),
                 GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[2]
                     .getTranslation()))),
-    USE_ANY_AVAILABLE(List.of()),
-    ;
+    USE_ANY_AVAILABLE(List.of());
 
-    @Getter private final List<Pair<Translation2d, Translation2d>> obstacles;
+    @Getter
+    private final List<Pair<Translation2d, Translation2d>> obstacles;
   }
 }
