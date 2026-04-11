@@ -151,7 +151,16 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command turretSysId() {
-    return Commands.sequence(preSysId(), turret.runSysIdRoutine());
+    return Commands.sequence(preSysId(), turret.runSysIdRoutine())
+        .alongWith(
+            Commands.run(
+                () -> {
+                  Logger.recordOutput(
+                      "Shooter/Turret/Sysid/position", turret.getPosition().getRotations());
+
+                  Logger.recordOutput(
+                      "Shooter/Turret/Sysid/velocity", turret.getVelocity().in(RotationsPerSecond));
+                }));
   }
 
   public Command hoodSysId() {

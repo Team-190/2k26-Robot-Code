@@ -63,6 +63,7 @@ public class TurretIOTalonFX implements TurretIO {
     config.Slot0.kV = constants.gains.kV().get();
     config.Slot0.kA = constants.gains.kA().get();
     config.Slot0.kS = constants.gains.kS().get();
+    config.Slot0.kG = constants.gains.kG().get();
 
     config.CurrentLimits.SupplyCurrentLimit = constants.supplyCurrentLimit;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;

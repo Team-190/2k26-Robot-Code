@@ -303,6 +303,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       shooter.setFlywheelVelocity(RadiansPerSecond.of(-400)),
                       shooter.waitUntilFlywheelAtGoal())
               ::repeatedly);
+      autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
     }
 
     SmartDashboard.putData("Autonomous Chooser", autoChooser);
