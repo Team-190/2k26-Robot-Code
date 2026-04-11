@@ -22,6 +22,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.ShotCalculator;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -165,6 +166,7 @@ public final class DriveCommands {
       Supplier<Rotation2d> rotationSupplier,
       BooleanSupplier pointAtHub,
       DoubleSupplier hubSetpoint,
+      DoubleSupplier hubFeedforward,
       BooleanSupplier cardinalDirectionAlign,
       BooleanSupplier climbSlowMode) {
 
@@ -194,33 +196,36 @@ public final class DriveCommands {
                 0,
                 driveConstants.autoAlignConstants.rotationGains().kD().get()));
 
-    return joystickDrive(
-        drive,
-        driveConstants,
-        xSupplier,
-        ySupplier,
-        omegaSupplier,
-        rotationSupplier,
-        List.of(),
-        List.of(),
-        List.of(
-            Pair.of(
-                pointAtHub,
-                () ->
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        hubSetpoint.getAsDouble(),
-                        rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
-            Pair.of(
-                cardinalDirectionAlign,
-                () ->
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        lastCardinalDirection,
-                        rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-        climbSlowMode,
+    return Commands.sequence(
+        Commands.runOnce(ShotCalculator::clear),
+        joystickDrive(
+            drive,
+            driveConstants,
+            xSupplier,
+            ySupplier,
+            omegaSupplier,
+            rotationSupplier,
+            List.of(),
+            List.of(),
+            List.of(
+                Pair.of(
+                    pointAtHub,
+                    () ->
+                        AutoAlignCommand.calculate(
+                                omegaController,
+                                hubSetpoint.getAsDouble(),
+                                rotationSupplier.get().getRadians(),
+                                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)
+                            + hubFeedforward.getAsDouble()),
+                Pair.of(
+                    cardinalDirectionAlign,
+                    () ->
+                        AutoAlignCommand.calculate(
+                            omegaController,
+                            lastCardinalDirection,
+                            rotationSupplier.get().getRadians(),
+                            drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
+            climbSlowMode,
         .1);
   }
 
@@ -280,7 +285,7 @@ public final class DriveCommands {
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
         slowMode,
-        slowFactor);
+        slowFactor));
   }
 
   public static Command rotateToAngle(
@@ -307,17 +312,18 @@ public final class DriveCommands {
         driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
         0);
     return Commands.run(
-        () ->
-            drive.runVelocity(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                    0.0,
-                    0.0,
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        targetRotation.get().getRadians(),
-                        currentRotation.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
-                    AllianceFlipUtil.apply(currentRotation.get()))));
+            () ->
+                drive.runVelocity(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        0.0,
+                        0.0,
+                        AutoAlignCommand.calculate(
+                            omegaController,
+                            targetRotation.get().getRadians(),
+                            currentRotation.get().getRadians(),
+                            drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
+                        AllianceFlipUtil.apply(currentRotation.get()))))
+        .beforeStarting(ShotCalculator::clear);
   }
 
   public static boolean atAngle(Rotation2d targetRotation) {
@@ -382,10 +388,15 @@ public final class DriveCommands {
                   0.0,
                   0.0,
                   AutoAlignCommand.calculate(
-                      omegaController,
-                      V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
-                      V1_DoomSpiralRobotState.getHeading().getRadians(),
-                      drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
+                          omegaController,
+                          V1_DoomSpiralRobotState.getShootingParameters()
+                              .chassisAngle()
+                              .getRadians(),
+                          V1_DoomSpiralRobotState.getHeading().getRadians(),
+                          drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)
+                      + V1_DoomSpiralRobotState.getShootingParameters()
+                          .chassisVelocity()
+                          .in(RadiansPerSecond),
                   V1_DoomSpiralRobotState.getHeading()));
         });
   }

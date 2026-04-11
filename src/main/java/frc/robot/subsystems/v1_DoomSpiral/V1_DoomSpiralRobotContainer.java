@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -104,7 +105,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
+          // swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new Climber(
                   new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
@@ -147,13 +148,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
                       List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
                       List.of()));
-          //   new CameraLimelight(
-          //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
-          //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
-          //       V1_DoomSpiralRobotState::getHeading,
-          //       NetworkTablesJNI::now,
-          //       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-          //       List.of()));
+          // new CameraLimelight(
+          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+          // V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+          // V1_DoomSpiralRobotState::getHeading,
+          // NetworkTablesJNI::now,
+          // List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+          // List.of()));
           break;
 
         case V1_DOOMSPIRAL_SIM:
@@ -175,7 +176,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
+          // swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
               new Climber(new ArmIOTalonFXSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
@@ -275,7 +276,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> -driver.getRightX(),
                 V1_DoomSpiralRobotState::getHeading,
                 driver.rightTrigger(),
-                () -> V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
+                () -> V1_DoomSpiralRobotState.getShootingParameters().chassisAngle().getRadians(),
+                () ->
+                    V1_DoomSpiralRobotState.getShootingParameters()
+                        .chassisVelocity()
+                        .in(RadiansPerSecond),
                 driver.leftTrigger().or(driver.x()),
                 driver.x())
             .withName("joystickDriveRotationLock"));
@@ -570,7 +575,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   public void robotPeriodic() {
 
     V1_DoomSpiralRobotState.periodic(
-        drive.getRawGyroRotation(), drive.getYawVelocity(), drive.getModulePositions());
+        drive.getRawGyroRotation(), drive.getYawVelocity(), drive.getModulePositions(), drive);
 
     Logger.recordOutput(
         "Mechanism 3d",
