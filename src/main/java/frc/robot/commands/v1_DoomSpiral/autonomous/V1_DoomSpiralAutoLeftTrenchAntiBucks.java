@@ -3,12 +3,9 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
-import frc.robot.FieldConstants;
 import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
@@ -21,82 +18,85 @@ import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
 
 public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
-    public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
-            SwerveDrive drive,
-            Intake intake,
-            V1_DoomSpiralShooter shooter,
-            V1_DoomSpiralSpindexer spindexer) {
+  public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
+      SwerveDrive drive,
+      Intake intake,
+      V1_DoomSpiralShooter shooter,
+      V1_DoomSpiralSpindexer spindexer) {
 
-        // Create the routine and the trajectory
+    // Create the routine and the trajectory
 
-        AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_TRENCH_ANTI_BUCKS");
+    AutoRoutine routine = drive.getAutoFactory().newRoutine("LEFT_TRENCH_ANTI_BUCKS");
 
-        AutoTrajectory LEFT_TRENCH_ANTI_BUCKS = routine
-                .trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS);
+    AutoTrajectory LEFT_TRENCH_ANTI_BUCKS =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_ANTI_BUCKS);
 
-        AdjustPathCommand followCommand = new AdjustPathCommand(
-                () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(),
-                0,
-                () -> AdjustPathCommand.PathAdjustmentMode.ALWAYS_USE_TRENCH);
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(
+            () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(),
+            0,
+            () -> AdjustPathCommand.PathAdjustmentMode.ALWAYS_USE_TRENCH);
 
-        routine
-                .active()
-                .onTrue(
-                        Commands.sequence(
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(
 
-                                // Set the inital pose
+                // Set the inital pose
 
-                                LEFT_TRENCH_ANTI_BUCKS.resetOdometry(),
+                LEFT_TRENCH_ANTI_BUCKS.resetOdometry(),
 
-                                // Deploy the intake
+                // Deploy the intake
 
-                                intake
-                                        .deploy()
-                                        .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+                intake
+                    .deploy()
+                    .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
-                                // Follow the path
+                // Follow the path
 
-                                LEFT_TRENCH_ANTI_BUCKS.cmd(),
+                LEFT_TRENCH_ANTI_BUCKS.cmd(),
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                      return !isFinished;
+                    }),
 
-                                followCommand.onlyWhile(
-                                        () -> {
-                                            Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
-                                            Pose2d targetPose = LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get();
-                                            double distanceToTarget = currentPose.getTranslation()
-                                                    .getDistance(targetPose.getTranslation());
-                                            boolean isFinished = distanceToTarget < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
-                                            return !isFinished;
-                                        }),
+                // Stop drive
 
-                                // Stop drive
+                Commands.runOnce(() -> drive.stop()),
 
-                                Commands.runOnce(() -> drive.stop()),
+                // Stop the intake and align the shooter in parallel
 
-                                // Stop the intake and align the shooter in parallel
+                V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
+                    .alongWith(
+                        DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
+                        Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
 
-                                V1_DoomSpiralCompositeCommands.scoreCommand(shooter, intake, spindexer)
-                                        .alongWith(
-                                                DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
-                                                Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))));
+    RobotModeTriggers.autonomous()
+        .negate()
+        .onTrue(
+            Commands.parallel(
+                    V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                    intake.stopRoller(),
+                    intake.deploy())
+                .ignoringDisable(true));
 
-        RobotModeTriggers.autonomous()
-                .negate()
-                .onTrue(
-                        Commands.parallel(
-                                V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                                intake.stopRoller(),
-                                intake.deploy())
-                                .ignoringDisable(true));
-
-        return new BetterAutoChooser.AutoRoutineConfiguration(
-                () -> routine,
-                () -> LEFT_TRENCH_ANTI_BUCKS.getInitialPose().orElse(new Pose2d()),
-                () -> Commands.runOnce(
-                        () -> {
-                            drive.setAutoControllers(
-                                    V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-                                    V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                            V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_ANTI_BUCKS);
-                        }));
-    }
+    return new BetterAutoChooser.AutoRoutineConfiguration(
+        () -> routine,
+        () -> LEFT_TRENCH_ANTI_BUCKS.getInitialPose().orElse(new Pose2d()),
+        () ->
+            Commands.runOnce(
+                () -> {
+                  drive.setAutoControllers(
+                      V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
+                      V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_ANTI_BUCKS);
+                }));
+  }
 }

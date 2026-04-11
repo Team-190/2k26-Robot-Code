@@ -363,7 +363,8 @@ public class IntakeConstants {
                 .withEnableFOC(false)
                 .build();
 
-        LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276); //TODO: Anshu says he doesn't really care
+        LINKAGE_OFFSET =
+            new Translation3d(0.381, 0.141, 0.276); // TODO: Anshu says he doesn't really care
 
         MOTOR_CAN_ID = 40; // Pivot
 
@@ -408,7 +409,7 @@ public class IntakeConstants {
                 Units.Inches.of(8.945053).in(Units.Meters),
                 Units.Inches.of(7.500000).in(Units.Meters),
                 Units.Inches.of(6.823672).in(Units.Meters));
-//
+        //
         // These don't matter for V2
         LINK_BOUNDS =
             new LinkBounds(
