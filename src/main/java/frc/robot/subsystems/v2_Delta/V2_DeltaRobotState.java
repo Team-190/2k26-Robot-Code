@@ -72,6 +72,7 @@ public class V2_DeltaRobotState {
 
   @Getter private static boolean prohibitShot;
   @Getter private static boolean shouldHoodTuck;
+  @Getter private static boolean inAllianceZone;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -203,6 +204,10 @@ public class V2_DeltaRobotState {
     field.setRobotPose(getGlobalPose());
     SmartDashboard.putData("Field", field);
 
+    shouldHoodTuck = false;
+    prohibitShot = false;
+    inAllianceZone = false;
+
     headingUpdateTimestamp = NetworkTablesJNI.now();
   }
 
@@ -261,6 +266,15 @@ public class V2_DeltaRobotState {
             || shouldHoodTuck
             || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
 
+    Rectangle2d allianceZone =
+        new Rectangle2d(
+            AllianceFlipUtil.apply(
+                new Translation2d(
+                    FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
+            AllianceFlipUtil.apply(new Translation2d(0, 0)));
+
+    inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
+
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
@@ -301,6 +315,12 @@ public class V2_DeltaRobotState {
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "No Feed Zone",
         GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Alliance Zone", GeometryUtil.rectanglePose2ds(allianceZone));
+
+    Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "In Alliance Zone", inAllianceZone);
+    Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Prohibit Shot", prohibitShot);
+    Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Should Hood Tuck", shouldHoodTuck);
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
@@ -396,7 +416,7 @@ public class V2_DeltaRobotState {
   }
 
   public record FixedShotParameters(
-      Rotation2d robotAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
+      Rotation2d turretAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
 
   @RequiredArgsConstructor
   public enum FixedShots {

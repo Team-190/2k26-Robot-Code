@@ -187,6 +187,7 @@ public class V2_DeltaShooterConstants {
     SCORE,
     FEED,
     STOW,
+    FIXED_SHOTS,
     OVERRIDE_TURRET,
     OVERRIDE_HOOD,
     OVERRIDE_FLYWHEEL,

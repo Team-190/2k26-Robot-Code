@@ -224,17 +224,15 @@ public final class DriveCommands {
         .1);
   }
 
-  public static Command joystickDriveRotationLock(
+  public static Command joystickDriveWithCardinalDirection(
       SwerveDrive drive,
       SwerveDriveConstants driveConstants,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier,
       Supplier<Rotation2d> rotationSupplier,
-      BooleanSupplier pointAtHub,
-      DoubleSupplier hubSetpoint,
       BooleanSupplier cardinalDirectionAlign,
-      BooleanSupplier climbSlowMode,
+      BooleanSupplier slowMode,
       double slowFactor) {
 
     ProfiledPIDController omegaController =
@@ -274,14 +272,6 @@ public final class DriveCommands {
         List.of(),
         List.of(
             Pair.of(
-                pointAtHub,
-                () ->
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        hubSetpoint.getAsDouble(),
-                        rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
-            Pair.of(
                 cardinalDirectionAlign,
                 () ->
                     AutoAlignCommand.calculate(
@@ -289,7 +279,7 @@ public final class DriveCommands {
                         lastCardinalDirection,
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-        climbSlowMode,
+        slowMode,
         slowFactor);
   }
 

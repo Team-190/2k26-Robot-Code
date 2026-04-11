@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v2_Delta.shooter;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,6 +27,7 @@ import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoal;
 import frc.robot.util.AllianceFlipUtil;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaShooter extends SubsystemBase {
@@ -39,11 +39,16 @@ public class V2_DeltaShooter extends SubsystemBase {
   private final GenericFlywheel flywheel;
 
   private ShooterGoal shooterGoal;
+  private V2_DeltaRobotState.FixedShotParameters fixedShotParameters;
   private Voltage overrideTurretVoltage;
   private Voltage overrideHoodVoltage;
   private Voltage overrideFlywheelVoltage;
 
-  public V2_DeltaShooter(TurretIO turretIO, HoodIO hoodIO, GenericFlywheelIO flywheelIO) {
+  public V2_DeltaShooter(
+      TurretIO turretIO,
+      HoodIO hoodIO,
+      GenericFlywheelIO flywheelIO,
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
     setName("Shooter");
 
     flywheel = new GenericFlywheel(flywheelIO, this, V2_DeltaShooterConstants.SHOOT_CONSTANTS, "");
@@ -55,13 +60,17 @@ public class V2_DeltaShooter extends SubsystemBase {
             this,
             "",
             V2_DeltaRobotState::getHubZonePose,
-            ChassisSpeeds::new,
+            chassisSpeedsSupplier,
             V2_DeltaShooterConstants.TURRET_CONSTANTS);
 
     shooterGoal = ShooterGoal.STOW;
     overrideTurretVoltage = Volts.of(0.0);
     overrideHoodVoltage = Volts.of(0.0);
     overrideFlywheelVoltage = Volts.of(0.0);
+
+    fixedShotParameters =
+        new V2_DeltaRobotState.FixedShotParameters(
+            Rotation2d.kZero, Rotation2d.kZero, RadiansPerSecond.of(0));
   }
 
   @Trace
@@ -94,6 +103,11 @@ public class V2_DeltaShooter extends SubsystemBase {
         case OVERRIDE_FLYWHEEL:
           flywheel.setVoltageGoal(overrideFlywheelVoltage);
           break;
+        case FIXED_SHOTS:
+          turret.setPositionGoal(fixedShotParameters.turretAngle());
+          hood.setPositionGoal(fixedShotParameters.hoodAngle());
+          flywheel.setVelocityGoal(fixedShotParameters.flywheelSpeed());
+          break;
         case SYSID:
         default:
           break;
@@ -120,6 +134,11 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command setGoal(ShooterGoal shooterGoal) {
     return Commands.runOnce(() -> this.shooterGoal = shooterGoal);
+  }
+
+  public Command runFixedShot(V2_DeltaRobotState.FixedShots shot) {
+    return setGoal(ShooterGoal.FIXED_SHOTS)
+        .andThen(Commands.runOnce(() -> fixedShotParameters = shot.getParameters()));
   }
 
   public boolean atGoal() {

@@ -22,6 +22,7 @@ import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -30,11 +31,13 @@ public class Intake extends SubsystemBase {
   @Getter private final FourBarLinkage linkage;
 
   @Getter private IntakeState intakeState;
-  private boolean intakeOnInIntakeState;
   private double overrideVoltage;
   private boolean overrideRoller;
 
-  public Intake(GenericRollerIO rollerIO, FourBarLinkageIO linkageIO) {
+  private final BooleanSupplier fastIntakeRollers;
+
+  public Intake(
+      GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, BooleanSupplier fastIntakeRollers) {
     setName("Intake");
 
     intakeState = IntakeState.STOW;
@@ -49,6 +52,8 @@ public class Intake extends SubsystemBase {
             IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
 
     intakeState = IntakeState.STOW;
+
+    this.fastIntakeRollers = fastIntakeRollers;
 
     // setDefaultCommand(defaultCommand());
   }
@@ -68,9 +73,8 @@ public class Intake extends SubsystemBase {
           else roller.setVoltageGoal(Volts.of(0.0));
           break;
         case INTAKE:
-          if (intakeOnInIntakeState)
-            roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
-          else roller.setVoltageGoal(Volts.of(0.0));
+          roller.setVoltageGoal(
+              Volts.of(fastIntakeRollers.getAsBoolean() ? IntakeConstants.INTAKE_VOLTAGE : 8.0));
           break;
         case AGITATE:
           roller.setVoltageGoal(Volts.of(3.0));
@@ -137,7 +141,6 @@ public class Intake extends SubsystemBase {
   public Command stopRoller() {
     return Commands.runOnce(
         () -> {
-          intakeOnInIntakeState = false;
           overrideRoller = false;
         });
   }
@@ -147,7 +150,6 @@ public class Intake extends SubsystemBase {
         Commands.runOnce(
             () -> {
               intakeState = IntakeState.INTAKE;
-              intakeOnInIntakeState = true;
               linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.INTAKE));
             }));
   }
@@ -156,7 +158,6 @@ public class Intake extends SubsystemBase {
     return Commands.runOnce(
         () -> {
           intakeState = IntakeState.STOW;
-          intakeOnInIntakeState = true;
           linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
         });
   }

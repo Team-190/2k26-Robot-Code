@@ -106,7 +106,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           intake =
               new Intake(
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
+                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
+                  driver.leftBumper());
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
@@ -115,7 +116,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new V2_DeltaShooter(
                   new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-                  new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+                  new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
+                  drive::getMeasuredChassisSpeeds);
           leds = new V2_DeltaCANdle();
 
           vision =
@@ -153,7 +155,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           intake =
               new Intake(
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
+                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
+                  driver.leftBumper());
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
@@ -187,7 +190,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new V2_DeltaShooter(
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFXSim(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-                  new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
+                  new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
+                  drive::getMeasuredChassisSpeeds);
           break;
         default:
       }
@@ -211,7 +215,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
       climber = new Climber(new ArmIO() {}, Radians::zero);
     }
     if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
+      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> false);
     }
     if (clopper == null) {
       clopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
@@ -220,7 +224,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
       vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
     }
     if (shooter == null) {
-      shooter = new V2_DeltaShooter(new TurretIO() {}, new HoodIO() {}, new GenericFlywheelIO() {});
+      shooter =
+          new V2_DeltaShooter(
+              new TurretIO() {},
+              new HoodIO() {},
+              new GenericFlywheelIO() {},
+              drive::getMeasuredChassisSpeeds);
     }
 
     autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
@@ -345,19 +354,17 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
 
     drive.setDefaultCommand(
-        DriveCommands.joystickDriveRotationLock(
+        DriveCommands.joystickDriveWithCardinalDirection(
                 drive,
                 V2_DeltaConstants.DRIVE_CONSTANTS,
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
                 () -> -driver.getRightX(),
                 V2_DeltaRobotState::getHeading,
-                driver.rightTrigger(),
-                () -> V2_DeltaRobotState.getRobotToHubAngle().getRadians(),
-                driver.leftTrigger().or(driver.x()),
-                driver.x(),
+                driver.leftTrigger(),
+                driver.rightTrigger(), // TODO: Figure out how to do 50% on RT and 10% on X
                 0.5)
-            .withName("joystickDriveRotationLock"));
+            .withName("joystick-drive"));
 
     driver
         .leftTrigger()
@@ -384,7 +391,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     driver
         .rightBumper()
         .whileTrue(
-            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"));
+            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
+                .withName("driver-rightBumper-false"));
 
     driver
         .x()
@@ -396,96 +406,63 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .onFalse(climber.stop().withName("driver-y-false"));
 
     driver
-        .rightTrigger()
-        .whileTrue(
-            V2_DeltaCompositeCommands.scoreCommand(shooter, intake, clopper)
-                .withName("driver-rightTrigger-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
-                .withName("driver-rightTrigger-false"));
-
-    driver
         .topLeftPaddle()
         .whileTrue(
             V2_DeltaCompositeCommands.fixedShotCommand(
-                    drive,
-                    shooter,
-                    clopper,
-                    intake,
-                    V2_DeltaRobotState.FixedShots.LEFT_TRENCH.getParameters())
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.LEFT_TRENCH)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
         .topRightPaddle()
         .whileTrue(
             V2_DeltaCompositeCommands.fixedShotCommand(
-                    drive,
-                    shooter,
-                    clopper,
-                    intake,
-                    V2_DeltaRobotState.FixedShots.RIGHT_TRENCH.getParameters())
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.RIGHT_TRENCH)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
                 .withName("driver-topRightPaddle-false"));
 
     driver
         .bottomLeftPaddle()
         .whileTrue(
             V2_DeltaCompositeCommands.fixedShotCommand(
-                    drive,
-                    shooter,
-                    clopper,
-                    intake,
-                    V2_DeltaRobotState.FixedShots.LEFT_CORNER.getParameters())
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.LEFT_CORNER)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
         .bottomRightPaddle()
         .whileTrue(
             V2_DeltaCompositeCommands.fixedShotCommand(
-                    drive,
-                    shooter,
-                    clopper,
-                    intake,
-                    V2_DeltaRobotState.FixedShots.RIGHT_CORNER.getParameters())
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.RIGHT_CORNER)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
                 .withName("driver-topRightPaddle-false"));
 
     driver
         .a()
         .whileTrue(
             V2_DeltaCompositeCommands.fixedShotCommand(
-                    drive,
-                    shooter,
-                    clopper,
-                    intake,
-                    V2_DeltaRobotState.FixedShots.HUB.getParameters())
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
                 .withName("driver-bottomLeftPaddle-while"))
         .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
                 .withName("driver-bottomLeftPaddle-false"));
 
     driver
         .b()
         .whileTrue(
             V2_DeltaCompositeCommands.fixedShotCommand(
-                    drive,
-                    shooter,
-                    clopper,
-                    intake,
-                    V2_DeltaRobotState.FixedShots.TOWER.getParameters())
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.TOWER)
                 .withName("driver-bottomRightPaddle-while"))
         .onFalse(
-            V2_DeltaCompositeCommands.stopShooterCommand(shooter, clopper)
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper, intake)
                 .withName("driver-bottomRightPaddle-false"));
 
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
