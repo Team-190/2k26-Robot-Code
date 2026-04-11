@@ -48,6 +48,7 @@ import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
+import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
@@ -112,7 +113,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
           shooter =
               new V2_DeltaShooter(
-                  new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
+                  new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS));
           leds = new V2_DeltaCANdle();

@@ -95,7 +95,9 @@ public class Turret {
             constants.maxAngle.getMeasure());
     angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.25));
 
-    io.setPosition(new Rotation2d());
+    io.setPosition(
+        calculateTurretAngle(
+            io.getEncoder1Position(), io.getEncoder2Position(), constants.turretAngleCalculation));
 
     feedforwardController =
         new SimpleMotorFeedforward(
