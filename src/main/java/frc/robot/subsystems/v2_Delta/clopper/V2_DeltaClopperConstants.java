@@ -29,9 +29,9 @@ public class V2_DeltaClopperConstants {
       case V2_DELTA:
       case V2_DELTA_SIM:
       default:
-        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(8.0);
+        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(9.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
-        ROLLER_FLOOR_FEED_VOLTAGE_SLOW = Volts.of(8.0);
+        ROLLER_FLOOR_FEED_VOLTAGE_SLOW = Volts.of(5.0);
         OUTTAKE_VOLTAGE = Volts.of(-10);
         BEAM_BREAK_ID = 0;
 
@@ -40,8 +40,8 @@ public class V2_DeltaClopperConstants {
                 .withLeaderCANID(32)
                 .withCurrentLimits(
                     CurrentLimits.builder()
-                        .withSupplyCurrentLimit(Amps.of(20.0))
-                        .withStatorCurrentLimit(Amps.of(30.0))
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(70.0))
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
