@@ -35,7 +35,7 @@ public class V2_DeltaClopperConstants {
 
         ROLLER_FLOOR_CONSTANTS =
             GenericRollerConstants.builder()
-                .withLeaderCANID(50)
+                .withLeaderCANID(32)
                 .withCurrentLimits(
                     CurrentLimits.builder()
                         .withSupplyCurrentLimit(Amps.of(20.0))
@@ -45,7 +45,6 @@ public class V2_DeltaClopperConstants {
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
                 .withRollerMotorGearRatio(42.0)
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
-                .withOpposedFollowerCANID(51)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(0.20))
                 .withCanBus(CANBus.roboRIO())
@@ -53,7 +52,7 @@ public class V2_DeltaClopperConstants {
                 .build();
         BALL_TUNNEL_CONSTANTS =
             GenericRollerConstants.builder()
-                .withLeaderCANID(52)
+                .withLeaderCANID(31) // Bottom Ball Tunnel
                 .withCurrentLimits(
                     CurrentLimits.builder()
                         .withSupplyCurrentLimit(Amps.of(20.0))
@@ -63,7 +62,7 @@ public class V2_DeltaClopperConstants {
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
                 .withRollerMotorGearRatio(42.0)
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
-                .withOpposedFollowerCANID(53)
+                .withOpposedFollowerCANID(30) // Top Ball Tunnel
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(0.20))
                 .withCanBus(CANBus.roboRIO())

@@ -30,7 +30,7 @@ public class V2_DeltaShooterConstants {
 
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
-          .withLeaderCANID(31)
+          .withLeaderCANID(21)
           .withCanBus(CANBus.roboRIO())
           .withEnableFOC(true)
           .withLeaderInversion(InvertedValue.CounterClockwise_Positive)
@@ -70,14 +70,16 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
                   .build())
-          .withOpposedFollowerCANID(30)
+          .withOpposedFollowerCANID(22)
+          .withOpposedFollowerCANID(23)
+          .withOpposedFollowerCANID(24)
           .withVelocityOffsetStep(RadiansPerSecond.of(5))
           .withVoltageOffsetStep(Volts.of(1))
           .build();
 
   public static final HoodConstants HOOD_CONSTANTS =
       HoodConstants.builder()
-          .withMotorCanId(32)
+          .withMotorCanId(20)
           .withCurrentLimits(40.0)
           .withGearRatio((18.0 / 12.0) * (28.0 / 8.0) * (324.0 / 14.0))
           .withMomentOfInertia(0.0001)
@@ -117,12 +119,12 @@ public class V2_DeltaShooterConstants {
       TurretConstants.builder()
           .withMotorConfig(DCMotor.getKrakenX60Foc(1))
           .withMomentOfInertia(0.004)
-          .withTurretCANID(2)
+          .withTurretCANID(25)
           .withMotorInversion(InvertedValue.CounterClockwise_Positive)
           .withEncoderInversion(SensorDirectionValue.Clockwise_Positive)
           .withCanBus(CANBus.roboRIO())
-          .withEncoder1ID(16)
-          .withEncoder2ID(15)
+          .withEncoder1ID(26)
+          .withEncoder2ID(27)
           .withMaxAngle(Rotation2d.fromDegrees(300))
           .withMinAngle(Rotation2d.fromDegrees(-300))
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))

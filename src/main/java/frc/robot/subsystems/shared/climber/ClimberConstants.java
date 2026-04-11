@@ -183,7 +183,7 @@ public class ClimberConstants {
 
         CLIMBER_CONSTANTS =
             ArmConstants.builder()
-                .withArmCANID(60)
+                .withArmCANID(50)
                 .withArmParameters(ARM_PARAMETERS)
                 .withSlot0Gains(SLOT_0_GAINS)
                 .withSlot1Gains(SLOT_1_GAINS)

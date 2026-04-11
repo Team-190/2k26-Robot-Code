@@ -35,7 +35,7 @@ public class Intake extends SubsystemBase {
 
     intakeState = IntakeState.STOW;
 
-    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP, "");
+    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS, "");
     linkage =
         new FourBarLinkage(
             linkageIO,
