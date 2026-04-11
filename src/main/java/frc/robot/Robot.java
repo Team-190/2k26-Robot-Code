@@ -3,6 +3,7 @@ package frc.robot;
 import choreo.Choreo;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
@@ -36,9 +37,12 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends LoggedRobot {
@@ -48,13 +52,12 @@ public class Robot extends LoggedRobot {
   private static final double LOOP_OVERRUN_WARNING_TIMEOUT = 1;
   private static double startupTimestamp = Double.NEGATIVE_INFINITY;
   private final Timer disabledTimer = new Timer();
-  private final Alert logReceiverQueueAlert =
-      new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.WARNING);
-  private final Elastic.Notification lowBatteryAlert =
-      new Elastic.Notification(
-          Elastic.NotificationLevel.WARNING,
-          "Low Battery! Replace battery soon!",
-          "Battery voltage is very low, consider turning off the robot or replacing the battery.");
+  private final Alert logReceiverQueueAlert = new Alert("Logging queue exceeded capacity, data will NOT be logged.",
+      AlertType.WARNING);
+  private final Elastic.Notification lowBatteryAlert = new Elastic.Notification(
+      Elastic.NotificationLevel.WARNING,
+      "Low Battery! Replace battery soon!",
+      "Battery voltage is very low, consider turning off the robot or replacing the battery.");
   private Command autonomousCommand;
   private RobotContainer robotContainer;
 
@@ -68,7 +71,8 @@ public class Robot extends LoggedRobot {
   }
 
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
   @Override
@@ -158,10 +162,9 @@ public class Robot extends LoggedRobot {
           }
         });
 
-    String DEPLOY_DIR =
-        Filesystem.getDeployDirectory().getPath()
-            + "/"
-            + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
+    String DEPLOY_DIR = Filesystem.getDeployDirectory().getPath()
+        + "/"
+        + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
     try {
       var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
       m.setAccessible(true);
@@ -174,15 +177,14 @@ public class Robot extends LoggedRobot {
 
     // Log active commands
     Map<String, Integer> commandCounts = new HashMap<>();
-    BiConsumer<Command, Boolean> logCommandFunction =
-        (Command command, Boolean active) -> {
-          String name = command.getName();
-          int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
-          commandCounts.put(name, count);
-          Logger.recordOutput(
-              "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
-          Logger.recordOutput("CommandsAll/" + name, count > 0);
-        };
+    BiConsumer<Command, Boolean> logCommandFunction = (Command command, Boolean active) -> {
+      String name = command.getName();
+      int count = commandCounts.getOrDefault(name, 0) + (active ? 1 : -1);
+      commandCounts.put(name, count);
+      Logger.recordOutput(
+          "CommandsUnique/" + name + "_" + Integer.toHexString(command.hashCode()), active);
+      Logger.recordOutput("CommandsAll/" + name, count > 0);
+    };
     CommandScheduler.getInstance()
         .onCommandInitialize((Command command) -> logCommandFunction.accept(command, true));
     CommandScheduler.getInstance()
@@ -195,17 +197,21 @@ public class Robot extends LoggedRobot {
     RobotController.setBrownoutVoltage(6);
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
-    robotContainer =
-        switch (RobotConfig.ROBOT) {
-          case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
-          case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
-          case V2_DELTA, V2_DELTA_SIM -> new V2_DeltaRobotContainer();
-          default -> new RobotContainer() {};
-        };
+    robotContainer = switch (RobotConfig.ROBOT) {
+      case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
+      case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
+      case V2_DELTA, V2_DELTA_SIM -> new V2_DeltaRobotContainer();
+      default -> new RobotContainer() {
+      };
+    };
 
     Elastic.selectTab("Autonomous");
 
     startupTimestamp = Timer.getFPGATimestamp();
+
+    PathfindingCommand.warmupCommand().schedule();
+  }
+
   }
 
   /** This function is called periodically during all modes. */
@@ -238,13 +244,18 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
-  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  /**
+   * This autonomous runs the autonomous command selected by your
+   * {@link RobotContainer} class.
+   */
   @Override
   public void autonomousInit() {
     Elastic.selectTab("Autonomous");
@@ -259,7 +270,8 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -277,7 +289,8 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
@@ -288,13 +301,16 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
