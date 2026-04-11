@@ -39,13 +39,9 @@ public class AdjustPathCommand extends Command {
     this.adjustmentModeSupplier = adjustmentModeSupplier;
     this.adjustmentMode = adjustmentModeSupplier.get();
     this.goalEndVelocity = goalEndVelocity;
-    this.targetPose = targetPoseSupplier.get();
 
     Pathfinding.ensureInitialized();
     followCommand = Commands.none();
-    followCommand =
-        AutoBuilder.pathfindToPose(
-            targetPoseSupplier.get(), PathConstraints.unlimitedConstraints(12), goalEndVelocity);
   }
 
   public AdjustPathCommand(Supplier<Pose2d> targetPoseSupplier) {
@@ -58,6 +54,10 @@ public class AdjustPathCommand extends Command {
 
   @Override
   public void initialize() {
+    followCommand =
+        AutoBuilder.pathfindToPose(
+            targetPoseSupplier.get(), PathConstraints.unlimitedConstraints(12), goalEndVelocity);
+
     adjustmentMode = adjustmentModeSupplier.get();
     targetPose = targetPoseSupplier.get();
     Pathfinding.setDynamicObstacles(
