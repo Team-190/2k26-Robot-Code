@@ -56,8 +56,8 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses {
                 // Follow the path
 
                 LEFT_TRENCH_ANTI_BUCKS_CROSSES.cmd(),
-                Commands.runOnce(
-                    () -> V1_DoomSpiralRobotState.resetPose(FieldConstants.Hub.farFace)),
+                // Commands.runOnce(
+                //     () -> V1_DoomSpiralRobotState.resetPose(FieldConstants.Hub.farFace)),
                 followCommand.onlyWhile(
                     () -> {
                       Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
