@@ -69,12 +69,12 @@ public class TurretIOTalonFX implements TurretIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = constants.statorCurrentLimit;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = constants.maxAngle.getRotations();
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = constants.minAngle.getRotations();
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.MotionMagic.MotionMagicAcceleration =
         constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond);
     config.MotionMagic.MotionMagicCruiseVelocity =

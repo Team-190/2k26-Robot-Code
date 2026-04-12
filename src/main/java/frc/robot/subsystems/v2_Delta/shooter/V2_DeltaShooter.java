@@ -116,11 +116,11 @@ public class V2_DeltaShooter extends SubsystemBase {
         default:
           break;
       }
-    }
 
-    turret.periodic();
-    hood.periodic();
-    flywheel.periodic();
+      turret.periodic();
+      hood.periodic();
+      flywheel.periodic();
+    }
 
     Logger.recordOutput("Shooter/Goal", shooterGoal);
     Logger.recordOutput(

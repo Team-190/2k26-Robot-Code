@@ -184,15 +184,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraMovingLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      shooter::getTurretRotation,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
                   new CameraStaticLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
