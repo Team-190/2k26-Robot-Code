@@ -183,7 +183,7 @@ public class Turret {
         new Transform2d(
             constants.robotToTurretTransform.getX(),
             constants.robotToTurretTransform.getY(),
-            Rotation2d.kZero);
+            constants.robotToTurretTransform.getRotation().toRotation2d());
     Pose2d turretPose = robotPose.transformBy(robotToTurretTransform);
     Translation2d turretToTarget = translationGoal.minus(turretPose.getTranslation());
     return turretToTarget.getAngle().minus(turretPose.getRotation());

@@ -226,7 +226,7 @@ public final class DriveCommands {
                             rotationSupplier.get().getRadians(),
                             drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
             climbSlowMode,
-        .1));
+            .1));
   }
 
   public static Command joystickDriveWithCardinalDirection(
