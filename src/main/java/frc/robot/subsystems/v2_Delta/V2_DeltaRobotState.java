@@ -236,13 +236,6 @@ public class V2_DeltaRobotState {
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
-    Pose2d shooterPosition =
-        hubPose.transformBy(
-            new Transform2d(
-                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
-                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
-                turretRotation));
-
     Translation2d feedTranslation = getFeedTranslation();
 
     distanceToFeedTranslation =
@@ -433,38 +426,38 @@ public class V2_DeltaRobotState {
   }
 
   public record FixedShotParameters(
-      Rotation2d turretAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
+      Translation2d robotPosition, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
 
   @RequiredArgsConstructor
   public enum FixedShots {
     LEFT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-170.0 + 180),
-            V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V2_DeltaShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.LEFT_TRENCH_SHOT_LOCATION,
+            V2_DeltaShooterConstants.LEFT_TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.LEFT_TRENCH_SHOT_FLYWHEEL_SPEED)),
     RIGHT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(350.0 + 180),
-            V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V2_DeltaShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
-    LEFT_CORNER( // TODO: Change to actual values.
+            V2_DeltaShooterConstants.RIGHT_TRENCH_SHOT_LOCATION,
+            V2_DeltaShooterConstants.RIGHT_TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.RIGHT_TRENCH_SHOT_FLYWHEEL_SPEED)),
+    LEFT_CORNER(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-170.0 + 180),
-            V2_DeltaShooterConstants.CORNER_SHOT_HOOD_ANGLE,
-            V2_DeltaShooterConstants.CORNER_SHOT_FLYWHEEL_SPEED)),
-    RIGHT_CORNER( // TODO: Change to actual values.
+            V2_DeltaShooterConstants.LEFT_CORNER_SHOT_LOCATION,
+            V2_DeltaShooterConstants.LEFT_CORNER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.LEFT_CORNER_SHOT_FLYWHEEL_SPEED)),
+    RIGHT_CORNER(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(350.0 + 180),
-            V2_DeltaShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V2_DeltaShooterConstants.CORNER_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.RIGHT_CORNER_SHOT_LOCATION,
+            V2_DeltaShooterConstants.RIGHT_CORNER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.RIGHT_CORNER_SHOT_FLYWHEEL_SPEED)),
     HUB(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0 + 180),
+            V2_DeltaShooterConstants.HUB_SHOT_LOCATION,
             V2_DeltaShooterConstants.HUB_SHOT_HOOD_ANGLE,
             V2_DeltaShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
     TOWER(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0 + 180),
+            V2_DeltaShooterConstants.TOWER_SHOT_LOCATION,
             V2_DeltaShooterConstants.TOWER_SHOT_HOOD_ANGLE,
             V2_DeltaShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 

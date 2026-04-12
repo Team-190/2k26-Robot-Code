@@ -68,9 +68,7 @@ public class V2_DeltaShooter extends SubsystemBase {
     overrideHoodVoltage = Volts.of(0.0);
     overrideFlywheelVoltage = Volts.of(0.0);
 
-    fixedShotParameters =
-        new V2_DeltaRobotState.FixedShotParameters(
-            Rotation2d.kZero, Rotation2d.kZero, RadiansPerSecond.of(0));
+    fixedShotParameters = V2_DeltaRobotState.FixedShots.HUB.getParameters();
   }
 
   @Trace
@@ -105,7 +103,12 @@ public class V2_DeltaShooter extends SubsystemBase {
           flywheel.setVoltageGoal(overrideFlywheelVoltage);
           break;
         case FIXED_SHOTS:
-          turret.setPositionGoal(fixedShotParameters.turretAngle());
+          turret.setPositionGoal(
+              turret.angleToGoal(
+                  FieldConstants.Hub.innerCenterPoint.toTranslation2d(),
+                  new Pose2d(
+                      fixedShotParameters.robotPosition(),
+                      V2_DeltaRobotState.getGlobalPose().getRotation())));
           hood.setPositionGoal(fixedShotParameters.hoodAngle());
           flywheel.setVelocityGoal(fixedShotParameters.flywheelSpeed());
           break;

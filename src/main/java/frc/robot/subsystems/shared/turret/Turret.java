@@ -177,7 +177,7 @@ public class Turret {
     }
   }
 
-  private Rotation2d angleToGoal(Translation2d translationGoal, Pose2d robotPose) {
+  public Rotation2d angleToGoal(Translation2d translationGoal, Pose2d robotPose) {
 
     Transform2d robotToTurretTransform =
         new Transform2d(
