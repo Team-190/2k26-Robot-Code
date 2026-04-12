@@ -74,7 +74,7 @@ public class V2_DeltaClopper extends SubsystemBase {
   }
 
   public Command feedShooterBallTunnel() {
-    return setBallTunnelVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
+    return setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE);
   }
 
   public Command outtakeBallTunnel() {

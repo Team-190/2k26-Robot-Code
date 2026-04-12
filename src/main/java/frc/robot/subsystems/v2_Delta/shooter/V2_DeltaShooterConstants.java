@@ -119,7 +119,7 @@ public class V2_DeltaShooterConstants {
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(0)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(5)))
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(25)))
                   .build())
           .withAlignedFollowerCANID(23)
           .withOpposedFollowerCANID(22)

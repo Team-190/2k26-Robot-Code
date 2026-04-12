@@ -116,12 +116,11 @@ public class V2_DeltaShooter extends SubsystemBase {
         default:
           break;
       }
-
-      flywheel.periodic();
-      turret.periodic();
     }
 
     hood.periodic();
+    flywheel.periodic();
+    turret.periodic();
 
     Logger.recordOutput(
         "Shooter/Fixed Shot/RobotPose",
@@ -154,12 +153,12 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command setGoal(Supplier<ShooterGoal> goalSupplier) {
-    return Commands.run(() -> this.shooterGoal = goalSupplier.get());
+    return this.run(() -> this.shooterGoal = goalSupplier.get());
   }
 
   public Command runFixedShot(V2_DeltaRobotState.FixedShots shot) {
     return setGoal(ShooterGoal.FIXED_SHOTS)
-        .andThen(Commands.runOnce(() -> fixedShotParameters = shot.getParameters()));
+        .alongWith(this.runOnce(() -> fixedShotParameters = shot.getParameters()));
   }
 
   public boolean atGoal() {

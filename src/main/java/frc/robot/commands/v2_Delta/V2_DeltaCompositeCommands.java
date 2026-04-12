@@ -19,7 +19,7 @@ public class V2_DeltaCompositeCommands {
     return Commands.parallel(
         clopper.stopBallTunnel(),
         clopper.stopRollerFloor(),
-        shooter.setGoal(ShooterGoal.STOW),
+        shooter.setGoal(() -> ShooterGoal.STOW),
         Commands.runOnce(V2_DeltaShotCalculator::clear));
   }
 
