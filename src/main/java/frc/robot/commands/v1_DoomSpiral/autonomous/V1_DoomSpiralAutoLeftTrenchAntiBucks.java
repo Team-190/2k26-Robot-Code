@@ -39,7 +39,6 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
             () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(),
             0,
             () -> AdjustPathCommand.PathAdjustmentMode.ALWAYS_USE_TRENCH);
-    
 
     routine
         .active()
