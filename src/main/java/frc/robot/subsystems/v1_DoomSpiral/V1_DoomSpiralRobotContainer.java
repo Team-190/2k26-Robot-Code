@@ -2,8 +2,15 @@ package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -55,6 +62,10 @@ import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.IntStream;
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
@@ -99,7 +110,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
+          // swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new Climber(
                   new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
@@ -122,32 +133,32 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-          //   vision =
-          //       new Vision(
-          //           () -> FieldConstants.tagLayoutType.getLayout(),
-          //           new CameraLimelight(
-          //               new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
-          //               V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
-          //               V1_DoomSpiralRobotState::getHeading,
-          //               drive::getMeasuredChassisSpeeds,
-          //               V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
-          //               List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
-          //               List.of()),
-          //           new CameraLimelight(
-          //               new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
-          //               V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
-          //               V1_DoomSpiralRobotState::getHeading,
-          //               drive::getMeasuredChassisSpeeds,
-          //               V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
-          //               List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
-          //               List.of()));
-          //   new CameraLimelight(
-          //       new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
-          //       V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
-          //       V1_DoomSpiralRobotState::getHeading,
-          //       NetworkTablesJNI::now,
-          //       List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-          //       List.of()));
+          // vision =
+          // new Vision(
+          // () -> FieldConstants.tagLayoutType.getLayout(),
+          // new CameraLimelight(
+          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
+          // V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
+          // V1_DoomSpiralRobotState::getHeading,
+          // drive::getMeasuredChassisSpeeds,
+          // V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+          // List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
+          // List.of()),
+          // new CameraLimelight(
+          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
+          // V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
+          // V1_DoomSpiralRobotState::getHeading,
+          // drive::getMeasuredChassisSpeeds,
+          // V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+          // List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
+          // List.of()));
+          // new CameraLimelight(
+          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+          // V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+          // V1_DoomSpiralRobotState::getHeading,
+          // NetworkTablesJNI::now,
+          // List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+          // List.of()));
           break;
 
         case V1_DOOMSPIRAL_SIM:
@@ -169,7 +180,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          //          swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
+          // swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFXSim());
           climber =
               new Climber(new ArmIOTalonFXSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
@@ -252,8 +263,46 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);
 
+    configurePathPlanner();
     configureButtonBindings();
     configureAutos();
+  }
+
+  private void configurePathPlanner() {
+    try {
+      AutoBuilder.configure(
+          V1_DoomSpiralRobotState::getGlobalPose,
+          V1_DoomSpiralRobotState::resetPose,
+          drive::getMeasuredChassisSpeeds,
+          (speeds, feedforwards) -> {
+            List<Vector<N2>> forces =
+                IntStream.range(0, 4)
+                    .mapToObj(
+                        i ->
+                            VecBuilder.fill(
+                                feedforwards.robotRelativeForcesXNewtons()[i],
+                                feedforwards.robotRelativeForcesYNewtons()[i]))
+                    .toList();
+
+            drive.runVelocityTorque(speeds, forces);
+          },
+          new PPHolonomicDriveController(
+              new PIDConstants(
+                  V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS.getKP(),
+                  V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS.getKI(),
+                  V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS.getKD()),
+              new PIDConstants(
+                  V1_DoomSpiralConstants.ROTATION_AUTO_GAINS.getKP(),
+                  V1_DoomSpiralConstants.ROTATION_AUTO_GAINS.getKI(),
+                  V1_DoomSpiralConstants.ROTATION_AUTO_GAINS.getKD())),
+          com.pathplanner.lib.config.RobotConfig.fromGUISettings(),
+          () ->
+              DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+                  == DriverStation.Alliance.Red,
+          drive);
+    } catch (IOException | ParseException e) {
+      throw new RuntimeException("Failed to load PathPlanner robot config", e);
+    }
   }
 
   @Trace

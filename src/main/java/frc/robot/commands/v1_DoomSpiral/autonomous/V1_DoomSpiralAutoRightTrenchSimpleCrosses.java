@@ -33,16 +33,9 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
 
     AdjustPathCommand followCommand =
         new AdjustPathCommand(
-            () -> V1_DoomSpiralRobotState.getGlobalPose(),
             () -> RIGHT_TRENCH_SIMPLE_CROSSES.getFinalPose().get(),
-            V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-            V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
-            0.0,
-            V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
-            V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
-            () -> true,
-            () -> false,
-            drive);
+            0,
+            () -> AdjustPathCommand.PathAdjustmentMode.ALWAYS_USE_TRENCH);
 
     routine
         .active()

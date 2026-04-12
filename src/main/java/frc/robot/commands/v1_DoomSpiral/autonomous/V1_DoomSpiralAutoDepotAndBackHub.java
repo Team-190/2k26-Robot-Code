@@ -34,17 +34,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.DEPOT_AND_BACK_HUB_PATH_2);
 
     AdjustPathCommand followCommand =
-        new AdjustPathCommand(
-            () -> V1_DoomSpiralRobotState.getGlobalPose(),
-            () -> DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get(),
-            V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-            V1_DoomSpiralConstants.ROTATION_AUTO_GAINS,
-            0.0,
-            V1_DoomSpiralConstants.AUTO_ALIGN_X_CONSTRAINTS,
-            V1_DoomSpiralConstants.AUTO_ALIGN_THETA_CONSTRAINTS,
-            () -> true,
-            () -> false,
-            drive);
+        new AdjustPathCommand(() -> DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get());
 
     routine
         .active()
