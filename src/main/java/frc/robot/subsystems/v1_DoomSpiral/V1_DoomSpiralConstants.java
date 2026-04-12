@@ -212,5 +212,5 @@ public class V1_DoomSpiralConstants {
           .enableRewind(true)
           .build();
 
-  public static final double AUTO_CORRECTION_THRESHOLD_METERS = 1.0;
+  public static final double AUTO_CORRECTION_THRESHOLD_METERS = 0.2;
 }

@@ -62,7 +62,10 @@ public class AdjustPathCommand extends Command {
 
     followCommand =
         AutoBuilder.pathfindToPose(
-            targetPoseSupplier.get(), PathConstraints.unlimitedConstraints(12), goalEndVelocity);
+            targetPoseSupplier.get(),
+            new PathConstraints(
+                1.5, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
+            goalEndVelocity);
 
     followCommand.initialize();
   }
