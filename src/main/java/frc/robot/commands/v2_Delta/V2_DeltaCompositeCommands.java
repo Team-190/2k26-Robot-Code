@@ -23,32 +23,11 @@ public class V2_DeltaCompositeCommands {
         Commands.runOnce(V2_DeltaShotCalculator::clear));
   }
 
-  public static Command feedCommand(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
+  public static Command scoreOrFeedCommand(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
     return Commands.parallel(
-        shooter
-            .setGoal(ShooterGoal.FEED)
-            .until(shooter::atGoal)
-            .andThen(
-                Commands.parallel(
-                    clopper.feedShooterBallTunnel(), clopper.feedShooterRollerFloor())),
-        Commands.runOnce(V2_DeltaShotCalculator::clear));
-  }
-
-  public static Command scoreCommand(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
-    return Commands.parallel(
-        shooter.setGoal(ShooterGoal.SCORE),
-        new ContinuousConditionalCommand(
-            clopper.feedShooterRollerFloor().alongWith(clopper.feedShooterBallTunnel()),
-            clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor()),
-            () -> !V2_DeltaRobotState.isProhibitShot() && shooter.atGoal()));
-  }
-
-  public static Command scoreOrFeedCommand(
-      V2_DeltaShooter shooter, V2_DeltaClopper clopper, Intake intake) {
-    return new ContinuousConditionalCommand(
-        scoreCommand(shooter, clopper),
-        feedCommand(shooter, clopper),
-        V2_DeltaRobotState::isInAllianceZone);
+        shooter.setGoal(
+            () -> V2_DeltaRobotState.isInAllianceZone() ? ShooterGoal.SCORE : ShooterGoal.FEED),
+        runHopperWhenReady(shooter, clopper));
   }
 
   public static Command fixedShotCommand(
@@ -56,10 +35,14 @@ public class V2_DeltaCompositeCommands {
     return Commands.parallel(
         Commands.runOnce(V2_DeltaShotCalculator::clear),
         shooter.runFixedShot(fixedShot),
-        new ContinuousConditionalCommand(
-            clopper.feedShooterRollerFloor().alongWith(clopper.feedShooterBallTunnel()),
-            clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor()),
-            () -> !V2_DeltaRobotState.isProhibitShot() && shooter.atGoal()));
+        runHopperWhenReady(shooter, clopper));
+  }
+
+  public static Command runHopperWhenReady(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
+    return new ContinuousConditionalCommand(
+        clopper.feedShooterRollerFloor().alongWith(clopper.feedShooterBallTunnel(), clopper.idle()),
+        clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor(), clopper.idle()),
+        () -> !V2_DeltaRobotState.isProhibitShot() && shooter.atGoal());
   }
 
   public static Command deployClimber(Intake intake, Climber climber) {

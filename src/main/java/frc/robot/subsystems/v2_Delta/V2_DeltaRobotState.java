@@ -293,6 +293,7 @@ public class V2_DeltaRobotState {
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Lookahead Pose", lookaheadPose);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
@@ -328,6 +329,11 @@ public class V2_DeltaRobotState {
         GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Alliance Zone", GeometryUtil.rectanglePose2ds(allianceZone));
+    Logger.recordOutput(
+        NTPrefixes.SHOOTING_DATA + "Shot Parameters/Turret Velocity",
+        shotParameters.turretVelocity());
+    Logger.recordOutput(
+        NTPrefixes.SHOOTING_DATA + "Shot Parameters/Valid", shotParameters.isValid());
 
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "In Alliance Zone", inAllianceZone);
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Prohibit Shot", prohibitShot);

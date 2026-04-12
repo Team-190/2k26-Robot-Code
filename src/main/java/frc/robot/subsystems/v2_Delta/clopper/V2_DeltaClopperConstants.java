@@ -41,7 +41,7 @@ public class V2_DeltaClopperConstants {
                 .withCurrentLimits(
                     CurrentLimits.builder()
                         .withSupplyCurrentLimit(Amps.of(40.0))
-                        .withStatorCurrentLimit(Amps.of(70.0))
+                        .withStatorCurrentLimit(Amps.of(80.0))
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))

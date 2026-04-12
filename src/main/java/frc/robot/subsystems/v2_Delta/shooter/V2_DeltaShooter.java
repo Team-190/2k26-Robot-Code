@@ -113,11 +113,11 @@ public class V2_DeltaShooter extends SubsystemBase {
         default:
           break;
       }
-
-      turret.periodic();
-      hood.periodic();
-      flywheel.periodic();
     }
+
+    turret.periodic();
+    hood.periodic();
+    flywheel.periodic();
 
     Logger.recordOutput("Shooter/Goal", shooterGoal);
     Logger.recordOutput(
@@ -135,6 +135,10 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command setGoal(ShooterGoal shooterGoal) {
     return Commands.runOnce(() -> this.shooterGoal = shooterGoal);
+  }
+
+  public Command setGoal(Supplier<ShooterGoal> goalSupplier) {
+    return Commands.run(() -> this.shooterGoal = goalSupplier.get());
   }
 
   public Command runFixedShot(V2_DeltaRobotState.FixedShots shot) {
