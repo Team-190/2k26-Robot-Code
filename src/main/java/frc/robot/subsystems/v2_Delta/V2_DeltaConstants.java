@@ -28,7 +28,7 @@ public class V2_DeltaConstants {
 
   public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
       new Transform3d(
-          -.017463, .163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90)));
+          -.017463, -.163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90)));
   public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
       new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0));
 
