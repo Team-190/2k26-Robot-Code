@@ -105,9 +105,9 @@ public class V2_DeltaShooter extends SubsystemBase {
         case FIXED_SHOTS:
           turret.setPositionGoal(
               turret.angleToGoal(
-                  FieldConstants.Hub.innerCenterPoint.toTranslation2d(),
+                  AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()),
                   new Pose2d(
-                      fixedShotParameters.robotPosition(),
+                      AllianceFlipUtil.apply(fixedShotParameters.robotPosition()),
                       V2_DeltaRobotState.getGlobalPose().getRotation())));
           hood.setPositionGoal(fixedShotParameters.hoodAngle());
           flywheel.setVelocityGoal(fixedShotParameters.flywheelSpeed());
@@ -117,10 +117,16 @@ public class V2_DeltaShooter extends SubsystemBase {
           break;
       }
 
-      turret.periodic();
-      hood.periodic();
       flywheel.periodic();
+      turret.periodic();
     }
+
+    hood.periodic();
+
+    Logger.recordOutput(
+        "Shooter/Fixed Shot/RobotPose",
+        new Pose2d(
+            fixedShotParameters.robotPosition(), V2_DeltaRobotState.getGlobalPose().getRotation()));
 
     Logger.recordOutput("Shooter/Goal", shooterGoal);
     Logger.recordOutput(
@@ -133,7 +139,14 @@ public class V2_DeltaShooter extends SubsystemBase {
                         V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
                         Rotation2d.kZero))
                 .getTranslation(),
-            turret.getPosition().plus(V2_DeltaRobotState.getGlobalPose().getRotation())));
+            turret
+                .getPosition()
+                .plus(
+                    V2_DeltaShooterConstants.TURRET_CONSTANTS
+                        .robotToTurretTransform
+                        .getRotation()
+                        .toRotation2d())
+                .plus(V2_DeltaRobotState.getGlobalPose().getRotation())));
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {

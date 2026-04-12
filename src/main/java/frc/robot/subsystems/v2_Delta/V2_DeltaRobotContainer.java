@@ -27,7 +27,6 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
-import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraMovingLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
@@ -124,15 +123,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraMovingLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_SHOOTER_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      shooter::getTurretRotation,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
                   new CameraStaticLimelight(
                       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
                       V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
