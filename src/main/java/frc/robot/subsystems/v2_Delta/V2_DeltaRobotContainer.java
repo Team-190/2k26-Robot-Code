@@ -93,7 +93,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   gyroIO.getRoll().asSupplier());
           intake =
               new Intake(
-                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
           clopper =
               new V2_DeltaClopper(
@@ -140,7 +140,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           climber = new Climber(new ArmIOSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
               new Intake(
-                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS_TOP),
+                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
           clopper =
               new V2_DeltaClopper(
