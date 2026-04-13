@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -261,14 +260,14 @@ public class V2_DeltaShooter extends SubsystemBase {
     return Commands.runOnce(
         () ->
             turret.setPosition(
-                turret.getPosition().plus(new Rotation2d(Units.degreesToRadians(1)))));
+                new Rotation2d(turret.getPosition().getMeasure().plus(Degrees.of(1)))));
   }
 
   public Command decrementTurretZero() {
     return Commands.runOnce(
         () ->
             turret.setPosition(
-                turret.getPosition().minus(new Rotation2d(Units.degreesToRadians(1)))));
+                new Rotation2d(turret.getPosition().getMeasure().minus(Degrees.of(1)))));
   }
 
   public Command resetHoodZero() {
