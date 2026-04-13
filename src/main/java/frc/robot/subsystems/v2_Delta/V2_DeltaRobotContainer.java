@@ -442,15 +442,15 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-topRightPaddle-false"));
 
-    //    driver
-    //        .a()
-    //        .whileTrue(
-    //            V2_DeltaCompositeCommands.fixedShotCommand(
-    //                    shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
-    //                .withName("driver-bottomLeftPaddle-while"))
-    //        .onFalse(
-    //            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-    //                .withName("driver-bottomLeftPaddle-false"));
+    driver
+        .a()
+        .whileTrue(
+            V2_DeltaCompositeCommands.fixedShotCommand(
+                    shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
+                .withName("driver-bottomLeftPaddle-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                .withName("driver-bottomLeftPaddle-false"));
 
     driver
         .b()
@@ -605,6 +605,18 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .g7()
         .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-g7-while"))
         .onFalse(shooter.stopTurret().withName("xkeys-g7-false"));
+
+    xkeys
+        .h1()
+        .or(xkeys.h2().or(xkeys.h3()))
+        .whileTrue(
+            shooter
+                .setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE)
+                .alongWith(clopper.intake())
+                .withName("xkeys-h1-h2-h3-while"))
+        .onFalse(
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                .withName("xkeys-h1-h2-h3-false"));
 
     xkeys
         .h4()

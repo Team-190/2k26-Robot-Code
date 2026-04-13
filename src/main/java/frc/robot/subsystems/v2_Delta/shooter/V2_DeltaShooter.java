@@ -149,7 +149,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {
-    return Commands.runOnce(() -> this.shooterGoal = shooterGoal);
+    return this.runOnce(() -> this.shooterGoal = shooterGoal);
   }
 
   public Command setGoal(Supplier<ShooterGoal> goalSupplier) {
@@ -158,7 +158,7 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command runFixedShot(V2_DeltaRobotState.FixedShots shot) {
     return setGoal(ShooterGoal.FIXED_SHOTS)
-        .alongWith(this.runOnce(() -> fixedShotParameters = shot.getParameters()));
+        .alongWith(Commands.runOnce(() -> fixedShotParameters = shot.getParameters()));
   }
 
   public boolean atGoal() {
