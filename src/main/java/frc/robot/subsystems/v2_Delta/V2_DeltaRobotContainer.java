@@ -463,8 +463,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("driver-bottomRightPaddle-false"));
 
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
-    xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
-    xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
+    xkeys.b2().onTrue(intake.decrementStowOffset().withName("xkeys-b2-true"));
+    xkeys.b3().onTrue(intake.incrementStowOffset().withName("xkeys-b3-true"));
 
     xkeys
         .b4()
@@ -494,7 +494,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     xkeys
         .b10()
-        .whileTrue(
+        .onTrue(
             SharedCompositeCommands.resetHeading(
                     drive,
                     V2_DeltaRobotState::resetPose,
@@ -534,6 +534,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
     xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
 
+    xkeys.e4().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-e4-true"));
+    xkeys.e5().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-e5-true"));
+    xkeys.e6().onTrue(shooter.incrementHoodAngle().withName("xkeys-e6-true"));
+    xkeys.e7().onTrue(shooter.decrementHoodAngle().withName("xkeys-e7-true"));
+
     xkeys
         .e8()
         .whileTrue(climber.clockwiseSlow().withName("xkeys-e8-while"))
@@ -565,23 +570,19 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("xkeys-f2-while"))
         .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f2-false"));
 
-    xkeys.f4().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-f4-true"));
-    xkeys.f5().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-f5-true"));
-    xkeys.f6().onTrue(shooter.incrementHoodAngle().withName("xkeys-f6-true"));
-    xkeys.f7().onTrue(shooter.decrementHoodAngle().withName("xkeys-f7-true"));
-
+    xkeys
+        .f4()
+        .onTrue(
+            shooter
+                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.STOW)
+                .withName("xkeys-f4-true"));
     xkeys
         .g1()
         .or(xkeys.g2().or(xkeys.g3()))
         .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
 
-    xkeys
-        .g4()
-        .onTrue(
-            shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.STOW).withName("xkeys-g4-true"));
-
-    xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
-    xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
+    xkeys.f6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
+    xkeys.f7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
 
     xkeys.g9().onTrue(climber.resetClimberZero().withName("xkeys-g9-true"));
     xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
