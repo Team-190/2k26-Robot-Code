@@ -33,7 +33,8 @@ public class V2_DeltaAutoRightOP {
                 OP_SAFE_1.cmd(),
                 drive.runOnce(drive::stop),
                 V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.0),
-                OP_2.cmd().alongWith(intake.deploy()),
+                OP_2.cmd()
+                    .alongWith(intake.deploy(), V2_DeltaCompositeCommands.hold(clopper, shooter)),
                 Commands.runOnce(drive::stop),
                 V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
 
