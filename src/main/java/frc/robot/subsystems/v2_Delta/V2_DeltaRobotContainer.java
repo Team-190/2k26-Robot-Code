@@ -35,6 +35,8 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOP;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
@@ -330,7 +332,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               ::repeatedly);
     }
 
-    SmartDashboard.putData("Autonomous Chooser", autoChooser);
+    autoChooser.addRoutineConfig(
+        "Left OP", V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addRoutineConfig(
+        "Right OP", V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter));
+
+    SmartDashboard.putData("Autonomous Modes", autoChooser);
   }
 
   @Trace
