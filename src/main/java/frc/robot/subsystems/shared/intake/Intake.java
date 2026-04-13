@@ -10,12 +10,14 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
@@ -31,8 +33,10 @@ public class Intake extends SubsystemBase {
   @Getter private final FourBarLinkage linkage;
 
   @Getter private IntakeState intakeState;
-  private double overrideVoltage;
   private boolean overrideRoller;
+
+  private final Setpoint<VoltageUnit> overrideVoltageSetpoint;
+  private final Setpoint<VoltageUnit> normalVoltageSetpoint;
 
   private final BooleanSupplier fastIntakeRollers;
 
@@ -42,7 +46,21 @@ public class Intake extends SubsystemBase {
 
     intakeState = IntakeState.STOW;
 
-    roller = new GenericRoller(rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS, "");
+    overrideVoltageSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            IntakeConstants.INTAKE_ROLLER_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+    normalVoltageSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            IntakeConstants.INTAKE_ROLLER_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+    roller =
+        new GenericRoller(
+            rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS, "", normalVoltageSetpoint);
     linkage =
         new FourBarLinkage(
             linkageIO,
@@ -64,24 +82,31 @@ public class Intake extends SubsystemBase {
     roller.periodic();
     linkage.periodic();
 
-    if (overrideRoller) roller.setVoltageGoal(Volts.of(overrideVoltage));
-    else
+    if (overrideRoller) roller.setVoltageGoal(overrideVoltageSetpoint);
+    else {
       switch (intakeState) {
         case STOW:
+          roller.setVoltageGoal(normalVoltageSetpoint);
           if (!linkage.atPositionGoal())
             roller.setVoltageGoal(Volts.of(IntakeConstants.EXTAKE_VOLTAGE));
           else roller.setVoltageGoal(Volts.of(0.0));
           break;
         case INTAKE:
-          roller.setVoltageGoal(
-              Volts.of(fastIntakeRollers.getAsBoolean() ? IntakeConstants.INTAKE_VOLTAGE : 8.0));
+          if (fastIntakeRollers.getAsBoolean()) {
+            roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
+          } else {
+            roller.setVoltageGoal(overrideVoltageSetpoint);
+            roller.setVoltageGoal(Volts.of(8));
+          }
           break;
         case AGITATE:
+          roller.setVoltageGoal(normalVoltageSetpoint);
           roller.setVoltageGoal(Volts.of(3.0));
           break;
         default:
           break;
       }
+    }
 
     Logger.recordOutput("Intake/Intake State", intakeState);
 
@@ -123,7 +148,7 @@ public class Intake extends SubsystemBase {
   public Command setOverrideRollerVoltage(double voltage) {
     return Commands.runOnce(
         () -> {
-          overrideVoltage = voltage;
+          overrideVoltageSetpoint.setSetpoint(Volts.of(voltage));
           overrideRoller = true;
         });
   }
@@ -280,11 +305,11 @@ public class Intake extends SubsystemBase {
   }
 
   public Command increaseSpeedOffset() {
-    return Commands.runOnce(roller.getVoltageGoal()::increment);
+    return Commands.runOnce(overrideVoltageSetpoint::increment);
   }
 
   public Command decreaseSpeedOffset() {
-    return Commands.runOnce(roller.getVoltageGoal()::decrement);
+    return Commands.runOnce(overrideVoltageSetpoint::decrement);
   }
 
   public Command defaultCommand() {

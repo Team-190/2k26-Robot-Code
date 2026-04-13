@@ -223,7 +223,7 @@ public class IntakeConstants {
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withOpposedFollowerCANID(21)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-                .withVoltageOffsetStep(Volts.of(0.25))
+                .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
                 .build();
 
@@ -378,7 +378,7 @@ public class IntakeConstants {
 
         ZERO_OFFSET = Rotation2d.kPi;
         MIN_ANGLE = Rotation2d.fromDegrees(30.838927);
-        MAX_ANGLE = Rotation2d.fromDegrees(246.74);
+        MAX_ANGLE = Rotation2d.fromDegrees(236.74);
         // points A and D on the intake.
 
         PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);

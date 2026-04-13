@@ -25,7 +25,6 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
@@ -141,42 +140,14 @@ public class V2_DeltaRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(5.0));
-    shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(340.0));
+    shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(0.175781));
+    shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(205));
 
-    shootAngleTree.put(Meters.of(1.491203295344588), Rotation2d.fromDegrees(6.0));
-    shootSpeedTree.put(Meters.of(1.491203295344588), RadiansPerSecond.of(345.0));
+    shootAngleTree.put(Meters.of(6.2), Rotation2d.fromDegrees(21.269531));
+    shootSpeedTree.put(Meters.of(6.2), RadiansPerSecond.of(308.181632));
 
-    shootAngleTree.put(Meters.of(1.735737657075872), Rotation2d.fromDegrees(16.0));
-    shootSpeedTree.put(Meters.of(1.735737657075872), RadiansPerSecond.of(345.0));
-
-    shootAngleTree.put(Meters.of(2.0049492041827994), Rotation2d.fromDegrees(17.0));
-    shootSpeedTree.put(Meters.of(2.0049492041827994), RadiansPerSecond.of(350.0));
-
-    shootAngleTree.put(Meters.of(2.30668187255375), Rotation2d.fromDegrees(18.0));
-    shootSpeedTree.put(Meters.of(2.30668187255375), RadiansPerSecond.of(355.0));
-
-    shootAngleTree.put(Meters.of(2.572028569812878), Rotation2d.fromDegrees(19.0));
-    shootSpeedTree.put(Meters.of(2.572028569812878), RadiansPerSecond.of(375.0));
-
-    shootAngleTree.put(Meters.of(2.9670118924057562), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(2.9670118924057562), RadiansPerSecond.of(388.0));
-
-    shootAngleTree.put(Meters.of(3.297585897171101), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(3.297585897171101), RadiansPerSecond.of(405.0));
-
-    shootAngleTree.put(Meters.of(3.622009715844515), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(3.622009715844515), RadiansPerSecond.of(415.0));
-
-    shootAngleTree.put(Meters.of(3.8605317055005743), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(3.8605317055005743), RadiansPerSecond.of(430.0));
-
-    shootAngleTree.put(Meters.of(4.120246303911951), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(4.120246303911951), RadiansPerSecond.of(457.0));
-
-    feedAngleTree.put(
-        Meters.of(0.0),
-        Rotation2d.fromDegrees(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.maxAngle.getDegrees()));
+    feedAngleTree.put(Feet.of(13), Rotation2d.fromDegrees(21.972656));
+    feedAngleTree.put(Feet.of(37), Rotation2d.fromDegrees(30.410156));
     // feedHoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(7.0));
     // feedHoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(7.0));
     // feedHoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(9.0));
@@ -187,8 +158,9 @@ public class V2_DeltaRobotState {
     // feedHoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
     // feedHoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
 
-    feedSpeedTree.put(
-        Meters.of(0.0), RadiansPerSecond.of(Units.rotationsPerMinuteToRadiansPerSecond(6300)));
+    feedSpeedTree.put(Feet.of(13), RadiansPerSecond.of(254.297199));
+    feedSpeedTree.put(Feet.of(37), RadiansPerSecond.of(408.222967));
+
     // feedFlywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.81), RadiansPerSecond.of(230.0));

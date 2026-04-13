@@ -138,15 +138,18 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
                       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()));
+                      List.of())
+                  //                  new CameraStaticLimelight(
+                  //                      new
+                  // CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
+                  //                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
+                  //                      V2_DeltaRobotState::getHeading,
+                  //                      drive::getMeasuredChassisSpeeds,
+                  //                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                  //
+                  // List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                  //                      List.of())
+                  );
           break;
         case V2_DELTA_SIM:
           drive =
@@ -603,14 +606,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     // xkeys.g4().onTrue(); SLOW WRAP MODE
     // xkeys.g5().onTrue(); FAST WRAP MODE
 
-    xkeys
-        .g6()
-        .whileTrue(shooter.clockwiseSlow().withName("xkeys-g6-while"))
-        .onFalse(shooter.stopTurret().withName("xkeys-g6-false"));
-    xkeys
-        .g7()
-        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-g7-while"))
-        .onFalse(shooter.stopTurret().withName("xkeys-g7-false"));
+    xkeys.g6().whileTrue(shooter.clockwiseSlow().withName("xkeys-g6-while"));
+    xkeys.g7().whileTrue(shooter.counterClockwiseSlow().withName("xkeys-g7-while"));
 
     xkeys
         .h1()
