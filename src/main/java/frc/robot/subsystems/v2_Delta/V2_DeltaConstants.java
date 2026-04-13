@@ -191,11 +191,10 @@ public class V2_DeltaConstants {
                   -.282,
                   .311,
                   .446,
-                  new Rotation3d(0, 0, Units.degreesToRadians(48.402))
-                      .rotateBy(new Rotation3d(0, Units.degreesToRadians(46.58), 0))
-                      .rotateBy(
-                          new Rotation3d(
-                              Units.degreesToRadians(72.886), 0, Units.degreesToRadians(90)))))
+                  new Rotation3d(
+                      0,
+                      Units.degreesToRadians(90 - 72.886),
+                      Units.degreesToRadians(180 + 48.402 - 90))))
           .enableRewind(true)
           .build();
 
@@ -214,9 +213,7 @@ public class V2_DeltaConstants {
                   -.326,
                   .456,
                   new Rotation3d(
-                      Units.degreesToRadians(70),
-                      Units.degreesToRadians(180 + 90 - 63.857),
-                      Units.degreesToRadians(180 + (-90 - 33.903)))))
+                      0, Units.degreesToRadians(90 - 63.857), Units.degreesToRadians(90 + 33.903))))
           .enableRewind(true)
           .build();
   public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =
