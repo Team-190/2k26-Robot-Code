@@ -32,15 +32,12 @@ public class IntakeConstants {
   public static final Rotation2d LINKAGE_ANGLE_INCREMENT;
   public static final double LINKAGE_SLOW_VOLTAGE;
 
-  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS_TOP;
+  public static final GenericRollerConstants INTAKE_ROLLER_CONSTANTS;
 
   public static final Translation3d LINKAGE_OFFSET;
 
   public static final int MOTOR_CAN_ID;
-  public static final int CAN_CODER_CAN_ID;
-  public static final Rotation2d CAN_CODER_OFFSET;
 
-  public static final SensorDirectionValue CANCODER_SENSOR_DIRECTION;
   public static final double GEAR_RATIO;
   public static final int SUPPLY_CURRENT_LIMIT;
   public static final int STATOR_CURRENT_LIMIT;
@@ -77,7 +74,7 @@ public class IntakeConstants {
         LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
         LINKAGE_SLOW_VOLTAGE = 1.5;
 
-        INTAKE_ROLLER_CONSTANTS_TOP =
+        INTAKE_ROLLER_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(20)
                 .withCurrentLimits(
@@ -98,10 +95,6 @@ public class IntakeConstants {
         LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
 
         MOTOR_CAN_ID = 22;
-        CAN_CODER_CAN_ID = 23;
-        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
-
-        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
         GEAR_RATIO = 50.79235079;
         SUPPLY_CURRENT_LIMIT = 40;
         STATOR_CURRENT_LIMIT = 40;
@@ -159,8 +152,8 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
-                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withCancoderSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                .withCanCoderCanId(23)
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
@@ -183,7 +176,8 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
-                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .withCanCoderOffset(Rotation2d.fromRadians(-92.285156))
+                .withEnableFoc(false)
                 .build();
 
         INTAKE_STATES =
@@ -215,7 +209,7 @@ public class IntakeConstants {
         LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
         LINKAGE_SLOW_VOLTAGE = 1.5;
 
-        INTAKE_ROLLER_CONSTANTS_TOP =
+        INTAKE_ROLLER_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(20)
                 .withCurrentLimits(
@@ -236,10 +230,7 @@ public class IntakeConstants {
         LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
 
         MOTOR_CAN_ID = 22;
-        CAN_CODER_CAN_ID = 23;
-        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
 
-        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
         GEAR_RATIO = 50.79235079;
         SUPPLY_CURRENT_LIMIT = 40;
         STATOR_CURRENT_LIMIT = 40;
@@ -297,8 +288,8 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
-                .withCanCoderCanId(CAN_CODER_CAN_ID)
+                .withCancoderSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                .withCanCoderCanId(23)
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
@@ -321,7 +312,8 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
-                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .withCanCoderOffset(Rotation2d.fromRadians(92.285156))
+                .withEnableFoc(false)
                 .build();
         INTAKE_STATES =
             Map.of(
@@ -352,9 +344,9 @@ public class IntakeConstants {
         LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
         LINKAGE_SLOW_VOLTAGE = 1.5;
 
-        INTAKE_ROLLER_CONSTANTS_TOP =
+        INTAKE_ROLLER_CONSTANTS =
             GenericRollerConstants.builder()
-                .withLeaderCANID(20)
+                .withLeaderCANID(41)
                 .withCurrentLimits(
                     CurrentLimits.builder()
                         .withSupplyCurrentLimit(Amps.of(40.0))
@@ -362,22 +354,20 @@ public class IntakeConstants {
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-                .withRollerMotorGearRatio(8.0 / 3.0)
-                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
-                .withOpposedFollowerCANID(21)
+                .withRollerMotorGearRatio((16.0 / 40.0) * (52.0))
+                .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
+                .withOpposedFollowerCANID(42)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-                .withVoltageOffsetStep(Volts.of(0.25))
+                .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
                 .withEnableFOC(false)
                 .build();
 
-        LINKAGE_OFFSET = new Translation3d(0, 0, 0); // wrong for testing
+        LINKAGE_OFFSET =
+            new Translation3d(0.381, 0.141, 0.276); // TODO: Anshu says he doesn't really care
 
-        MOTOR_CAN_ID = 22;
-        CAN_CODER_CAN_ID = 23;
-        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
+        MOTOR_CAN_ID = 40; // Pivot
 
-        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
         GEAR_RATIO = (62.0 / 11.0) * (68.0 / 18.0) * (34.0 / 28.0) * (30.0 / 24.0);
         SUPPLY_CURRENT_LIMIT = 40;
         STATOR_CURRENT_LIMIT = 40;
@@ -388,29 +378,29 @@ public class IntakeConstants {
 
         ZERO_OFFSET = Rotation2d.kPi;
         MIN_ANGLE = Rotation2d.fromDegrees(30.838927);
-        MAX_ANGLE = Rotation2d.fromDegrees(168.912511);
+        MAX_ANGLE = Rotation2d.fromDegrees(236.74);
         // points A and D on the intake.
 
         PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
         GAINS =
             Gains.builder()
-                .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
-                .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
-                .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
-                .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
-                .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+                .withKP(new LoggedTunableNumber("Linkage/KP", 120))
+                .withKD(new LoggedTunableNumber("Linkage/KD", 5.0))
+                .withKS(new LoggedTunableNumber("Linkage/KS", 0.049018))
+                .withKG(new LoggedTunableNumber("Linkage/KG", 0.35311))
+                .withKV(new LoggedTunableNumber("Linkage/KV", 4.7192))
                 .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
                 .build();
         CONSTRAINTS =
             AngularPositionConstraints.builder()
                 .withMaxVelocity(
-                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RotationsPerSecond.of(17)))
                 .withMaxAcceleration(
                     new LoggedTunableMeasure<>(
-                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                        "Linkage/Max Acceleration", RotationsPerSecondPerSecond.of(85)))
                 .withGoalTolerance(
-                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(2.0)))
                 .build();
 
         LINK_LENGTHS =
@@ -419,7 +409,7 @@ public class IntakeConstants {
                 Units.Inches.of(8.945053).in(Units.Meters),
                 Units.Inches.of(7.500000).in(Units.Meters),
                 Units.Inches.of(6.823672).in(Units.Meters));
-
+        //
         // These don't matter for V2
         LINK_BOUNDS =
             new LinkBounds(
@@ -436,8 +426,6 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
-                .withCanCoderCanId(CAN_CODER_CAN_ID)
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
@@ -460,7 +448,7 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
-                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .withEnableFoc(true)
                 .build();
 
         INTAKE_STATES =
@@ -492,7 +480,7 @@ public class IntakeConstants {
         LINKAGE_ANGLE_INCREMENT = Rotation2d.fromDegrees(2.0);
         LINKAGE_SLOW_VOLTAGE = 1.5;
 
-        INTAKE_ROLLER_CONSTANTS_TOP =
+        INTAKE_ROLLER_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(20)
                 .withCurrentLimits(
@@ -502,7 +490,7 @@ public class IntakeConstants {
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-                .withRollerMotorGearRatio(8.0 / 3.0)
+                .withRollerMotorGearRatio((16.0 / 40.0) * (52.0))
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withOpposedFollowerCANID(21)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
@@ -514,10 +502,6 @@ public class IntakeConstants {
         LINKAGE_OFFSET = new Translation3d(0, 0, 0); // wrong for testing
 
         MOTOR_CAN_ID = 22;
-        CAN_CODER_CAN_ID = 23;
-        CAN_CODER_OFFSET = Rotation2d.fromDegrees(-92.285156);
-
-        CANCODER_SENSOR_DIRECTION = SensorDirectionValue.Clockwise_Positive;
         GEAR_RATIO = (62.0 / 11.0) * (68.0 / 18.0) * (34.0 / 28.0) * (30.0 / 24.0);
         SUPPLY_CURRENT_LIMIT = 40;
         STATOR_CURRENT_LIMIT = 40;
@@ -576,8 +560,6 @@ public class IntakeConstants {
 
         LINKAGE_CONSTANTS =
             FourBarLinkageConstants.builder()
-                .withCancoderSensorDirection(CANCODER_SENSOR_DIRECTION)
-                .withCanCoderCanId(CAN_CODER_CAN_ID)
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
@@ -600,7 +582,7 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
-                .withCanCoderOffset(CAN_CODER_OFFSET)
+                .withEnableFoc(true)
                 .build();
         INTAKE_STATES =
             Map.of(
@@ -629,6 +611,6 @@ public class IntakeConstants {
   public enum IntakeState {
     STOW,
     INTAKE,
-    AGITATE;
+    AGITATE
   }
 }

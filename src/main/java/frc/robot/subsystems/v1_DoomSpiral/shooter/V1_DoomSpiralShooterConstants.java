@@ -49,10 +49,10 @@ public class V1_DoomSpiralShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", .5))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 1.5))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0.0))
                   .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", 0.21467))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.14015))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.3915))
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/VoltageKa", 0.0045447))
                   .build())
           .withTorqueGains(
@@ -120,7 +120,7 @@ public class V1_DoomSpiralShooterConstants {
           .build();
 
   public static Transform2d SHOOTER_POSE =
-      new Transform2d(0.015, 0.255299, Rotation2d.fromDegrees(-90.0));
+      new Transform2d(-0.015, 0.255299, Rotation2d.fromDegrees(-90.0));
 
   public enum HoodGoal {
     SCORE,

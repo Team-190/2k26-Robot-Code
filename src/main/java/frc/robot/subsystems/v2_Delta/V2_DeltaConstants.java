@@ -20,10 +20,17 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V2_DeltaConstants {
+
+  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
+      new Transform3d(
+          -.017463, -.163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90)));
+  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
+      new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0));
+
   public static final DriveConfig DRIVE_CONFIG =
       new DriveConfig(
           V2_DeltaTunerConstants.kCANBus,
@@ -170,21 +177,59 @@ public class V2_DeltaConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_SHOOTER_CONFIG =
-      LimelightConfig.builder()
-          .key("shooter")
+  public static final StaticLimelightConfig LIMELIGHT_LEFT_CONFIG = // CLIMBER
+      StaticLimelightConfig.builder()
+          .key("left")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(Transform3d.kZero)
+          .robotToCameraTransform(
+              new Transform3d(
+                  -.282,
+                  .311,
+                  .446,
+                  new Rotation3d(
+                      0,
+                      Units.degreesToRadians(90 - 72.886),
+                      Units.degreesToRadians(180 + 48.402 - 90))))
           .enableRewind(true)
           .build();
 
-  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
-      new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d());
-  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
-      new Transform3d(0.003008, -0.149135, -0.161329, new Rotation3d());
+  public static final StaticLimelightConfig LIMELIGHT_RIGHT_CONFIG = // SHOOTER
+      StaticLimelightConfig.builder()
+          .key("right")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  -.202,
+                  -.326,
+                  .456,
+                  new Rotation3d(
+                      0, Units.degreesToRadians(90 - 63.857), Units.degreesToRadians(90 + 33.903))))
+          .enableRewind(true)
+          .build();
+  public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =
+      StaticLimelightConfig.builder()
+          .key("intake")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  Inches.of(-6.540012),
+                  Inches.of(-7.176137),
+                  Inches.of(20.459907),
+                  new Rotation3d(0.0, Units.degreesToRadians(90 - 57.826644), 0)))
+          .enableRewind(true)
+          .build();
 }
