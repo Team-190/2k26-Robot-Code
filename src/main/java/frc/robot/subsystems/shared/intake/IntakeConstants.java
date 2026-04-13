@@ -223,7 +223,7 @@ public class IntakeConstants {
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withOpposedFollowerCANID(21)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-                .withVoltageOffsetStep(Volts.of(1))
+                .withVoltageOffsetStep(Volts.of(0.25))
                 .withCanBus(CANBus.roboRIO())
                 .build();
 
@@ -358,7 +358,7 @@ public class IntakeConstants {
                 .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
                 .withOpposedFollowerCANID(42)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-                .withVoltageOffsetStep(Volts.of(0.25))
+                .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
                 .withEnableFOC(false)
                 .build();
