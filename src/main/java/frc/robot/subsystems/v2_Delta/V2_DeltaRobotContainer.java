@@ -442,15 +442,15 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-topRightPaddle-false"));
 
-    driver
-        .a()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
-                .withName("driver-bottomLeftPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-bottomLeftPaddle-false"));
+    //    driver
+    //        .a()
+    //        .whileTrue(
+    //            V2_DeltaCompositeCommands.fixedShotCommand(
+    //                    shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
+    //                .withName("driver-bottomLeftPaddle-while"))
+    //        .onFalse(
+    //            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+    //                .withName("driver-bottomLeftPaddle-false"));
 
     driver
         .b()
@@ -608,10 +608,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     xkeys
         .h4()
-        .toggleOnTrue(V2_DeltaCompositeCommands.hold(clopper, shooter).withName("xkeys-h4-toggle"))
-        .toggleOnFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("xkeys-h4-toggleOff"));
+        .whileTrue(
+            V2_DeltaCompositeCommands.toggleHold(clopper, shooter).withName("xkeys-h4-toggle"));
 
     xkeys
         .h5()

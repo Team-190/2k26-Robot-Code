@@ -13,6 +13,7 @@ import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoal;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.command.ContinuousConditionalCommand;
+import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaCompositeCommands {
 
@@ -22,6 +23,18 @@ public class V2_DeltaCompositeCommands {
         clopper.stopRollerFloor(),
         shooter.setGoal(() -> ShooterGoal.STOW),
         Commands.runOnce(V2_DeltaShotCalculator::clear));
+  }
+
+  private static boolean toggleShouldHold = false;
+
+  public static Command toggleHold(V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
+    return Commands.either(
+            hold(clopper, shooter), scoreOrFeedCommand(shooter, clopper), () -> toggleShouldHold)
+        .beforeStarting(
+            () -> {
+              toggleShouldHold = !toggleShouldHold;
+              Logger.recordOutput("Toggle hold", toggleShouldHold);
+            });
   }
 
   public static Command scoreOrFeedCommand(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
