@@ -33,8 +33,11 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOSim;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFX;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonFXSim;
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
+import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
+import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 // import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
@@ -133,32 +136,25 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new V1_DoomSpiralShooter(
                   new GenericFlywheelIOTalonFX(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFX(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
-          // vision =
-          // new Vision(
-          // () -> FieldConstants.tagLayoutType.getLayout(),
-          // new CameraLimelight(
-          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
-          // V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
-          // V1_DoomSpiralRobotState::getHeading,
-          // drive::getMeasuredChassisSpeeds,
-          // V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
-          // List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
-          // List.of()),
-          // new CameraLimelight(
-          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
-          // V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
-          // V1_DoomSpiralRobotState::getHeading,
-          // drive::getMeasuredChassisSpeeds,
-          // V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
-          // List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
-          // List.of()));
-          // new CameraLimelight(
-          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
-          // V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
-          // V1_DoomSpiralRobotState::getHeading,
-          // NetworkTablesJNI::now,
-          // List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
-          // List.of()));
+          vision =
+              new Vision(
+                  () -> FieldConstants.tagLayoutType.getLayout(),
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_SHOOTER_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+                      List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG),
+                      V1_DoomSpiralConstants.LIMELIGHT_CLIMBER_CONFIG,
+                      V1_DoomSpiralRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
+                      List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
+                      List.of()));
           break;
 
         case V1_DOOMSPIRAL_SIM:
