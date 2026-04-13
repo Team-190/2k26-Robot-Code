@@ -130,6 +130,22 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
                       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()),
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
                       List.of()));
           break;
         case V2_DELTA_SIM:
@@ -171,17 +187,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
           leds = new V2_DeltaCANdle();
 
-          vision =
-              new Vision(
-                  () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()));
+          vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
           break;
         default:
       }
