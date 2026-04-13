@@ -576,31 +576,50 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             shooter
                 .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.STOW)
                 .withName("xkeys-f4-true"));
+
+    xkeys
+        .f5()
+        .toggleOnTrue(V2_DeltaCompositeCommands.hold(clopper, shooter).withName("xkeys-f5-toggle"))
+        .toggleOnFalse(
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                .withName("xkeys-f5-toggleOff")); // TODO: Confirm behavior
     xkeys
         .g1()
         .or(xkeys.g2().or(xkeys.g3()))
         .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
 
-    xkeys.f6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
-    xkeys.f7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
+    xkeys.f6().onTrue(shooter.incrementTurretZero().withName("xkeys-f6-true"));
+    xkeys.f7().onTrue(shooter.decrementTurretZero().withName("xkeys-f7-true"));
 
     xkeys.g9().onTrue(climber.resetClimberZero().withName("xkeys-g9-true"));
     xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
 
-    // xkeys.h4().onTrue(); SLOW WRAP MODE
-    // xkeys.h5().onTrue(); FAST WRAP MODE
+    // xkeys.g4().onTrue(); SLOW WRAP MODE
+    // xkeys.g5().onTrue(); FAST WRAP MODE
 
     xkeys
-        .h6()
-        .whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"))
-        .onFalse(shooter.stopTurret().withName("xkeys-h6-false"));
+        .g6()
+        .whileTrue(shooter.clockwiseSlow().withName("xkeys-g6-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-g6-false"));
     xkeys
-        .h7()
-        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"))
-        .onFalse(shooter.stopTurret().withName("xkeys-h7-false"));
+        .g7()
+        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-g7-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-g7-false"));
+
+    xkeys
+        .h4()
+        .toggleOnTrue(V2_DeltaCompositeCommands.hold(clopper, shooter).withName("xkeys-h4-toggle"))
+        .toggleOnFalse(
+            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                .withName("xkeys-h4-toggleOff"));
+
+    xkeys
+        .h5()
+        .whileTrue(V2_DeltaCompositeCommands.eject(intake, clopper).withName("xkeys-h5-while"));
 
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
-    xkeys.h10().whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"));
+
+    xkeys.h10().onTrue(shooter.resetHoodZero().withName("xkeys-h10-while"));
   }
 
   @Override
