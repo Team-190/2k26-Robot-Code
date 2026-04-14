@@ -35,8 +35,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.*;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.Logger;
 
+@ExtensionMethod(GeometryUtil.class)
 public class V2_DeltaRobotState {
   private static final AprilTagFieldLayout fieldLayout;
 
@@ -52,7 +54,7 @@ public class V2_DeltaRobotState {
 
   private static final Localization localization;
 
-  @Getter private static final Distance distanceToHub;
+  @Getter private static Distance distanceToHub;
   @Getter private static Distance distanceToFeedTranslation;
 
   private static final InterpolatingTreeMap<Distance, Rotation2d> shootAngleTree;
@@ -96,6 +98,7 @@ public class V2_DeltaRobotState {
     distanceToHub =
         Distance.ofBaseUnits(
             getHubZonePose()
+                .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
                 .getTranslation()
                 .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
                 .getNorm(),
@@ -140,11 +143,27 @@ public class V2_DeltaRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(0.175781));
-    shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(205));
+    shootAngleTree.put(Meters.of(1.074934), Rotation2d.fromRotations(0.0));
+    shootAngleTree.put(Meters.of(1.490425), Rotation2d.fromRotations(0.0));
+    shootAngleTree.put(Meters.of(1.988254), Rotation2d.fromRotations(0.008));
+    shootAngleTree.put(Meters.of(2.481035), Rotation2d.fromRotations(0.012));
+    shootAngleTree.put(Meters.of(3.002048), Rotation2d.fromRotations(0.018));
+    shootAngleTree.put(Meters.of(3.519295), Rotation2d.fromRotations(0.034));
+    shootAngleTree.put(Meters.of(3.972171), Rotation2d.fromRotations(0.040));
+    shootAngleTree.put(Meters.of(4.551259), Rotation2d.fromRotations(0.045));
+    shootAngleTree.put(Meters.of(4.894654), Rotation2d.fromRotations(0.05));
+    shootAngleTree.put(Meters.of(5.336559), Rotation2d.fromRotations(0.06));
 
-    shootAngleTree.put(Meters.of(6.2), Rotation2d.fromDegrees(21.269531));
-    shootSpeedTree.put(Meters.of(6.2), RadiansPerSecond.of(308.181632));
+    shootSpeedTree.put(Meters.of(1.074934), RotationsPerSecond.of(22));
+    shootSpeedTree.put(Meters.of(1.490425), RotationsPerSecond.of(24));
+    shootSpeedTree.put(Meters.of(1.988254), RotationsPerSecond.of(26));
+    shootSpeedTree.put(Meters.of(2.481035), RotationsPerSecond.of(27));
+    shootSpeedTree.put(Meters.of(3.002048), RotationsPerSecond.of(28));
+    shootSpeedTree.put(Meters.of(3.519295), RotationsPerSecond.of(29));
+    shootSpeedTree.put(Meters.of(3.972171), RotationsPerSecond.of(30.5));
+    shootSpeedTree.put(Meters.of(4.551259), RotationsPerSecond.of(33));
+    shootSpeedTree.put(Meters.of(4.894654), RotationsPerSecond.of(35.5));
+    shootSpeedTree.put(Meters.of(5.336559), RotationsPerSecond.of(37));
 
     feedAngleTree.put(Feet.of(13), Rotation2d.fromDegrees(21.972656));
     feedAngleTree.put(Feet.of(37), Rotation2d.fromDegrees(30.410156));
@@ -209,6 +228,15 @@ public class V2_DeltaRobotState {
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
     Translation2d feedTranslation = getFeedTranslation();
+
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getHubZonePose()
+                .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(

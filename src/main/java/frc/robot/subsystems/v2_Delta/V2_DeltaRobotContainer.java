@@ -117,63 +117,47 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                             drive::getMeasuredChassisSpeeds);
                     leds = new V2_DeltaCANdle();
 
-                    vision = new Vision(
-                            () -> FieldConstants.tagLayoutType.getLayout(),
-                            new CameraStaticLimelight(
-                                    new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
-                                    V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
-                                    V2_DeltaRobotState::getHeading,
-                                    drive::getMeasuredChassisSpeeds,
-                                    V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                                    List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                                    List.of()),
-                            new CameraStaticLimelight(
-                                    new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
-                                    V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG,
-                                    V2_DeltaRobotState::getHeading,
-                                    drive::getMeasuredChassisSpeeds,
-                                    V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                                    List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                                    List.of())
-                    // new CameraStaticLimelight(
-                    // new
-                    // CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
-                    // V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
-                    // V2_DeltaRobotState::getHeading,
-                    // drive::getMeasuredChassisSpeeds,
-                    // V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                    //
-                    // List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                    // List.of())
-                    );
-                    break;
-                case V2_DELTA_SIM:
-                    drive = new SwerveDrive(
-                            V2_DeltaConstants.DRIVE_CONSTANTS,
-                            new GyroIO() {
-                            },
-                            new SwerveModuleIOSim(
-                                    V2_DeltaConstants.DRIVE_CONSTANTS,
-                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
-                            new SwerveModuleIOSim(
-                                    V2_DeltaConstants.DRIVE_CONSTANTS,
-                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
-                            new SwerveModuleIOSim(
-                                    V2_DeltaConstants.DRIVE_CONSTANTS,
-                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
-                            new SwerveModuleIOSim(
-                                    V2_DeltaConstants.DRIVE_CONSTANTS,
-                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-                            V2_DeltaRobotState::getGlobalPose,
-                            V2_DeltaRobotState::resetPose);
-                    climber = new Climber(new ArmIOSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
-                    intake = new Intake(
-                            new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                            new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
-                            driver.leftBumper());
-                    clopper = new V2_DeltaClopper(
-                            new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                            new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+          vision =
+              new Vision(
+                  () -> FieldConstants.tagLayoutType.getLayout(),
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()));
+          break;
+        case V2_DELTA_SIM:
+          drive =
+              new SwerveDrive(
+                  V2_DeltaConstants.DRIVE_CONSTANTS,
+                  new GyroIO() {},
+                  new SwerveModuleIOSim(
+                      V2_DeltaConstants.DRIVE_CONSTANTS,
+                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
+                  new SwerveModuleIOSim(
+                      V2_DeltaConstants.DRIVE_CONSTANTS,
+                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
+                  new SwerveModuleIOSim(
+                      V2_DeltaConstants.DRIVE_CONSTANTS,
+                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
+                  new SwerveModuleIOSim(
+                      V2_DeltaConstants.DRIVE_CONSTANTS,
+                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
+                  V2_DeltaRobotState::getGlobalPose,
+                  V2_DeltaRobotState::resetPose);
+          climber = new Climber(new ArmIOSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
+          intake =
+              new Intake(
+                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
+                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
+                  driver.leftBumper());
+          clopper =
+              new V2_DeltaClopper(
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
 
                     shooter = new V2_DeltaShooter(
                             new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),

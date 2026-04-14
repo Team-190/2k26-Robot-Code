@@ -107,7 +107,7 @@ public class V2_DeltaShooter extends SubsystemBase {
                   AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()),
                   new Pose2d(
                       AllianceFlipUtil.apply(fixedShotParameters.robotPosition()),
-                      V2_DeltaRobotState.getGlobalPose().getRotation())));
+                      V2_DeltaRobotState.getHubZonePose().getRotation())));
           hood.setPositionGoal(fixedShotParameters.hoodAngle());
           flywheel.setVelocityGoal(fixedShotParameters.flywheelSpeed());
           break;
@@ -130,7 +130,7 @@ public class V2_DeltaShooter extends SubsystemBase {
     Logger.recordOutput(
         "Shooter/Pose2d",
         new Pose2d(
-            V2_DeltaRobotState.getGlobalPose()
+            V2_DeltaRobotState.getHubZonePose()
                 .transformBy(
                     new Transform2d(
                         V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),

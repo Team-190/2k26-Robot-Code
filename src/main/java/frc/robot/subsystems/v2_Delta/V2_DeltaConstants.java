@@ -9,7 +9,9 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -28,6 +30,9 @@ public class V2_DeltaConstants {
   public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
       new Transform3d(
           -.017463, -.163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90)));
+
+  public static final Transform2d ROBOT_TO_SHOOTER_TRANSFORM_2D =
+      new Transform2d(-.017463, -.163513, Rotation2d.fromDegrees(90.0));
   public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
       new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0));
 
@@ -226,8 +231,8 @@ public class V2_DeltaConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  Inches.of(-6.540012),
                   Inches.of(-7.176137),
+                  Inches.of(6.540012),
                   Inches.of(20.459907),
                   new Rotation3d(0.0, Units.degreesToRadians(90 - 57.826644), 0)))
           .enableRewind(true)
