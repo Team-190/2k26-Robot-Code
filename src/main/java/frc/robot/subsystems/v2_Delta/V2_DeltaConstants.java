@@ -218,7 +218,9 @@ public class V2_DeltaConstants {
                   -.326,
                   .456,
                   new Rotation3d(
-                      0, Units.degreesToRadians(33.903), Units.degreesToRadians(-180 + 63.857))))
+                      0,
+                      Units.degreesToRadians(90 - 33.903),
+                      Units.degreesToRadians(-90 - 63.856605))))
           .enableRewind(true)
           .build();
   public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =

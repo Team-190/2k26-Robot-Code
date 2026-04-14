@@ -266,11 +266,16 @@ public class V2_DeltaRobotState {
     lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
 
-    shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
+    shouldHoodTuck =
+        GeometryUtil.intersects(
+            FieldConstants.Zones.HOOD_TUCK_ZONES,
+            getGlobalPose(),
+            V2_DeltaConstants.DRIVE_CONFIG.bumperWidth(),
+            V2_DeltaConstants.DRIVE_CONFIG.bumperLength());
     prohibitShot =
         isTurretWrapping
             || shouldHoodTuck
-            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose())
+            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
             || !shotParameters.isValid();
 
     Rectangle2d allianceZone =
