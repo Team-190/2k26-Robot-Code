@@ -133,23 +133,24 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
                       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()));
+                      List.of())
+                  //   new CameraStaticLimelight(
+                  //       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
+                  //       V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG,
+                  //       V2_DeltaRobotState::getHeading,
+                  //       drive::getMeasuredChassisSpeeds,
+                  //       V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                  //       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                  //       List.of()),
+                  //   new CameraStaticLimelight(
+                  //       new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
+                  //       V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
+                  //       V2_DeltaRobotState::getHeading,
+                  //       drive::getMeasuredChassisSpeeds,
+                  //       V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                  //       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                  //       List.of())
+                  );
           break;
         case V2_DELTA_SIM:
           drive =
@@ -607,10 +608,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("xkeys-g4-false"));
     xkeys
         .g5()
-        .toggleOnTrue(V2_DeltaCompositeCommands.hold(clopper, shooter).withName("xkeys-g5-toggle"))
-        .toggleOnFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("xkeys-g5-toggleOff")); // TODO: Confirm behavior
+        .whileTrue(
+            V2_DeltaCompositeCommands.toggleHold(clopper, shooter)
+                .withName("xkeys-g5-toggle")); // TODO: Confirm behavior
 
     xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
     xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));

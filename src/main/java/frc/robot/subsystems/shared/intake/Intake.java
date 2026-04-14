@@ -93,6 +93,7 @@ public class Intake extends SubsystemBase {
           break;
         case INTAKE:
           if (fastIntakeRollers.getAsBoolean()) {
+            roller.setVoltageGoal(normalVoltageSetpoint);
             roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
           } else {
             roller.setVoltageGoal(overrideVoltageSetpoint);
