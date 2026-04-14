@@ -8,8 +8,8 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
+import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.util.BetterAutoChooser.AutoRoutineConfiguration;
@@ -45,9 +45,9 @@ public class V2_DeltaAutoLeftOP {
             Commands.runOnce(
                 () -> {
                   drive.setAutoControllers(
-                      V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
-                      V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(OP_SAFE_1, OP_2);
+                      V2_DeltaConstants.TRANSLATION_AUTO_GAINS,
+                      V2_DeltaConstants.ROTATION_AUTO_GAINS);
+                  V2_DeltaRobotState.setAutoTrajectory(OP_SAFE_1, OP_2);
                 }));
   }
 }
