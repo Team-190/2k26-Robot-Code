@@ -193,13 +193,13 @@ public class V2_DeltaConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  -.282,
-                  .311,
-                  .446,
+                  -0.275571,
+                  0.305,
+                  -0.443327,
                   new Rotation3d(
                       0,
-                      Units.degreesToRadians(90 - 72.886),
-                      Units.degreesToRadians(180 + 48.402 - 90))))
+                      Units.degreesToRadians(48.401928),
+                      Units.degreesToRadians(90 + 72.886381))))
           .enableRewind(true)
           .build();
 
@@ -218,7 +218,7 @@ public class V2_DeltaConstants {
                   -.326,
                   .456,
                   new Rotation3d(
-                      0, Units.degreesToRadians(90 - 63.857), Units.degreesToRadians(90 + 33.903))))
+                      0, Units.degreesToRadians(33.903), Units.degreesToRadians(-90 - 63.857))))
           .enableRewind(true)
           .build();
   public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =
