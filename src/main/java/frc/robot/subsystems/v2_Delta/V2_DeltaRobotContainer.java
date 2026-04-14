@@ -313,11 +313,13 @@ public class V2_DeltaRobotContainer implements RobotContainer {
       autoChooser.addCmd(
           "Shooter Flywheel Agitate",
           shooter
-                  .setFlywheelVelocity(RadiansPerSecond.of(680))
+                  .setFlywheelVelocity(RadiansPerSecond.of(500))
                   .andThen(
                       shooter.waitUntilFlywheelAtGoal(),
-                      shooter.setFlywheelVelocity(RadiansPerSecond.of(-400)),
-                      shooter.waitUntilFlywheelAtGoal())
+                      Commands.waitSeconds(1),
+                      shooter.setFlywheelVelocity(RadiansPerSecond.of(0)),
+                      shooter.waitUntilFlywheelAtGoal(),
+                      Commands.waitSeconds(1))
               ::repeatedly);
       autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
 
