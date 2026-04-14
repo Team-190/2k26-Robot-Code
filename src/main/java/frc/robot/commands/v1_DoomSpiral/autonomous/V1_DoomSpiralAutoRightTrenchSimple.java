@@ -16,13 +16,15 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import java.util.function.Supplier;
 
 public class V1_DoomSpiralAutoRightTrenchSimple {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
       Intake intake,
       V1_DoomSpiralShooter shooter,
-      V1_DoomSpiralSpindexer spindexer) {
+      V1_DoomSpiralSpindexer spindexer,
+      Supplier<AdjustPathCommand.PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     // Create the routine and the trajectory
 
@@ -33,9 +35,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
 
     AdjustPathCommand followCommand =
         new AdjustPathCommand(
-            () -> RIGHT_TRENCH_SIMPLE.getFinalPose().get(),
-            0,
-            () -> AdjustPathCommand.PathAdjustmentMode.ALWAYS_USE_TRENCH);
+            () -> RIGHT_TRENCH_SIMPLE.getFinalPose().get(), 0, pathAdjustmentModeSupplier);
 
     routine
         .active()

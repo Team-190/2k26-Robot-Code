@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import frc.robot.FieldConstants;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import lombok.Getter;
@@ -18,11 +19,12 @@ import lombok.RequiredArgsConstructor;
 public class AdjustPathCommand extends Command {
 
   private final Supplier<Pose2d> targetPoseSupplier;
-  private final Supplier<PathAdjustmentMode> adjustmentModeSupplier;
+  private final Supplier<PathAdjustmentMode[]> adjustmentModeSupplier;
   private final double goalEndVelocity;
-  private PathAdjustmentMode adjustmentMode;
+  private PathAdjustmentMode[] adjustmentMode;
   private Pose2d targetPose;
   private Command followCommand;
+  List<Pair<Translation2d, Translation2d>> allObstacles = new ArrayList<>();
 
   /**
    * Creates a command that generates and follows a corrective path to a target pose using
@@ -34,7 +36,7 @@ public class AdjustPathCommand extends Command {
   public AdjustPathCommand(
       Supplier<Pose2d> targetPoseSupplier,
       double goalEndVelocity,
-      Supplier<PathAdjustmentMode> adjustmentModeSupplier) {
+      Supplier<PathAdjustmentMode[]> adjustmentModeSupplier) {
     this.targetPoseSupplier = targetPoseSupplier;
     this.adjustmentModeSupplier = adjustmentModeSupplier;
     this.adjustmentMode = adjustmentModeSupplier.get();
@@ -45,10 +47,16 @@ public class AdjustPathCommand extends Command {
   }
 
   public AdjustPathCommand(Supplier<Pose2d> targetPoseSupplier) {
-    this(targetPoseSupplier, 0.0, () -> PathAdjustmentMode.USE_ANY_AVAILABLE);
+    this(
+        targetPoseSupplier,
+        0.0,
+        () -> {
+          return new PathAdjustmentMode[] {PathAdjustmentMode.USE_ANY_AVAILABLE};
+        });
   }
 
-  public AdjustPathCommand(Supplier<Pose2d> targetPoseSupplier, Supplier<PathAdjustmentMode> mode) {
+  public AdjustPathCommand(
+      Supplier<Pose2d> targetPoseSupplier, Supplier<PathAdjustmentMode[]> mode) {
     this(targetPoseSupplier, 0.0, mode);
   }
 
@@ -57,8 +65,10 @@ public class AdjustPathCommand extends Command {
 
     adjustmentMode = adjustmentModeSupplier.get();
     targetPose = targetPoseSupplier.get();
-    Pathfinding.setDynamicObstacles(
-        adjustmentMode.getObstacles(), AutoBuilder.getCurrentPose().getTranslation());
+    for (PathAdjustmentMode mode : adjustmentMode) {
+      allObstacles.addAll(mode.getObstacles());
+    }
+    Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
 
     followCommand =
         AutoBuilder.pathfindToPose(
@@ -74,8 +84,10 @@ public class AdjustPathCommand extends Command {
   public void execute() {
     if (adjustmentMode != adjustmentModeSupplier.get()) {
       adjustmentMode = adjustmentModeSupplier.get();
-      Pathfinding.setDynamicObstacles(
-          adjustmentMode.getObstacles(), AutoBuilder.getCurrentPose().getTranslation());
+      for (PathAdjustmentMode mode : adjustmentMode) {
+        allObstacles.addAll(mode.getObstacles());
+      }
+      Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
     }
 
     if (!targetPose.equals(targetPoseSupplier.get())) {
@@ -101,19 +113,21 @@ public class AdjustPathCommand extends Command {
 
   @RequiredArgsConstructor
   public enum PathAdjustmentMode {
-    ALWAYS_USE_TRENCH(
+    LEFT_BUMP(
         List.of(
             Pair.of(FieldConstants.LeftBump.nearRightCorner, FieldConstants.LeftBump.farLeftCorner),
             Pair.of(
-                FieldConstants.RightBump.nearRightCorner, FieldConstants.RightBump.farLeftCorner),
-            Pair.of(
                 FieldConstants.LeftBump.oppNearRightCorner,
-                FieldConstants.LeftBump.oppFarLeftCorner),
+                FieldConstants.LeftBump.oppFarLeftCorner))),
+    RIGHT_BUMP(
+        List.of(
+            Pair.of(
+                FieldConstants.RightBump.nearRightCorner, FieldConstants.RightBump.farLeftCorner),
             Pair.of(
                 FieldConstants.RightBump.oppNearRightCorner,
                 FieldConstants.RightBump.oppFarLeftCorner))),
 
-    NEVER_USE_TRENCH(
+    LEFT_TRENCH(
         List.of(
             // Top right and bottom left corners of each Rectangle2d
             Pair.of(
@@ -122,10 +136,12 @@ public class AdjustPathCommand extends Command {
                 GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.BLUE_TRENCH)[2]
                     .getTranslation()),
             Pair.of(
-                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[0]
+                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[0]
                     .getTranslation(),
-                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[2]
-                    .getTranslation()),
+                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[2]
+                    .getTranslation()))),
+    RIGHT_TRENCH(
+        List.of(
             Pair.of(
                 GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH)[0]
                     .getTranslation(),

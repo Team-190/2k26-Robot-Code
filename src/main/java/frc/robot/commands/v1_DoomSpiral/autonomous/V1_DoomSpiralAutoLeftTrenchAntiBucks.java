@@ -16,13 +16,15 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import java.util.function.Supplier;
 
 public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
       Intake intake,
       V1_DoomSpiralShooter shooter,
-      V1_DoomSpiralSpindexer spindexer) {
+      V1_DoomSpiralSpindexer spindexer,
+      Supplier<AdjustPathCommand.PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     // Create the routine and the trajectory
 
@@ -33,9 +35,7 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
     AdjustPathCommand followCommand =
         new AdjustPathCommand(
-            () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(),
-            0,
-            () -> AdjustPathCommand.PathAdjustmentMode.NEVER_USE_TRENCH);
+            () -> LEFT_TRENCH_ANTI_BUCKS.getFinalPose().get(), 0, pathAdjustmentModeSupplier);
 
     routine
         .active()
@@ -56,10 +56,10 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
 
                 LEFT_TRENCH_ANTI_BUCKS.cmd(),
                 // Commands.runOnce(
-                //     () ->
-                //         V1_DoomSpiralRobotState.resetPose(
-                //             FieldConstants.Hub.farFace.plus(
-                //                 new Transform2d(4, 2, new Rotation2d(95))))),
+                // () ->
+                // V1_DoomSpiralRobotState.resetPose(
+                // FieldConstants.Hub.farFace.plus(
+                // new Transform2d(4, 2, new Rotation2d(95))))),
                 followCommand.onlyWhile(
                     () -> {
                       Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
