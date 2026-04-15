@@ -338,8 +338,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               ::repeatedly);
     }
 
-    autoChooser.addRoutineConfig(
-        "Left OP", V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Left OP", () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
     // autoChooser.addRoutineConfig(
     // "Right OP", V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter)); TODO: Bring
     // back when we have a right OP auto
