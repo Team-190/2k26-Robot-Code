@@ -3,7 +3,6 @@ package frc.robot.commands.shared;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -30,8 +29,7 @@ public class AdjustPathCommand extends Command {
   List<Pair<Translation2d, Translation2d>> allObstacles = new ArrayList<>();
 
   /**
-   * Creates a command that generates and follows a corrective path to a target
-   * pose using
+   * Creates a command that generates and follows a corrective path to a target pose using
    * PathPlanner.
    *
    * @param targetPoseSupplier
@@ -48,18 +46,13 @@ public class AdjustPathCommand extends Command {
 
     Pathfinding.ensureInitialized();
     followCommand = Commands.none();
-    PathPlannerLogging.setLogActivePathCallback(
-        p -> Logger.recordOutput("PP Length", p.toArray(Pose2d[]::new)));
-    PathPlannerLogging.setLogTargetPoseCallback(c -> Logger.recordOutput("PP Target", c));
   }
 
   public AdjustPathCommand(Supplier<Pose2d> targetPoseSupplier) {
     this(
         targetPoseSupplier,
         0.0,
-        () -> {
-          return new PathAdjustmentMode[] { PathAdjustmentMode.USE_ANY_AVAILABLE };
-        });
+        () -> new PathAdjustmentMode[] {PathAdjustmentMode.USE_ANY_AVAILABLE});
   }
 
   public AdjustPathCommand(
@@ -70,29 +63,15 @@ public class AdjustPathCommand extends Command {
   @Override
   public void initialize() {
 
-    adjustmentMode = adjustmentModeSupplier.get();
     targetPose = targetPoseSupplier.get();
-    allObstacles.clear();
-    for (PathAdjustmentMode mode : adjustmentMode) {
-      allObstacles.addAll(
-          mode.getObstacles().stream()
-              .map(
-                  p -> Pair.of(
-                      AllianceFlipUtil.apply(p.getFirst()),
-                      AllianceFlipUtil.apply(p.getSecond())))
-              .toList());
+    updateObstacles();
 
-    }
-    Logger.recordOutput("AdjustPathCommand/Modes",
-        List.of(adjustmentMode).stream().map(PathAdjustmentMode::name).toArray(String[]::new));
-
-    Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
-
-    followCommand = AutoBuilder.pathfindToPose(
-        targetPoseSupplier.get(),
-        new PathConstraints(
-            1.5, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
-        goalEndVelocity);
+    followCommand =
+        AutoBuilder.pathfindToPose(
+            targetPoseSupplier.get(),
+            new PathConstraints(
+                1.5, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
+            goalEndVelocity);
 
     followCommand.initialize();
   }
@@ -100,30 +79,37 @@ public class AdjustPathCommand extends Command {
   @Override
   public void execute() {
     if (adjustmentMode != adjustmentModeSupplier.get()) {
-      adjustmentMode = adjustmentModeSupplier.get();
-      allObstacles.clear();
-      for (PathAdjustmentMode mode : adjustmentMode) {
-        allObstacles.addAll(
-            mode.getObstacles().stream()
-                .map(
-                    p -> Pair.of(
-                        AllianceFlipUtil.apply(p.getFirst()),
-                        AllianceFlipUtil.apply(p.getSecond())))
-                .toList());
-      }
-      Logger.recordOutput("AdjustPathCommand/Modes",
-          List.of(adjustmentMode).stream().map(PathAdjustmentMode::name).toArray(String[]::new));
-      Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
+      updateObstacles();
     }
 
     if (!targetPose.equals(targetPoseSupplier.get())) {
       targetPose = targetPoseSupplier.get();
       followCommand.end(true);
-      followCommand = AutoBuilder.pathfindToPose(
-          targetPose, PathConstraints.unlimitedConstraints(12), goalEndVelocity);
+      followCommand =
+          AutoBuilder.pathfindToPose(
+              targetPose, PathConstraints.unlimitedConstraints(12), goalEndVelocity);
       followCommand.initialize();
     }
     followCommand.execute();
+  }
+
+  private void updateObstacles() {
+    adjustmentMode = adjustmentModeSupplier.get();
+    allObstacles.clear();
+    for (PathAdjustmentMode mode : adjustmentMode) {
+      allObstacles.addAll(
+          mode.getObstacles().stream()
+              .map(
+                  p ->
+                      Pair.of(
+                          AllianceFlipUtil.apply(p.getFirst()),
+                          AllianceFlipUtil.apply(p.getSecond())))
+              .toList());
+    }
+    Logger.recordOutput(
+        "AdjustPathCommand/Modes",
+        List.of(adjustmentMode).stream().map(PathAdjustmentMode::name).toArray(String[]::new));
+    Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
   }
 
   @Override
@@ -179,7 +165,6 @@ public class AdjustPathCommand extends Command {
                     .getTranslation()))),
     USE_ANY_AVAILABLE(List.of());
 
-    @Getter
-    private final List<Pair<Translation2d, Translation2d>> obstacles;
+    @Getter private final List<Pair<Translation2d, Translation2d>> obstacles;
   }
 }
