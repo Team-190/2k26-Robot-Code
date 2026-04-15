@@ -205,7 +205,7 @@ public class V2_DeltaConstants {
                   0.443327,
                   Rotation3d.kZero
                       .rotateBy(new Rotation3d(0, Units.degreesToRadians(17.114), 0))
-                      .rotateBy(new Rotation3d(0, 0, Units.degreesToRadians(-134)))))
+                      .rotateBy(new Rotation3d(0, 0, Units.degreesToRadians(-44)))))
           .enableRewind(true)
           .build();
 
