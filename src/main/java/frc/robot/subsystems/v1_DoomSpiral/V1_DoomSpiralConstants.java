@@ -39,7 +39,11 @@ public class V1_DoomSpiralConstants {
           V1_DoomSpiralTunerConstants.kDriveClosedLoopOutput,
           V1_DoomSpiralTunerConstants.kSteerClosedLoopOutput,
           Units.inchesToMeters(37.5),
-          Units.inchesToMeters(28.5));
+          Units.inchesToMeters(28.5),
+          0.0,
+          0.0,
+          0.0,
+          0.0);
 
   public static final Gains DRIVE_GAINS =
       Gains.builder()

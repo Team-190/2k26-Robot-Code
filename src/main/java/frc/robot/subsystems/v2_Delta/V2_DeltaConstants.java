@@ -37,21 +37,27 @@ public class V2_DeltaConstants {
       new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0));
 
   public static final DriveConfig DRIVE_CONFIG =
-      new DriveConfig(
-          V2_DeltaTunerConstants.kCANBus,
-          V2_DeltaTunerConstants.DrivetrainConstants.Pigeon2Id,
-          V2_DeltaTunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-          V2_DeltaTunerConstants.kWheelRadius.in(Meters),
-          DCMotor.getKrakenX60Foc(1),
-          DCMotor.getKrakenX44Foc(1),
-          V2_DeltaTunerConstants.FrontLeft,
-          V2_DeltaTunerConstants.FrontRight,
-          V2_DeltaTunerConstants.BackLeft,
-          V2_DeltaTunerConstants.BackRight,
-          V2_DeltaTunerConstants.kDriveClosedLoopOutput,
-          V2_DeltaTunerConstants.kSteerClosedLoopOutput,
-          Units.inchesToMeters(37.5),
-          Units.inchesToMeters(28.5));
+      DriveConfig.builder()
+          .withCanBus(V2_DeltaTunerConstants.kCANBus)
+          .withPigeon2Id(V2_DeltaTunerConstants.DrivetrainConstants.Pigeon2Id)
+          .withMaxLinearVelocityMetersPerSecond(
+              V2_DeltaTunerConstants.kSpeedAt12Volts.in(MetersPerSecond))
+          .withWheelRadiusMeters(V2_DeltaTunerConstants.kWheelRadius.in(Meters))
+          .withDriveModel(DCMotor.getKrakenX60Foc(1))
+          .withTurnModel(DCMotor.getKrakenX44Foc(1))
+          .withFrontLeft(V2_DeltaTunerConstants.FrontLeft)
+          .withFrontRight(V2_DeltaTunerConstants.FrontRight)
+          .withBackLeft(V2_DeltaTunerConstants.BackLeft)
+          .withBackRight(V2_DeltaTunerConstants.BackRight)
+          .withDriveClosedLoopOutputType(V2_DeltaTunerConstants.kDriveClosedLoopOutput)
+          .withSteerClosedLoopOutputType(V2_DeltaTunerConstants.kSteerClosedLoopOutput)
+          .withBumperWidth(Units.inchesToMeters(37.5))
+          .withBumperLength(Units.inchesToMeters(28.5))
+          .withTrackWidth(Units.inchesToMeters(0))
+          .withRobotMOI(7.897)
+          .withModuleCurrentLimit(60.0)
+          .withRobotMassKilograms(67.000)
+          .build();
 
   public static final Gains DRIVE_GAINS =
       Gains.builder()

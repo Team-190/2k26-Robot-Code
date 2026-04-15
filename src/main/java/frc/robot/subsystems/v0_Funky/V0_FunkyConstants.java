@@ -40,6 +40,10 @@ public class V0_FunkyConstants {
           .withSteerClosedLoopOutputType(V0_FunkyTunerConstants.kSteerClosedLoopOutput)
           .withBumperLength(Units.inchesToMeters(34.5))
           .withBumperWidth(Units.inchesToMeters(34.5))
+          .withTrackWidth(Units.inchesToMeters(0))
+          .withRobotMOI(7.897)
+          .withModuleCurrentLimit(60.0)
+          .withRobotMassKilograms(67.000)
           .build();
 
   public static final Gains DRIVE_GAINS =
