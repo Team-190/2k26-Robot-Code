@@ -43,7 +43,8 @@ public class V1_DoomSpiralConstants {
           0.0,
           0.0,
           0.0,
-          0.0);
+          0.0,
+          2.0);
 
   public static final Gains DRIVE_GAINS =
       Gains.builder()

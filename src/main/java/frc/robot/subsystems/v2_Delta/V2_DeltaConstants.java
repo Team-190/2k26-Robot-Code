@@ -57,6 +57,7 @@ public class V2_DeltaConstants {
           .withRobotMOI(7.897)
           .withModuleCurrentLimit(60.0)
           .withRobotMassKilograms(67.000)
+          .withWheelCOF(2.0)
           .build();
 
   public static final Gains DRIVE_GAINS =
