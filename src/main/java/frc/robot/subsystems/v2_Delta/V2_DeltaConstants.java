@@ -39,7 +39,12 @@ public class V2_DeltaConstants {
           V2_DeltaTunerConstants.kDriveClosedLoopOutput,
           V2_DeltaTunerConstants.kSteerClosedLoopOutput,
           Units.inchesToMeters(37.5),
-          Units.inchesToMeters(28.5));
+          Units.inchesToMeters(28.5),
+          115.0,
+          0.8128,
+          7.90,
+          60.0,
+          2.0);
 
   public static final Gains DRIVE_GAINS =
       Gains.builder()

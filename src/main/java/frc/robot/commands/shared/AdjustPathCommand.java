@@ -3,6 +3,7 @@ package frc.robot.commands.shared;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import frc.robot.FieldConstants;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -28,7 +30,8 @@ public class AdjustPathCommand extends Command {
   List<Pair<Translation2d, Translation2d>> allObstacles = new ArrayList<>();
 
   /**
-   * Creates a command that generates and follows a corrective path to a target pose using
+   * Creates a command that generates and follows a corrective path to a target
+   * pose using
    * PathPlanner.
    *
    * @param targetPoseSupplier
@@ -45,6 +48,9 @@ public class AdjustPathCommand extends Command {
 
     Pathfinding.ensureInitialized();
     followCommand = Commands.none();
+    PathPlannerLogging.setLogActivePathCallback(
+        p -> Logger.recordOutput("PP Length", p.toArray(Pose2d[]::new)));
+    PathPlannerLogging.setLogTargetPoseCallback(c -> Logger.recordOutput("PP Target", c));
   }
 
   public AdjustPathCommand(Supplier<Pose2d> targetPoseSupplier) {
@@ -52,7 +58,7 @@ public class AdjustPathCommand extends Command {
         targetPoseSupplier,
         0.0,
         () -> {
-          return new PathAdjustmentMode[] {PathAdjustmentMode.USE_ANY_AVAILABLE};
+          return new PathAdjustmentMode[] { PathAdjustmentMode.USE_ANY_AVAILABLE };
         });
   }
 
@@ -66,20 +72,27 @@ public class AdjustPathCommand extends Command {
 
     adjustmentMode = adjustmentModeSupplier.get();
     targetPose = targetPoseSupplier.get();
-    int i = 0;
+    allObstacles.clear();
     for (PathAdjustmentMode mode : adjustmentMode) {
-      allObstacles.addAll(mode.getObstacles());
-      Logger.recordOutput("Mode " + i++, mode.name());
+      allObstacles.addAll(
+          mode.getObstacles().stream()
+              .map(
+                  p -> Pair.of(
+                      AllianceFlipUtil.apply(p.getFirst()),
+                      AllianceFlipUtil.apply(p.getSecond())))
+              .toList());
+
     }
+    Logger.recordOutput("AdjustPathCommand/Modes",
+        List.of(adjustmentMode).stream().map(PathAdjustmentMode::name).toArray(String[]::new));
 
     Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
 
-    followCommand =
-        AutoBuilder.pathfindToPose(
-            targetPoseSupplier.get(),
-            new PathConstraints(
-                1.5, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
-            goalEndVelocity);
+    followCommand = AutoBuilder.pathfindToPose(
+        targetPoseSupplier.get(),
+        new PathConstraints(
+            1.5, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
+        goalEndVelocity);
 
     followCommand.initialize();
   }
@@ -88,19 +101,26 @@ public class AdjustPathCommand extends Command {
   public void execute() {
     if (adjustmentMode != adjustmentModeSupplier.get()) {
       adjustmentMode = adjustmentModeSupplier.get();
-      Logger.recordOutput("VALS", adjustmentModeSupplier.get());
+      allObstacles.clear();
       for (PathAdjustmentMode mode : adjustmentMode) {
-        allObstacles.addAll(mode.getObstacles());
+        allObstacles.addAll(
+            mode.getObstacles().stream()
+                .map(
+                    p -> Pair.of(
+                        AllianceFlipUtil.apply(p.getFirst()),
+                        AllianceFlipUtil.apply(p.getSecond())))
+                .toList());
       }
+      Logger.recordOutput("AdjustPathCommand/Modes",
+          List.of(adjustmentMode).stream().map(PathAdjustmentMode::name).toArray(String[]::new));
       Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
     }
 
     if (!targetPose.equals(targetPoseSupplier.get())) {
       targetPose = targetPoseSupplier.get();
       followCommand.end(true);
-      followCommand =
-          AutoBuilder.pathfindToPose(
-              targetPose, PathConstraints.unlimitedConstraints(12), goalEndVelocity);
+      followCommand = AutoBuilder.pathfindToPose(
+          targetPose, PathConstraints.unlimitedConstraints(12), goalEndVelocity);
       followCommand.initialize();
     }
     followCommand.execute();
@@ -141,9 +161,9 @@ public class AdjustPathCommand extends Command {
                 GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.BLUE_TRENCH)[2]
                     .getTranslation()),
             Pair.of(
-                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[0]
+                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[0]
                     .getTranslation(),
-                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[2]
+                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[2]
                     .getTranslation()))),
     RIGHT_TRENCH(
         List.of(
@@ -153,12 +173,13 @@ public class AdjustPathCommand extends Command {
                 GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH)[2]
                     .getTranslation()),
             Pair.of(
-                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[0]
+                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[0]
                     .getTranslation(),
-                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[2]
+                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[2]
                     .getTranslation()))),
     USE_ANY_AVAILABLE(List.of());
 
-    @Getter private final List<Pair<Translation2d, Translation2d>> obstacles;
+    @Getter
+    private final List<Pair<Translation2d, Translation2d>> obstacles;
   }
 }
