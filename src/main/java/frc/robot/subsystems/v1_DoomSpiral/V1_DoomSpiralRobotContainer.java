@@ -277,23 +277,23 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);
 
+    leftBumpEntry.set(true);
+    rightBumpEntry.set(true);
+    leftTrenchEntry.set(true);
+    rightTrenchEntry.set(true);
+
     configurePathPlanner();
     configureButtonBindings();
     configureAutos();
-
-    leftBumpEntry.set(false);
-    rightBumpEntry.set(false);
-    leftTrenchEntry.set(false);
-    rightTrenchEntry.set(false);
   }
 
   public Supplier<PathAdjustmentMode[]> getAdjustmentModeSupplier() {
     return () -> {
       List<PathAdjustmentMode> modes = new ArrayList<>();
-      if (leftBumpEntry.get(false)) modes.add(PathAdjustmentMode.LEFT_BUMP);
-      if (rightBumpEntry.get(false)) modes.add(PathAdjustmentMode.RIGHT_BUMP);
-      if (leftTrenchEntry.get(false)) modes.add(PathAdjustmentMode.LEFT_TRENCH);
-      if (rightTrenchEntry.get(false)) modes.add(PathAdjustmentMode.RIGHT_TRENCH);
+      if (leftBumpEntry.get()) modes.add(PathAdjustmentMode.LEFT_BUMP);
+      if (rightBumpEntry.get()) modes.add(PathAdjustmentMode.RIGHT_BUMP);
+      if (leftTrenchEntry.get()) modes.add(PathAdjustmentMode.LEFT_TRENCH);
+      if (rightTrenchEntry.get()) modes.add(PathAdjustmentMode.RIGHT_TRENCH);
       if (modes.isEmpty()) modes.add(PathAdjustmentMode.USE_ANY_AVAILABLE);
       return modes.toArray(new PathAdjustmentMode[0]);
     };
@@ -626,7 +626,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         "Right Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
             drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
-    autoChooser.select("Left Trench Anti Bucks");
+    autoChooser.select("Right Trench Simple");
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
     RobotModeTriggers.autonomous()

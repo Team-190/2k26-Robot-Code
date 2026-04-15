@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.littletonrobotics.junction.Logger;
 
 public class AdjustPathCommand extends Command {
 
@@ -65,9 +66,12 @@ public class AdjustPathCommand extends Command {
 
     adjustmentMode = adjustmentModeSupplier.get();
     targetPose = targetPoseSupplier.get();
+    int i = 0;
     for (PathAdjustmentMode mode : adjustmentMode) {
       allObstacles.addAll(mode.getObstacles());
+      Logger.recordOutput("Mode " + i++, mode.name());
     }
+
     Pathfinding.setDynamicObstacles(allObstacles, AutoBuilder.getCurrentPose().getTranslation());
 
     followCommand =
@@ -84,6 +88,7 @@ public class AdjustPathCommand extends Command {
   public void execute() {
     if (adjustmentMode != adjustmentModeSupplier.get()) {
       adjustmentMode = adjustmentModeSupplier.get();
+      Logger.recordOutput("VALS", adjustmentModeSupplier.get());
       for (PathAdjustmentMode mode : adjustmentMode) {
         allObstacles.addAll(mode.getObstacles());
       }
@@ -148,9 +153,9 @@ public class AdjustPathCommand extends Command {
                 GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.BLUE_TRENCH)[2]
                     .getTranslation()),
             Pair.of(
-                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[0]
+                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[0]
                     .getTranslation(),
-                GeometryUtil.rectanglePose2ds(FieldConstants.RightTrench.RED_TRENCH)[2]
+                GeometryUtil.rectanglePose2ds(FieldConstants.LeftTrench.RED_TRENCH)[2]
                     .getTranslation()))),
     USE_ANY_AVAILABLE(List.of());
 
