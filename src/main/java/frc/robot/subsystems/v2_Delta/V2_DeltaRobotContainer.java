@@ -2,6 +2,7 @@ package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -133,8 +134,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       drive::getMeasuredChassisSpeeds,
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
                       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of())
-                  //                      ,
+                      List.of()),
                   //                  new CameraStaticLimelight(
                   //                      new
                   // CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
@@ -145,17 +145,14 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   //
                   // List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
                   //                      List.of()),
-                  //                  new CameraStaticLimelight(
-                  //                      new
-                  // CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
-                  //                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
-                  //                      V2_DeltaRobotState::getHeading,
-                  //                      drive::getMeasuredChassisSpeeds,
-                  //                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                  //
-                  // List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                  //                      List.of())
-                  );
+                  new CameraStaticLimelight(
+                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
+                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
+                      V2_DeltaRobotState::getHeading,
+                      drive::getMeasuredChassisSpeeds,
+                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                      List.of()));
           break;
         case V2_DELTA_SIM:
           drive =
@@ -338,8 +335,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               ::repeatedly);
     }
 
-    autoChooser.addCmd(
-        "Left OP", () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmdRoutine(
+        "Left OP",
+        () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter),
+        FollowPathCommand::warmupCommand);
     // autoChooser.addRoutineConfig(
     // "Right OP", V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter)); TODO: Bring
     // back when we have a right OP auto
