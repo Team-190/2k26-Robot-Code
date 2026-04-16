@@ -7,8 +7,8 @@
    "INTAKE_BALLS":{
     "dimension":"LinVel",
     "var":{
-     "exp":"1.5 * 0.4 m / s",
-     "val":0.6000000000000001
+     "exp":"1.5 m / s",
+     "val":1.5
     }
    }
   },
