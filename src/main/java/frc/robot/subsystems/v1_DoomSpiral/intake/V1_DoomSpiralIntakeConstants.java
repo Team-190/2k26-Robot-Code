@@ -145,9 +145,9 @@ public class V1_DoomSpiralIntakeConstants {
   @Getter
   public enum IntakeState {
     STOW(Rotation2d.fromDegrees(9)),
-    INTAKE(Rotation2d.fromDegrees(168.134766 + 5 - 8)),
+    INTAKE(Rotation2d.fromDegrees(168.134766 + 5 - 2)),
     BUMP(Rotation2d.fromDegrees(145)),
-    AGITATE(Rotation2d.fromDegrees(168.134766 + 5 - 8));
+    AGITATE(Rotation2d.fromDegrees(168.134766 + 5 - 2));
 
     private final Rotation2d angle;
 
