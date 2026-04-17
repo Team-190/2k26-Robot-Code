@@ -119,7 +119,7 @@ public class V2_DeltaShooterConstants {
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(0)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(10)))
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(25)))
                   .build())
           .withAlignedFollowerCANID(23)
           .withOpposedFollowerCANID(22)
@@ -176,13 +176,13 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(26)
           .withEncoder2ID(27)
-          .withMaxAngle(Rotation2d.fromDegrees(283.447266))
-          .withMinAngle(Rotation2d.fromDegrees(-181.230469))
+          .withMaxAngle(Rotation2d.fromDegrees(650))
+          .withMinAngle(Rotation2d.fromDegrees(48))
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(Rotation2d.fromRotations(0.909912109375))
-          .withE2Offset(Rotation2d.fromRotations(.452880859375))
+          .withE1Offset(Rotation2d.fromRotations(-0.002685546875))
+          .withE2Offset(Rotation2d.fromRotations(-0.3291015625))
           .withGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 250))

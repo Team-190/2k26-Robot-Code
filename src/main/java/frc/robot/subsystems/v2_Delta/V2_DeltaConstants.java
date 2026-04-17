@@ -29,7 +29,10 @@ public class V2_DeltaConstants {
 
   public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
       new Transform3d(
-          -.017463, -.163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(90)));
+          -.017463,
+          -.163513,
+          .371475,
+          new Rotation3d(0.0, 0.0, Units.degreesToRadians(180.703125 - 6.328125)));
 
   public static final Transform2d ROBOT_TO_SHOOTER_TRANSFORM_2D =
       new Transform2d(-.017463, -.163513, Rotation2d.fromDegrees(90.0));
@@ -205,7 +208,7 @@ public class V2_DeltaConstants {
                   0.443327,
                   Rotation3d.kZero
                       .rotateBy(new Rotation3d(0, Units.degreesToRadians(17.114), 0))
-                      .rotateBy(new Rotation3d(0, 0, Units.degreesToRadians(-44)))))
+                      .rotateBy(new Rotation3d(0, 0, Units.degreesToRadians(134)))))
           .enableRewind(true)
           .build();
 

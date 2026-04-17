@@ -38,8 +38,6 @@ import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
-// import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP; TODO: Bring back when we have
-// a right OP auto
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants;
@@ -56,7 +54,6 @@ import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
-import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
@@ -71,7 +68,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private Intake intake;
   private V2_DeltaClopper clopper;
   private Vision vision;
-  private V2_DeltaCANdle leds;
   private V2_DeltaShooter shooter;
 
   private final BetterAutoChooser autoChooser;
@@ -123,8 +119,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
                   drive::getMeasuredChassisSpeeds);
-          leds = new V2_DeltaCANdle();
-
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
@@ -189,9 +183,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new HoodIOTalonFXSim(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
                   drive::getMeasuredChassisSpeeds);
-
-          leds = new V2_DeltaCANdle();
-
           vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
           break;
         default:
