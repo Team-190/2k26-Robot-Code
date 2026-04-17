@@ -58,13 +58,23 @@ public class V2_DeltaAutoLeftOPBucks {
           intake
               .deploy()
               .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
-          AutoBuilder.followPath(OP_BUCKS_1),
+          AutoBuilder.followPath(OP_BUCKS_1)
+              .alongWith(
+                  V2_DeltaCompositeCommands.hold(clopper, shooter)
+                      .until(
+                          () ->
+                              (AutoBuilder.followPath(OP_BUCKS_1).alongWith(intake.deploy()))
+                                  .isFinished())),
           drive.runOnce(drive::stop),
           V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.0),
-          AutoBuilder.followPath(OP_2)
-              .alongWith(intake.deploy(), V2_DeltaCompositeCommands.hold(clopper, shooter)),
-          Commands.runOnce(drive::stop),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          Commands.parallel(
+                  AutoBuilder.followPath(OP_2).alongWith(intake.deploy()),
+                  V2_DeltaCompositeCommands.hold(clopper, shooter)
+                      .until(
+                          () ->
+                              (AutoBuilder.followPath(OP_2).alongWith(intake.deploy()))
+                                  .isFinished()))
+              .andThen(V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.none();

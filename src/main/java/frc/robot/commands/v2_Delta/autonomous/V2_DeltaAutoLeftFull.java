@@ -47,7 +47,7 @@ public class V2_DeltaAutoLeftFull {
             return false;
           },
           drive);
-      LEFT_FULL = PathPlannerPath.fromPathFile("LEFT_OP_SAFE_1");
+      LEFT_FULL = PathPlannerPath.fromPathFile("LEFT_FULL_SWEEP");
       return Commands.parallel(
           Commands.sequence(
               Commands.runOnce(
@@ -60,7 +60,9 @@ public class V2_DeltaAutoLeftFull {
               AutoBuilder.followPath(LEFT_FULL),
               drive.runOnce(drive::stop)),
           Commands.sequence(
-              Commands.waitSeconds(3),
+              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(7),
+              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();
