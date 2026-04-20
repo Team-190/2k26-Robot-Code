@@ -14,6 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -61,6 +62,7 @@ public class V2_DeltaRobotState {
   private static final InterpolatingTreeMap<Distance, AngularVelocity> shootSpeedTree;
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
+  private static final InterpolatingTreeMap<Distance, Time> timeOfFlightTree;
 
   @Getter private static Rotation2d scoreAngle;
   @Getter private static Pose2d lookaheadPose;
@@ -143,6 +145,16 @@ public class V2_DeltaRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
+    timeOfFlightTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                Time.ofBaseUnits(
+                    Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
+                    Seconds));
+
     shootAngleTree.put(Meters.of(1.074934), Rotation2d.fromRotations(0.0));
     shootAngleTree.put(Meters.of(1.490425), Rotation2d.fromRotations(0.0));
     shootAngleTree.put(Meters.of(1.988254), Rotation2d.fromRotations(0.008));
@@ -189,6 +201,10 @@ public class V2_DeltaRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(4.77), RadiansPerSecond.of(265.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
+
+    timeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
+    timeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
+    timeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
 
     lookaheadPose = new Pose2d();
     scoreAngle = new Rotation2d();
@@ -253,7 +269,7 @@ public class V2_DeltaRobotState {
                 turretRotation),
             robotVelocity,
             Seconds.of(0.03),
-            d -> Seconds.zero(),
+            timeOfFlightTree::get,
             shootAngleTree::get,
             shootSpeedTree::get);
 

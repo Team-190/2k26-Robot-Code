@@ -50,69 +50,67 @@ public class V2_DeltaShotCalculator {
       Function<Distance, Time> distanceToTimeFunction,
       Function<Distance, Rotation2d> distanceToHoodFunction,
       Function<Distance, AngularVelocity> distanceToFlywheelFunction) {
-    boolean moving =
-        Math.abs(robotRelativeVelocity.omegaRadiansPerSecond) >= 0.05
-            && Math.abs(robotRelativeVelocity.vyMetersPerSecond) >= .02
-            && Math.abs(robotRelativeVelocity.vxMetersPerSecond) >= 0.02;
-
-    double lookaheadDistance;
-    Translation2d lookaheadRobotPosition;
-    Translation2d robotPosition;
 
     ChassisSpeeds fieldVelocity =
         ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeVelocity, robotPose.getRotation());
-    if (moving) { // Predict pose based on system latency
-      Pose2d phaseDelayedPose =
-          robotPose.exp(robotRelativeVelocity.toTwist2d(phaseDelay.in(Seconds)));
-      robotPosition = phaseDelayedPose.getTranslation();
 
-      lookaheadDistance = targetPose.getDistance(robotPosition);
-      lookaheadRobotPosition = robotPosition;
+    boolean moving =
+        Math.hypot(fieldVelocity.vxMetersPerSecond, fieldVelocity.vyMetersPerSecond) > 0.02
+            || Math.abs(fieldVelocity.omegaRadiansPerSecond) > 0.05;
 
-      for (int i = 0; i < MAX_ITERATIONS; i++) {
-        double clampedDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
-        Time timeOfFlight = distanceToTimeFunction.apply(Meters.of(clampedDistance));
+    Pose2d basePose =
+        moving ? robotPose.exp(robotRelativeVelocity.toTwist2d(phaseDelay.in(Seconds))) : robotPose;
 
-        double offsetX = fieldVelocity.vxMetersPerSecond * timeOfFlight.in(Seconds);
-        double offsetY = fieldVelocity.vyMetersPerSecond * timeOfFlight.in(Seconds);
+    Translation2d shooterPosition = basePose.transformBy(robotToShooterTransform).getTranslation();
 
-        Translation2d nextPosition = robotPosition.plus(new Translation2d(offsetX, offsetY));
-        double newDistance = targetPose.getDistance(nextPosition);
+    double lookaheadDistance = targetPose.getDistance(shooterPosition);
 
-        if (Math.abs(newDistance - lookaheadDistance) < CONVERGENCE_THRESHOLD_METERS) {
-          lookaheadDistance = newDistance;
-          lookaheadRobotPosition = nextPosition;
-          break;
-        }
+    Pose2d lookaheadPose = basePose;
 
+    for (int i = 0; i < MAX_ITERATIONS; i++) {
+      double clampedDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
+
+      Time timeOfFlight = distanceToTimeFunction.apply(Meters.of(clampedDistance));
+      double t = timeOfFlight.in(Seconds);
+
+      Translation2d deltaTranslation =
+          new Translation2d(
+              fieldVelocity.vxMetersPerSecond * t, fieldVelocity.vyMetersPerSecond * t);
+
+      Rotation2d deltaRotation = Rotation2d.fromRadians(fieldVelocity.omegaRadiansPerSecond * t);
+
+      Pose2d futurePose =
+          new Pose2d(
+              basePose.getTranslation().plus(deltaTranslation),
+              basePose.getRotation().plus(deltaRotation));
+
+      Translation2d nextShooterPosition =
+          futurePose.transformBy(robotToShooterTransform).getTranslation();
+
+      double newDistance = targetPose.getDistance(nextShooterPosition);
+
+      if (Math.abs(newDistance - lookaheadDistance) < CONVERGENCE_THRESHOLD_METERS) {
+        lookaheadPose = futurePose;
+        shooterPosition = nextShooterPosition;
         lookaheadDistance = newDistance;
-        lookaheadRobotPosition = nextPosition;
+        break;
       }
-    } else {
-      lookaheadDistance = targetPose.getDistance(robotPose.getTranslation());
-      lookaheadRobotPosition = robotPose.getTranslation();
-      robotPosition = robotPose.getTranslation();
+
+      lookaheadPose = futurePose;
+      shooterPosition = nextShooterPosition;
+      lookaheadDistance = newDistance;
     }
+
     boolean isDistanceValid = lookaheadDistance >= MIN_ALIGN_DISTANCE_METERS;
+    double clampedDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
+
     Rotation2d rawTurretAngle;
 
     if (!isDistanceValid) {
-      rawTurretAngle = robotPose.getRotation();
+      rawTurretAngle = lookaheadPose.getRotation(); // fallback
     } else {
-      Rotation2d fieldToTargetAngle = targetPose.minus(lookaheadRobotPosition).getAngle();
-      double shooterOffsetY = robotToShooterTransform.getTranslation().getY();
-
-      Rotation2d lateralOffsetAngle =
-          new Rotation2d(Math.asin(MathUtil.clamp(shooterOffsetY / lookaheadDistance, -1.0, 1.0)));
-
-      rawTurretAngle =
-          fieldToTargetAngle.minus(lateralOffsetAngle).minus(robotToShooterTransform.getRotation());
+      rawTurretAngle = targetPose.minus(shooterPosition).getAngle();
     }
-
-    double clampedLookaheadDistance = Math.max(lookaheadDistance, MIN_ALIGN_DISTANCE_METERS);
-    Rotation2d rawHoodAngle = distanceToHoodFunction.apply(Meters.of(clampedLookaheadDistance));
-    Rotation2d currentHoodAngle =
-        Rotation2d.fromRadians(hoodSetpointFilter.calculate(rawHoodAngle.getRadians()));
 
     if (smoothedTurretAngle == null) {
       smoothedTurretAngle = rawTurretAngle;
@@ -123,15 +121,19 @@ public class V2_DeltaShotCalculator {
       smoothedTurretAngle = smoothedTurretAngle.plus(Rotation2d.fromRadians(error * alpha));
     }
 
+    Rotation2d rawHoodAngle = distanceToHoodFunction.apply(Meters.of(clampedDistance));
+
+    Rotation2d currentHoodAngle =
+        Rotation2d.fromRadians(hoodSetpointFilter.calculate(rawHoodAngle.getRadians()));
+
     if (lastHoodAngle == null) lastHoodAngle = currentHoodAngle;
 
-    // Calculate tangential component to cancel lag
-    Translation2d toTarget = targetPose.minus(robotPosition);
-    double distSq = toTarget.getNorm() * toTarget.getNorm();
+    Translation2d toTarget = targetPose.minus(shooterPosition);
+    double distSq = Math.max(toTarget.getNorm() * toTarget.getNorm(), 1e-4);
 
     AngularVelocity turretVelocity;
-    if (moving) {
 
+    if (moving) {
       double angularComp =
           (fieldVelocity.vyMetersPerSecond * toTarget.getX()
                   - fieldVelocity.vxMetersPerSecond * toTarget.getY())
@@ -149,13 +151,15 @@ public class V2_DeltaShotCalculator {
 
     lastHoodAngle = currentHoodAngle;
 
+    AngularVelocity flywheelSpeed = distanceToFlywheelFunction.apply(Meters.of(clampedDistance));
+
     return new ShotParameters(
         isDistanceValid,
-        new Pose2d(lookaheadRobotPosition, robotPose.getRotation()),
+        lookaheadPose,
         currentHoodAngle,
         turretVelocity,
         hoodVelocity,
-        distanceToFlywheelFunction.apply(Meters.of(clampedLookaheadDistance)));
+        flywheelSpeed);
   }
 
   public record ShotParameters(
