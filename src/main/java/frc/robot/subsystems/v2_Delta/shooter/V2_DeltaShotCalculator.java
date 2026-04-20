@@ -82,7 +82,7 @@ public class V2_DeltaShotCalculator {
       Pose2d futurePose =
           new Pose2d(
               basePose.getTranslation().plus(deltaTranslation),
-              basePose.getRotation().plus(deltaRotation));
+              basePose.getRotation());
 
       Translation2d nextShooterPosition =
           futurePose.transformBy(robotToShooterTransform).getTranslation();
