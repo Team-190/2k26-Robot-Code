@@ -181,8 +181,8 @@ public class V2_DeltaShooterConstants {
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
-          .withE1Offset(Rotation2d.fromRotations(-0.002685546875))
-          .withE2Offset(Rotation2d.fromRotations(-0.3291015625))
+          .withE1Offset(Rotation2d.fromRotations(-.153076171875))
+          .withE2Offset(Rotation2d.fromRotations(-.3720703125))
           .withGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Turret/Kp", 250))
