@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -217,7 +218,11 @@ public class Hood {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
-  public Rotation2d getAngle() {
+  public Rotation2d getPosition() {
     return inputs.position;
+  }
+
+  public AngularVelocity getVelocity() {
+    return inputs.velocity;
   }
 }

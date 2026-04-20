@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -68,10 +70,11 @@ public class FourBarLinkage {
     inputs = new FourBarLinkageIOInputsAutoLogged();
     this.io = io;
     this.constants = constants;
-    this.mechanism2d = new LoggedMechanism2d(2, 2);
+    this.mechanism2d =
+        new LoggedMechanism2d(constants.linkageOffset.getX(), constants.linkageOffset.getZ());
     aKitTopic = subsystem.getName() + "/Linkage" + name;
 
-    this.root2d = mechanism2d.getRoot("Linkage", 1, 1);
+    this.root2d = mechanism2d.getRoot("Linkage", 0.5, 0.5);
 
     this.crank =
         root2d.append(new LoggedMechanismLigament2d("Crank", constants.linkLengths.AB(), 0));
@@ -85,9 +88,9 @@ public class FourBarLinkage {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(1).per(Seconds),
+                Volts.of(5),
+                Seconds.of(8),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
@@ -173,6 +176,10 @@ public class FourBarLinkage {
     return inputs.position;
   }
 
+  public AngularVelocity getVelocity() {
+    return inputs.velocity;
+  }
+
   public Command setIdle() {
     return Commands.runOnce(
         () -> {
@@ -241,6 +248,10 @@ public class FourBarLinkage {
 
   public boolean atVoltageGoal(Voltage voltageReference) {
     return io.atVoltageGoal(voltageReference);
+  }
+
+  public Current getTorqueCurrent() {
+    return inputs.torqueCurrent;
   }
 
   /**

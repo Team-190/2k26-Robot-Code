@@ -19,7 +19,7 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V0_FunkyConstants {
@@ -40,6 +40,11 @@ public class V0_FunkyConstants {
           .withSteerClosedLoopOutputType(V0_FunkyTunerConstants.kSteerClosedLoopOutput)
           .withBumperLength(Units.inchesToMeters(34.5))
           .withBumperWidth(Units.inchesToMeters(34.5))
+          .withTrackWidth(Units.inchesToMeters(0))
+          .withRobotMOI(7.897)
+          .withModuleCurrentLimit(60.0)
+          .withRobotMassKilograms(67.000)
+          .withWheelCOF(2.0)
           .build();
 
   public static final Gains DRIVE_GAINS =
@@ -177,8 +182,8 @@ public class V0_FunkyConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_CONFIG =
-      LimelightConfig.builder()
+  public static final StaticLimelightConfig LIMELIGHT_CONFIG =
+      StaticLimelightConfig.builder()
           .key("right")
           .cameraType(CameraType.LIMELIGHT_4)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)

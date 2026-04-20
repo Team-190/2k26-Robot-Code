@@ -8,4 +8,5 @@ public class NTPrefixes {
   public static final String CANIVORE_STATUS = ROBOT_STATE + "CANivore Status/";
 
   public static final String SUPERSTRUCTURE = "Superstructure/";
+  public static final String SHOOTING_DATA = ROBOT_STATE + "Shooting/";
 }

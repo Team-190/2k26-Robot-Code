@@ -1,7 +1,6 @@
 package frc.robot.subsystems.v2_Delta;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -9,11 +8,13 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -25,8 +26,8 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
 import frc.robot.util.NTPrefixes;
@@ -35,8 +36,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.*;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.Logger;
 
+@ExtensionMethod(GeometryUtil.class)
 public class V2_DeltaRobotState {
   private static final AprilTagFieldLayout fieldLayout;
 
@@ -59,9 +62,12 @@ public class V2_DeltaRobotState {
   private static final InterpolatingTreeMap<Distance, AngularVelocity> shootSpeedTree;
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
+  private static final InterpolatingTreeMap<Distance, Time> timeOfFlightTree;
 
-  @Getter private static Rotation2d robotToHubAngle;
   @Getter private static Rotation2d scoreAngle;
+  @Getter private static Pose2d lookaheadPose;
+
+  @Getter private static AngularVelocity turretVelocity;
   @Getter private static AngularVelocity scoreVelocity;
   @Getter private static Rotation2d feedAngle;
   @Getter private static AngularVelocity feedVelocity;
@@ -72,6 +78,7 @@ public class V2_DeltaRobotState {
 
   @Getter private static boolean prohibitShot;
   @Getter private static boolean shouldHoodTuck;
+  @Getter private static boolean inAllianceZone;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -93,6 +100,7 @@ public class V2_DeltaRobotState {
     distanceToHub =
         Distance.ofBaseUnits(
             getHubZonePose()
+                .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
                 .getTranslation()
                 .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
                 .getNorm(),
@@ -137,42 +145,40 @@ public class V2_DeltaRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    shootAngleTree.put(Meters.of(1.1038981214244048), Rotation2d.fromDegrees(5.0));
-    shootSpeedTree.put(Meters.of(1.1038981214244048), RadiansPerSecond.of(340.0));
+    timeOfFlightTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                Time.ofBaseUnits(
+                    Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
+                    Seconds));
 
-    shootAngleTree.put(Meters.of(1.491203295344588), Rotation2d.fromDegrees(6.0));
-    shootSpeedTree.put(Meters.of(1.491203295344588), RadiansPerSecond.of(345.0));
+    shootAngleTree.put(Meters.of(1.074934), Rotation2d.fromRotations(0.0));
+    shootAngleTree.put(Meters.of(1.490425), Rotation2d.fromRotations(0.0));
+    shootAngleTree.put(Meters.of(1.988254), Rotation2d.fromRotations(0.008));
+    shootAngleTree.put(Meters.of(2.481035), Rotation2d.fromRotations(0.012));
+    shootAngleTree.put(Meters.of(3.002048), Rotation2d.fromRotations(0.018));
+    shootAngleTree.put(Meters.of(3.519295), Rotation2d.fromRotations(0.034));
+    shootAngleTree.put(Meters.of(3.972171), Rotation2d.fromRotations(0.040));
+    shootAngleTree.put(Meters.of(4.551259), Rotation2d.fromRotations(0.045));
+    shootAngleTree.put(Meters.of(4.894654), Rotation2d.fromRotations(0.05));
+    shootAngleTree.put(Meters.of(5.336559), Rotation2d.fromRotations(0.06));
 
-    shootAngleTree.put(Meters.of(1.735737657075872), Rotation2d.fromDegrees(16.0));
-    shootSpeedTree.put(Meters.of(1.735737657075872), RadiansPerSecond.of(345.0));
+    shootSpeedTree.put(Meters.of(1.074934), RotationsPerSecond.of(22));
+    shootSpeedTree.put(Meters.of(1.490425), RotationsPerSecond.of(24));
+    shootSpeedTree.put(Meters.of(1.988254), RotationsPerSecond.of(26));
+    shootSpeedTree.put(Meters.of(2.481035), RotationsPerSecond.of(27));
+    shootSpeedTree.put(Meters.of(3.002048), RotationsPerSecond.of(28));
+    shootSpeedTree.put(Meters.of(3.519295), RotationsPerSecond.of(29));
+    shootSpeedTree.put(Meters.of(3.972171), RotationsPerSecond.of(30.5));
+    shootSpeedTree.put(Meters.of(4.551259), RotationsPerSecond.of(33));
+    shootSpeedTree.put(Meters.of(4.894654), RotationsPerSecond.of(35.5));
+    shootSpeedTree.put(Meters.of(5.336559), RotationsPerSecond.of(37));
 
-    shootAngleTree.put(Meters.of(2.0049492041827994), Rotation2d.fromDegrees(17.0));
-    shootSpeedTree.put(Meters.of(2.0049492041827994), RadiansPerSecond.of(350.0));
-
-    shootAngleTree.put(Meters.of(2.30668187255375), Rotation2d.fromDegrees(18.0));
-    shootSpeedTree.put(Meters.of(2.30668187255375), RadiansPerSecond.of(355.0));
-
-    shootAngleTree.put(Meters.of(2.572028569812878), Rotation2d.fromDegrees(19.0));
-    shootSpeedTree.put(Meters.of(2.572028569812878), RadiansPerSecond.of(375.0));
-
-    shootAngleTree.put(Meters.of(2.9670118924057562), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(2.9670118924057562), RadiansPerSecond.of(388.0));
-
-    shootAngleTree.put(Meters.of(3.297585897171101), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(3.297585897171101), RadiansPerSecond.of(405.0));
-
-    shootAngleTree.put(Meters.of(3.622009715844515), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(3.622009715844515), RadiansPerSecond.of(415.0));
-
-    shootAngleTree.put(Meters.of(3.8605317055005743), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(3.8605317055005743), RadiansPerSecond.of(430.0));
-
-    shootAngleTree.put(Meters.of(4.120246303911951), Rotation2d.fromDegrees(20.0));
-    shootSpeedTree.put(Meters.of(4.120246303911951), RadiansPerSecond.of(457.0));
-
-    feedAngleTree.put(
-        Meters.of(0.0),
-        Rotation2d.fromDegrees(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS.maxAngle.getDegrees()));
+    feedAngleTree.put(Feet.of(13), Rotation2d.fromDegrees(21.972656));
+    feedAngleTree.put(Feet.of(37), Rotation2d.fromDegrees(30.410156));
     // feedHoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(7.0));
     // feedHoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(7.0));
     // feedHoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(9.0));
@@ -183,8 +189,9 @@ public class V2_DeltaRobotState {
     // feedHoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
     // feedHoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
 
-    feedSpeedTree.put(
-        Meters.of(0.0), RadiansPerSecond.of(Units.rotationsPerMinuteToRadiansPerSecond(4500)));
+    feedSpeedTree.put(Feet.of(13), RadiansPerSecond.of(254.297199));
+    feedSpeedTree.put(Feet.of(37), RadiansPerSecond.of(408.222967));
+
     // feedFlywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.81), RadiansPerSecond.of(230.0));
@@ -195,6 +202,11 @@ public class V2_DeltaRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
+    timeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
+    timeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
+    timeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
+
+    lookaheadPose = new Pose2d();
     scoreAngle = new Rotation2d();
     scoreVelocity = RadiansPerSecond.of(0.0);
     feedAngle = new Rotation2d();
@@ -202,6 +214,10 @@ public class V2_DeltaRobotState {
 
     field.setRobotPose(getGlobalPose());
     SmartDashboard.putData("Field", field);
+
+    shouldHoodTuck = false;
+    prohibitShot = false;
+    inAllianceZone = false;
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
   }
@@ -212,7 +228,8 @@ public class V2_DeltaRobotState {
       double robotYawVelocity,
       SwerveModulePosition[] modulePositions,
       Rotation2d turretRotation,
-      boolean isTurretWrapping) {
+      boolean isTurretWrapping,
+      ChassisSpeeds robotVelocity) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -226,48 +243,71 @@ public class V2_DeltaRobotState {
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
-    Pose2d shooterPosition =
-        hubPose.transformBy(
-            new Transform2d(
-                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
-                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
-                turretRotation));
+    Translation2d feedTranslation = getFeedTranslation();
 
     distanceToHub =
         Distance.ofBaseUnits(
-            shooterPosition.getTranslation().minus(hubTranslation).getNorm(), Meters);
-
-    Translation2d feedTranslation = getFeedTranslation();
+            getHubZonePose()
+                .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
 
     distanceToFeedTranslation =
         Distance.ofBaseUnits(
             getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
-    robotToHubAngle =
-        hubTranslation
-            .minus(shooterPosition.getTranslation())
-            .getAngle()
-            .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
+    turretVelocity = RadiansPerSecond.zero();
 
-    scoreAngle = shootAngleTree.get(distanceToHub);
-    scoreVelocity = shootSpeedTree.get(distanceToHub);
+    V2_DeltaShotCalculator.ShotParameters shotParameters =
+        V2_DeltaShotCalculator.getShotParameters(
+            hubPose,
+            hubTranslation,
+            new Transform2d(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
+                turretRotation),
+            robotVelocity,
+            Seconds.of(0.03),
+            timeOfFlightTree::get,
+            shootAngleTree::get,
+            shootSpeedTree::get);
+
+    scoreAngle = shotParameters.hoodAngle();
+    scoreVelocity = shotParameters.flywheelSpeed();
+    turretVelocity = shotParameters.turretVelocity();
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
     feedVelocity = feedSpeedTree.get(distanceToFeedTranslation);
 
+    lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
 
-    shouldHoodTuck = GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose());
+    shouldHoodTuck =
+        GeometryUtil.intersects(
+            FieldConstants.Zones.HOOD_TUCK_ZONES,
+            getGlobalPose(),
+            V2_DeltaConstants.DRIVE_CONFIG.bumperWidth(),
+            V2_DeltaConstants.DRIVE_CONFIG.bumperLength());
     prohibitShot =
         isTurretWrapping
             || shouldHoodTuck
-            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getHubZonePose());
+            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
+            || !shotParameters.isValid();
+
+    Rectangle2d allianceZone =
+        new Rectangle2d(
+            AllianceFlipUtil.apply(
+                new Translation2d(
+                    FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
+            AllianceFlipUtil.apply(new Translation2d(0, 0)));
+
+    inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
-    Logger.recordOutput(
-        NTPrefixes.POSE_DATA + "Rotation to Hub",
-        new Pose2d(hubPose.getTranslation(), robotToHubAngle));
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Lookahead Pose", lookaheadPose);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
@@ -301,6 +341,17 @@ public class V2_DeltaRobotState {
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "No Feed Zone",
         GeometryUtil.rectanglePose2ds(FieldConstants.Hub.FEED_KEEPOUT));
+    Logger.recordOutput(
+        NTPrefixes.ROBOT_STATE + "Alliance Zone", GeometryUtil.rectanglePose2ds(allianceZone));
+    Logger.recordOutput(
+        NTPrefixes.SHOOTING_DATA + "Shot Parameters/Turret Velocity",
+        shotParameters.turretVelocity());
+    Logger.recordOutput(
+        NTPrefixes.SHOOTING_DATA + "Shot Parameters/Valid", shotParameters.isValid());
+
+    Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "In Alliance Zone", inAllianceZone);
+    Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Prohibit Shot", prohibitShot);
+    Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Should Hood Tuck", shouldHoodTuck);
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
@@ -396,30 +447,40 @@ public class V2_DeltaRobotState {
   }
 
   public record FixedShotParameters(
-      Rotation2d robotAngle, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
+      Translation2d robotPosition, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
 
   @RequiredArgsConstructor
   public enum FixedShots {
     LEFT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-170.0 + 180),
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.LEFT_TRENCH_SHOT_LOCATION,
+            V2_DeltaShooterConstants.LEFT_TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.LEFT_TRENCH_SHOT_FLYWHEEL_SPEED)),
     RIGHT_TRENCH(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(350.0 + 180),
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.TRENCH_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.RIGHT_TRENCH_SHOT_LOCATION,
+            V2_DeltaShooterConstants.RIGHT_TRENCH_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.RIGHT_TRENCH_SHOT_FLYWHEEL_SPEED)),
+    LEFT_CORNER(
+        new FixedShotParameters(
+            V2_DeltaShooterConstants.LEFT_CORNER_SHOT_LOCATION,
+            V2_DeltaShooterConstants.LEFT_CORNER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.LEFT_CORNER_SHOT_FLYWHEEL_SPEED)),
+    RIGHT_CORNER(
+        new FixedShotParameters(
+            V2_DeltaShooterConstants.RIGHT_CORNER_SHOT_LOCATION,
+            V2_DeltaShooterConstants.RIGHT_CORNER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.RIGHT_CORNER_SHOT_FLYWHEEL_SPEED)),
     HUB(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0 + 180),
-            V1_DoomSpiralShooterConstants.HUB_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
+            V2_DeltaShooterConstants.HUB_SHOT_LOCATION,
+            V2_DeltaShooterConstants.HUB_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.HUB_SHOT_FLYWHEEL_SPEED)),
     TOWER(
         new FixedShotParameters(
-            Rotation2d.fromDegrees(-90.0 + 180),
-            V1_DoomSpiralShooterConstants.TOWER_SHOT_HOOD_ANGLE,
-            V1_DoomSpiralShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
+            V2_DeltaShooterConstants.TOWER_SHOT_LOCATION,
+            V2_DeltaShooterConstants.TOWER_SHOT_HOOD_ANGLE,
+            V2_DeltaShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
     @Getter private final FixedShotParameters parameters;
   }

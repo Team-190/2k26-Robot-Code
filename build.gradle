@@ -20,39 +20,39 @@ java {
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
-gradle.projectsEvaluated {
-    def buildDir = new File("${project.buildDir}/classes/java/main")
-    if (!buildDir.exists()) {
-        logger.warn("⚠️ WARNING: compiled classes not found. Make sure compileJava runs first")
-        project.ext.deploySrcDir = "src/main/deploy"
-        return
-    }
 
-    try {
-        def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
-        def constantsClass = loader.loadClass("frc.robot.RobotConfig")
-        def robotField = constantsClass.getDeclaredField("ROBOT")
-        robotField.setAccessible(true)
-        def robotEnumValue = robotField.get(null)  // static field
+def buildDir = new File("${project.buildDir}/classes/java/main")
 
-        logger.info("Detected RobotType: ${robotEnumValue}")
 
-        def baseName = robotEnumValue.toString().toLowerCase().replaceAll(/_sim$/, "")
-        def candidateDir = "src/main/deploy/${baseName}"
+// if (!buildDir.exists()) {
+//     logger.warn("⚠️ WARNING: compiled classes not found. Make sure compileJava runs first")
+//     project.ext.deploySrcDir = "src/main/deploy"
+// } else {
+//     try {
+//         def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
+//         def constantsClass = loader.loadClass("frc.robot.RobotConfig")
+//         def robotField = constantsClass.getDeclaredField("ROBOT")
+//         robotField.setAccessible(true)
+//         def robotEnumValue = robotField.get(null)  // static field
 
-        if (file(candidateDir).exists()) {
-            project.ext.deploySrcDir = candidateDir
-            project.ext.deployRobotDir = "/home/lvuser/deploy/${baseName}"
-        } else {
-            logger.warn("WARNING: Folder '${candidateDir}' does not exist. Using default deploy folder.")
-        }
+//         logger.info("Detected RobotType: ${robotEnumValue}")
 
-        logger.info("deploySrcDir set to: ${project.ext.deploySrcDir}")
-    } catch (Throwable e) {
-        logger.warn("WARNING: Could not read RobotType: ${e.message}")
-        project.ext.deploySrcDir = "src/main/deploy"
-    }
-}
+//         def baseName = robotEnumValue.toString().toLowerCase().replaceAll(/_sim$/, "")
+//         def candidateDir = "src/main/deploy/${baseName}"
+
+//         if (file(candidateDir).exists()) {
+//             project.ext.deploySrcDir = candidateDir
+//             project.ext.deployRobotDir = "/home/lvuser/deploy/${baseName}"
+//         } else {
+//             logger.warn("WARNING: Folder '${candidateDir}' does not exist. Using default deploy folder.")
+//         }
+
+//         logger.info("deploySrcDir set to: ${project.ext.deploySrcDir}")
+//     } catch (Throwable e) {
+//         logger.warn("WARNING: Could not read RobotType: ${e.message}")
+//
+//     }
+// }
 
 // Exclude aspectjtools from the aspect configuration to prevent it from being included in the deploy artifact and to
 // avoid conflicts with the aspectj runtime. The aspectjtools library is only needed at compile time for weaving.
