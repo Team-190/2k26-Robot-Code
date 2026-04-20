@@ -3,9 +3,13 @@ package frc.robot.subsystems.v2_Delta;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
@@ -49,6 +53,7 @@ import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
+import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
@@ -235,6 +240,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
     configureButtonBindings();
     configureAutos();
+    configureFuelSim();
 
     TunableUpdaterRegistry.registerGains(
         V2_DeltaConstants.DRIVE_GAINS,
@@ -275,6 +281,63 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         c -> shooter.setTurretConstraints((AngularPositionConstraints) c));
     TunableUpdaterRegistry.registerGains(
         V2_DeltaShooterConstants.TURRET_CONSTANTS.gains, shooter::setTurretGains);
+  }
+
+  private void configureFuelSim() {
+
+    fuelSimulator = new FuelSimulator("FuelSim");
+    simFuelCount = new SimFuelCount(8);
+
+    fuelSimulator.registerRobot(
+        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
+        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
+        Units.inchesToMeters(6.0),
+        V2_DeltaRobotState::getGlobalPose,
+        () ->
+            new ChassisSpeeds(
+                drive.getFieldRelativeVelocity().getX(),
+                drive.getFieldRelativeVelocity().getY(),
+                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
+
+    fuelSimulator.registerIntake(
+        IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
+        IntakeConstants.LINKAGE_OFFSET.getX(),
+        -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+        () ->
+            intake.getIntakeState().equals(IntakeState.INTAKE)
+                && intake.atGoal()
+                && simFuelCount.getFuelStored() < SimFuelCount.getCapacity(),
+        () ->
+            simFuelCount.setFuelStored(
+                Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.getCapacity())));
+
+    fuelSimulator.registerShooter(
+        () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
+        () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
+        shooter.getHoodAngle()::getMeasure,
+        shooter.getTurretRotation()::getMeasure,
+        shooter::getFlywheelVelocity,
+        V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
+
+    fuelSimulator.setSubticks(1);
+    fuelSimulator.start();
+    fuelSimulator.spawnStartingFuel();
+    fuelSimulator.enableAirResistance();
+
+    if (RobotBase.isSimulation()) {
+      fuelSimulator.start();
+      RobotModeTriggers.autonomous()
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    fuelSimulator.clearFuel();
+                    fuelSimulator.spawnStartingFuel();
+                    simFuelCount.setFuelStored(8);
+                  }));
+    } else {
+      fuelSimulator.stop();
+    }
   }
 
   private void configureAutos() {
