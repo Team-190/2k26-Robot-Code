@@ -107,7 +107,8 @@ public class Turret {
                       / (double) constants.turretAngleCalculation.gear0ToothCount()));
     }
 
-    io.setPosition(startingAngle);
+    //    io.setPosition(startingAngle);
+    io.setPosition(new Rotation2d());
 
     feedforwardController =
         new SimpleMotorFeedforward(

@@ -103,11 +103,11 @@ public class V2_DeltaShooterConstants {
                   .build())
           .withTorqueGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 10))
-                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0.1))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 2.25))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0.067114))
-                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0.11882))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 0))
+                  .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 0))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0))
                   .build())
           .withConstraints(
               AngularVelocityConstraints.builder()
