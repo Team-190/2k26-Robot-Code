@@ -207,7 +207,7 @@ public class V2_DeltaShooter extends SubsystemBase {
             Commands.run(
                 () -> {
                   Logger.recordOutput(
-                      "Shooter/Hood/Sysid/position", hood.getPosition().getRotations());
+                      "Shooter/Hood/Sysid/position", hood.getAngle().getRotations());
                   Logger.recordOutput(
                       "Shooter/Hood/Sysid/Velocity", hood.getVelocity().in(RotationsPerSecond));
                 }));

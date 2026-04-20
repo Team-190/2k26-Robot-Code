@@ -55,6 +55,8 @@ import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
+import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
+import frc.robot.subsystems.v2_Delta.shooter.SimFuelCount;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.BetterAutoChooser;
@@ -229,7 +231,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               drive::getMeasuredChassisSpeeds);
     }
     if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
+      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> true);
     }
 
     autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);

@@ -218,11 +218,13 @@ public class Hood {
         characterizationRoutine.dynamic(Direction.kReverse));
   }
 
-  public Rotation2d getPosition() {
+  public Rotation2d getAngle() {
     return inputs.position;
   }
 
   public AngularVelocity getVelocity() {
     return inputs.velocity;
   }
+
+
 }
