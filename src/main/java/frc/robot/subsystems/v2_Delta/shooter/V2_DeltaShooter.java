@@ -207,7 +207,7 @@ public class V2_DeltaShooter extends SubsystemBase {
             Commands.run(
                 () -> {
                   Logger.recordOutput(
-                      "Shooter/Hood/Sysid/position", hood.getPosition().getRotations());
+                      "Shooter/Hood/Sysid/position", hood.getAngle().getRotations());
                   Logger.recordOutput(
                       "Shooter/Hood/Sysid/Velocity", hood.getVelocity().in(RotationsPerSecond));
                 }));
@@ -246,6 +246,14 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Rotation2d getTurretRotation() {
     return turret.getPosition();
+  }
+
+  public Rotation2d getHoodAngle() {
+    return hood.getAngle();
+  }
+
+  public AngularVelocity getFlywheelVelocity() {
+    return flywheel.getFlywheelVelocity();
   }
 
   public boolean isTurretWrapping() {
