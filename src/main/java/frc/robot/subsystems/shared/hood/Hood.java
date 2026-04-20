@@ -225,6 +225,4 @@ public class Hood {
   public AngularVelocity getVelocity() {
     return inputs.velocity;
   }
-
-
 }
