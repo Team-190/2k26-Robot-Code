@@ -88,7 +88,8 @@ public class V2_DeltaShooter extends SubsystemBase {
           flywheel.setVelocityGoal(V2_DeltaRobotState.getScoreVelocity());
           break;
         case FEED:
-          turret.setFieldRelativeGoal(V2_DeltaRobotState.getFeedTranslation());
+          turret.setFieldRelativeGoal(
+              V2_DeltaRobotState.getFeedTranslation(), V2_DeltaRobotState.getTurretVelocity());
           hood.setPositionGoal(V2_DeltaRobotState.getFeedAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFeedVelocity());
           break;
@@ -321,7 +322,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public void setFlywheelGains(Gains flywheelGains) {
-    flywheel.updateGains(flywheelGains, GainSlot.ZERO);
+    flywheel.updateGains(flywheelGains, GainSlot.ONE);
   }
 
   public void setFlywheelConstraints(AngularVelocityConstraints constraints) {

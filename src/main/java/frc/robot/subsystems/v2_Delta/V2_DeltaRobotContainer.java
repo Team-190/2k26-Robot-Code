@@ -274,7 +274,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints,
         c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
     TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.SHOOT_CONSTANTS.voltageGains, shooter::setFlywheelGains);
+        V2_DeltaShooterConstants.SHOOT_CONSTANTS.torqueGains, shooter::setFlywheelGains);
 
     TunableUpdaterRegistry.registerConstraints(
         V2_DeltaShooterConstants.TURRET_CONSTANTS.constraints,

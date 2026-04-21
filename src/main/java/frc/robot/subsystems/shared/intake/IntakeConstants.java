@@ -429,7 +429,7 @@ public class IntakeConstants {
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
-                .withStartAngle(MIN_ANGLE)
+                .withStartAngle(MAX_ANGLE)
                 .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
                 .withLinkageOffset(LINKAGE_OFFSET)
                 .withLinkBounds(LINK_BOUNDS)

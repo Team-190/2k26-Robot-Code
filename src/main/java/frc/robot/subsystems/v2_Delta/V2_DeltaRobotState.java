@@ -60,9 +60,10 @@ public class V2_DeltaRobotState {
 
   private static final InterpolatingTreeMap<Distance, Rotation2d> shootAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> shootSpeedTree;
+  private static final InterpolatingTreeMap<Distance, Time> shootTimeOfFlightTree;
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
-  private static final InterpolatingTreeMap<Distance, Time> timeOfFlightTree;
+  private static final InterpolatingTreeMap<Distance, Time> feedTimeOfFlightTree;
 
   @Getter private static Rotation2d scoreAngle;
   @Getter private static Pose2d lookaheadPose;
@@ -145,7 +146,16 @@ public class V2_DeltaRobotState {
                         .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
                     RadiansPerSecond));
 
-    timeOfFlightTree =
+    shootTimeOfFlightTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                Time.ofBaseUnits(
+                    Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
+                    Seconds));
+    feedTimeOfFlightTree =
         new InterpolatingTreeMap<>(
             (start, end, q) ->
                 InverseInterpolator.forDouble()
@@ -177,8 +187,30 @@ public class V2_DeltaRobotState {
     shootSpeedTree.put(Meters.of(4.894654), RotationsPerSecond.of(35.5));
     shootSpeedTree.put(Meters.of(5.336559), RotationsPerSecond.of(37));
 
-    feedAngleTree.put(Feet.of(13), Rotation2d.fromDegrees(21.972656));
-    feedAngleTree.put(Feet.of(37), Rotation2d.fromDegrees(30.410156));
+    feedAngleTree.put(Meters.of(2.834202), Rotation2d.fromDegrees(21.621094));
+    feedSpeedTree.put(Meters.of(2.834202), RadiansPerSecond.of(109.297199));
+    feedTimeOfFlightTree.put(Meters.of(2.834202), Seconds.of(.9));
+
+    feedAngleTree.put(Meters.of(3.746701), Rotation2d.fromDegrees(21.621094));
+    feedSpeedTree.put(Meters.of(3.746701), RadiansPerSecond.of(134.297199));
+    feedTimeOfFlightTree.put(Meters.of(3.746701), Seconds.of(.95));
+
+    feedAngleTree.put(Meters.of(4.776145), Rotation2d.fromDegrees(22.675781));
+    feedSpeedTree.put(Meters.of(4.776145), RadiansPerSecond.of(161.830531));
+    feedTimeOfFlightTree.put(Meters.of(4.776145), Seconds.of(1.2));
+
+    feedAngleTree.put(Meters.of(5.605561), Rotation2d.fromDegrees(23.90625));
+    feedSpeedTree.put(Meters.of(5.605561), RadiansPerSecond.of(184.328245));
+    feedTimeOfFlightTree.put(Meters.of(5.605561), Seconds.of(1.3));
+
+    feedAngleTree.put(Meters.of(6.658618), Rotation2d.fromDegrees(25.048828));
+    feedSpeedTree.put(Meters.of(6.658618), RadiansPerSecond.of(227.428799));
+    feedTimeOfFlightTree.put(Meters.of(6.658618), Seconds.of(1.45));
+
+    feedAngleTree.put(Meters.of(7.82451), Rotation2d.fromDegrees(28.388672));
+    feedSpeedTree.put(Meters.of(7.82451), RadiansPerSecond.of(252.807586));
+    feedTimeOfFlightTree.put(Meters.of(7.82451), Seconds.of(1.5));
+
     // feedHoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(7.0));
     // feedHoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(7.0));
     // feedHoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(9.0));
@@ -188,9 +220,6 @@ public class V2_DeltaRobotState {
     // feedHoodAngleTree.put(Meters.of(4.77), Rotation2d.fromDegrees(16.0));
     // feedHoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
     // feedHoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
-
-    feedSpeedTree.put(Feet.of(13), RadiansPerSecond.of(254.297199));
-    feedSpeedTree.put(Feet.of(37), RadiansPerSecond.of(408.222967));
 
     // feedFlywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
     // feedFlywheelSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
@@ -202,9 +231,9 @@ public class V2_DeltaRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
-    timeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
-    timeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
-    timeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
+    shootTimeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
+    shootTimeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
+    shootTimeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
 
     lookaheadPose = new Pose2d();
     scoreAngle = new Rotation2d();
@@ -258,26 +287,34 @@ public class V2_DeltaRobotState {
         Distance.ofBaseUnits(
             getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
     turretVelocity = RadiansPerSecond.zero();
+    Rectangle2d allianceZone =
+        new Rectangle2d(
+            AllianceFlipUtil.apply(
+                new Translation2d(
+                    FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
+            AllianceFlipUtil.apply(new Translation2d(0, 0)));
+
+    inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
 
     V2_DeltaShotCalculator.ShotParameters shotParameters =
         V2_DeltaShotCalculator.getShotParameters(
-            hubPose,
-            hubTranslation,
+            inAllianceZone ? hubPose : getGlobalPose(),
+            inAllianceZone ? hubTranslation : feedTranslation,
             new Transform2d(
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
                 turretRotation),
             robotVelocity,
             Seconds.of(0.03),
-            timeOfFlightTree::get,
-            shootAngleTree::get,
-            shootSpeedTree::get);
+            d -> inAllianceZone ? shootTimeOfFlightTree.get(d) : feedTimeOfFlightTree.get(d),
+            d -> inAllianceZone ? shootAngleTree.get(d) : feedAngleTree.get(d),
+            d -> inAllianceZone ? shootSpeedTree.get(d) : feedSpeedTree.get(d));
 
     scoreAngle = shotParameters.hoodAngle();
     scoreVelocity = shotParameters.flywheelSpeed();
     turretVelocity = shotParameters.turretVelocity();
-    feedAngle = feedAngleTree.get(distanceToFeedTranslation);
-    feedVelocity = feedSpeedTree.get(distanceToFeedTranslation);
+    feedAngle = shotParameters.hoodAngle();
+    feedVelocity = shotParameters.flywheelSpeed();
 
     lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
@@ -294,19 +331,11 @@ public class V2_DeltaRobotState {
             || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
             || !shotParameters.isValid();
 
-    Rectangle2d allianceZone =
-        new Rectangle2d(
-            AllianceFlipUtil.apply(
-                new Translation2d(
-                    FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
-            AllianceFlipUtil.apply(new Translation2d(0, 0)));
-
-    inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
-
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Feed", distanceToFeedTranslation);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Lookahead Pose", lookaheadPose);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);

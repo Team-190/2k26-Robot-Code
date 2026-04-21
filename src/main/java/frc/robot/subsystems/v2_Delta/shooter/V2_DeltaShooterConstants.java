@@ -103,10 +103,10 @@ public class V2_DeltaShooterConstants {
                   .build())
           .withTorqueGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 0))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 6.1402131239))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 0))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 3.3))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", .01))
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0))
                   .build())
           .withConstraints(
@@ -119,7 +119,7 @@ public class V2_DeltaShooterConstants {
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(0)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(25)))
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(10)))
                   .build())
           .withAlignedFollowerCANID(23)
           .withOpposedFollowerCANID(22)
@@ -176,8 +176,8 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(26)
           .withEncoder2ID(27)
-          .withMaxAngle(Rotation2d.fromDegrees(650))
-          .withMinAngle(Rotation2d.fromDegrees(48))
+          .withMaxAngle(Rotation2d.fromDegrees(-48))
+          .withMinAngle(Rotation2d.fromDegrees(-650))
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
