@@ -65,13 +65,11 @@ public class V2_DeltaRobotState {
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
   private static final InterpolatingTreeMap<Distance, Time> feedTimeOfFlightTree;
 
-  @Getter private static Rotation2d scoreAngle;
+  @Getter private static Rotation2d hoodAngle;
   @Getter private static Pose2d lookaheadPose;
 
   @Getter private static AngularVelocity turretVelocity;
-  @Getter private static AngularVelocity scoreVelocity;
-  @Getter private static Rotation2d feedAngle;
-  @Getter private static AngularVelocity feedVelocity;
+  @Getter private static AngularVelocity flywheelVelocity;
 
   @Getter private static final LEDStates ledStates;
 
@@ -236,10 +234,8 @@ public class V2_DeltaRobotState {
     shootTimeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
 
     lookaheadPose = new Pose2d();
-    scoreAngle = new Rotation2d();
-    scoreVelocity = RadiansPerSecond.of(0.0);
-    feedAngle = new Rotation2d();
-    feedVelocity = RadiansPerSecond.of(0.0);
+    hoodAngle = new Rotation2d();
+    flywheelVelocity = RadiansPerSecond.of(0.0);
 
     field.setRobotPose(getGlobalPose());
     SmartDashboard.putData("Field", field);
@@ -310,11 +306,9 @@ public class V2_DeltaRobotState {
             d -> inAllianceZone ? shootAngleTree.get(d) : feedAngleTree.get(d),
             d -> inAllianceZone ? shootSpeedTree.get(d) : feedSpeedTree.get(d));
 
-    scoreAngle = shotParameters.hoodAngle();
-    scoreVelocity = shotParameters.flywheelSpeed();
+    hoodAngle = shotParameters.hoodAngle();
+    flywheelVelocity = shotParameters.flywheelSpeed();
     turretVelocity = shotParameters.turretVelocity();
-    feedAngle = shotParameters.hoodAngle();
-    feedVelocity = shotParameters.flywheelSpeed();
 
     lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
@@ -337,10 +331,8 @@ public class V2_DeltaRobotState {
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Feed", distanceToFeedTranslation);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Lookahead Pose", lookaheadPose);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", scoreAngle);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Feed Angle", feedAngle);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Feed Velocity", feedVelocity);
-    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity", scoreVelocity);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", hoodAngle);
+    Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity", flywheelVelocity);
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Shift Period/Active", HubActivePeriod.isHubActive());
