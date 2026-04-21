@@ -29,8 +29,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
   private AnimationType lightType;
 
-  private final RainbowAnimation candleAnimation;
-
   private int loopCycleCount = 0;
   private boolean estopped = false;
 
@@ -80,15 +78,27 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                 new StrobeAnimation(section.getStart(), section.getEnd())
                     .withSlot(section.getSlot())
                     .withColor(new RGBWColor(Color.kGreen))
-                    .withFrameRate(70))),
+                    .withFrameRate(50))),
     SHOOTING(
-        (leds, section) ->
-            leds.setControl(
-                new FireAnimation(125, section.getStart())
-                    .withSlot(section.getSlot())
-                    .withSparking(0.586)
-                    .withCooling(0.226)
-                    .withFrameRate(130))),
+        (leds, section) -> {
+          leds.setControl(
+              new StrobeAnimation(section.getStart(), section.getEnd())
+                  .withColor(
+                      new RGBWColor(
+                          DriverStation.getAlliance()
+                                  .orElse(DriverStation.Alliance.Blue)
+                                  .equals(DriverStation.Alliance.Red)
+                              ? Color.kRed
+                              : Color.kBlue))
+                  .withSlot(section.getSlot() + 1)
+                  .withUpdateFreqHz(0));
+          leds.setControl(
+              new LarsonAnimation(section.getStart(), section.getEnd())
+                  .withSlot(section.getSlot())
+                  .withColor(new RGBWColor(Color.kGoldenrod))
+                  .withSize(5)
+                  .withFrameRate(200));
+        }),
     SPITTING(
         (leds, section) -> {
           leds.setControl(
@@ -165,7 +175,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
     super();
     leds = new CANdle(V1_DoomSpiralCANdleConstants.CAN_ID, V1_DoomSpiralCANdleConstants.CAN_LOOP);
     config = new CANdleConfiguration();
-    config.LED.BrightnessScalar = 1.00;
+    config.LED.BrightnessScalar = 0.75;
     config.LED.StripType = GRB;
     config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
     PhoenixUtil.tryUntilOk(5, () -> leds.getConfigurator().apply(config, 0.25));
@@ -175,10 +185,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
                     RobotController.getBatteryVoltage()
                         < V1_DoomSpiralCANdleConstants.LOW_BATTERY_VOLTAGE)
             .debounce(.5);
-    candleAnimation =
-        new RainbowAnimation(Section.STATUS.getStart(), Section.STATUS.getEnd())
-            .withFrameRate(80)
-            .withDirection(AnimationDirectionValue.Forward);
     leds.setControl(new EmptyControl());
     for (int i = 0; i < 8; i++) {
       leds.setControl(new EmptyAnimation(i));
@@ -191,6 +197,7 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
               .withColor(new RGBWColor(Color.kRed)));
     }
     lightType = AnimationType.JITTING;
+    leds.optimizeBusUtilization();
   }
 
   private void clearSlots(int startSlot, int endSlot) {
@@ -224,7 +231,6 @@ public class V1_DoomSpiralCANdle extends VirtualSubsystem {
 
     if (primaryAnimationType != lightType) {
       clearSlots(1, 7);
-      leds.setControl(candleAnimation);
       primaryAnimationType.animationSetter.accept(leds, Section.MAIN);
       lightType = primaryAnimationType;
     }

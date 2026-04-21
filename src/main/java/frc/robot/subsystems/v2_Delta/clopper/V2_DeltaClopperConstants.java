@@ -16,30 +16,29 @@ import frc.robot.RobotConfig;
 public class V2_DeltaClopperConstants {
   public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE;
   public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
+  public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE_SLOW;
   public static final Voltage OUTTAKE_VOLTAGE;
 
   public static final GenericRollerConstants ROLLER_FLOOR_CONSTANTS;
   public static final GenericRollerConstants BALL_TUNNEL_CONSTANTS;
-
-  public static final int BEAM_BREAK_ID;
 
   static {
     switch (RobotConfig.ROBOT) {
       case V2_DELTA:
       case V2_DELTA_SIM:
       default:
-        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(11.0);
+        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(12.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
-        OUTTAKE_VOLTAGE = Volts.of(-11.0);
-        BEAM_BREAK_ID = 0;
+        ROLLER_FLOOR_FEED_VOLTAGE_SLOW = Volts.of(4.0);
+        OUTTAKE_VOLTAGE = Volts.of(-10);
 
         ROLLER_FLOOR_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(32)
                 .withCurrentLimits(
                     CurrentLimits.builder()
-                        .withSupplyCurrentLimit(Amps.of(20.0))
-                        .withStatorCurrentLimit(Amps.of(30.0))
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(80.0))
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
@@ -55,14 +54,14 @@ public class V2_DeltaClopperConstants {
                 .withLeaderCANID(31) // Bottom Ball Tunnel
                 .withCurrentLimits(
                     CurrentLimits.builder()
-                        .withSupplyCurrentLimit(Amps.of(20.0))
-                        .withStatorCurrentLimit(Amps.of(30.0))
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(80.0))
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
                 .withRollerMotorGearRatio(42.0)
-                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
-                .withOpposedFollowerCANID(30) // Top Ball Tunnel
+                .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
+                .withAlignedFollowerCANID(30) // Top Ball Tunnel
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(0.20))
                 .withCanBus(CANBus.roboRIO())

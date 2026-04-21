@@ -1,11 +1,14 @@
 package frc.robot.subsystems.shared.turret;
 
+import static edu.wpi.first.units.Units.Milliseconds;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
@@ -14,6 +17,8 @@ import lombok.NonNull;
 
 @Builder(setterPrefix = "with")
 public class TurretConstants {
+
+  public static final Time TURRET_RANGE_LOOKAHEAD = Milliseconds.of(100);
 
   @NonNull public final Integer turretCANID;
   @NonNull public final Integer encoder1ID;

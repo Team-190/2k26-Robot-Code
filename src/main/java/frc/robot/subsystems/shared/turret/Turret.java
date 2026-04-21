@@ -65,8 +65,8 @@ public class Turret {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.25).per(Seconds),
-                Volts.of(2),
+                Volts.of(0.5).per(Seconds),
+                Volts.of(4),
                 Seconds.of(5),
                 (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
@@ -95,6 +95,19 @@ public class Turret {
             constants.maxAngle.getMeasure());
     angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.25));
 
+    Rotation2d startingAngle =
+        calculateTurretAngle(
+            io.getEncoder1Position(), io.getEncoder2Position(), constants.turretAngleCalculation);
+    if (startingAngle.getRadians() > constants.maxAngle.getRadians()) {
+      startingAngle =
+          startingAngle.minus(
+              Rotation2d.fromRotations(
+                  (double) constants.turretAngleCalculation.gear1ToothCount()
+                      * (double) constants.turretAngleCalculation.gear2ToothCount()
+                      / (double) constants.turretAngleCalculation.gear0ToothCount()));
+    }
+
+    //    io.setPosition(startingAngle);
     io.setPosition(new Rotation2d());
 
     feedforwardController =
@@ -116,8 +129,9 @@ public class Turret {
 
     Logger.recordOutput(aKitTopic + "/At Goal", atPositionGoal());
     Logger.recordOutput(aKitTopic + "/State", state.name());
+    Logger.recordOutput(aKitTopic + "/Out Of Range", outOfRange());
 
-    if (outOfRange(inputs.angle)
+    if (outOfRange()
         && state != TurretState.UNWRAPPING
         && state != TurretState.IDLE
         && state != TurretState.OPEN_LOOP_VOLTAGE_CONTROL) {
@@ -164,13 +178,13 @@ public class Turret {
     }
   }
 
-  private Rotation2d angleToGoal(Translation2d translationGoal, Pose2d robotPose) {
+  public Rotation2d angleToGoal(Translation2d translationGoal, Pose2d robotPose) {
 
     Transform2d robotToTurretTransform =
         new Transform2d(
             constants.robotToTurretTransform.getX(),
             constants.robotToTurretTransform.getY(),
-            Rotation2d.kZero);
+            constants.robotToTurretTransform.getRotation().toRotation2d());
     Pose2d turretPose = robotPose.transformBy(robotToTurretTransform);
     Translation2d turretToTarget = translationGoal.minus(turretPose.getTranslation());
     return turretToTarget.getAngle().minus(turretPose.getRotation());
@@ -199,9 +213,23 @@ public class Turret {
     return feedforwardController.calculate(targetOmega - fieldVelocity.omegaRadiansPerSecond);
   }
 
-  public boolean outOfRange(Rotation2d angle) {
-    return angle.getMeasure().lte(constants.minAngle.getMeasure().plus(Degrees.of(10)))
-        || angle.getMeasure().gte(constants.maxAngle.getMeasure().minus(Degrees.of(10)));
+  public boolean outOfRange() {
+    return inputs
+            .angle
+            .getMeasure()
+            .lte(
+                constants
+                    .minAngle
+                    .getMeasure()
+                    .plus(inputs.velocity.times(TurretConstants.TURRET_RANGE_LOOKAHEAD)))
+        || inputs
+            .angle
+            .getMeasure()
+            .gte(
+                constants
+                    .maxAngle
+                    .getMeasure()
+                    .minus(inputs.velocity.times(TurretConstants.TURRET_RANGE_LOOKAHEAD)));
   }
 
   public void setVoltageGoal(Voltage volts) {
@@ -235,7 +263,7 @@ public class Turret {
   }
 
   public boolean atPositionGoal() {
-    return io.atPositionGoal(new Rotation2d((Angle) positionGoal.getNewSetpoint()));
+    return io.atPositionGoal(inputs.positionGoal);
   }
 
   public boolean atPositionGoal(Rotation2d positionReference) {
@@ -274,13 +302,9 @@ public class Turret {
   public Command runSysIdRoutine() {
     return Commands.sequence(
         Commands.runOnce(() -> state = TurretState.IDLE),
-        characterizationRoutine
-            .quasistatic(Direction.kForward)
-            .until(() -> outOfRange(inputs.angle)),
+        characterizationRoutine.quasistatic(Direction.kForward).until(() -> outOfRange()),
         Commands.waitSeconds(3),
-        characterizationRoutine
-            .quasistatic(Direction.kReverse)
-            .until(() -> outOfRange(inputs.angle)),
+        characterizationRoutine.quasistatic(Direction.kReverse).until(() -> outOfRange()),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
@@ -349,5 +373,9 @@ public class Turret {
 
   public Rotation2d getPosition() {
     return inputs.angle;
+  }
+
+  public AngularVelocity getVelocity() {
+    return inputs.velocity;
   }
 }

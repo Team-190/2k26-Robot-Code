@@ -242,6 +242,12 @@ public class BetterAutoChooser implements Sendable {
     return addCmd(name, generator);
   }
 
+  public BetterAutoChooser addCmdRoutine(
+      String name, Supplier<Command> generator, Supplier<Command> onSelectCmd) {
+    onSelectCommand.put(name, onSelectCmd);
+    return addCmd(name, generator);
+  }
+
   /**
    * Returns the currently selected command.
    *

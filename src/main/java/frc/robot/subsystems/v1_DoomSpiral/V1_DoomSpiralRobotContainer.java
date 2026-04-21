@@ -1,6 +1,7 @@
 package frc.robot.subsystems.v1_DoomSpiral;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -76,6 +77,7 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private SwerveDrive drive;
@@ -92,6 +94,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   private final XKeysInput xkeys = new XKeysInput(1);
 
   private final BetterAutoChooser autoChooser;
+  private final LoggedNetworkBoolean returnToMidChooser;
 
   private final NetworkTable pathAdjustmentTable =
       NetworkTableInstance.getDefault().getTable("PathAdjustmentModes");
@@ -131,7 +134,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V1_DoomSpiralRobotState::getGlobalPose,
                   V1_DoomSpiralRobotState::resetPose);
-          // swank = new V1_DoomSpiralSwank(new V1_DoomSpiralSwankIOTalonFX());
           climber =
               new Climber(
                   new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
@@ -139,7 +141,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           intake =
               new Intake(
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS));
+                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
+                  driver.leftBumper());
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFX(),
@@ -173,6 +176,13 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                       V1_DoomSpiralRobotState::getHeadingUpdateTimestamp,
                       List.of(V1_DoomSpiralRobotState::addLocalizerVisionMeasurement),
                       List.of()));
+          // new CameraLimelight(
+          // new CameraIOLimelight(V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG),
+          // V1_DoomSpiralConstants.LIMELIGHT_RIGHT_CONFIG,
+          // V1_DoomSpiralRobotState::getHeading,
+          // NetworkTablesJNI::now,
+          // List.of(V1_DoomSpiralRobotState::addFieldLocalizerVisionMeasurement),
+          // List.of()));
           break;
 
         case V1_DOOMSPIRAL_SIM:
@@ -200,7 +210,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
           intake =
               new Intake(
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS));
+                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
+                  driver.leftBumper());
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFXSim(),
@@ -215,8 +226,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new GenericFlywheelIOTalonFXSim(V1_DoomSpiralShooterConstants.SHOOT_CONSTANTS),
                   new HoodIOTalonFXSim(V1_DoomSpiralShooterConstants.HOOD_CONSTANTS));
           vision =
-              new Vision(
-                  () -> AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark));
+              new Vision(() -> AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark));
           leds = new V1_DoomSpiralCANdle();
 
           break;
@@ -249,7 +259,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {});
+      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, driver.leftBumper());
     }
 
     if (spindexer == null) {
@@ -276,6 +286,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);
+    returnToMidChooser = new LoggedNetworkBoolean("ReturnToNeutralZone", true);
 
     leftBumpEntry.set(true);
     rightBumpEntry.set(true);
@@ -348,7 +359,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> -driver.getRightX(),
                 V1_DoomSpiralRobotState::getHeading,
                 driver.rightTrigger(),
-                () -> V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
+                () -> V1_DoomSpiralRobotState.getShootingParameters().chassisAngle().getRadians(),
+                () ->
+                    V1_DoomSpiralRobotState.getShootingParameters()
+                        .chassisVelocity()
+                        .in(RadiansPerSecond),
                 driver.leftTrigger().or(driver.x()),
                 driver.x())
             .withName("joystickDriveRotationLock"));
@@ -592,19 +607,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutineConfig(
         "Left Trench Simple",
         V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks",
         V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Simple",
         V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks",
         V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Depot And Back Hub",
         V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(drive, intake, shooter, spindexer));
@@ -613,20 +628,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutineConfig(
         "Left Trench Simple Crosses",
         V1_DoomSpiralAutoLeftTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Simple Crosses",
         V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
+            drive, intake, shooter, spindexer, returnToMidChooser));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, getAdjustmentModeSupplier()));
-    autoChooser.select("Right Trench Simple");
+            drive, intake, shooter, spindexer, returnToMidChooser));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
     RobotModeTriggers.autonomous()
@@ -644,7 +658,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
   public void robotPeriodic() {
 
     V1_DoomSpiralRobotState.periodic(
-        drive.getRawGyroRotation(), drive.getYawVelocity(), drive.getModulePositions());
+        drive.getRawGyroRotation(), drive.getYawVelocity(), drive.getModulePositions(), drive);
 
     Logger.recordOutput(
         "Mechanism 3d",

@@ -40,10 +40,10 @@ public class V1_DoomSpiralConstants {
           V1_DoomSpiralTunerConstants.kSteerClosedLoopOutput,
           Units.inchesToMeters(37.5),
           Units.inchesToMeters(28.5),
-          115.0,
-          0.8128,
-          8.49,
-          60.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
           2.0);
 
   public static final Gains DRIVE_GAINS =
@@ -187,7 +187,7 @@ public class V1_DoomSpiralConstants {
           .robotToCameraTransform(
               new Transform3d(
                   -0.055,
-                  -0.054,
+                  0.054,
                   0.538,
                   new Rotation3d(
                       Units.degreesToRadians(0),
@@ -208,7 +208,7 @@ public class V1_DoomSpiralConstants {
           .robotToCameraTransform(
               new Transform3d(
                   -0.060142,
-                  -0.398769,
+                  0.398769,
                   0.305,
                   new Rotation3d(
                       Units.degreesToRadians(0),

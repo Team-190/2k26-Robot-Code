@@ -9,7 +9,9 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -24,27 +26,39 @@ import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelig
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V2_DeltaConstants {
+
+  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
+      new Transform3d(
+          -.017463, -.163513, .371475, new Rotation3d(0.0, 0.0, Units.degreesToRadians(180)));
+
+  public static final Transform2d ROBOT_TO_SHOOTER_TRANSFORM_2D =
+      new Transform2d(-.017463, -.163513, Rotation2d.fromDegrees(90.0));
+  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
+      new Transform3d(.015672, -.149274, .170432, new Rotation3d(0.0, .580224, 0.0));
+
   public static final DriveConfig DRIVE_CONFIG =
-      new DriveConfig(
-          V2_DeltaTunerConstants.kCANBus,
-          V2_DeltaTunerConstants.DrivetrainConstants.Pigeon2Id,
-          V2_DeltaTunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
-          V2_DeltaTunerConstants.kWheelRadius.in(Meters),
-          DCMotor.getKrakenX60Foc(1),
-          DCMotor.getKrakenX44Foc(1),
-          V2_DeltaTunerConstants.FrontLeft,
-          V2_DeltaTunerConstants.FrontRight,
-          V2_DeltaTunerConstants.BackLeft,
-          V2_DeltaTunerConstants.BackRight,
-          V2_DeltaTunerConstants.kDriveClosedLoopOutput,
-          V2_DeltaTunerConstants.kSteerClosedLoopOutput,
-          Units.inchesToMeters(37.5),
-          Units.inchesToMeters(28.5),
-          115.0,
-          0.8128,
-          7.90,
-          60.0,
-          2.0);
+      DriveConfig.builder()
+          .withCanBus(V2_DeltaTunerConstants.kCANBus)
+          .withPigeon2Id(V2_DeltaTunerConstants.DrivetrainConstants.Pigeon2Id)
+          .withMaxLinearVelocityMetersPerSecond(
+              V2_DeltaTunerConstants.kSpeedAt12Volts.in(MetersPerSecond))
+          .withWheelRadiusMeters(V2_DeltaTunerConstants.kWheelRadius.in(Meters))
+          .withDriveModel(DCMotor.getKrakenX60Foc(1))
+          .withTurnModel(DCMotor.getKrakenX44Foc(1))
+          .withFrontLeft(V2_DeltaTunerConstants.FrontLeft)
+          .withFrontRight(V2_DeltaTunerConstants.FrontRight)
+          .withBackLeft(V2_DeltaTunerConstants.BackLeft)
+          .withBackRight(V2_DeltaTunerConstants.BackRight)
+          .withDriveClosedLoopOutputType(V2_DeltaTunerConstants.kDriveClosedLoopOutput)
+          .withSteerClosedLoopOutputType(V2_DeltaTunerConstants.kSteerClosedLoopOutput)
+          .withBumperWidth(Units.inchesToMeters(37.5))
+          .withBumperLength(Units.inchesToMeters(28.5))
+          .withTrackWidth(Units.inchesToMeters(0))
+          .withRobotMOI(7.897)
+          .withModuleCurrentLimit(60.0)
+          .withRobotMassKilograms(67.000)
+          .withWheelCOF(2.0)
+          .build();
 
   public static final Gains DRIVE_GAINS =
       Gains.builder()
@@ -175,21 +189,59 @@ public class V2_DeltaConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final StaticLimelightConfig LIMELIGHT_SHOOTER_CONFIG =
+  public static final StaticLimelightConfig LIMELIGHT_LEFT_CONFIG = // CLIMBER
       StaticLimelightConfig.builder()
-          .key("shooter")
+          .key("left")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
           .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
           .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
-          .robotToCameraTransform(Transform3d.kZero)
+          .robotToCameraTransform(
+              new Transform3d(
+                  -0.275571,
+                  0.305,
+                  0.443327,
+                  Rotation3d.kZero
+                      .rotateBy(new Rotation3d(0, Units.degreesToRadians(17.114), 0))
+                      .rotateBy(new Rotation3d(0, 0, Units.degreesToRadians(134)))))
           .enableRewind(true)
           .build();
 
-  public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM =
-      new Transform3d(-0.017463, -0.163513, -0.371475, new Rotation3d());
-  public static final Transform3d SHOOTER_TO_LIMELIGHT_TRANSFORM =
-      new Transform3d(0.003008, -0.149135, -0.161329, new Rotation3d());
+  public static final StaticLimelightConfig LIMELIGHT_RIGHT_CONFIG = // SHOOTER
+      StaticLimelightConfig.builder()
+          .key("right")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  -.202,
+                  -.326,
+                  .456,
+                  Rotation3d.kZero
+                      .rotateBy(new Rotation3d(0, Units.degreesToRadians(20.0), 0))
+                      .rotateBy(new Rotation3d(0, 0, Units.degreesToRadians(207.9627321)))))
+          .enableRewind(true)
+          .build();
+  public static final StaticLimelightConfig LIMELIGHT_INTAKE_CONFIG =
+      StaticLimelightConfig.builder()
+          .key("intake")
+          .cameraType(CameraType.LIMELIGHT_4)
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .robotToCameraTransform(
+              new Transform3d(
+                  Inches.of(-7.176137),
+                  Inches.of(6.540012),
+                  Inches.of(20.459907),
+                  new Rotation3d(0.0, Units.degreesToRadians(90 - 57.826644), 0)))
+          .enableRewind(true)
+          .build();
 }

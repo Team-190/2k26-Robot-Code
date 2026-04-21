@@ -1,5 +1,7 @@
 package frc.robot.commands.v1_DoomSpiral.autonomous;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -48,7 +50,10 @@ public class V1_DoomSpiralAutoClimb {
                         intake.stopRoller(),
                         shooter.setGoal(
                             V1_DoomSpiralShooterConstants.HoodGoal.SCORE,
-                            V1_DoomSpiralRobotState::getScoreVelocity),
+                            () ->
+                                V1_DoomSpiralRobotState.getShootingParameters()
+                                    .flywheelSpeed()
+                                    .in(RadiansPerSecond)),
                         Commands.sequence(
                             spindexer.agitateSpindexer().until(shooter::atGoal),
                             spindexer.setVoltage(
