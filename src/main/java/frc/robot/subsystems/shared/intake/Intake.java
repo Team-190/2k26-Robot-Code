@@ -30,9 +30,11 @@ import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
   private final GenericRoller roller;
-  @Getter private final FourBarLinkage linkage;
+  @Getter
+  private final FourBarLinkage linkage;
 
-  @Getter private IntakeState intakeState;
+  @Getter
+  private IntakeState intakeState;
   private boolean overrideRoller;
 
   private final Setpoint<VoltageUnit> overrideVoltageSetpoint;
@@ -40,7 +42,8 @@ public class Intake extends SubsystemBase {
 
   private final BooleanSupplier fastIntakeRollers;
 
-  @Getter private boolean intakeAtStow;
+  @Getter
+  private boolean intakeAtStow;
 
   public Intake(
       GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, BooleanSupplier fastIntakeRollers) {
@@ -48,28 +51,24 @@ public class Intake extends SubsystemBase {
 
     intakeState = IntakeState.STOW;
 
-    overrideVoltageSetpoint =
-        new Setpoint<>(
-            Volts.of(0),
-            IntakeConstants.INTAKE_ROLLER_CONSTANTS.voltageOffsetStep,
-            Volts.of(-12),
-            Volts.of(12));
-    normalVoltageSetpoint =
-        new Setpoint<>(
-            Volts.of(0),
-            IntakeConstants.INTAKE_ROLLER_CONSTANTS.voltageOffsetStep,
-            Volts.of(-12),
-            Volts.of(12));
-    roller =
-        new GenericRoller(
-            rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS, "", normalVoltageSetpoint);
-    linkage =
-        new FourBarLinkage(
-            linkageIO,
-            IntakeConstants.LINKAGE_CONSTANTS,
-            this,
-            "",
-            IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
+    overrideVoltageSetpoint = new Setpoint<>(
+        Volts.of(0),
+        IntakeConstants.INTAKE_ROLLER_CONSTANTS.voltageOffsetStep,
+        Volts.of(-12),
+        Volts.of(12));
+    normalVoltageSetpoint = new Setpoint<>(
+        Volts.of(0),
+        IntakeConstants.INTAKE_ROLLER_CONSTANTS.voltageOffsetStep,
+        Volts.of(-12),
+        Volts.of(12));
+    roller = new GenericRoller(
+        rollerIO, this, IntakeConstants.INTAKE_ROLLER_CONSTANTS, "", normalVoltageSetpoint);
+    linkage = new FourBarLinkage(
+        linkageIO,
+        IntakeConstants.LINKAGE_CONSTANTS,
+        this,
+        "",
+        IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
 
     intakeState = IntakeState.STOW;
 
@@ -84,14 +83,16 @@ public class Intake extends SubsystemBase {
     roller.periodic();
     linkage.periodic();
 
-    if (overrideRoller) roller.setVoltageGoal(overrideVoltageSetpoint);
+    if (overrideRoller)
+      roller.setVoltageGoal(overrideVoltageSetpoint);
     else {
       switch (intakeState) {
         case STOW:
           roller.setVoltageGoal(normalVoltageSetpoint);
           if (!linkage.atPositionGoal())
             roller.setVoltageGoal(Volts.of(IntakeConstants.EXTAKE_VOLTAGE));
-          else roller.setVoltageGoal(Volts.of(0.0));
+          else
+            roller.setVoltageGoal(Volts.of(0.0));
           break;
         case INTAKE:
           if (fastIntakeRollers.getAsBoolean()) {
@@ -117,8 +118,7 @@ public class Intake extends SubsystemBase {
     if (intakeState.equals(IntakeState.INTAKE)) {
       V1_DoomSpiralRobotState.getLedStates()
           .setIntakeCollecting(
-              roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
-                  == IntakeConstants.INTAKE_VOLTAGE);
+              roller.getVoltageGoal().getSetpoint().baseUnitMagnitude() == IntakeConstants.INTAKE_VOLTAGE);
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     } else {
       V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
@@ -126,8 +126,9 @@ public class Intake extends SubsystemBase {
     }
     V1_DoomSpiralRobotState.getLedStates()
         .setSpitting(
-            roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
-                == IntakeConstants.EXTAKE_VOLTAGE);
+            roller.getVoltageGoal().getSetpoint().baseUnitMagnitude() == IntakeConstants.EXTAKE_VOLTAGE);
+
+    intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
 
     Logger.recordOutput(
         "Intake/Linkage0/Offset Degrees", linkage.getPositionGoal().getOffset().in(Degrees));
@@ -139,12 +140,13 @@ public class Intake extends SubsystemBase {
         "Intake/Roller/AppliedVolts", roller.getVoltageGoal().getSetpoint().in(Volts));
     Logger.recordOutput(
         "Intake/Roller/Voltage Magnitude", roller.getVoltageGoal().getNewSetpoint().in(Volts));
+    Logger.recordOutput("Intake/At Stow", intakeAtStow);
 
-    intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
   }
 
   /**
-   * Sets the voltage of the top and bottom rollers of the intake subsystem. The voltage is offset
+   * Sets the voltage of the top and bottom rollers of the intake subsystem. The
+   * voltage is offset
    * by the roller voltage offset stored in the robot state.
    *
    * @param voltage the voltage to set the rollers to
@@ -194,30 +196,29 @@ public class Intake extends SubsystemBase {
 
   public Command agitate() {
     return Commands.sequence(
-            Commands.runOnce(
-                () -> {
-                  intakeState = IntakeState.AGITATE;
-                  linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
-                }),
-            linkage
-                .waitUntilLinkageAtGoal()
-                .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(35), Milliamps.of(500))),
-            Commands.runOnce(
-                () -> {
-                  linkage.setPositionGoal(
-                      linkage
-                          .getPosition()
-                          .minus(
-                              new Rotation2d(
-                                      (Angle)
-                                          IntakeConstants.INTAKE_STATES
-                                              .get(IntakeState.AGITATE)
-                                              .getNewSetpoint())
-                                  .minus(Rotation2d.fromDegrees(90 + 5.0))));
-                }),
-            linkage
-                .waitUntilLinkageAtGoal()
-                .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(-45), Milliamps.of(500))))
+        Commands.runOnce(
+            () -> {
+              intakeState = IntakeState.AGITATE;
+              linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.STOW));
+            }),
+        linkage
+            .waitUntilLinkageAtGoal()
+            .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(35), Milliamps.of(500))),
+        Commands.runOnce(
+            () -> {
+              linkage.setPositionGoal(
+                  linkage
+                      .getPosition()
+                      .minus(
+                          new Rotation2d(
+                              (Angle) IntakeConstants.INTAKE_STATES
+                                  .get(IntakeState.AGITATE)
+                                  .getNewSetpoint())
+                              .minus(Rotation2d.fromDegrees(90 + 5.0))));
+            }),
+        linkage
+            .waitUntilLinkageAtGoal()
+            .until(() -> linkage.getTorqueCurrent().isNear(Amps.of(-45), Milliamps.of(500))))
         .repeatedly();
   }
 
@@ -318,11 +319,10 @@ public class Intake extends SubsystemBase {
   }
 
   public Command defaultCommand() {
-    Command defaultCommand =
-        Commands.either(
-            Commands.either(stopRoller(), Commands.none(), this::atGoal),
-            Commands.none(),
-            () -> (intakeState.equals(IntakeState.STOW)));
+    Command defaultCommand = Commands.either(
+        Commands.either(stopRoller(), Commands.none(), this::atGoal),
+        Commands.none(),
+        () -> (intakeState.equals(IntakeState.STOW)));
     defaultCommand.addRequirements(this);
     return defaultCommand;
   }

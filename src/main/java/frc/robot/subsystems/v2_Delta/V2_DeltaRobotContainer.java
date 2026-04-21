@@ -74,658 +74,648 @@ import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
-  private GyroIO gyroIO;
-  private SwerveDrive drive;
-  private V2_DeltaClopper clopper;
-  private Vision vision;
-  private V2_DeltaShooter shooter;
-  private Intake intake;
-  private FuelSimulator fuelSimulator;
-  private SimFuelCount simFuelCount;
+    private GyroIO gyroIO;
+    private SwerveDrive drive;
+    private V2_DeltaClopper clopper;
+    private Vision vision;
+    private V2_DeltaShooter shooter;
+    private Intake intake;
+    private FuelSimulator fuelSimulator;
+    private SimFuelCount simFuelCount;
 
-  private final BetterAutoChooser autoChooser;
+    private final BetterAutoChooser autoChooser;
 
-  private final XboxElite2Input driver = new XboxElite2Input(0);
-  private final XKeysInput xkeys = new XKeysInput(1);
+    private final XboxElite2Input driver = new XboxElite2Input(0);
+    private final XKeysInput xkeys = new XKeysInput(1);
 
-  public V2_DeltaRobotContainer() {
+    public V2_DeltaRobotContainer() {
 
-    if (Constants.getMode() != RobotMode.REPLAY) {
-      switch (RobotConfig.ROBOT) {
-        case V2_DELTA:
-          gyroIO =
-              new GyroIOPigeon2(
-                  V2_DeltaConstants.DRIVE_CONSTANTS, V2_DeltaRobotState::setHeadingUpdateTimestamp);
-          drive =
-              new SwerveDrive(
-                  V2_DeltaConstants.DRIVE_CONSTANTS,
-                  gyroIO,
-                  new SwerveModuleIOTalonFX(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
-                  new SwerveModuleIOTalonFX(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
-                  new SwerveModuleIOTalonFX(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
-                  new SwerveModuleIOTalonFX(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-                  V2_DeltaRobotState::getGlobalPose,
-                  V2_DeltaRobotState::resetPose);
-          intake =
-              new Intake(
-                  new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
-                  driver.leftBumper());
-          clopper =
-              new V2_DeltaClopper(
-                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
-          shooter =
-              new V2_DeltaShooter(
-                  new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
-                  new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-                  new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
-                  drive::getMeasuredChassisSpeeds);
-          vision =
-              new Vision(
-                  () -> FieldConstants.tagLayoutType.getLayout(),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()),
-                  new CameraStaticLimelight(
-                      new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
-                      V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
-                      V2_DeltaRobotState::getHeading,
-                      drive::getMeasuredChassisSpeeds,
-                      V2_DeltaRobotState::getHeadingUpdateTimestamp,
-                      List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
-                      List.of()));
-          break;
-        case V2_DELTA_SIM:
-          drive =
-              new SwerveDrive(
-                  V2_DeltaConstants.DRIVE_CONSTANTS,
-                  new GyroIO() {},
-                  new SwerveModuleIOSim(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
-                  new SwerveModuleIOSim(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
-                  new SwerveModuleIOSim(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
-                  new SwerveModuleIOSim(
-                      V2_DeltaConstants.DRIVE_CONSTANTS,
-                      V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
-                  V2_DeltaRobotState::getGlobalPose,
-                  V2_DeltaRobotState::resetPose);
-          intake =
-              new Intake(
-                  new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
-                  new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
-                  driver.leftBumper());
-          clopper =
-              new V2_DeltaClopper(
-                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+        if (Constants.getMode() != RobotMode.REPLAY) {
+            switch (RobotConfig.ROBOT) {
+                case V2_DELTA:
+                    gyroIO = new GyroIOPigeon2(
+                            V2_DeltaConstants.DRIVE_CONSTANTS, V2_DeltaRobotState::setHeadingUpdateTimestamp);
+                    drive = new SwerveDrive(
+                            V2_DeltaConstants.DRIVE_CONSTANTS,
+                            gyroIO,
+                            new SwerveModuleIOTalonFX(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
+                            new SwerveModuleIOTalonFX(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
+                            new SwerveModuleIOTalonFX(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
+                            new SwerveModuleIOTalonFX(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
+                            V2_DeltaRobotState::getGlobalPose,
+                            V2_DeltaRobotState::resetPose);
+                    intake = new Intake(
+                            new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
+                            new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
+                            driver.leftBumper());
+                    clopper = new V2_DeltaClopper(
+                            new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                            new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+                    shooter = new V2_DeltaShooter(
+                            new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
+                            new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
+                            new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
+                            drive::getMeasuredChassisSpeeds);
+                    vision = new Vision(
+                            () -> FieldConstants.tagLayoutType.getLayout(),
+                            new CameraStaticLimelight(
+                                    new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG),
+                                    V2_DeltaConstants.LIMELIGHT_INTAKE_CONFIG,
+                                    V2_DeltaRobotState::getHeading,
+                                    drive::getMeasuredChassisSpeeds,
+                                    V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                                    List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                                    List.of()),
+                            new CameraStaticLimelight(
+                                    new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG),
+                                    V2_DeltaConstants.LIMELIGHT_LEFT_CONFIG,
+                                    V2_DeltaRobotState::getHeading,
+                                    drive::getMeasuredChassisSpeeds,
+                                    V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                                    List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                                    List.of()),
+                            new CameraStaticLimelight(
+                                    new CameraIOLimelight(V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG),
+                                    V2_DeltaConstants.LIMELIGHT_RIGHT_CONFIG,
+                                    V2_DeltaRobotState::getHeading,
+                                    drive::getMeasuredChassisSpeeds,
+                                    V2_DeltaRobotState::getHeadingUpdateTimestamp,
+                                    List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
+                                    List.of()));
+                    break;
+                case V2_DELTA_SIM:
+                    drive = new SwerveDrive(
+                            V2_DeltaConstants.DRIVE_CONSTANTS,
+                            new GyroIO() {
+                            },
+                            new SwerveModuleIOSim(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontLeft()),
+                            new SwerveModuleIOSim(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.frontRight()),
+                            new SwerveModuleIOSim(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backLeft()),
+                            new SwerveModuleIOSim(
+                                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                                    V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
+                            V2_DeltaRobotState::getGlobalPose,
+                            V2_DeltaRobotState::resetPose);
+                    intake = new Intake(
+                            new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
+                            new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
+                            driver.leftBumper());
+                    clopper = new V2_DeltaClopper(
+                            new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
+                            new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
 
-          shooter =
-              new V2_DeltaShooter(
-                  new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
-                  new HoodIOTalonFXSim(V2_DeltaShooterConstants.HOOD_CONSTANTS),
-                  new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
-                  drive::getMeasuredChassisSpeeds);
-          vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
-          break;
-        default:
-      }
-    }
-    if (gyroIO == null) {
-      gyroIO = new GyroIO() {};
-    }
-    if (drive == null) {
-      drive =
-          new SwerveDrive(
-              V2_DeltaConstants.DRIVE_CONSTANTS,
-              gyroIO,
-              new SwerveModuleIO() {},
-              new SwerveModuleIO() {},
-              new SwerveModuleIO() {},
-              new SwerveModuleIO() {},
-              V2_DeltaRobotState::getGlobalPose,
-              V2_DeltaRobotState::resetPose);
-    }
-    if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> false);
-    }
-    if (clopper == null) {
-      clopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
-    }
-    if (vision == null) {
-      vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
-    }
-    if (shooter == null) {
-      shooter =
-          new V2_DeltaShooter(
-              new TurretIO() {},
-              new HoodIO() {},
-              new GenericFlywheelIO() {},
-              drive::getMeasuredChassisSpeeds);
-    }
-    if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> true);
-    }
+                    shooter = new V2_DeltaShooter(
+                            new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
+                            new HoodIOTalonFXSim(V2_DeltaShooterConstants.HOOD_CONSTANTS),
+                            new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
+                            drive::getMeasuredChassisSpeeds);
+                    vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
+                    break;
+                default:
+            }
+        }
+        if (gyroIO == null) {
+            gyroIO = new GyroIO() {
+            };
+        }
+        if (drive == null) {
+            drive = new SwerveDrive(
+                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                    gyroIO,
+                    new SwerveModuleIO() {
+                    },
+                    new SwerveModuleIO() {
+                    },
+                    new SwerveModuleIO() {
+                    },
+                    new SwerveModuleIO() {
+                    },
+                    V2_DeltaRobotState::getGlobalPose,
+                    V2_DeltaRobotState::resetPose);
+        }
+        if (intake == null) {
+            intake = new Intake(new GenericRollerIO() {
+            }, new FourBarLinkageIO() {
+            }, () -> false);
+        }
+        if (clopper == null) {
+            clopper = new V2_DeltaClopper(new GenericRollerIO() {
+            }, new GenericRollerIO() {
+            });
+        }
+        if (vision == null) {
+            vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
+        }
+        if (shooter == null) {
+            shooter = new V2_DeltaShooter(
+                    new TurretIO() {
+                    },
+                    new HoodIO() {
+                    },
+                    new GenericFlywheelIO() {
+                    },
+                    drive::getMeasuredChassisSpeeds);
+        }
+        if (intake == null) {
+            intake = new Intake(new GenericRollerIO() {
+            }, new FourBarLinkageIO() {
+            }, () -> true);
+        }
 
-    autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
-    configureButtonBindings();
-    configureAutos();
-    configureFuelSim();
+        autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
+        configureButtonBindings();
+        configureAutos();
+        configureFuelSim();
 
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaConstants.DRIVE_GAINS,
-        g -> {
-          drive.setPIDGains(
-              g.getKP(),
-              g.getKD(),
-              V2_DeltaConstants.TURN_GAINS.getKP(),
-              V2_DeltaConstants.TURN_GAINS.getKD());
-          drive.setFFGains(g.getKS(), g.getKV());
-        });
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaConstants.TURN_GAINS,
-        g ->
-            drive.setPIDGains(
-                V2_DeltaConstants.DRIVE_GAINS.getKP(),
-                V2_DeltaConstants.DRIVE_GAINS.getKD(),
-                g.getKP(),
-                g.getKD()));
+        TunableUpdaterRegistry.registerGains(
+                V2_DeltaConstants.DRIVE_GAINS,
+                g -> {
+                    drive.setPIDGains(
+                            g.getKP(),
+                            g.getKD(),
+                            V2_DeltaConstants.TURN_GAINS.getKP(),
+                            V2_DeltaConstants.TURN_GAINS.getKD());
+                    drive.setFFGains(g.getKS(), g.getKV());
+                });
+        TunableUpdaterRegistry.registerGains(
+                V2_DeltaConstants.TURN_GAINS,
+                g -> drive.setPIDGains(
+                        V2_DeltaConstants.DRIVE_GAINS.getKP(),
+                        V2_DeltaConstants.DRIVE_GAINS.getKD(),
+                        g.getKP(),
+                        g.getKD()));
 
-    TunableUpdaterRegistry.registerGains(
-        IntakeConstants.LINKAGE_CONSTANTS.gains, intake.getLinkage()::setGains);
+        TunableUpdaterRegistry.registerGains(
+                IntakeConstants.LINKAGE_CONSTANTS.gains, intake.getLinkage()::setGains);
 
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.HOOD_CONSTANTS.gains, shooter::setHoodGains);
-    TunableUpdaterRegistry.registerConstraints(
-        V2_DeltaShooterConstants.HOOD_CONSTANTS.constraints,
-        c -> shooter.setHoodConstraints((AngularPositionConstraints) c));
+        TunableUpdaterRegistry.registerGains(
+                V2_DeltaShooterConstants.HOOD_CONSTANTS.gains, shooter::setHoodGains);
+        TunableUpdaterRegistry.registerConstraints(
+                V2_DeltaShooterConstants.HOOD_CONSTANTS.constraints,
+                c -> shooter.setHoodConstraints((AngularPositionConstraints) c));
 
-    TunableUpdaterRegistry.registerConstraints(
-        V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints,
-        c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.SHOOT_CONSTANTS.torqueGains, shooter::setFlywheelGains);
+        TunableUpdaterRegistry.registerConstraints(
+                V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints,
+                c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
+        TunableUpdaterRegistry.registerGains(
+                V2_DeltaShooterConstants.SHOOT_CONSTANTS.torqueGains, shooter::setFlywheelGains);
 
-    TunableUpdaterRegistry.registerConstraints(
-        V2_DeltaShooterConstants.TURRET_CONSTANTS.constraints,
-        c -> shooter.setTurretConstraints((AngularPositionConstraints) c));
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.TURRET_CONSTANTS.gains, shooter::setTurretGains);
-  }
-
-  private void configureFuelSim() {
-
-    fuelSimulator = new FuelSimulator("FuelSim");
-    simFuelCount = new SimFuelCount(8);
-
-    fuelSimulator.registerRobot(
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
-        Units.inchesToMeters(6.0),
-        V2_DeltaRobotState::getGlobalPose,
-        () ->
-            new ChassisSpeeds(
-                drive.getFieldRelativeVelocity().getX(),
-                drive.getFieldRelativeVelocity().getY(),
-                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
-
-    fuelSimulator.registerIntake(
-        IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
-        IntakeConstants.LINKAGE_OFFSET.getX(),
-        -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
-        () ->
-            intake.getIntakeState().equals(IntakeState.INTAKE)
-                && intake.atGoal()
-                && simFuelCount.getFuelStored() < SimFuelCount.getCapacity(),
-        () ->
-            simFuelCount.setFuelStored(
-                Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.getCapacity())));
-
-    fuelSimulator.registerShooter(
-        () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
-        () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
-        shooter.getHoodAngle()::getMeasure,
-        shooter.getTurretRotation()::getMeasure,
-        shooter::getFlywheelVelocity,
-        V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
-
-    fuelSimulator.setSubticks(1);
-    fuelSimulator.start();
-    fuelSimulator.spawnStartingFuel();
-    fuelSimulator.enableAirResistance();
-
-    if (RobotBase.isSimulation()) {
-      fuelSimulator.start();
-      RobotModeTriggers.autonomous()
-          .onTrue(
-              Commands.runOnce(
-                  () -> {
-                    fuelSimulator.clearFuel();
-                    fuelSimulator.spawnStartingFuel();
-                    simFuelCount.setFuelStored(8);
-                  }));
-    } else {
-      fuelSimulator.stop();
-    }
-  }
-
-  private void configureAutos() {
-    final boolean BRING_UP = false;
-
-    if (BRING_UP) {
-
-      autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
-      autoChooser.addCmd(
-          "Drive Feedforward Characterization",
-          () -> DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addCmd(
-          "Wheel Radius Characterization",
-          () ->
-              DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
-      autoChooser.addCmd("Intake Linkage SysID", () -> intake.linkageSysId());
-      autoChooser.addCmd(
-          "Intake Agitate",
-          intake
-                  .deploy()
-                  .andThen(
-                      intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
-              ::repeatedly);
-      autoChooser.addCmd("Shooter Hood SysID", shooter::hoodSysId);
-      autoChooser.addCmd(
-          "Shooter Hood Agitate",
-          Commands.sequence(
-                  shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.minAngle),
-                  shooter.waitUntilHoodAtGoal(),
-                  shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.maxAngle),
-                  shooter.waitUntilHoodAtGoal())
-              ::repeatedly);
-
-      autoChooser.addCmd("Shooter Flywheel SysID", shooter::flywheelSysId);
-      autoChooser.addCmd(
-          "Shooter Flywheel Agitate",
-          shooter
-                  .setFlywheelVelocity(RadiansPerSecond.of(500))
-                  .andThen(
-                      shooter.waitUntilFlywheelAtGoal(),
-                      Commands.waitSeconds(1),
-                      shooter.setFlywheelVelocity(RadiansPerSecond.of(0)),
-                      shooter.waitUntilFlywheelAtGoal(),
-                      Commands.waitSeconds(1))
-              ::repeatedly);
-      autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
-
-      autoChooser.addCmd(
-          "Shooter Turret Agitate",
-          shooter
-                  .setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.maxAngle)
-                  .andThen(
-                      shooter.waitUntilTurretAtGoal(),
-                      shooter.setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.minAngle),
-                      shooter.waitUntilTurretAtGoal())
-              ::repeatedly);
+        TunableUpdaterRegistry.registerConstraints(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.constraints,
+                c -> shooter.setTurretConstraints((AngularPositionConstraints) c));
+        TunableUpdaterRegistry.registerGains(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.gains, shooter::setTurretGains);
     }
 
-    autoChooser.addCmdRoutine(
-        "Left OP",
-        () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right OP",
-        () -> V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Left Full",
-        () -> V2_DeltaAutoLeftFull.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right OP Bucks",
-        () -> V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Left OP Bucks",
-        () -> V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right Full",
-        () -> V2_DeltaAutoRightFull.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Left Half",
-        () -> V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right Half",
-        () -> V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Depot",
-        () -> V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
+    private void configureFuelSim() {
 
-    SmartDashboard.putData("Autonomous Modes", autoChooser);
-  }
+        fuelSimulator = new FuelSimulator("FuelSim");
+        simFuelCount = new SimFuelCount(8);
 
-  @Trace
-  private void configureButtonBindings() {
-    // drive.setDefaultCommand(
-    // DriveCommands.joystickDrive(
-    // drive,
-    // V2_DeltaConstants.DRIVE_CONSTANTS,
-    // () -> -driver.getLeftY(),
-    // () -> -driver.getLeftX(),
-    // () -> -driver.getRightX(),
-    // V2_DeltaRobotState::getHeading));
+        fuelSimulator.registerRobot(
+                V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
+                V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
+                Units.inchesToMeters(6.0),
+                V2_DeltaRobotState::getGlobalPose,
+                () -> new ChassisSpeeds(
+                        drive.getFieldRelativeVelocity().getX(),
+                        drive.getFieldRelativeVelocity().getY(),
+                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
 
-    driver
-        .povDown()
-        .onTrue(
-            SharedCompositeCommands.resetHeading(
-                drive,
-                V2_DeltaRobotState::resetPose,
-                () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
+        fuelSimulator.registerIntake(
+                IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
+                IntakeConstants.LINKAGE_OFFSET.getX(),
+                -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+                V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+                () -> intake.getIntakeState().equals(IntakeState.INTAKE)
+                        && intake.atGoal()
+                        && simFuelCount.getFuelStored() < SimFuelCount.getCapacity(),
+                () -> simFuelCount.setFuelStored(
+                        Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.getCapacity())));
 
-    drive.setDefaultCommand(
-        DriveCommands.joystickDriveWithCardinalDirection(
-                drive,
-                V2_DeltaConstants.DRIVE_CONSTANTS,
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> -driver.getRightX(),
-                V2_DeltaRobotState::getHeading,
-                driver.leftTrigger(),
-                driver.rightTrigger(), // TODO: Figure out how to do 50% on RT and 10% on X
-                0.5)
-            .withName("joystick-drive"));
+        fuelSimulator.registerShooter(
+                () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
+                () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
+                shooter.getHoodAngle()::getMeasure,
+                shooter.getTurretRotation()::getMeasure,
+                shooter::getFlywheelVelocity,
+                V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
 
-    clopper.setDefaultCommand(
-        V2_DeltaCompositeCommands.runHopperWhenReady(shooter, clopper).withName("clopper"));
+        fuelSimulator.setSubticks(1);
+        fuelSimulator.start();
+        fuelSimulator.spawnStartingFuel();
+        fuelSimulator.enableAirResistance();
 
-    driver
-        .leftTrigger()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        DriveCommands.setLastCardinalDirection(
-                            Math.round(
-                                    V2_DeltaRobotState.getHeading().getRadians() / (Math.PI / 2.0))
-                                * (Math.PI / 2.0)))
-                .withName("cardinal-direction-set"));
+        if (RobotBase.isSimulation()) {
+            fuelSimulator.start();
+            RobotModeTriggers.autonomous()
+                    .onTrue(
+                            Commands.runOnce(
+                                    () -> {
+                                        fuelSimulator.clearFuel();
+                                        fuelSimulator.spawnStartingFuel();
+                                        simFuelCount.setFuelStored(8);
+                                    }));
+        } else {
+            fuelSimulator.stop();
+        }
+    }
 
-    driver
-        .povDown()
-        .onTrue(
-            SharedCompositeCommands.resetHeading(
-                    drive,
-                    V2_DeltaRobotState::resetPose,
-                    () -> V2_DeltaRobotState.getGlobalPose().getTranslation())
-                .withName("driver-povDown-true"));
+    private void configureAutos() {
+        final boolean BRING_UP = false;
 
-    driver.leftBumper().onTrue(intake.collect().withName("driver-leftBumper-true"));
+        if (BRING_UP) {
 
-    driver
-        .rightBumper()
-        .whileTrue(
-            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-rightBumper-false"));
-    xkeys
-        .b8()
-        .onTrue(
-            V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-rightBumper-false"));
+            autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
+            autoChooser.addCmd(
+                    "Drive Feedforward Characterization",
+                    () -> DriveCommands.feedforwardCharacterization(drive));
+            autoChooser.addCmd(
+                    "Wheel Radius Characterization",
+                    () -> DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
+            autoChooser.addCmd("Intake Linkage SysID", () -> intake.linkageSysId());
+            autoChooser.addCmd(
+                    "Intake Agitate",
+                    intake
+                            .deploy()
+                            .andThen(
+                                    intake.waitUntilIntakeAtGoal(), intake.stow(),
+                                    intake.waitUntilIntakeAtGoal())::repeatedly);
+            autoChooser.addCmd("Shooter Hood SysID", shooter::hoodSysId);
+            autoChooser.addCmd(
+                    "Shooter Hood Agitate",
+                    Commands.sequence(
+                            shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.minAngle),
+                            shooter.waitUntilHoodAtGoal(),
+                            shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.maxAngle),
+                            shooter.waitUntilHoodAtGoal())::repeatedly);
 
-    driver
-        .topLeftPaddle()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.LEFT_TRENCH)
-                .withName("driver-topLeftPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-topLeftPaddle-false"));
+            autoChooser.addCmd("Shooter Flywheel SysID", shooter::flywheelSysId);
+            autoChooser.addCmd(
+                    "Shooter Flywheel Agitate",
+                    shooter
+                            .setFlywheelVelocity(RadiansPerSecond.of(500))
+                            .andThen(
+                                    shooter.waitUntilFlywheelAtGoal(),
+                                    Commands.waitSeconds(1),
+                                    shooter.setFlywheelVelocity(RadiansPerSecond.of(0)),
+                                    shooter.waitUntilFlywheelAtGoal(),
+                                    Commands.waitSeconds(1))::repeatedly);
+            autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
 
-    driver
-        .topRightPaddle()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.RIGHT_TRENCH)
-                .withName("driver-topRightPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-topRightPaddle-false"));
+            autoChooser.addCmd(
+                    "Shooter Turret Agitate",
+                    shooter
+                            .setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.maxAngle)
+                            .andThen(
+                                    shooter.waitUntilTurretAtGoal(),
+                                    shooter.setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.minAngle),
+                                    shooter.waitUntilTurretAtGoal())::repeatedly);
+        }
 
-    driver
-        .bottomLeftPaddle()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.LEFT_CORNER)
-                .withName("driver-topLeftPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-topLeftPaddle-false"));
+        autoChooser.addCmdRoutine(
+                "Left OP",
+                () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Right OP",
+                () -> V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Left Full",
+                () -> V2_DeltaAutoLeftFull.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Right OP Bucks",
+                () -> V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Left OP Bucks",
+                () -> V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Right Full",
+                () -> V2_DeltaAutoRightFull.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Left Half",
+                () -> V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Right Half",
+                () -> V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
+        autoChooser.addCmdRoutine(
+                "Depot",
+                () -> V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter),
+                FollowPathCommand::warmupCommand);
 
-    driver
-        .bottomRightPaddle()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.RIGHT_CORNER)
-                .withName("driver-topRightPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-topRightPaddle-false"));
+        SmartDashboard.putData("Autonomous Modes", autoChooser);
+    }
 
-    driver
-        .a()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
-                .withName("driver-bottomLeftPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-bottomLeftPaddle-false"));
+    @Trace
+    private void configureButtonBindings() {
+        // drive.setDefaultCommand(
+        // DriveCommands.joystickDrive(
+        // drive,
+        // V2_DeltaConstants.DRIVE_CONSTANTS,
+        // () -> -driver.getLeftY(),
+        // () -> -driver.getLeftX(),
+        // () -> -driver.getRightX(),
+        // V2_DeltaRobotState::getHeading));
 
-    driver
-        .b()
-        .whileTrue(
-            V2_DeltaCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_DeltaRobotState.FixedShots.TOWER)
-                .withName("driver-bottomRightPaddle-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-bottomRightPaddle-false"));
+        driver
+                .povDown()
+                .onTrue(
+                        SharedCompositeCommands.resetHeading(
+                                drive,
+                                V2_DeltaRobotState::resetPose,
+                                () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
 
-    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
-    xkeys.b2().onTrue(intake.decrementStowOffset().withName("xkeys-b2-true"));
-    xkeys.b3().onTrue(intake.incrementStowOffset().withName("xkeys-b3-true"));
+        drive.setDefaultCommand(
+                DriveCommands.joystickDriveWithCardinalDirection(
+                        drive,
+                        V2_DeltaConstants.DRIVE_CONSTANTS,
+                        () -> -driver.getLeftY(),
+                        () -> -driver.getLeftX(),
+                        () -> -driver.getRightX(),
+                        V2_DeltaRobotState::getHeading,
+                        driver.leftTrigger(),
+                        driver.rightTrigger(), // TODO: Figure out how to do 50% on RT and 10% on X
+                        0.5)
+                        .withName("joystick-drive"));
 
-    xkeys
-        .b4()
-        .whileTrue(
-            clopper
-                .setOverrideRollerFloorVoltage(
-                    V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
-                .withName("xkeys-b5-while"));
+        clopper.setDefaultCommand(
+                V2_DeltaCompositeCommands.runHopperWhenReady(shooter, clopper).withName("clopper"));
 
-    xkeys
-        .b5()
-        .whileTrue(clopper.setOverrideRollerFloorVoltage(Volts.zero()).withName("xkeys-b6-true"));
+        driver
+                .leftTrigger()
+                .onTrue(
+                        Commands.runOnce(
+                                () -> DriveCommands.setLastCardinalDirection(
+                                        Math.round(
+                                                V2_DeltaRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                                                * (Math.PI / 2.0)))
+                                .withName("cardinal-direction-set"));
 
-    xkeys
-        .b6()
-        .whileTrue(
-            clopper
-                .setOverrideBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
-                .withName("xkeys-b6-true"));
-    xkeys
-        .b7()
-        .whileTrue(
-            clopper
-                .setOverrideBallTunnelVoltage(
-                    V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
-                .withName("xkeys-b7-true"));
+        driver
+                .povDown()
+                .onTrue(
+                        SharedCompositeCommands.resetHeading(
+                                drive,
+                                V2_DeltaRobotState::resetPose,
+                                () -> V2_DeltaRobotState.getGlobalPose().getTranslation())
+                                .withName("driver-povDown-true"));
 
-    xkeys
-        .b10()
-        .onTrue(
-            SharedCompositeCommands.resetHeading(
-                    drive,
-                    V2_DeltaRobotState::resetPose,
-                    V2_DeltaRobotState.getGlobalPose()::getTranslation)
-                .withName("xkeys-b10-while"));
+        driver.leftBumper().onTrue(intake.collect().withName("driver-leftBumper-true"));
 
-    xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
-    xkeys.c2().onTrue(intake.decrementCollectOffset().withName("xkeys-c2-true"));
-    xkeys.c3().onTrue(intake.incrementCollectOffset().withName("xkeys-c3-true"));
+        driver
+                .rightBumper()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-rightBumper-false"));
+        xkeys
+                .b8()
+                .onTrue(
+                        V2_DeltaCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-rightBumper-false"));
 
-    xkeys.c4().onTrue(clopper.incrementRollerFloorVelocity().withName("xkeys-c4-true"));
-    xkeys.c5().onTrue(clopper.decrementRollerFloorVelocity().withName("xkeys-c5-true"));
+        driver
+                .topLeftPaddle()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.fixedShotCommand(
+                                shooter, clopper, V2_DeltaRobotState.FixedShots.LEFT_TRENCH)
+                                .withName("driver-topLeftPaddle-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-topLeftPaddle-false"));
 
-    xkeys.c6().onTrue(clopper.incrementBallTunnelVelocity().withName("xkeys-c6-true"));
-    xkeys.c7().onTrue(clopper.decrementBallTunnelVelocity().withName("xkeys-c7-true"));
+        driver
+                .topRightPaddle()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.fixedShotCommand(
+                                shooter, clopper, V2_DeltaRobotState.FixedShots.RIGHT_TRENCH)
+                                .withName("driver-topRightPaddle-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-topRightPaddle-false"));
 
-    xkeys
-        .d1()
-        .whileTrue(
-            intake
-                .setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
-                .withName("xkeys-d1-while"))
-        .onFalse(intake.stopRoller().withName("xkeys-d1-false"));
+        driver
+                .bottomLeftPaddle()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.fixedShotCommand(
+                                shooter, clopper, V2_DeltaRobotState.FixedShots.LEFT_CORNER)
+                                .withName("driver-topLeftPaddle-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-topLeftPaddle-false"));
 
-    xkeys
-        .d2()
-        .whileTrue(
-            intake
-                .setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
-                .withName("xkeys-d2-while"))
-        .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
+        driver
+                .bottomRightPaddle()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.fixedShotCommand(
+                                shooter, clopper, V2_DeltaRobotState.FixedShots.RIGHT_CORNER)
+                                .withName("driver-topRightPaddle-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-topRightPaddle-false"));
 
-    xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
-    xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
+        driver
+                .a()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.fixedShotCommand(
+                                shooter, clopper, V2_DeltaRobotState.FixedShots.HUB)
+                                .withName("driver-bottomLeftPaddle-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-bottomLeftPaddle-false"));
 
-    xkeys
-        .f1()
-        .whileTrue(
-            intake
-                .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .withName("xkeys-f1-while"))
-        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f1-false"));
+        driver
+                .b()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.fixedShotCommand(
+                                shooter, clopper, V2_DeltaRobotState.FixedShots.TOWER)
+                                .withName("driver-bottomRightPaddle-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("driver-bottomRightPaddle-false"));
 
-    xkeys
-        .f2()
-        .whileTrue(
-            intake
-                .setLinkageVoltage(IntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                .withName("xkeys-f2-while"))
-        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f2-false"));
+        xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
+        xkeys.b2().onTrue(intake.decrementStowOffset().withName("xkeys-b2-true"));
+        xkeys.b3().onTrue(intake.incrementStowOffset().withName("xkeys-b3-true"));
 
-    xkeys.f4().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-f4-true"));
-    xkeys.f5().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-f5-true"));
-    xkeys.f6().onTrue(shooter.incrementHoodAngle().withName("xkeys-f6-true"));
-    xkeys.f7().onTrue(shooter.decrementHoodAngle().withName("xkeys-f7-true"));
+        xkeys
+                .b4()
+                .whileTrue(
+                        clopper
+                                .setOverrideRollerFloorVoltage(
+                                        V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
+                                .withName("xkeys-b5-while"));
 
-    xkeys
-        .g1()
-        .or(xkeys.g2().or(xkeys.g3()))
-        .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
+        xkeys
+                .b5()
+                .whileTrue(clopper.setOverrideRollerFloorVoltage(Volts.zero()).withName("xkeys-b6-true"));
 
-    xkeys
-        .g4()
-        .whileTrue(
-            shooter
-                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.STOW)
-                .withName("xkeys-g4-true"))
-        .onFalse(
-            shooter
-                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.IDLE)
-                .withName("xkeys-g4-false"));
-    xkeys
-        .g5()
-        .whileTrue(
-            V2_DeltaCompositeCommands.toggleHold(clopper, shooter).withName("xkeys-g5-toggle"));
+        xkeys
+                .b6()
+                .whileTrue(
+                        clopper
+                                .setOverrideBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
+                                .withName("xkeys-b6-true"));
+        xkeys
+                .b7()
+                .whileTrue(
+                        clopper
+                                .setOverrideBallTunnelVoltage(
+                                        V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
+                                .withName("xkeys-b7-true"));
 
-    xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
-    xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
+        xkeys
+                .b10()
+                .onTrue(
+                        SharedCompositeCommands.resetHeading(
+                                drive,
+                                V2_DeltaRobotState::resetPose,
+                                V2_DeltaRobotState.getGlobalPose()::getTranslation)
+                                .withName("xkeys-b10-while"));
 
-    xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
+        xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
+        xkeys.c2().onTrue(intake.decrementCollectOffset().withName("xkeys-c2-true"));
+        xkeys.c3().onTrue(intake.incrementCollectOffset().withName("xkeys-c3-true"));
 
-    xkeys
-        .h1()
-        .or(xkeys.h2().or(xkeys.h3()))
-        .whileTrue(
-            shooter
-                .setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE)
-                .alongWith(clopper.intake())
-                .withName("xkeys-h1-h2-h3-while"))
-        .onFalse(
-            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("xkeys-h1-h2-h3-false"));
+        xkeys.c4().onTrue(clopper.incrementRollerFloorVelocity().withName("xkeys-c4-true"));
+        xkeys.c5().onTrue(clopper.decrementRollerFloorVelocity().withName("xkeys-c5-true"));
 
-    // xkeys.h4().onTrue(); SLOW WRAP MODE
-    // xkeys.h5().onTrue(); FAST WRAP MODE
+        xkeys.c6().onTrue(clopper.incrementBallTunnelVelocity().withName("xkeys-c6-true"));
+        xkeys.c7().onTrue(clopper.decrementBallTunnelVelocity().withName("xkeys-c7-true"));
 
-    xkeys.h6().whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"));
-    xkeys.h7().whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"));
+        xkeys
+                .d1()
+                .whileTrue(
+                        intake
+                                .setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
+                                .withName("xkeys-d1-while"))
+                .onFalse(intake.stopRoller().withName("xkeys-d1-false"));
 
-    xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
+        xkeys
+                .d2()
+                .whileTrue(
+                        intake
+                                .setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
+                                .withName("xkeys-d2-while"))
+                .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
 
-    xkeys
-        .h10()
-        .whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"))
-        .onFalse(
-            shooter
-                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.IDLE)
-                .withName("xkeys-h10-false"));
-  }
+        xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
+        xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
 
-  public IntakeState getIntakeState() {
-    return intake.getIntakeState();
-  }
+        xkeys
+                .f1()
+                .whileTrue(
+                        intake
+                                .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                                .withName("xkeys-f1-while"))
+                .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f1-false"));
 
-  @Override
-  public void robotPeriodic() {
-    V2_DeltaRobotState.periodic(
-        drive.getRawGyroRotation(),
-        drive.getYawVelocity(),
-        drive.getModulePositions(),
-        shooter.getTurretRotation(),
-        shooter.isTurretWrapping(),
-        drive.getMeasuredChassisSpeeds(),
-        intake.isIntakeAtStow());
-    fuelSimulator.updateSim();
-  }
+        xkeys
+                .f2()
+                .whileTrue(
+                        intake
+                                .setLinkageVoltage(IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                                .withName("xkeys-f2-while"))
+                .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f2-false"));
 
-  @Override
-  public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
-  }
+        xkeys.f4().onTrue(shooter.incrementFlywheelVelocity().withName("xkeys-f4-true"));
+        xkeys.f5().onTrue(shooter.decrementFlywheelVelocity().withName("xkeys-f5-true"));
+        xkeys.f6().onTrue(shooter.incrementHoodAngle().withName("xkeys-f6-true"));
+        xkeys.f7().onTrue(shooter.decrementHoodAngle().withName("xkeys-f7-true"));
+
+        xkeys
+                .g1()
+                .or(xkeys.g2().or(xkeys.g3()))
+                .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
+
+        xkeys
+                .g4()
+                .whileTrue(
+                        shooter
+                                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.STOW)
+                                .withName("xkeys-g4-true"))
+                .onFalse(
+                        shooter
+                                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.IDLE)
+                                .withName("xkeys-g4-false"));
+        xkeys
+                .g5()
+                .whileTrue(
+                        V2_DeltaCompositeCommands.toggleHold(clopper, shooter).withName("xkeys-g5-toggle"));
+
+        xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
+        xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
+
+        xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
+
+        xkeys
+                .h1()
+                .or(xkeys.h2().or(xkeys.h3()))
+                .whileTrue(
+                        shooter
+                                .setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE)
+                                .alongWith(clopper.intake())
+                                .withName("xkeys-h1-h2-h3-while"))
+                .onFalse(
+                        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                                .withName("xkeys-h1-h2-h3-false"));
+
+        // xkeys.h4().onTrue(); SLOW WRAP MODE
+        // xkeys.h5().onTrue(); FAST WRAP MODE
+
+        xkeys.h6().whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"));
+        xkeys.h7().whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"));
+
+        xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
+
+        xkeys
+                .h10()
+                .whileTrue(shooter.resetHoodZero().withName("xkeys-h10-while"))
+                .onFalse(
+                        shooter
+                                .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.IDLE)
+                                .withName("xkeys-h10-false"));
+    }
+
+    @Override
+    public void robotPeriodic() {
+        V2_DeltaRobotState.periodic(
+                drive.getRawGyroRotation(),
+                drive.getYawVelocity(),
+                drive.getModulePositions(),
+                shooter.getTurretRotation(),
+                shooter.isTurretWrapping(),
+                drive.getMeasuredChassisSpeeds(),
+                intake.isIntakeAtStow());
+        fuelSimulator.updateSim();
+    }
+
+    @Override
+    public Command getAutonomousCommand() {
+        return autoChooser.selectedCommand();
+    }
 }
