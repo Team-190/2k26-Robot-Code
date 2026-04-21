@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.AdjustPathCommand;
+import frc.robot.commands.shared.AdjustPathCommand.PathAdjustmentMode;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -15,6 +16,7 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V1_DoomSpiralAutoLeftTrenchSimple {
@@ -25,7 +27,8 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
       Intake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
-      LoggedNetworkBoolean returnToMid) {
+      LoggedNetworkBoolean returnToMid,
+      Supplier<PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     // Create the routine and the trajectory
 
