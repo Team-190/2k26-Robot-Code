@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
-import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
@@ -21,11 +20,7 @@ import frc.robot.util.AllianceFlipUtil;
 
 public class V2_DeltaAutoDepot {
   public static Command getAutoRoutine(
-      SwerveDrive drive,
-      Intake intake,
-      V2_DeltaClopper clopper,
-      V2_DeltaShooter shooter,
-      Climber climber) {
+      SwerveDrive drive, Intake intake, V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
 
     PathPlannerPath DEPOT;
     try {
@@ -65,13 +60,7 @@ public class V2_DeltaAutoDepot {
                       .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
                   AutoBuilder.followPath(DEPOT),
                   drive.runOnce(drive::stop)),
-              Commands.sequence(V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper))
-                  .withTimeout(4.5)),
-          Commands.sequence(
-              V2_DeltaCompositeCommands.hold(clopper, shooter)
-                  .alongWith(
-                      V2_DeltaCompositeCommands.deployClimber(intake, climber),
-                      climber.climbAutoSequence())));
+              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.none();
