@@ -18,8 +18,6 @@ import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmIO;
-import edu.wpi.team190.gompeilib.subsystems.arm.ArmIOSim;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
@@ -43,8 +41,6 @@ import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
-import frc.robot.subsystems.shared.climber.Climber;
-import frc.robot.subsystems.shared.climber.ClimberConstants;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -71,7 +67,6 @@ import java.util.List;
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
   private SwerveDrive drive;
-  private Climber climber;
   private V2_DeltaClopper clopper;
   private Vision vision;
   private V2_DeltaShooter shooter;
@@ -110,10 +105,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V2_DeltaRobotState::getGlobalPose,
                   V2_DeltaRobotState::resetPose);
-          // climber =
-          // new Climber(
-          // new ArmIOTalonFX(ClimberConstants.CLIMBER_CONSTANTS),
-          // gyroIO.getRoll().asSupplier());
           intake =
               new Intake(
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
@@ -176,7 +167,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.backRight()),
                   V2_DeltaRobotState::getGlobalPose,
                   V2_DeltaRobotState::resetPose);
-          climber = new Climber(new ArmIOSim(ClimberConstants.CLIMBER_CONSTANTS), Radians::zero);
           intake =
               new Intake(
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
@@ -212,9 +202,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new SwerveModuleIO() {},
               V2_DeltaRobotState::getGlobalPose,
               V2_DeltaRobotState::resetPose);
-    }
-    if (climber == null) {
-      climber = new Climber(new ArmIO() {}, Radians::zero);
     }
     if (intake == null) {
       intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> false);
@@ -440,6 +427,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 0.5)
             .withName("joystick-drive"));
 
+    clopper.setDefaultCommand(
+        V2_DeltaCompositeCommands.runHopperWhenReady(shooter, clopper).withName("clopper"));
+
     driver
         .leftTrigger()
         .onTrue(
@@ -476,15 +466,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .onFalse(
             V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-rightBumper-false"));
-
-    driver
-        .x()
-        .onTrue(V2_DeltaCompositeCommands.deployClimber(intake, climber).withName("driver-x-true"));
-
-    driver
-        .y()
-        .whileTrue(climber.climbSequenceL3().withName("driver-y-while"))
-        .onFalse(climber.stop().withName("driver-y-false"));
 
     driver
         .topLeftPaddle()
@@ -554,27 +535,27 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         .b4()
         .whileTrue(
             clopper
-                .setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
-                .withName("xkeys-b5-while"))
-        .onFalse(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b5-false"));
+                .setOverrideRollerFloorVoltage(
+                    V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW)
+                .withName("xkeys-b5-while"));
 
-    xkeys.b5().whileTrue(clopper.setRollerFloorVoltage(Volts.of(0)).withName("xkeys-b6-true"));
+    xkeys
+        .b5()
+        .whileTrue(clopper.setOverrideRollerFloorVoltage(Volts.zero()).withName("xkeys-b6-true"));
 
     xkeys
         .b6()
         .whileTrue(
             clopper
-                .setBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
-                .withName("xkeys-b6-true"))
-        .onFalse(clopper.setBallTunnelVoltage(Volts.zero()).withName("xkeys-b6-false"));
+                .setOverrideBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
+                .withName("xkeys-b6-true"));
     xkeys
         .b7()
         .whileTrue(
             clopper
-                .setBallTunnelVoltage(
+                .setOverrideBallTunnelVoltage(
                     V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
-                .withName("xkeys-b7-true"))
-        .onFalse(clopper.setBallTunnelVoltage(Volts.zero()).withName("xkeys-b7-false"));
+                .withName("xkeys-b7-true"));
 
     xkeys
         .b10()
@@ -611,30 +592,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("xkeys-d2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
 
-    xkeys.d8().onTrue(climber.setPositionDefault().withName("xkeys-d8-true"));
-    xkeys.d9().onTrue(climber.setPositionL1().withName("xkeys-d9-true"));
-    xkeys
-        .d10()
-        .whileTrue(climber.climbSequenceL3().withName("xkeys-d10-true"))
-        .onFalse(climber.setVoltage(0).withName("xkeys-d10-false"));
-
     xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
     xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
-
-    xkeys
-        .e8()
-        .whileTrue(climber.clockwiseSlow().withName("xkeys-e8-while"))
-        .onFalse(climber.setVoltage(0).withName("xkeys-e8-false"));
-
-    xkeys
-        .e9()
-        .whileTrue(climber.counterClockwiseSlow().withName("xkeys-e9-while"))
-        .onFalse(climber.setVoltage(0).withName("xkeys-e9-false"));
-
-    xkeys
-        .e10()
-        .onTrue(
-            V2_DeltaCompositeCommands.unClimbPostAuto(intake, climber).withName("xkeys-e10-true"));
 
     xkeys
         .f1()
@@ -675,13 +634,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     xkeys
         .g5()
         .whileTrue(
-            V2_DeltaCompositeCommands.toggleHold(clopper, shooter)
-                .withName("xkeys-g5-toggle")); // TODO: Confirm behavior
+            V2_DeltaCompositeCommands.toggleHold(clopper, shooter).withName("xkeys-g5-toggle"));
 
     xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
     xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
 
-    xkeys.g9().onTrue(climber.resetClimberZero().withName("xkeys-g9-true"));
     xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
 
     xkeys

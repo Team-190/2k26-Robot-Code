@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,6 +44,8 @@ public class V2_DeltaShooter extends SubsystemBase {
   private Voltage overrideHoodVoltage;
   private Voltage overrideFlywheelVoltage;
 
+  private final Timer flywheelTimer;
+
   public V2_DeltaShooter(
       TurretIO turretIO,
       HoodIO hoodIO,
@@ -68,12 +71,15 @@ public class V2_DeltaShooter extends SubsystemBase {
     overrideFlywheelVoltage = Volts.of(0.0);
 
     fixedShotParameters = V2_DeltaRobotState.FixedShots.HUB.getParameters();
+
+    flywheelTimer = new Timer();
   }
 
   @Trace
   public void periodic() {
     if (V2_DeltaRobotState.isShouldHoodTuck()) {
       hood.setPositionGoal(Rotation2d.kZero);
+      flywheelTimer.reset();
     } else {
       switch (shooterGoal) {
         case STOW:
@@ -149,11 +155,23 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {
-    return this.runOnce(() -> this.shooterGoal = shooterGoal);
+    return this.runOnce(
+        () -> {
+          if (shooterGoal != this.shooterGoal) {
+            flywheelTimer.reset();
+          }
+          this.shooterGoal = shooterGoal;
+        });
   }
 
   public Command setGoal(Supplier<ShooterGoal> goalSupplier) {
-    return this.run(() -> this.shooterGoal = goalSupplier.get());
+    return this.run(
+        () -> {
+          if (shooterGoal != goalSupplier.get()) {
+            flywheelTimer.reset();
+            this.shooterGoal = goalSupplier.get();
+          }
+        });
   }
 
   public Command runFixedShot(V2_DeltaRobotState.FixedShots shot) {
@@ -162,7 +180,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheel.atVelocityGoal() && turret.atPositionGoal();
+    return hood.atPositionGoal() && flywheelReady() && turret.atPositionGoal();
   }
 
   public Command waitUntilAtGoal() {
@@ -348,5 +366,18 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command waitUntilTurretAtGoal() {
     return turret.waitUntilAtGoal();
+  }
+
+  public boolean flywheelReady() {
+    if (flywheel.atVelocityGoal()) {
+      flywheelTimer.restart();
+
+      return true;
+    }
+    if (flywheelTimer.hasElapsed(0.75)) {
+      flywheelTimer.restart();
+      return flywheel.atVelocityGoal();
+    }
+    return flywheelTimer.get() <= .5;
   }
 }

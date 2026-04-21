@@ -47,8 +47,8 @@ public class V2_DeltaAutoRightOP {
             return false;
           },
           drive);
-      OP_SAFE_1 = PathPlannerPath.fromPathFile("LEFT_OP_SAFE_1").flipPath();
-      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("LEFT_OP_2").flipPath();
+      OP_SAFE_1 = PathPlannerPath.fromPathFile("LEFT_OP_SAFE_1").mirrorPath();
+      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("LEFT_OP_2").mirrorPath();
       return Commands.sequence(
           Commands.runOnce(
               () ->

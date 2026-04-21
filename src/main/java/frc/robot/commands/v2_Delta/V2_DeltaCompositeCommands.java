@@ -8,7 +8,6 @@ import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
-import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoal;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
@@ -21,6 +20,7 @@ public class V2_DeltaCompositeCommands {
     return Commands.parallel(
         clopper.stopBallTunnel(),
         clopper.stopRollerFloor(),
+        clopper.idle(),
         shooter.setGoal(() -> ShooterGoal.STOW),
         Commands.runOnce(V2_DeltaShotCalculator::clear));
   }
@@ -70,14 +70,5 @@ public class V2_DeltaCompositeCommands {
   public static Command unClimbPostAuto(Intake intake, Climber climber) {
     return Commands.parallel(
         intake.stow(), climber.setPositionGoal(ClimberGoal.UNCLIMB.getPosition(), GainSlot.ZERO));
-  }
-
-  public static Command eject(Intake intake, V2_DeltaClopper clopper) {
-    return Commands.parallel(
-        intake.setOverrideRollerVoltage(-6),
-        clopper.setRollerFloorVoltage(
-            V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE.unaryMinus()),
-        clopper.setBallTunnelVoltage(
-            V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus()));
   }
 }
