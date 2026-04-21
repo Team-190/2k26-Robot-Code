@@ -24,7 +24,6 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
-import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -44,8 +43,7 @@ public class Turret {
 
   private TurretState state;
   private TurretState previousState;
-  @Getter
-  private boolean isWrapping;
+  @Getter private boolean isWrapping;
 
   private final Supplier<Pose2d> robotPoseSupplier;
   Supplier<ChassisSpeeds> robotVelocitySuppiler;
@@ -64,13 +62,14 @@ public class Turret {
     this.io = io;
     inputs = new TurretIOInputsAutoLogged();
     aKitTopic = subsystem.getName() + "/Turret" + name;
-    characterizationRoutine = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            Volts.of(0.5).per(Seconds),
-            Volts.of(4),
-            Seconds.of(5),
-            (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
-        new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
+    characterizationRoutine =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                Volts.of(0.5).per(Seconds),
+                Volts.of(4),
+                Seconds.of(5),
+                (state) -> Logger.recordOutput(aKitTopic + "/SysID State", state.toString())),
+            new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
     this.robotPoseSupplier = robotPoseSupplier;
     this.robotVelocitySuppiler = fieldVelocitySupplier;
@@ -84,34 +83,38 @@ public class Turret {
     this.constants = constants;
 
     voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
-    positionGoal = new Setpoint<>(
-        calculateTurretAngle(
-            io.getEncoder1Position(),
-            io.getEncoder2Position(),
-            Turret.this.constants.turretAngleCalculation)
-            .getMeasure(),
-        constants.angleStep.getMeasure(),
-        constants.minAngle.getMeasure(),
-        constants.maxAngle.getMeasure());
+    positionGoal =
+        new Setpoint<>(
+            calculateTurretAngle(
+                    io.getEncoder1Position(),
+                    io.getEncoder2Position(),
+                    Turret.this.constants.turretAngleCalculation)
+                .getMeasure(),
+            constants.angleStep.getMeasure(),
+            constants.minAngle.getMeasure(),
+            constants.maxAngle.getMeasure());
     angularVelocityGoal = new Setpoint<>(RadiansPerSecond.zero(), RadiansPerSecond.of(0.25));
 
-    Rotation2d startingAngle = calculateTurretAngle(
-        io.getEncoder1Position(), io.getEncoder2Position(), constants.turretAngleCalculation);
+    Rotation2d startingAngle =
+        calculateTurretAngle(
+            io.getEncoder1Position(), io.getEncoder2Position(), constants.turretAngleCalculation);
     if (startingAngle.getRadians() > constants.maxAngle.getRadians()) {
-      startingAngle = startingAngle.minus(
-          Rotation2d.fromRotations(
-              (double) constants.turretAngleCalculation.gear1ToothCount()
-                  * (double) constants.turretAngleCalculation.gear2ToothCount()
-                  / (double) constants.turretAngleCalculation.gear0ToothCount()));
+      startingAngle =
+          startingAngle.minus(
+              Rotation2d.fromRotations(
+                  (double) constants.turretAngleCalculation.gear1ToothCount()
+                      * (double) constants.turretAngleCalculation.gear2ToothCount()
+                      / (double) constants.turretAngleCalculation.gear0ToothCount()));
     }
 
     // io.setPosition(startingAngle);
     io.setPosition(new Rotation2d());
 
-    feedforwardController = new SimpleMotorFeedforward(
-        constants.aimingFeedforwardGains.getKS(),
-        constants.aimingFeedforwardGains.getKV(),
-        constants.aimingFeedforwardGains.getKA());
+    feedforwardController =
+        new SimpleMotorFeedforward(
+            constants.aimingFeedforwardGains.getKS(),
+            constants.aimingFeedforwardGains.getKV(),
+            constants.aimingFeedforwardGains.getKA());
   }
 
   @Trace
@@ -139,13 +142,15 @@ public class Turret {
     isWrapping = state == TurretState.UNWRAPPING;
     switch (state) {
       case UNWRAPPING -> {
-        double midPointAbsoluteRad = (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
+        double midPointAbsoluteRad =
+            (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
 
-        Rotation2d safeRelativeTarget = Rotation2d.fromRadians(
-            midPointAbsoluteRad
-                + Math.IEEEremainder(
-                    positionGoal.getNewSetpoint().in(Radians) - midPointAbsoluteRad,
-                    2.0 * Math.PI));
+        Rotation2d safeRelativeTarget =
+            Rotation2d.fromRadians(
+                midPointAbsoluteRad
+                    + Math.IEEEremainder(
+                        positionGoal.getNewSetpoint().in(Radians) - midPointAbsoluteRad,
+                        2.0 * Math.PI));
 
         io.setPositionGoal(safeRelativeTarget, 0.0);
 
@@ -155,10 +160,10 @@ public class Turret {
         }
       }
       case CLOSED_LOOP_POSITION_CONTROL ->
-        io.setPositionGoal(
-            findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
-            (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
-            0.0);
+          io.setPositionGoal(
+              findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
+              (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
+              0.0);
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
       case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
         positionGoal.setSetpoint(
@@ -168,17 +173,17 @@ public class Turret {
             (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
             calculateFeedforwardVoltage(translationGoal));
       }
-      default -> {
-      }
+      default -> {}
     }
   }
 
   public Rotation2d angleToGoal(Translation2d translationGoal, Pose2d robotPose) {
 
-    Transform2d robotToTurretTransform = new Transform2d(
-        constants.robotToTurretTransform.getX(),
-        constants.robotToTurretTransform.getY(),
-        constants.robotToTurretTransform.getRotation().toRotation2d());
+    Transform2d robotToTurretTransform =
+        new Transform2d(
+            constants.robotToTurretTransform.getX(),
+            constants.robotToTurretTransform.getY(),
+            constants.robotToTurretTransform.getRotation().toRotation2d());
     Pose2d turretPose = robotPose.transformBy(robotToTurretTransform);
     Translation2d turretToTarget = translationGoal.minus(turretPose.getTranslation());
     return turretToTarget.getAngle().minus(turretPose.getRotation());
@@ -186,8 +191,9 @@ public class Turret {
 
   private double calculateFeedforwardVoltage(Translation2d translationGoal) {
 
-    ChassisSpeeds fieldVelocity = ChassisSpeeds.fromRobotRelativeSpeeds(
-        robotVelocitySuppiler.get(), robotPoseSupplier.get().getRotation());
+    ChassisSpeeds fieldVelocity =
+        ChassisSpeeds.fromRobotRelativeSpeeds(
+            robotVelocitySuppiler.get(), robotPoseSupplier.get().getRotation());
 
     double rx = translationGoal.getX() - robotPoseSupplier.get().getX();
     double ry = translationGoal.getY() - robotPoseSupplier.get().getY();
@@ -198,24 +204,29 @@ public class Turret {
     if (distanceSq < 0.01) {
       targetOmega = 0.0;
     } else {
-      targetOmega = (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond)
-          / distanceSq;
+      targetOmega =
+          (ry * fieldVelocity.vxMetersPerSecond - rx * fieldVelocity.vyMetersPerSecond)
+              / distanceSq;
     }
 
     return feedforwardController.calculate(targetOmega - fieldVelocity.omegaRadiansPerSecond);
   }
 
   public boolean outOfRange() {
-    return inputs.angle
-        .getMeasure()
-        .lte(
-            constants.minAngle
-                .getMeasure()
-                .plus(inputs.velocity.times(TurretConstants.TURRET_RANGE_LOOKAHEAD)))
-        || inputs.angle
+    return inputs
+            .angle
+            .getMeasure()
+            .lte(
+                constants
+                    .minAngle
+                    .getMeasure()
+                    .plus(inputs.velocity.times(TurretConstants.TURRET_RANGE_LOOKAHEAD)))
+        || inputs
+            .angle
             .getMeasure()
             .gte(
-                constants.maxAngle
+                constants
+                    .maxAngle
                     .getMeasure()
                     .minus(inputs.velocity.times(TurretConstants.TURRET_RANGE_LOOKAHEAD)));
   }
@@ -278,8 +289,7 @@ public class Turret {
   }
 
   public void setFieldRelativeGoal(Translation2d goal) {
-    if (state != TurretState.UNWRAPPING)
-      state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
+    if (state != TurretState.UNWRAPPING) state = TurretState.CLOSED_LOOP_AUTO_AIM_CONTROL;
     translationGoal = goal;
   }
 
@@ -310,8 +320,7 @@ public class Turret {
   }
 
   /**
-   * Method that calculates turret angle based on encoder values. Uses the Chinese
-   * Remainder
+   * Method that calculates turret angle based on encoder values. Uses the Chinese Remainder
    * Theorem.
    */
   public static Rotation2d calculateTurretAngle(
@@ -339,10 +348,11 @@ public class Turret {
     }
 
     // Direct calculation: θ = Δ * (g1*g2/g0)
-    double turretRotations = diff
-        * gearRatios.gear1ToothCount()
-        * gearRatios.gear2ToothCount()
-        / (double) gearRatios.gear0ToothCount();
+    double turretRotations =
+        diff
+            * gearRatios.gear1ToothCount()
+            * gearRatios.gear2ToothCount()
+            / (double) gearRatios.gear0ToothCount();
 
     return Rotation2d.fromRotations(turretRotations);
   }

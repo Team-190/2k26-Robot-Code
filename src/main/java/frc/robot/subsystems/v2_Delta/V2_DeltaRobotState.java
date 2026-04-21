@@ -26,7 +26,6 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
@@ -56,10 +55,8 @@ public class V2_DeltaRobotState {
 
   private static final Localization localization;
 
-  @Getter
-  private static Distance distanceToHub;
-  @Getter
-  private static Distance distanceToFeedTranslation;
+  @Getter private static Distance distanceToHub;
+  @Getter private static Distance distanceToFeedTranslation;
 
   private static final InterpolatingTreeMap<Distance, Rotation2d> shootAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> shootSpeedTree;
@@ -68,31 +65,20 @@ public class V2_DeltaRobotState {
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
   private static final InterpolatingTreeMap<Distance, Time> feedTimeOfFlightTree;
 
-  @Getter
-  private static Rotation2d hoodAngle;
-  @Getter
-  private static Pose2d lookaheadPose;
+  @Getter private static Rotation2d hoodAngle;
+  @Getter private static Pose2d lookaheadPose;
 
-  @Getter
-  private static AngularVelocity turretVelocity;
-  @Getter
-  private static AngularVelocity flywheelVelocity;
+  @Getter private static AngularVelocity turretVelocity;
+  @Getter private static AngularVelocity flywheelVelocity;
 
-  @Getter
-  private static final LEDStates ledStates;
+  @Getter private static final LEDStates ledStates;
 
-  @Setter
-  @Getter
-  private static long headingUpdateTimestamp;
+  @Setter @Getter private static long headingUpdateTimestamp;
 
-  @Getter
-  private static boolean prohibitShot;
-  @Getter
-  private static boolean shouldHoodTuck;
-  @Getter
-  private static boolean inAllianceZone;
-  @Getter
-  private static boolean intakeAtStow;
+  @Getter private static boolean prohibitShot;
+  @Getter private static boolean shouldHoodTuck;
+  @Getter private static boolean inAllianceZone;
+  @Getter private static boolean intakeAtStow;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -105,59 +91,78 @@ public class V2_DeltaRobotState {
     blueTowerZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.blueTowerTags));
     redTowerZone = new FieldZone(new HashSet<>(FieldConstants.AprilTags.redTowerTags));
 
-    localization = new Localization(
-        List.of(globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone),
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
-        2);
+    localization =
+        new Localization(
+            List.of(globalZone, blueHubZone, redHubZone, blueTowerZone, redTowerZone),
+            V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.kinematics(),
+            2);
 
-    distanceToHub = Distance.ofBaseUnits(
-        getHubZonePose()
-            .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
-            .getTranslation()
-            .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-            .getNorm(),
-        Meters);
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getHubZonePose()
+                .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
 
-    distanceToFeedTranslation = Distance.ofBaseUnits(
-        getGlobalPose().getTranslation().minus(getFeedTranslation()).getNorm(), Meters);
+    distanceToFeedTranslation =
+        Distance.ofBaseUnits(
+            getGlobalPose().getTranslation().minus(getFeedTranslation()).getNorm(), Meters);
 
     ledStates = new LEDStates(false, false, false, false, false, false);
 
-    shootAngleTree = new InterpolatingTreeMap<>(
-        (start, end, q) -> InverseInterpolator.forDouble()
-            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-        Rotation2d::interpolate);
-    shootSpeedTree = new InterpolatingTreeMap<>(
-        (start, end, q) -> InverseInterpolator.forDouble()
-            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-        (start, end, t) -> AngularVelocity.ofBaseUnits(
-            Interpolator.forDouble()
-                .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
-            RadiansPerSecond));
-    feedAngleTree = new InterpolatingTreeMap<>(
-        (start, end, q) -> InverseInterpolator.forDouble()
-            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-        Rotation2d::interpolate);
-    feedSpeedTree = new InterpolatingTreeMap<>(
-        (start, end, q) -> InverseInterpolator.forDouble()
-            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-        (start, end, t) -> AngularVelocity.ofBaseUnits(
-            Interpolator.forDouble()
-                .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
-            RadiansPerSecond));
+    shootAngleTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            Rotation2d::interpolate);
+    shootSpeedTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                AngularVelocity.ofBaseUnits(
+                    Interpolator.forDouble()
+                        .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
+                    RadiansPerSecond));
+    feedAngleTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            Rotation2d::interpolate);
+    feedSpeedTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                AngularVelocity.ofBaseUnits(
+                    Interpolator.forDouble()
+                        .interpolate(start.in(RadiansPerSecond), end.in(RadiansPerSecond), t),
+                    RadiansPerSecond));
 
-    shootTimeOfFlightTree = new InterpolatingTreeMap<>(
-        (start, end, q) -> InverseInterpolator.forDouble()
-            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-        (start, end, t) -> Time.ofBaseUnits(
-            Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
-            Seconds));
-    feedTimeOfFlightTree = new InterpolatingTreeMap<>(
-        (start, end, q) -> InverseInterpolator.forDouble()
-            .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
-        (start, end, t) -> Time.ofBaseUnits(
-            Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
-            Seconds));
+    shootTimeOfFlightTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                Time.ofBaseUnits(
+                    Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
+                    Seconds));
+    feedTimeOfFlightTree =
+        new InterpolatingTreeMap<>(
+            (start, end, q) ->
+                InverseInterpolator.forDouble()
+                    .inverseInterpolate(start.in(Meters), end.in(Meters), q.in(Meters)),
+            (start, end, t) ->
+                Time.ofBaseUnits(
+                    Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
+                    Seconds));
 
     shootAngleTree.put(Meters.of(1.074934), Rotation2d.fromRotations(0.0));
     shootAngleTree.put(Meters.of(1.490425), Rotation2d.fromRotations(0.0));
@@ -263,41 +268,46 @@ public class V2_DeltaRobotState {
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", hubPose);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
 
-    Translation2d hubTranslation = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    Translation2d hubTranslation =
+        AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
     Translation2d feedTranslation = getFeedTranslation();
 
-    distanceToHub = Distance.ofBaseUnits(
-        getHubZonePose()
-            .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
-            .getTranslation()
-            .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
-            .getNorm(),
-        Meters);
+    distanceToHub =
+        Distance.ofBaseUnits(
+            getHubZonePose()
+                .transformBy(V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM_2D)
+                .getTranslation()
+                .minus(AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()))
+                .getNorm(),
+            Meters);
 
-    distanceToFeedTranslation = Distance.ofBaseUnits(
-        getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
+    distanceToFeedTranslation =
+        Distance.ofBaseUnits(
+            getGlobalPose().getTranslation().minus(feedTranslation).getNorm(), Meters);
     turretVelocity = RadiansPerSecond.zero();
-    Rectangle2d allianceZone = new Rectangle2d(
-        AllianceFlipUtil.apply(
-            new Translation2d(
-                FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
-        AllianceFlipUtil.apply(new Translation2d(0, 0)));
+    Rectangle2d allianceZone =
+        new Rectangle2d(
+            AllianceFlipUtil.apply(
+                new Translation2d(
+                    FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
+            AllianceFlipUtil.apply(new Translation2d(0, 0)));
 
     inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
 
-    V2_DeltaShotCalculator.ShotParameters shotParameters = V2_DeltaShotCalculator.getShotParameters(
-        inAllianceZone ? hubPose : getGlobalPose(),
-        inAllianceZone ? hubTranslation : feedTranslation,
-        new Transform2d(
-            V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
-            V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
-            turretRotation),
-        robotVelocity,
-        Seconds.of(0.03),
-        d -> inAllianceZone ? shootTimeOfFlightTree.get(d) : feedTimeOfFlightTree.get(d),
-        d -> inAllianceZone ? shootAngleTree.get(d) : feedAngleTree.get(d),
-        d -> inAllianceZone ? shootSpeedTree.get(d) : feedSpeedTree.get(d));
+    V2_DeltaShotCalculator.ShotParameters shotParameters =
+        V2_DeltaShotCalculator.getShotParameters(
+            inAllianceZone ? hubPose : getGlobalPose(),
+            inAllianceZone ? hubTranslation : feedTranslation,
+            new Transform2d(
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
+                V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
+                turretRotation),
+            robotVelocity,
+            Seconds.of(0.03),
+            d -> inAllianceZone ? shootTimeOfFlightTree.get(d) : feedTimeOfFlightTree.get(d),
+            d -> inAllianceZone ? shootAngleTree.get(d) : feedAngleTree.get(d),
+            d -> inAllianceZone ? shootSpeedTree.get(d) : feedSpeedTree.get(d));
 
     hoodAngle = shotParameters.hoodAngle();
     flywheelVelocity = shotParameters.flywheelSpeed();
@@ -306,15 +316,17 @@ public class V2_DeltaRobotState {
     lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
 
-    shouldHoodTuck = GeometryUtil.intersects(
-        FieldConstants.Zones.HOOD_TUCK_ZONES,
-        getGlobalPose(),
-        V2_DeltaConstants.DRIVE_CONFIG.bumperWidth(),
-        V2_DeltaConstants.DRIVE_CONFIG.bumperLength());
-    prohibitShot = isTurretWrapping
-        || shouldHoodTuck
-        || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
-        || !shotParameters.isValid();
+    shouldHoodTuck =
+        GeometryUtil.intersects(
+            FieldConstants.Zones.HOOD_TUCK_ZONES,
+            getGlobalPose(),
+            V2_DeltaConstants.DRIVE_CONFIG.bumperWidth(),
+            V2_DeltaConstants.DRIVE_CONFIG.bumperLength());
+    prohibitShot =
+        isTurretWrapping
+            || shouldHoodTuck
+            || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
+            || !shotParameters.isValid();
 
     intakeAtStow = intakeStowed;
 
@@ -461,8 +473,7 @@ public class V2_DeltaRobotState {
   }
 
   public record FixedShotParameters(
-      Translation2d robotPosition, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {
-  }
+      Translation2d robotPosition, Rotation2d hoodAngle, AngularVelocity flywheelSpeed) {}
 
   @RequiredArgsConstructor
   public enum FixedShots {
@@ -497,8 +508,7 @@ public class V2_DeltaRobotState {
             V2_DeltaShooterConstants.TOWER_SHOT_HOOD_ANGLE,
             V2_DeltaShooterConstants.TOWER_SHOT_FLYWHEEL_SPEED));
 
-    @Getter
-    private final FixedShotParameters parameters;
+    @Getter private final FixedShotParameters parameters;
   }
 
   @Data
