@@ -18,11 +18,11 @@ import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.util.AllianceFlipUtil;
 
-public class V2_DeltaAutoRightOP {
+public class V2_DeltaAutoLeftOPBucks {
   public static Command getAutoRoutine(
       SwerveDrive drive, Intake intake, V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
 
-    PathPlannerPath OP_SAFE_1;
+    PathPlannerPath OP_BUCKS_1;
     try {
       AutoBuilder.configure(
           V2_DeltaRobotState::getGlobalPose,
@@ -47,22 +47,23 @@ public class V2_DeltaAutoRightOP {
             return false;
           },
           drive);
-      OP_SAFE_1 = PathPlannerPath.fromPathFile("LEFT_OP_SAFE_1").mirrorPath();
-      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("LEFT_OP_2").mirrorPath();
+      OP_BUCKS_1 = PathPlannerPath.fromPathFile("LEFT_OP_BUCKS_1");
+      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("LEFT_OP_2");
       return Commands.sequence(
           Commands.runOnce(
               () ->
                   V2_DeltaRobotState.resetPose(
-                      AllianceFlipUtil.apply(OP_SAFE_1.getStartingHolonomicPose().get()))),
+                      AllianceFlipUtil.apply(OP_BUCKS_1.getStartingHolonomicPose().get()))),
+          Commands.waitSeconds(1.5),
           intake
               .deploy()
               .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
-          AutoBuilder.followPath(OP_SAFE_1)
+          AutoBuilder.followPath(OP_BUCKS_1)
               .alongWith(
                   V2_DeltaCompositeCommands.hold(clopper, shooter)
                       .until(
                           () ->
-                              (AutoBuilder.followPath(OP_SAFE_1).alongWith(intake.deploy()))
+                              (AutoBuilder.followPath(OP_BUCKS_1).alongWith(intake.deploy()))
                                   .isFinished())),
           drive.runOnce(drive::stop),
           V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.0),

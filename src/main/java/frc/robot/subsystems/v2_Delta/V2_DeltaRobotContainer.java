@@ -38,7 +38,17 @@ import frc.robot.RobotConfig;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoDepot;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftFull;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftHalf;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOP;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOPBucks;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightFull;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightHalf;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOPBucks;
+// import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP; TODO: Bring back when we have
+// a right OP auto
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
@@ -391,6 +401,26 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         "Right OP",
         () -> V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter),
         FollowPathCommand::warmupCommand);
+    autoChooser.addCmd(
+        "Left OP", () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Right OP", () -> V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Left Full", () -> V2_DeltaAutoLeftFull.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Right OP Bucks",
+        () -> V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Left OP Bucks",
+        () -> V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Right Full", () -> V2_DeltaAutoRightFull.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Left Half", () -> V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Right Half", () -> V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addCmd(
+        "Depot", () -> V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter, climber));
 
     SmartDashboard.putData("Autonomous Modes", autoChooser);
   }

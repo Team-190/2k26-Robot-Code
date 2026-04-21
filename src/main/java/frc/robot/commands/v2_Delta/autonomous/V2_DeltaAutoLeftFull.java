@@ -18,11 +18,11 @@ import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.util.AllianceFlipUtil;
 
-public class V2_DeltaAutoRightOP {
+public class V2_DeltaAutoLeftFull {
   public static Command getAutoRoutine(
       SwerveDrive drive, Intake intake, V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
 
-    PathPlannerPath OP_SAFE_1;
+    PathPlannerPath LEFT_FULL;
     try {
       AutoBuilder.configure(
           V2_DeltaRobotState::getGlobalPose,
@@ -47,33 +47,23 @@ public class V2_DeltaAutoRightOP {
             return false;
           },
           drive);
-      OP_SAFE_1 = PathPlannerPath.fromPathFile("LEFT_OP_SAFE_1").mirrorPath();
-      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("LEFT_OP_2").mirrorPath();
-      return Commands.sequence(
-          Commands.runOnce(
-              () ->
-                  V2_DeltaRobotState.resetPose(
-                      AllianceFlipUtil.apply(OP_SAFE_1.getStartingHolonomicPose().get()))),
-          intake
-              .deploy()
-              .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
-          AutoBuilder.followPath(OP_SAFE_1)
-              .alongWith(
-                  V2_DeltaCompositeCommands.hold(clopper, shooter)
-                      .until(
-                          () ->
-                              (AutoBuilder.followPath(OP_SAFE_1).alongWith(intake.deploy()))
-                                  .isFinished())),
-          drive.runOnce(drive::stop),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.0),
-          Commands.parallel(
-                  AutoBuilder.followPath(OP_2).alongWith(intake.deploy()),
-                  V2_DeltaCompositeCommands.hold(clopper, shooter)
-                      .until(
-                          () ->
-                              (AutoBuilder.followPath(OP_2).alongWith(intake.deploy()))
-                                  .isFinished()))
-              .andThen(V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
+      LEFT_FULL = PathPlannerPath.fromPathFile("LEFT_FULL_SWEEP");
+      return Commands.parallel(
+          Commands.sequence(
+              Commands.runOnce(
+                  () ->
+                      V2_DeltaRobotState.resetPose(
+                          AllianceFlipUtil.apply(LEFT_FULL.getStartingHolonomicPose().get()))),
+              intake
+                  .deploy()
+                  .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+              AutoBuilder.followPath(LEFT_FULL),
+              drive.runOnce(drive::stop)),
+          Commands.sequence(
+              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(7),
+              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.none();
