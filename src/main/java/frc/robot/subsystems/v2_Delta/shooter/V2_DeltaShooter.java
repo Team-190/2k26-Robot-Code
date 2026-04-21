@@ -83,7 +83,7 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   @Trace
   public void periodic() {
-    if (hoodTuckTrigger.getAsBoolean()) {
+    if (hoodTuckTrigger.getAsBoolean() || V2_DeltaRobotState.isIntakeAtStow()) {
       hood.setPositionGoal(Rotation2d.kZero);
     } else {
       switch (shooterGoal) {
@@ -104,6 +104,7 @@ public class V2_DeltaShooter extends SubsystemBase {
           hood.setPositionGoal(V2_DeltaRobotState.getHoodAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFlywheelVelocity());
           break;
+
         case OVERRIDE_TURRET:
           turret.setVoltageGoal(overrideTurretVoltage);
           break;

@@ -40,6 +40,8 @@ public class Intake extends SubsystemBase {
 
   private final BooleanSupplier fastIntakeRollers;
 
+  @Getter private boolean intakeAtStow;
+
   public Intake(
       GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, BooleanSupplier fastIntakeRollers) {
     setName("Intake");
@@ -137,6 +139,8 @@ public class Intake extends SubsystemBase {
         "Intake/Roller/AppliedVolts", roller.getVoltageGoal().getSetpoint().in(Volts));
     Logger.recordOutput(
         "Intake/Roller/Voltage Magnitude", roller.getVoltageGoal().getNewSetpoint().in(Volts));
+
+    intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
   }
 
   /**

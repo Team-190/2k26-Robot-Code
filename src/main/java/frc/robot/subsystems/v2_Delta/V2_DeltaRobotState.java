@@ -26,6 +26,7 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
@@ -78,6 +79,7 @@ public class V2_DeltaRobotState {
   @Getter private static boolean prohibitShot;
   @Getter private static boolean shouldHoodTuck;
   @Getter private static boolean inAllianceZone;
+  @Getter private static boolean intakeAtStow;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -243,6 +245,7 @@ public class V2_DeltaRobotState {
     shouldHoodTuck = false;
     prohibitShot = false;
     inAllianceZone = false;
+    intakeAtStow = false;
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
   }
@@ -254,7 +257,8 @@ public class V2_DeltaRobotState {
       SwerveModulePosition[] modulePositions,
       Rotation2d turretRotation,
       boolean isTurretWrapping,
-      ChassisSpeeds robotVelocity) {
+      ChassisSpeeds robotVelocity,
+      boolean intakeStowed) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -324,6 +328,8 @@ public class V2_DeltaRobotState {
             || shouldHoodTuck
             || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
             || !shotParameters.isValid();
+
+    intakeAtStow = intakeStowed;
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
@@ -465,6 +471,10 @@ public class V2_DeltaRobotState {
 
   public static void setAutoTrajectory() {
     field.getObject("trajectory").setPoses();
+  }
+
+  public static IntakeState getIntakeState() {
+    return IntakeState.STOW;
   }
 
   public record FixedShotParameters(

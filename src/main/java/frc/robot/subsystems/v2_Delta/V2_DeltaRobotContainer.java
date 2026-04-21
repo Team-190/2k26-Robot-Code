@@ -707,6 +707,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("xkeys-h10-false"));
   }
 
+  public IntakeState getIntakeState() {
+    return intake.getIntakeState();
+  }
+
   @Override
   public void robotPeriodic() {
     V2_DeltaRobotState.periodic(
@@ -715,7 +719,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         drive.getModulePositions(),
         shooter.getTurretRotation(),
         shooter.isTurretWrapping(),
-        drive.getMeasuredChassisSpeeds());
+        drive.getMeasuredChassisSpeeds(),
+        intake.isIntakeAtStow());
     fuelSimulator.updateSim();
   }
 

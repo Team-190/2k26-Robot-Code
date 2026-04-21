@@ -24,6 +24,7 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
+import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import java.util.function.Supplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -107,7 +108,7 @@ public class Turret {
                       / (double) constants.turretAngleCalculation.gear0ToothCount()));
     }
 
-    //    io.setPosition(startingAngle);
+    // io.setPosition(startingAngle);
     io.setPosition(new Rotation2d());
 
     feedforwardController =
@@ -141,40 +142,42 @@ public class Turret {
 
     isWrapping = state == TurretState.UNWRAPPING;
 
-    switch (state) {
-      case UNWRAPPING -> {
-        double midPointAbsoluteRad =
-            (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
+    if (V2_DeltaRobotState.isIntakeAtStow()) {
+      switch (state) {
+        case UNWRAPPING -> {
+          double midPointAbsoluteRad =
+              (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
 
-        Rotation2d safeRelativeTarget =
-            Rotation2d.fromRadians(
-                midPointAbsoluteRad
-                    + Math.IEEEremainder(
-                        positionGoal.getNewSetpoint().in(Radians) - midPointAbsoluteRad,
-                        2.0 * Math.PI));
+          Rotation2d safeRelativeTarget =
+              Rotation2d.fromRadians(
+                  midPointAbsoluteRad
+                      + Math.IEEEremainder(
+                          positionGoal.getNewSetpoint().in(Radians) - midPointAbsoluteRad,
+                          2.0 * Math.PI));
 
-        io.setPositionGoal(safeRelativeTarget, 0.0);
+          io.setPositionGoal(safeRelativeTarget, 0.0);
 
-        if (Math.abs(inputs.angle.getDegrees() - safeRelativeTarget.getDegrees()) < 5) {
-          state = (previousState == TurretState.UNWRAPPING) ? TurretState.IDLE : previousState;
-          previousState = TurretState.UNWRAPPING;
+          if (Math.abs(inputs.angle.getDegrees() - safeRelativeTarget.getDegrees()) < 5) {
+            state = (previousState == TurretState.UNWRAPPING) ? TurretState.IDLE : previousState;
+            previousState = TurretState.UNWRAPPING;
+          }
         }
-      }
-      case CLOSED_LOOP_POSITION_CONTROL ->
+        case CLOSED_LOOP_POSITION_CONTROL ->
+            io.setPositionGoal(
+                findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
+                (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
+                0.0);
+        case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
+        case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
+          positionGoal.setSetpoint(
+              angleToGoal(translationGoal, robotPoseSupplier.get()).getMeasure());
           io.setPositionGoal(
               findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
               (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
-              0.0);
-      case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
-      case CLOSED_LOOP_AUTO_AIM_CONTROL -> {
-        positionGoal.setSetpoint(
-            angleToGoal(translationGoal, robotPoseSupplier.get()).getMeasure());
-        io.setPositionGoal(
-            findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
-            (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
-            calculateFeedforwardVoltage(translationGoal));
+              calculateFeedforwardVoltage(translationGoal));
+        }
+        default -> {}
       }
-      default -> {}
     }
   }
 
@@ -327,7 +330,8 @@ public class Turret {
   public static Rotation2d calculateTurretAngle(
       Angle e1, Angle e2, TurretConstants.TurretAngleCalculation gearRatios) {
 
-    // Get encoder positions in rotations (0 to 1), using full floating point precision
+    // Get encoder positions in rotations (0 to 1), using full floating point
+    // precision
     double e1Rotations = e1.in(Rotations) % 1.0;
     if (e1Rotations < 0) {
       e1Rotations += 1.0;
