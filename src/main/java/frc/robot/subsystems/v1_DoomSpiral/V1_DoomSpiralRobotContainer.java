@@ -113,7 +113,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Intake(
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
-                  driver.leftBumper());
+                  driver.leftBumper(),
+                  new Intake.IntakeLEDStates(
+                      V1_DoomSpiralRobotState.getLedStates()::setIntakeIn,
+                      V1_DoomSpiralRobotState.getLedStates()::setIntakeCollecting,
+                      V1_DoomSpiralRobotState.getLedStates()::setSpitting));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFX(),
@@ -182,7 +186,11 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new Intake(
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
-                  driver.leftBumper());
+                  driver.leftBumper(),
+                  new Intake.IntakeLEDStates(
+                      V1_DoomSpiralRobotState.getLedStates()::setIntakeIn,
+                      V1_DoomSpiralRobotState.getLedStates()::setIntakeCollecting,
+                      V1_DoomSpiralRobotState.getLedStates()::setSpitting));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFXSim(),
@@ -230,7 +238,12 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     }
 
     if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, driver.leftBumper());
+      intake =
+          new Intake(
+              new GenericRollerIO() {},
+              new FourBarLinkageIO() {},
+              driver.leftBumper(),
+              new Intake.IntakeLEDStates());
     }
 
     if (spindexer == null) {

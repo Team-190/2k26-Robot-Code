@@ -119,7 +119,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new Intake(
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
-                  driver.leftBumper());
+                  driver.leftBumper(),
+                  new Intake.IntakeLEDStates(
+                      V2_DeltaRobotState.getLedStates()::setIntakeIn,
+                      V2_DeltaRobotState.getLedStates()::setIntakeCollecting,
+                      V2_DeltaRobotState.getLedStates()::setSpitting));
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
@@ -182,7 +186,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new Intake(
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
-                  driver.leftBumper());
+                  driver.leftBumper(),
+                  new Intake.IntakeLEDStates(
+                      V2_DeltaRobotState.getLedStates()::setIntakeIn,
+                      V2_DeltaRobotState.getLedStates()::setIntakeCollecting,
+                      V2_DeltaRobotState.getLedStates()::setSpitting));
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
@@ -215,7 +223,12 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               V2_DeltaRobotState::resetPose);
     }
     if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> false);
+      intake =
+          new Intake(
+              new GenericRollerIO() {},
+              new FourBarLinkageIO() {},
+              () -> false,
+              new Intake.IntakeLEDStates());
     }
     if (clopper == null) {
       clopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
@@ -230,9 +243,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new HoodIO() {},
               new GenericFlywheelIO() {},
               drive::getMeasuredChassisSpeeds);
-    }
-    if (intake == null) {
-      intake = new Intake(new GenericRollerIO() {}, new FourBarLinkageIO() {}, () -> true);
     }
 
     autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);

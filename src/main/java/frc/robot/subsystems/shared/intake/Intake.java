@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,7 +24,6 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -40,8 +40,20 @@ public class Intake extends SubsystemBase {
 
   private final BooleanSupplier fastIntakeRollers;
 
+  private final IntakeLEDStates intakeLEDStates;
+
+  public record IntakeLEDStates(
+      BooleanConsumer stowed, BooleanConsumer collecting, BooleanConsumer spitting) {
+    public IntakeLEDStates() {
+      this(b -> {}, b -> {}, b -> {});
+    }
+  }
+
   public Intake(
-      GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, BooleanSupplier fastIntakeRollers) {
+      GenericRollerIO rollerIO,
+      FourBarLinkageIO linkageIO,
+      BooleanSupplier fastIntakeRollers,
+      IntakeLEDStates intakeLEDStates) {
     setName("Intake");
 
     intakeState = IntakeState.STOW;
@@ -72,6 +84,8 @@ public class Intake extends SubsystemBase {
     intakeState = IntakeState.STOW;
 
     this.fastIntakeRollers = fastIntakeRollers;
+
+    this.intakeLEDStates = intakeLEDStates;
 
     // setDefaultCommand(defaultCommand());
   }
@@ -111,19 +125,21 @@ public class Intake extends SubsystemBase {
 
     Logger.recordOutput("Intake/Intake State", intakeState);
 
-    V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+    intakeLEDStates.stowed().accept(false);
     if (intakeState.equals(IntakeState.INTAKE)) {
-      V1_DoomSpiralRobotState.getLedStates()
-          .setIntakeCollecting(
+      intakeLEDStates
+          .collecting()
+          .accept(
               roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                   == IntakeConstants.INTAKE_VOLTAGE);
-      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+      intakeLEDStates.stowed().accept(false);
     } else {
-      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
-      V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
+      intakeLEDStates.stowed().accept(true);
+      intakeLEDStates.collecting().accept(false);
     }
-    V1_DoomSpiralRobotState.getLedStates()
-        .setSpitting(
+    intakeLEDStates
+        .spitting()
+        .accept(
             roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
