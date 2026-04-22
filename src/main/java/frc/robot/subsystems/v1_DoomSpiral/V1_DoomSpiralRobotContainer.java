@@ -114,7 +114,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
                   driver.leftBumper(),
-                  new Intake.IntakeLEDStates(
+                  new Intake.IntakeStateSetter(
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeIn,
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeCollecting,
                       V1_DoomSpiralRobotState.getLedStates()::setSpitting));
@@ -187,7 +187,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
                   driver.leftBumper(),
-                  new Intake.IntakeLEDStates(
+                  new Intake.IntakeStateSetter(
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeIn,
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeCollecting,
                       V1_DoomSpiralRobotState.getLedStates()::setSpitting));
@@ -243,7 +243,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
               new GenericRollerIO() {},
               new FourBarLinkageIO() {},
               driver.leftBumper(),
-              new Intake.IntakeLEDStates());
+              new Intake.IntakeStateSetter());
     }
 
     if (spindexer == null) {

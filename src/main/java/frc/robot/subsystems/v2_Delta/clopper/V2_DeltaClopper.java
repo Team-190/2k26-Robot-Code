@@ -2,10 +2,12 @@ package frc.robot.subsystems.v2_Delta.clopper;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 
@@ -16,39 +18,70 @@ public class V2_DeltaClopper extends SubsystemBase {
   private boolean overrideBallTunnel;
   private boolean overrideRollerFloor;
 
-  private Voltage ballTunnelVoltage;
-  private Voltage rollerFloorVoltage;
+  private final Setpoint<VoltageUnit> ballTunnelSetpoint, ballTunnelOverrideSetpoint;
+  private final Setpoint<VoltageUnit> rollerFloorSetpoint, rollerFloorOverrideSetpoint;
 
   public V2_DeltaClopper(GenericRollerIO rollerFloorIO, GenericRollerIO ballTunnelIO) {
     setName("Hopper");
 
+    rollerFloorSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+    rollerFloorOverrideSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+
+    ballTunnelSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+    ballTunnelOverrideSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
     rollerFloor =
         new GenericRoller(
-            rollerFloorIO, this, V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS, " Floor");
+            rollerFloorIO,
+            this,
+            V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS,
+            " Floor",
+            rollerFloorSetpoint);
     ballTunnel =
         new GenericRoller(
-            ballTunnelIO, this, V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS, " Tunnel");
+            ballTunnelIO,
+            this,
+            V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS,
+            " Tunnel",
+            ballTunnelSetpoint);
 
     overrideBallTunnel = false;
     overrideRollerFloor = false;
-    ballTunnelVoltage = Volts.zero();
-    rollerFloorVoltage = Volts.zero();
   }
 
   @Override
   public void periodic() {
     if (!overrideBallTunnel) {
-      ballTunnel.setVoltageGoal(ballTunnelVoltage);
+      ballTunnel.setVoltageGoal(ballTunnelSetpoint);
     }
     if (!overrideRollerFloor) {
-      rollerFloor.setVoltageGoal(rollerFloorVoltage);
+      rollerFloor.setVoltageGoal(rollerFloorSetpoint);
     }
     rollerFloor.periodic();
     ballTunnel.periodic();
   }
 
   public Command setRollerFloorVoltage(Voltage voltage) {
-    return Commands.runOnce(() -> rollerFloorVoltage = voltage);
+    return Commands.runOnce(() -> rollerFloorSetpoint.setSetpoint(voltage));
   }
 
   public Command feedShooterRollerFloor() {
@@ -59,6 +92,7 @@ public class V2_DeltaClopper extends SubsystemBase {
     return Commands.startEnd(
         () -> {
           overrideRollerFloor = true;
+          rollerFloor.setVoltageGoal(rollerFloorOverrideSetpoint);
           rollerFloor.setVoltageGoal(voltage);
         },
         () -> {
@@ -68,11 +102,11 @@ public class V2_DeltaClopper extends SubsystemBase {
   }
 
   public Command incrementRollerFloorVelocity() {
-    return Commands.runOnce(rollerFloor.getVoltageGoal()::increment);
+    return Commands.runOnce(rollerFloorSetpoint::increment);
   }
 
   public Command decrementRollerFloorVelocity() {
-    return Commands.runOnce(rollerFloor.getVoltageGoal()::decrement);
+    return Commands.runOnce(rollerFloorSetpoint::decrement);
   }
 
   public Command stopRollerFloor() {
@@ -80,13 +114,14 @@ public class V2_DeltaClopper extends SubsystemBase {
   }
 
   public Command setBallTunnelVoltage(Voltage voltage) {
-    return Commands.runOnce(() -> ballTunnelVoltage = voltage);
+    return Commands.runOnce(() -> ballTunnelSetpoint.setSetpoint(voltage));
   }
 
   public Command setOverrideBallTunnelVoltage(Voltage voltage) {
     return Commands.startEnd(
         () -> {
           overrideBallTunnel = true;
+          ballTunnel.setVoltageGoal(ballTunnelOverrideSetpoint);
           ballTunnel.setVoltageGoal(voltage);
         },
         () -> {
@@ -96,11 +131,11 @@ public class V2_DeltaClopper extends SubsystemBase {
   }
 
   public Command incrementBallTunnelVelocity() {
-    return Commands.runOnce(ballTunnel.getVoltageGoal()::increment);
+    return Commands.runOnce(ballTunnelSetpoint::increment);
   }
 
   public Command decrementBallTunnelVelocity() {
-    return Commands.runOnce(ballTunnel.getVoltageGoal()::decrement);
+    return Commands.runOnce(ballTunnelSetpoint::decrement);
   }
 
   public Command feedShooterBallTunnel() {

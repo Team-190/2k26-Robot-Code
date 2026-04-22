@@ -3,11 +3,12 @@ package frc.robot.subsystems.v2_Delta;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
@@ -49,7 +50,6 @@ import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOPBucks;
 // import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP; TODO: Bring back when we have
 // a right OP auto
-import frc.robot.commands.v2_Delta.autonomous.V2_TurretTestAuto;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -69,10 +69,10 @@ import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
 import frc.robot.subsystems.v2_Delta.shooter.SimFuelCount;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
-import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
@@ -84,7 +84,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private FuelSimulator fuelSimulator;
   private SimFuelCount simFuelCount;
 
-  private final BetterAutoChooser autoChooser;
+  private final LoggedDashboardChooser<Command> autoChooser;
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
@@ -120,7 +120,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new GenericRollerIOTalonFX(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOTalonFX(IntakeConstants.LINKAGE_CONSTANTS),
                   driver.leftBumper(),
-                  new Intake.IntakeLEDStates(
+                  new Intake.IntakeStateSetter(
                       V2_DeltaRobotState.getLedStates()::setIntakeIn,
                       V2_DeltaRobotState.getLedStates()::setIntakeCollecting,
                       V2_DeltaRobotState.getLedStates()::setSpitting));
@@ -187,7 +187,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new GenericRollerIOSim(IntakeConstants.INTAKE_ROLLER_CONSTANTS),
                   new FourBarLinkageIOSim(IntakeConstants.LINKAGE_CONSTANTS),
                   driver.leftBumper(),
-                  new Intake.IntakeLEDStates(
+                  new Intake.IntakeStateSetter(
                       V2_DeltaRobotState.getLedStates()::setIntakeIn,
                       V2_DeltaRobotState.getLedStates()::setIntakeCollecting,
                       V2_DeltaRobotState.getLedStates()::setSpitting));
@@ -228,7 +228,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new GenericRollerIO() {},
               new FourBarLinkageIO() {},
               () -> false,
-              new Intake.IntakeLEDStates());
+              new Intake.IntakeStateSetter());
     }
     if (clopper == null) {
       clopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
@@ -245,7 +245,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               drive::getMeasuredChassisSpeeds);
     }
 
-    autoChooser = new BetterAutoChooser(V2_DeltaRobotState::resetPose);
+    autoChooser = new LoggedDashboardChooser<>("Autonomous Modes");
     configureButtonBindings();
     configureAutos();
     configureFuelSim();
@@ -349,99 +349,79 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
+    CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     final boolean BRING_UP = true;
 
     if (BRING_UP) {
 
-      autoChooser.addRoutineConfig("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive, shooter));
-      autoChooser.addCmd(
-          "Drive Feedforward Characterization",
-          () -> DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addCmd(
+      //      autoChooser.addOption("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive,
+      // shooter));
+      autoChooser.addOption(
+          "Drive Feedforward Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
           "Wheel Radius Characterization",
-          () ->
-              DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
-      autoChooser.addCmd("Intake Linkage SysID", () -> intake.linkageSysId());
-      autoChooser.addCmd(
+          DriveCommands.wheelRadiusCharacterization(drive, V2_DeltaConstants.DRIVE_CONSTANTS));
+      autoChooser.addOption("Intake Linkage SysID", intake.linkageSysId());
+      autoChooser.addOption(
           "Intake Agitate",
           intake
-                  .deploy()
-                  .andThen(
-                      intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
-              ::repeatedly);
-      autoChooser.addCmd("Shooter Hood SysID", shooter::hoodSysId);
-      autoChooser.addCmd(
+              .deploy()
+              .andThen(
+                  intake.waitUntilIntakeAtGoal(), intake.stow(), intake.waitUntilIntakeAtGoal())
+              .repeatedly());
+      autoChooser.addOption("Shooter Hood SysID", shooter.hoodSysId());
+      autoChooser.addOption(
           "Shooter Hood Agitate",
           Commands.sequence(
                   shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.minAngle),
                   shooter.waitUntilHoodAtGoal(),
                   shooter.setHoodAngle(V2_DeltaShooterConstants.HOOD_CONSTANTS.maxAngle),
                   shooter.waitUntilHoodAtGoal())
-              ::repeatedly);
+              .repeatedly());
 
-      autoChooser.addCmd("Shooter Flywheel SysID", shooter::flywheelSysId);
-      autoChooser.addCmd(
+      autoChooser.addOption("Shooter Flywheel SysID", shooter.flywheelSysId());
+      autoChooser.addOption(
           "Shooter Flywheel Agitate",
           shooter
-                  .setFlywheelVelocity(RadiansPerSecond.of(500))
-                  .andThen(
-                      shooter.waitUntilFlywheelAtGoal(),
-                      Commands.waitSeconds(5),
-                      shooter.setFlywheelVelocity(RadiansPerSecond.of(0)),
-                      shooter.waitUntilFlywheelAtGoal(),
-                      Commands.waitSeconds(5))
-              ::repeatedly);
-      autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
+              .setFlywheelVelocity(RadiansPerSecond.of(500))
+              .andThen(
+                  shooter.waitUntilFlywheelAtGoal(),
+                  Commands.waitSeconds(5),
+                  shooter.setFlywheelVelocity(RadiansPerSecond.of(0)),
+                  shooter.waitUntilFlywheelAtGoal(),
+                  Commands.waitSeconds(5))
+              .repeatedly());
+      autoChooser.addOption("Shooter Turret SysID", shooter.turretSysId());
 
-      autoChooser.addCmd(
+      autoChooser.addOption(
           "Shooter Turret Agitate",
           shooter
-                  .setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.maxAngle)
-                  .andThen(
-                      shooter.waitUntilTurretAtGoal(),
-                      shooter.setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.minAngle),
-                      shooter.waitUntilTurretAtGoal())
-              ::repeatedly);
+              .setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.maxAngle)
+              .andThen(
+                  shooter.waitUntilTurretAtGoal(),
+                  shooter.setTurretGoal(V2_DeltaShooterConstants.TURRET_CONSTANTS.minAngle),
+                  shooter.waitUntilTurretAtGoal())
+              .repeatedly());
     }
 
-    autoChooser.addCmdRoutine(
-        "Left OP",
-        () -> V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right OP",
-        () -> V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Left Full",
-        () -> V2_DeltaAutoLeftFull.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right OP Bucks",
-        () -> V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Left OP Bucks",
-        () -> V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right Full",
-        () -> V2_DeltaAutoRightFull.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Left Half",
-        () -> V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Right Half",
-        () -> V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-    autoChooser.addCmdRoutine(
-        "Depot",
-        () -> V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter),
-        FollowPathCommand::warmupCommand);
-
-    SmartDashboard.putData("Autonomous Modes", autoChooser);
+    autoChooser.addOption(
+        "Left OP", V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Right OP", V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Left Full", V2_DeltaAutoLeftFull.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Right OP Bucks", V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Left OP Bucks", V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Right Full", V2_DeltaAutoRightFull.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Left Half", V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Right Half", V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Depot", V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter));
   }
 
   @Trace
@@ -472,8 +452,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 () -> -driver.getRightX(),
                 V2_DeltaRobotState::getHeading,
                 driver.leftTrigger(),
-                driver.rightTrigger(), // TODO: Figure out how to do 50% on RT and 10% on X
-                0.5)
+                driver.rightTrigger())
             .withName("joystick-drive"));
 
     clopper.setDefaultCommand(
@@ -489,6 +468,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                                     V2_DeltaRobotState.getHeading().getRadians() / (Math.PI / 2.0))
                                 * (Math.PI / 2.0)))
                 .withName("cardinal-direction-set"));
+    xkeys.b9().onTrue(DriveCommands.decrementSlowFactor());
+    xkeys.b10().onTrue(DriveCommands.incrementSlowFactor());
 
     driver
         .povDown()
@@ -576,6 +557,14 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-bottomRightPaddle-false"));
 
+    driver
+        .x()
+        .whileTrue(
+            intake
+                .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("xkeys-f1-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f1-false"));
+
     xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
     xkeys.b2().onTrue(intake.decrementStowOffset().withName("xkeys-b2-true"));
     xkeys.b3().onTrue(intake.incrementStowOffset().withName("xkeys-b3-true"));
@@ -590,7 +579,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     xkeys
         .b5()
-        .whileTrue(clopper.setOverrideRollerFloorVoltage(Volts.zero()).withName("xkeys-b6-true"));
+        .whileTrue(
+            clopper
+                .setOverrideRollerFloorVoltage(
+                    V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE_SLOW.unaryMinus())
+                .withName("xkeys-b6-true"));
 
     xkeys
         .b6()
@@ -635,9 +628,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     xkeys
         .d2()
+        .or(driver.y())
         .whileTrue(
             intake
-                .setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
+                .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-d2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
 
@@ -688,6 +682,17 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
     xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
 
+    xkeys
+        .g8()
+        .onTrue(
+            shooter
+                .setTurretGoal(Rotation2d.kZero)
+                .andThen(shooter.setHoodAngle(Rotation2d.kZero).withName("xkeys-g8")));
+    xkeys
+        .d4()
+        .whileTrue(clopper.feedShooterBallTunnel().alongWith(clopper.feedShooterRollerFloor()))
+        .onFalse(clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor()));
+
     xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
 
     xkeys
@@ -733,6 +738,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   @Override
   public Command getAutonomousCommand() {
-    return autoChooser.selectedCommand();
+    return autoChooser.get();
   }
 }

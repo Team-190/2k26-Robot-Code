@@ -17,7 +17,6 @@ public class V2_DeltaClopperConstants {
   public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE;
   public static final Voltage BALL_TUNNEL_FEED_VOLTAGE;
   public static final Voltage ROLLER_FLOOR_FEED_VOLTAGE_SLOW;
-  public static final Voltage OUTTAKE_VOLTAGE;
 
   public static final GenericRollerConstants ROLLER_FLOOR_CONSTANTS;
   public static final GenericRollerConstants BALL_TUNNEL_CONSTANTS;
@@ -30,7 +29,6 @@ public class V2_DeltaClopperConstants {
         ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(12.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
         ROLLER_FLOOR_FEED_VOLTAGE_SLOW = Volts.of(4.0);
-        OUTTAKE_VOLTAGE = Volts.of(-10);
 
         ROLLER_FLOOR_CONSTANTS =
             GenericRollerConstants.builder()

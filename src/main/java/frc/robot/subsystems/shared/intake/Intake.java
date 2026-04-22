@@ -40,11 +40,11 @@ public class Intake extends SubsystemBase {
 
   private final BooleanSupplier fastIntakeRollers;
 
-  private final IntakeLEDStates intakeLEDStates;
+  private final IntakeStateSetter intakeStateSetter;
 
-  public record IntakeLEDStates(
+  public record IntakeStateSetter(
       BooleanConsumer stowed, BooleanConsumer collecting, BooleanConsumer spitting) {
-    public IntakeLEDStates() {
+    public IntakeStateSetter() {
       this(b -> {}, b -> {}, b -> {});
     }
   }
@@ -53,7 +53,7 @@ public class Intake extends SubsystemBase {
       GenericRollerIO rollerIO,
       FourBarLinkageIO linkageIO,
       BooleanSupplier fastIntakeRollers,
-      IntakeLEDStates intakeLEDStates) {
+      IntakeStateSetter intakeStateSetter) {
     setName("Intake");
 
     intakeState = IntakeState.STOW;
@@ -85,7 +85,7 @@ public class Intake extends SubsystemBase {
 
     this.fastIntakeRollers = fastIntakeRollers;
 
-    this.intakeLEDStates = intakeLEDStates;
+    this.intakeStateSetter = intakeStateSetter;
 
     // setDefaultCommand(defaultCommand());
   }
@@ -96,7 +96,7 @@ public class Intake extends SubsystemBase {
     roller.periodic();
     linkage.periodic();
 
-    if (overrideRoller) roller.setVoltageGoal(overrideVoltageSetpoint);
+    if (overrideRoller) roller.setVoltageGoal(normalVoltageSetpoint);
     else {
       switch (intakeState) {
         case STOW:
@@ -125,19 +125,18 @@ public class Intake extends SubsystemBase {
 
     Logger.recordOutput("Intake/Intake State", intakeState);
 
-    intakeLEDStates.stowed().accept(false);
     if (intakeState.equals(IntakeState.INTAKE)) {
-      intakeLEDStates
+      intakeStateSetter
           .collecting()
           .accept(
               roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                   == IntakeConstants.INTAKE_VOLTAGE);
-      intakeLEDStates.stowed().accept(false);
+      intakeStateSetter.stowed().accept(false);
     } else {
-      intakeLEDStates.stowed().accept(true);
-      intakeLEDStates.collecting().accept(false);
+      intakeStateSetter.stowed().accept(true);
+      intakeStateSetter.collecting().accept(false);
     }
-    intakeLEDStates
+    intakeStateSetter
         .spitting()
         .accept(
             roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()

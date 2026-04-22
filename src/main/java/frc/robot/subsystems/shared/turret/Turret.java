@@ -33,9 +33,9 @@ public class Turret {
   private final String aKitTopic;
   private final TurretIOInputsAutoLogged inputs;
 
-  private final Setpoint<VoltageUnit> voltageGoal;
-  private final Setpoint<AngleUnit> positionGoal;
-  private final Setpoint<AngularVelocityUnit> angularVelocityGoal;
+  @Getter private final Setpoint<VoltageUnit> voltageGoal;
+  @Getter private final Setpoint<AngleUnit> positionGoal;
+  @Getter private final Setpoint<AngularVelocityUnit> angularVelocityGoal;
 
   private Translation2d translationGoal;
 
