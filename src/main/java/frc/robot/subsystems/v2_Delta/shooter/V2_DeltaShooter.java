@@ -336,7 +336,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public void setFlywheelGains(Gains flywheelGains) {
-    flywheel.updateGains(flywheelGains, GainSlot.ONE);
+    flywheel.updateGains(flywheelGains, GainSlot.ZERO);
   }
 
   public void setFlywheelConstraints(AngularVelocityConstraints constraints) {

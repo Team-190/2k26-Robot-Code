@@ -64,6 +64,7 @@ import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
+import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
 import frc.robot.subsystems.v2_Delta.shooter.SimFuelCount;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
@@ -156,6 +157,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                       V2_DeltaRobotState::getHeadingUpdateTimestamp,
                       List.of(V2_DeltaRobotState::addLocalizerVisionMeasurement),
                       List.of()));
+          new V2_DeltaCANdle();
           break;
         case V2_DELTA_SIM:
           drive =
@@ -270,7 +272,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints,
         c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
     TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.SHOOT_CONSTANTS.torqueGains, shooter::setFlywheelGains);
+        V2_DeltaShooterConstants.SHOOT_CONSTANTS.voltageGains, shooter::setFlywheelGains);
 
     TunableUpdaterRegistry.registerConstraints(
         V2_DeltaShooterConstants.TURRET_CONSTANTS.constraints,
@@ -337,7 +339,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    final boolean BRING_UP = false;
+    final boolean BRING_UP = true;
 
     if (BRING_UP) {
 
@@ -374,10 +376,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   .setFlywheelVelocity(RadiansPerSecond.of(500))
                   .andThen(
                       shooter.waitUntilFlywheelAtGoal(),
-                      Commands.waitSeconds(1),
+                      Commands.waitSeconds(5),
                       shooter.setFlywheelVelocity(RadiansPerSecond.of(0)),
                       shooter.waitUntilFlywheelAtGoal(),
-                      Commands.waitSeconds(1))
+                      Commands.waitSeconds(5))
               ::repeatedly);
       autoChooser.addCmd("Shooter Turret SysID", shooter::turretSysId);
 
