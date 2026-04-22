@@ -3,18 +3,11 @@ package frc.robot.subsystems.v1_DoomSpiral;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -70,12 +63,9 @@ import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
-import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -288,10 +278,10 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);
     returnToMidChooser = new LoggedNetworkBoolean("ReturnToNeutralZone", true);
 
-    leftBumpEntry.set(true);
-    rightBumpEntry.set(true);
-    leftTrenchEntry.set(true);
-    rightTrenchEntry.set(true);
+    leftBumpEntry.set(false);
+    rightBumpEntry.set(false);
+    leftTrenchEntry.set(false);
+    rightTrenchEntry.set(false);
 
     configureButtonBindings();
     configureAutos();
