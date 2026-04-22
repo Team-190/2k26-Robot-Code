@@ -293,7 +293,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     leftTrenchEntry.set(true);
     rightTrenchEntry.set(true);
 
-    configurePathPlanner();
     configureButtonBindings();
     configureAutos();
   }
@@ -308,43 +307,6 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
       if (modes.isEmpty()) modes.add(PathAdjustmentMode.USE_ANY_AVAILABLE);
       return modes.toArray(new PathAdjustmentMode[0]);
     };
-  }
-
-  private void configurePathPlanner() {
-    try {
-      AutoBuilder.configure(
-          V1_DoomSpiralRobotState::getGlobalPose,
-          V1_DoomSpiralRobotState::resetPose,
-          drive::getMeasuredChassisSpeeds,
-          (speeds, feedforwards) -> {
-            List<Vector<N2>> forces =
-                IntStream.range(0, 4)
-                    .mapToObj(
-                        i ->
-                            VecBuilder.fill(
-                                feedforwards.robotRelativeForcesXNewtons()[i],
-                                feedforwards.robotRelativeForcesYNewtons()[i]))
-                    .toList();
-
-            drive.runVelocity(speeds);
-          },
-          new PPHolonomicDriveController(
-              new PIDConstants(
-                  V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS.getKP(),
-                  V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS.getKI(),
-                  V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS.getKD()),
-              new PIDConstants(
-                  V1_DoomSpiralConstants.ROTATION_AUTO_GAINS.getKP(),
-                  V1_DoomSpiralConstants.ROTATION_AUTO_GAINS.getKI(),
-                  V1_DoomSpiralConstants.ROTATION_AUTO_GAINS.getKD())),
-          com.pathplanner.lib.config.RobotConfig.fromGUISettings(),
-          () ->
-              DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
-                  == DriverStation.Alliance.Red,
-          drive);
-    } catch (IOException | ParseException e) {
-      throw new RuntimeException("Failed to load PathPlanner robot config", e);
-    }
   }
 
   @Trace
