@@ -143,15 +143,16 @@ public class Intake extends SubsystemBase {
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
     Logger.recordOutput(
-        "Intake/Linkage0/Offset Degrees", linkage.getPositionGoal().getOffset().in(Degrees));
+        "Elastic/Intake/Linkage/Offset Degrees",
+        String.format("%.1f", linkage.getPositionGoal().getOffset().in(Degrees)));
     Logger.recordOutput(
-        "Intake/Linkage0/Angle Degrees", linkage.getPositionGoal().getSetpoint().in(Degrees));
+        "Elastic/Intake/Linkage/Angle Degrees",
+        String.format("%.1f", linkage.getPositionGoal().getSetpoint().in(Degrees)));
     Logger.recordOutput(
-        "Intake/Roller/Voltage Offset", roller.getVoltageGoal().getOffset().in(Volts));
+        "Elastic/Intake/Roller/Voltage Offset", roller.getVoltageGoal().getOffset().in(Volts));
     Logger.recordOutput(
-        "Intake/Roller/AppliedVolts", roller.getVoltageGoal().getSetpoint().in(Volts));
-    Logger.recordOutput(
-        "Intake/Roller/Voltage Magnitude", roller.getVoltageGoal().getNewSetpoint().in(Volts));
+        "Elastic/Intake/Roller/Voltage Magnitude",
+        Math.abs(roller.getVoltageGoal().getSetpoint().in(Volts)));
   }
 
   /**

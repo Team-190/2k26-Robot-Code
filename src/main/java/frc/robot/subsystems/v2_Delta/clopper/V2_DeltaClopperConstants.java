@@ -43,7 +43,7 @@ public class V2_DeltaClopperConstants {
                 .withRollerMotorGearRatio(42.0)
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
-                .withVoltageOffsetStep(Volts.of(0.20))
+                .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
                 .withEnableFOC(false)
                 .build();
@@ -61,7 +61,7 @@ public class V2_DeltaClopperConstants {
                 .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
                 .withAlignedFollowerCANID(30) // Top Ball Tunnel
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
-                .withVoltageOffsetStep(Volts.of(0.20))
+                .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
                 .withEnableFOC(false)
                 .build();

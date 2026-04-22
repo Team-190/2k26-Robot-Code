@@ -182,6 +182,13 @@ public class V2_DeltaShooter extends SubsystemBase {
 
     Logger.recordOutput("Shooter/Flywheel Ready", flywheelTrigger.getAsBoolean());
     Logger.recordOutput("Shooter/Should Hood Tuck", hoodTuckTrigger.getAsBoolean());
+
+    Logger.recordOutput(
+        "Elastic/Shooter/Flywheel/Velocity Magnitude",
+        String.format("%.0f", Math.abs(flywheel.getFlywheelVelocity().in(RadiansPerSecond))));
+    Logger.recordOutput(
+        "Elastic/Shooter/Flywheel/Velocity Offset",
+        String.format("%.0f", flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond)));
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {

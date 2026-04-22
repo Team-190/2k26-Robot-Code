@@ -29,13 +29,14 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
 
   @Setter private static double lastCardinalDirection = 0.0;
-  private static double slowFactor = 0.5;
+  @Getter private static double slowFactor = 0.5;
 
   /**
    * A command that drives a SwerveDrive using joystick input.

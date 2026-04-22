@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaClopper extends SubsystemBase {
   private final GenericRoller rollerFloor;
@@ -78,6 +79,20 @@ public class V2_DeltaClopper extends SubsystemBase {
     }
     rollerFloor.periodic();
     ballTunnel.periodic();
+
+    Logger.recordOutput(
+        "Elastic/Hopper/RollerFloor/Voltage Magnitude",
+        String.format("%.1f", Math.abs(rollerFloor.getVoltageGoal().getSetpoint().in(Volts))));
+    Logger.recordOutput(
+        "Elastic/Hopper/RollerFloor/Voltage Offset",
+        String.format("%.1f", rollerFloor.getVoltageGoal().getOffset().in(Volts)));
+
+    Logger.recordOutput(
+        "Elastic/Hopper/BallTunnel/Voltage Magnitude",
+        String.format("%.1f", Math.abs(ballTunnel.getVoltageGoal().getSetpoint().in(Volts))));
+    Logger.recordOutput(
+        "Elastic/Hopper/BallTunnel/Voltage Offset",
+        String.format("%.1f", ballTunnel.getVoltageGoal().getOffset().in(Volts)));
   }
 
   public Command setRollerFloorVoltage(Voltage voltage) {
