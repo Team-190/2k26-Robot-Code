@@ -75,7 +75,7 @@ public class V2_DeltaShooter extends SubsystemBase {
     fixedShotParameters = V2_DeltaRobotState.FixedShots.HUB.getParameters();
 
     flywheelTrigger =
-        new Trigger(flywheel::atVelocityGoal).debounce(2.5, Debouncer.DebounceType.kFalling);
+        new Trigger(flywheel::atVelocityGoal).debounce(.5, Debouncer.DebounceType.kFalling);
     hoodTuckTrigger =
         new Trigger(V2_DeltaRobotState::isShouldHoodTuck)
             .debounce(0.35, Debouncer.DebounceType.kFalling);
