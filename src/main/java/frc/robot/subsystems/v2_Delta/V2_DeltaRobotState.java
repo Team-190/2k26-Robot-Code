@@ -79,6 +79,7 @@ public class V2_DeltaRobotState {
   @Getter private static boolean prohibitShot;
   @Getter private static boolean shouldHoodTuck;
   @Getter private static boolean inAllianceZone;
+  @Getter private static boolean intakeAtStow;
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -244,6 +245,7 @@ public class V2_DeltaRobotState {
     shouldHoodTuck = false;
     prohibitShot = false;
     inAllianceZone = false;
+    intakeAtStow = false;
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
   }
@@ -255,7 +257,8 @@ public class V2_DeltaRobotState {
       SwerveModulePosition[] modulePositions,
       Rotation2d turretRotation,
       boolean isTurretWrapping,
-      ChassisSpeeds robotVelocity) {
+      ChassisSpeeds robotVelocity,
+      boolean intakeStowed) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -325,6 +328,8 @@ public class V2_DeltaRobotState {
             || shouldHoodTuck
             || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
             || !shotParameters.isValid();
+
+    intakeAtStow = intakeStowed;
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));

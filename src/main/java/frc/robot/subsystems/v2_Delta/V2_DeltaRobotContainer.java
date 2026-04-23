@@ -732,7 +732,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         drive.getModulePositions(),
         shooter.getTurretRotation(),
         shooter.isTurretWrapping(),
-        drive.getMeasuredChassisSpeeds());
+        drive.getMeasuredChassisSpeeds(),
+        intake.isIntakeAtStow());
     fuelSimulator.updateSim();
   }
 

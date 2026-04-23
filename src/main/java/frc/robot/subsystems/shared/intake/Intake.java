@@ -49,6 +49,8 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  @Getter private boolean intakeAtStow;
+
   public Intake(
       GenericRollerIO rollerIO,
       FourBarLinkageIO linkageIO,
@@ -142,6 +144,8 @@ public class Intake extends SubsystemBase {
             roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
+    intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
+
     Logger.recordOutput(
         "Elastic/Intake/Linkage/Offset Degrees",
         String.format("%.1f", linkage.getPositionGoal().getOffset().in(Degrees)));
@@ -153,6 +157,7 @@ public class Intake extends SubsystemBase {
     Logger.recordOutput(
         "Elastic/Intake/Roller/Voltage Magnitude",
         Math.abs(roller.getVoltageGoal().getSetpoint().in(Volts)));
+    Logger.recordOutput("Intake/At Stow", intakeAtStow);
   }
 
   /**

@@ -107,7 +107,7 @@ public class Turret {
                       / (double) constants.turretAngleCalculation.gear0ToothCount()));
     }
 
-    //    io.setPosition(startingAngle);
+    // io.setPosition(startingAngle);
     io.setPosition(new Rotation2d());
 
     feedforwardController =
@@ -140,7 +140,6 @@ public class Turret {
     }
 
     isWrapping = state == TurretState.UNWRAPPING;
-
     switch (state) {
       case UNWRAPPING -> {
         double midPointAbsoluteRad =
@@ -327,7 +326,8 @@ public class Turret {
   public static Rotation2d calculateTurretAngle(
       Angle e1, Angle e2, TurretConstants.TurretAngleCalculation gearRatios) {
 
-    // Get encoder positions in rotations (0 to 1), using full floating point precision
+    // Get encoder positions in rotations (0 to 1), using full floating point
+    // precision
     double e1Rotations = e1.in(Rotations) % 1.0;
     if (e1Rotations < 0) {
       e1Rotations += 1.0;

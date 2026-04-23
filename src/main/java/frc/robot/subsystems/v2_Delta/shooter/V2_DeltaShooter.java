@@ -103,6 +103,10 @@ public class V2_DeltaShooter extends SubsystemBase {
   public void periodic() {
     if (hoodTuckTrigger.getAsBoolean()) {
       hood.setPositionGoal(hoodStowSetpoint);
+    } else if (V2_DeltaRobotState.isIntakeAtStow()) {
+        hood.setPositionGoal(hoodStowSetpoint);
+      turret.setVoltageGoal(Volts.zero());
+      flywheel.stop();
     } else {
       switch (shooterGoal) {
         case STOW:
@@ -125,6 +129,7 @@ public class V2_DeltaShooter extends SubsystemBase {
           hood.setPositionGoal(V2_DeltaRobotState.getHoodAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFlywheelVelocity());
           break;
+
         case OVERRIDE_TURRET:
           turret.setVoltageGoal(overrideTurretVoltage);
           break;
