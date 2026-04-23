@@ -83,8 +83,12 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   @Trace
   public void periodic() {
-    if (hoodTuckTrigger.getAsBoolean() || V2_DeltaRobotState.isIntakeAtStow()) {
+    if (hoodTuckTrigger.getAsBoolean()) {
       hood.setPositionGoal(Rotation2d.kZero);
+    } else if (V2_DeltaRobotState.isIntakeAtStow()) {
+      hood.setPositionGoal(Rotation2d.kZero);
+      turret.setVoltageGoal(Volts.zero());
+      flywheel.stop();
     } else {
       switch (shooterGoal) {
         case STOW:
