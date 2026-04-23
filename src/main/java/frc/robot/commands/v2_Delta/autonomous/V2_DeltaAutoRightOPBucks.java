@@ -50,21 +50,23 @@ public class V2_DeltaAutoRightOPBucks {
       OP_BUCKS_1 = PathPlannerPath.fromPathFile("LEFT_OP_BUCKS_1").mirrorPath();
       PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("LEFT_OP_2").mirrorPath();
       return Commands.sequence(
-          Commands.runOnce(
-              () ->
-                  V2_DeltaRobotState.resetPose(
-                      AllianceFlipUtil.apply(OP_BUCKS_1.getStartingHolonomicPose().get()))),
-          Commands.waitSeconds(1.5),
-          intake
-              .deploy()
-              .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
-          Commands.deadline(AutoBuilder.followPath(OP_BUCKS_1),
-                            V2_DeltaCompositeCommands.hold(clopper, shooter)),
-                    Commands.parallel(
-                            V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(3.1)
-                                    .andThen(V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(5.3)),
-                            AutoBuilder.followPath(OP_2).alongWith(intake.deploy())))
-                    .andThen(V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+              Commands.runOnce(
+                  () ->
+                      V2_DeltaRobotState.resetPose(
+                          AllianceFlipUtil.apply(OP_BUCKS_1.getStartingHolonomicPose().get()))),
+              Commands.waitSeconds(1.5),
+              intake
+                  .deploy()
+                  .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
+              Commands.deadline(
+                  AutoBuilder.followPath(OP_BUCKS_1),
+                  V2_DeltaCompositeCommands.hold(clopper, shooter)),
+              Commands.parallel(
+                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+                      .withTimeout(3.1)
+                      .andThen(V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(5.5)),
+                  AutoBuilder.followPath(OP_2).alongWith(intake.deploy())))
+          .andThen(V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.none();
