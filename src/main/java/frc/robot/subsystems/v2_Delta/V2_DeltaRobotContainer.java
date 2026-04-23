@@ -254,7 +254,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               () -> false);
     }
 
-
     autoChooser = new LoggedDashboardChooser<>("Autonomous Modes");
     configureButtonBindings();
     configureAutos();
@@ -320,8 +319,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
-    CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
-    final boolean BRING_UP = true;
+    CommandScheduler.getInstance()
+        .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
+    final boolean BRING_UP = false;
 
     if (BRING_UP) {
 

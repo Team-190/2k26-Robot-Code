@@ -176,7 +176,7 @@ public class Intake extends SubsystemBase {
   public Command setOverrideRollerVoltage(double voltage) {
     return Commands.runOnce(
         () -> {
-          overrideVoltageSetpoint.setSetpoint(Volts.of(voltage));
+          normalVoltageSetpoint.setSetpoint(Volts.of(voltage));
           overrideRoller = true;
         });
   }

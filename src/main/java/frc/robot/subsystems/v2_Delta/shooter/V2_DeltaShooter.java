@@ -100,15 +100,13 @@ public class V2_DeltaShooter extends SubsystemBase {
 
     flywheelTrigger =
         new Trigger(
-                () -> {
-                  double delta =
-                      flywheel
-                          .getFlywheelVelocity()
-                          .minus(flywheel.getVelocityGoal().getNewSetpoint())
-                          .in(RadiansPerSecond);
-                  return delta <= flywheelVelocityThresholdRadPerSec
-                      && delta >= -flywheelVelocityThresholdRadPerSec / 3;
-                })
+                () ->
+                    Math.abs(
+                            flywheel
+                                .getFlywheelVelocity()
+                                .minus(flywheel.getVelocityGoal().getNewSetpoint())
+                                .in(RadiansPerSecond))
+                        <= flywheelVelocityThresholdRadPerSec)
             .debounce(.5, Debouncer.DebounceType.kFalling);
     hoodTuckTrigger =
         new Trigger(V2_DeltaRobotState::isShouldHoodTuck)
