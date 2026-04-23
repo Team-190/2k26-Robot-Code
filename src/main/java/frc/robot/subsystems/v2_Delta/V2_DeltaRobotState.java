@@ -301,10 +301,12 @@ public class V2_DeltaRobotState {
 
     inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
 
+    Translation2d targetPose = inAllianceZone ? hubTranslation : feedTranslation;
+
     V2_DeltaShotCalculator.ShotParameters shotParameters =
         V2_DeltaShotCalculator.getShotParameters(
             inAllianceZone ? hubPose : getGlobalPose(),
-            inAllianceZone ? hubTranslation : feedTranslation,
+            targetPose,
             new Transform2d(
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
@@ -341,6 +343,9 @@ public class V2_DeltaRobotState {
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
+
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Aiming Location", new Pose2d(targetPose, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Feed", distanceToFeedTranslation);
