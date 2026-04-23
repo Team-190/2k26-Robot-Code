@@ -104,7 +104,7 @@ public class V2_DeltaShooter extends SubsystemBase {
     if (hoodTuckTrigger.getAsBoolean()) {
       hood.setPositionGoal(hoodStowSetpoint);
     } else if (V2_DeltaRobotState.isIntakeAtStow()) {
-        hood.setPositionGoal(hoodStowSetpoint);
+      hood.setPositionGoal(hoodStowSetpoint);
       turret.setVoltageGoal(Volts.zero());
       flywheel.stop();
     } else {

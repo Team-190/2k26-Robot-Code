@@ -455,9 +455,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 driver.rightTrigger())
             .withName("joystick-drive"));
 
-    clopper.setDefaultCommand(
-        V2_DeltaCompositeCommands.runHopperWhenReady(shooter, clopper).withName("clopper"));
-
     driver
         .leftTrigger()
         .onTrue(
