@@ -117,7 +117,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new Intake.IntakeStateSetter(
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeIn,
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeCollecting,
-                      V1_DoomSpiralRobotState.getLedStates()::setSpitting));
+                      V1_DoomSpiralRobotState.getLedStates()::setSpitting,
+                      s -> {}));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFX(),
@@ -190,7 +191,8 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                   new Intake.IntakeStateSetter(
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeIn,
                       V1_DoomSpiralRobotState.getLedStates()::setIntakeCollecting,
-                      V1_DoomSpiralRobotState.getLedStates()::setSpitting));
+                      V1_DoomSpiralRobotState.getLedStates()::setSpitting,
+                      s -> {}));
           spindexer =
               new V1_DoomSpiralSpindexer(
                   new V1_DoomSpiralSpindexerIOTalonFXSim(),

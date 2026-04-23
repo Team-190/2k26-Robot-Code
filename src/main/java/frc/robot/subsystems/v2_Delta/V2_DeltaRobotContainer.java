@@ -123,7 +123,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new Intake.IntakeStateSetter(
                       V2_DeltaRobotState.getLedStates()::setIntakeIn,
                       V2_DeltaRobotState.getLedStates()::setIntakeCollecting,
-                      V2_DeltaRobotState.getLedStates()::setSpitting));
+                      s -> {},
+                      V2_DeltaRobotState.getLedStates()::setIntakeSlowRolling));
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
@@ -190,7 +191,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new Intake.IntakeStateSetter(
                       V2_DeltaRobotState.getLedStates()::setIntakeIn,
                       V2_DeltaRobotState.getLedStates()::setIntakeCollecting,
-                      V2_DeltaRobotState.getLedStates()::setSpitting));
+                      s -> {},
+                      V2_DeltaRobotState.getLedStates()::setIntakeSlowRolling));
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),

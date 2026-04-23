@@ -331,6 +331,9 @@ public class V2_DeltaRobotState {
 
     intakeAtStow = intakeStowed;
 
+    ledStates.setShooterShooting(!prohibitShot && inAllianceZone);
+    ledStates.setShooterFeeding(!prohibitShot && !inAllianceZone);
+
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
 
@@ -517,6 +520,11 @@ public class V2_DeltaRobotState {
   @Data
   @AllArgsConstructor
   public static class LEDStates {
-    boolean IntakeCollecting, IntakeIn, ShooterPrepping, ShooterShooting, Spitting, AutoClimbing;
+    boolean IntakeCollecting,
+        IntakeIn,
+        ShooterFeeding,
+        ShooterShooting,
+        IntakeSlowRolling,
+        AutoClimbing;
   }
 }

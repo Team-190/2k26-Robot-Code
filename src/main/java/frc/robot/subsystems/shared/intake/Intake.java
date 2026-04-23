@@ -43,9 +43,12 @@ public class Intake extends SubsystemBase {
   private final IntakeStateSetter intakeStateSetter;
 
   public record IntakeStateSetter(
-      BooleanConsumer stowed, BooleanConsumer collecting, BooleanConsumer spitting) {
+      BooleanConsumer stowed,
+      BooleanConsumer collecting,
+      BooleanConsumer spitting,
+      BooleanConsumer slowCollecting) {
     public IntakeStateSetter() {
-      this(b -> {}, b -> {}, b -> {});
+      this(b -> {}, b -> {}, b -> {}, b -> {});
     }
   }
 
@@ -133,6 +136,9 @@ public class Intake extends SubsystemBase {
           .accept(
               roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                   == IntakeConstants.INTAKE_VOLTAGE);
+      intakeStateSetter
+          .slowCollecting()
+          .accept(roller.getVoltageGoal().getSetpoint().baseUnitMagnitude() == 8.0);
       intakeStateSetter.stowed().accept(false);
     } else {
       intakeStateSetter.stowed().accept(true);
