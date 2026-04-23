@@ -76,12 +76,6 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
                     .withColor(new RGBWColor(Color.kRed))
                     .withSlot(section.getSlot())
                     .withFrameRate(2)));
-    // Intake 11: Light blue solid
-    // Shooting green
-    // Feeding yellow
-    // default intake purple
-    // default red
-    // estop white
 
     public final BiConsumer<CANdle, Section> animationSetter;
   }
@@ -179,6 +173,9 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
       leds.setControl(candleAnimation);
       primaryAnimationType.animationSetter.accept(leds, Section.MAIN);
       lightType = primaryAnimationType;
+      leds.setControl(
+          new RainbowAnimation(Section.STATUS.getStart(), Section.STATUS.getEnd())
+              .withFrameRate(80));
     }
   }
 
@@ -192,12 +189,16 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
       return AnimationType.DEFAULT;
     }
 
+    if (V2_DeltaRobotState.getLedStates().isIntakeCollecting()) {
+      return AnimationType.INTAKE_COLLECTING;
+    }
+
     if (V2_DeltaRobotState.getLedStates().isShooterShooting()) {
       return AnimationType.SHOOTING;
     }
 
-    if (V2_DeltaRobotState.getLedStates().isIntakeCollecting()) {
-      return AnimationType.INTAKE_COLLECTING;
+    if (V2_DeltaRobotState.getLedStates().isShooterFeeding()) {
+      return AnimationType.FEEDING;
     }
 
     if (V2_DeltaRobotState.getLedStates().isIntakeSlowRolling()) {
