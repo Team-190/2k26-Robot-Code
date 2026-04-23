@@ -65,10 +65,10 @@ import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
-import frc.robot.subsystems.v2_Delta.shooter.FuelSimulator;
-import frc.robot.subsystems.v2_Delta.shooter.SimFuelCount;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaSimFuelCount;
+import frc.robot.util.FuelSimulator;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
@@ -82,7 +82,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private V2_DeltaShooter shooter;
   private Intake intake;
   private FuelSimulator fuelSimulator;
-  private SimFuelCount simFuelCount;
+  private V2_DeltaSimFuelCount simFuelCount;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -296,7 +296,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private void configureFuelSim() {
 
     fuelSimulator = new FuelSimulator("FuelSim");
-    simFuelCount = new SimFuelCount(8);
+    simFuelCount = new V2_DeltaSimFuelCount(8);
 
     fuelSimulator.registerRobot(
         V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
@@ -317,10 +317,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         () ->
             intake.getIntakeState().equals(IntakeState.INTAKE)
                 && intake.atGoal()
-                && simFuelCount.getFuelStored() < SimFuelCount.getCapacity(),
+                && simFuelCount.getFuelStored() < V2_DeltaSimFuelCount.getCapacity(),
         () ->
             simFuelCount.setFuelStored(
-                Math.min(simFuelCount.getFuelStored() + 1, SimFuelCount.getCapacity())));
+                Math.min(simFuelCount.getFuelStored() + 1, V2_DeltaSimFuelCount.getCapacity())));
 
     fuelSimulator.registerShooter(
         () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
