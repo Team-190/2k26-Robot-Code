@@ -26,6 +26,7 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
+import frc.robot.commands.shared.DriveCommands;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
@@ -378,6 +379,8 @@ public class V2_DeltaRobotState {
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "In Alliance Zone", inAllianceZone);
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Prohibit Shot", prohibitShot);
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Should Hood Tuck", shouldHoodTuck);
+
+    Logger.recordOutput("Elastic/Drive/Slow Factor", DriveCommands.getSlowFactor());
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {

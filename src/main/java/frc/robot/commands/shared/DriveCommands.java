@@ -29,12 +29,14 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
 
   @Setter private static double lastCardinalDirection = 0.0;
+  @Getter private static double slowFactor = 0.5;
 
   /**
    * A command that drives a SwerveDrive using joystick input.
@@ -71,7 +73,7 @@ public final class DriveCommands {
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackYSuppliers,
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackOmegaSuppliers,
       BooleanSupplier slowMode,
-      double slowFactor) {
+      DoubleSupplier slowFactor) {
     return Commands.run(
         () -> {
           // Apply deadband
@@ -102,7 +104,7 @@ public final class DriveCommands {
                   .findFirst()
                   .orElse(
                       slowMode.getAsBoolean()
-                          ? (fieldRelativeXVel * slowFactor)
+                          ? (fieldRelativeXVel * slowFactor.getAsDouble())
                           : fieldRelativeXVel);
 
           fieldRelativeYVel =
@@ -112,7 +114,7 @@ public final class DriveCommands {
                   .findFirst()
                   .orElse(
                       slowMode.getAsBoolean()
-                          ? (fieldRelativeYVel * slowFactor)
+                          ? (fieldRelativeYVel * slowFactor.getAsDouble())
                           : fieldRelativeYVel);
 
           angular =
@@ -120,7 +122,7 @@ public final class DriveCommands {
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (angular * slowFactor) : angular);
+                  .orElse(slowMode.getAsBoolean() ? (angular * slowFactor.getAsDouble()) : angular);
 
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -154,7 +156,7 @@ public final class DriveCommands {
         List.of(),
         List.of(),
         () -> false,
-        1);
+        () -> 1);
   }
 
   public static Command joystickDriveRotationLock(
@@ -226,7 +228,7 @@ public final class DriveCommands {
                             rotationSupplier.get().getRadians(),
                             drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
             climbSlowMode,
-            .1));
+            () -> .1));
   }
 
   public static Command joystickDriveWithCardinalDirection(
@@ -237,8 +239,7 @@ public final class DriveCommands {
       DoubleSupplier omegaSupplier,
       Supplier<Rotation2d> rotationSupplier,
       BooleanSupplier cardinalDirectionAlign,
-      BooleanSupplier slowMode,
-      double slowFactor) {
+      BooleanSupplier slowMode) {
 
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
@@ -285,7 +286,18 @@ public final class DriveCommands {
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
         slowMode,
-        slowFactor);
+        () -> slowFactor);
+  }
+
+  public static Command incrementSlowFactor() {
+    return Commands.runOnce(
+        () -> {
+          slowFactor = Math.max(slowFactor + 0.05, 1.0);
+        });
+  }
+
+  public static Command decrementSlowFactor() {
+    return Commands.runOnce(() -> slowFactor = Math.min(slowFactor - 0.05, 0.0));
   }
 
   public static Command rotateToAngle(

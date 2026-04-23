@@ -16,7 +16,7 @@ import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import frc.robot.Robot;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import org.littletonrobotics.junction.Logger;
@@ -243,27 +243,27 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
 
       return AnimationType.DEFAULT;
     }
-    if (DriverStation.isAutonomous() && V1_DoomSpiralRobotState.getLedStates().isAutoClimbing()) {
+    if (DriverStation.isAutonomous() && V2_DeltaRobotState.getLedStates().isAutoClimbing()) {
       return AnimationType.AUTO_CLIMB;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isShooterShooting()) {
+    if (V2_DeltaRobotState.getLedStates().isShooterShooting()) {
       return AnimationType.SHOOTING;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isShooterPrepping()) {
+    if (V2_DeltaRobotState.getLedStates().isShooterPrepping()) {
       return AnimationType.PREPPING;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isIntakeCollecting()) {
+    if (V2_DeltaRobotState.getLedStates().isIntakeCollecting()) {
       return AnimationType.INTAKE_COLLECTING;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isSpitting()) {
+    if (V2_DeltaRobotState.getLedStates().isSpitting()) {
       return AnimationType.SPITTING;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isIntakeIn()) {
+    if (V2_DeltaRobotState.getLedStates().isIntakeIn()) {
       return AnimationType.INTAKE_IN;
     }
 

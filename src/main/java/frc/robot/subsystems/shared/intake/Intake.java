@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,7 +24,6 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkage;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import java.util.function.BooleanSupplier;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -40,10 +40,22 @@ public class Intake extends SubsystemBase {
 
   private final BooleanSupplier fastIntakeRollers;
 
+  private final IntakeStateSetter intakeStateSetter;
+
+  public record IntakeStateSetter(
+      BooleanConsumer stowed, BooleanConsumer collecting, BooleanConsumer spitting) {
+    public IntakeStateSetter() {
+      this(b -> {}, b -> {}, b -> {});
+    }
+  }
+
   @Getter private boolean intakeAtStow;
 
   public Intake(
-      GenericRollerIO rollerIO, FourBarLinkageIO linkageIO, BooleanSupplier fastIntakeRollers) {
+      GenericRollerIO rollerIO,
+      FourBarLinkageIO linkageIO,
+      BooleanSupplier fastIntakeRollers,
+      IntakeStateSetter intakeStateSetter) {
     setName("Intake");
 
     intakeState = IntakeState.STOW;
@@ -75,6 +87,8 @@ public class Intake extends SubsystemBase {
 
     this.fastIntakeRollers = fastIntakeRollers;
 
+    this.intakeStateSetter = intakeStateSetter;
+
     // setDefaultCommand(defaultCommand());
   }
 
@@ -84,7 +98,7 @@ public class Intake extends SubsystemBase {
     roller.periodic();
     linkage.periodic();
 
-    if (overrideRoller) roller.setVoltageGoal(overrideVoltageSetpoint);
+    if (overrideRoller) roller.setVoltageGoal(normalVoltageSetpoint);
     else {
       switch (intakeState) {
         case STOW:
@@ -113,34 +127,36 @@ public class Intake extends SubsystemBase {
 
     Logger.recordOutput("Intake/Intake State", intakeState);
 
-    V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
     if (intakeState.equals(IntakeState.INTAKE)) {
-      V1_DoomSpiralRobotState.getLedStates()
-          .setIntakeCollecting(
+      intakeStateSetter
+          .collecting()
+          .accept(
               roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                   == IntakeConstants.INTAKE_VOLTAGE);
-      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(false);
+      intakeStateSetter.stowed().accept(false);
     } else {
-      V1_DoomSpiralRobotState.getLedStates().setIntakeIn(true);
-      V1_DoomSpiralRobotState.getLedStates().setIntakeCollecting(false);
+      intakeStateSetter.stowed().accept(true);
+      intakeStateSetter.collecting().accept(false);
     }
-    V1_DoomSpiralRobotState.getLedStates()
-        .setSpitting(
+    intakeStateSetter
+        .spitting()
+        .accept(
             roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
     intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
 
     Logger.recordOutput(
-        "Intake/Linkage0/Offset Degrees", linkage.getPositionGoal().getOffset().in(Degrees));
+        "Elastic/Intake/Linkage/Offset Degrees",
+        String.format("%.1f", linkage.getPositionGoal().getOffset().in(Degrees)));
     Logger.recordOutput(
-        "Intake/Linkage0/Angle Degrees", linkage.getPositionGoal().getSetpoint().in(Degrees));
+        "Elastic/Intake/Linkage/Angle Degrees",
+        String.format("%.1f", linkage.getPositionGoal().getSetpoint().in(Degrees)));
     Logger.recordOutput(
-        "Intake/Roller/Voltage Offset", roller.getVoltageGoal().getOffset().in(Volts));
+        "Elastic/Intake/Roller/Voltage Offset", roller.getVoltageGoal().getOffset().in(Volts));
     Logger.recordOutput(
-        "Intake/Roller/AppliedVolts", roller.getVoltageGoal().getSetpoint().in(Volts));
-    Logger.recordOutput(
-        "Intake/Roller/Voltage Magnitude", roller.getVoltageGoal().getNewSetpoint().in(Volts));
+        "Elastic/Intake/Roller/Voltage Magnitude",
+        Math.abs(roller.getVoltageGoal().getSetpoint().in(Volts)));
     Logger.recordOutput("Intake/At Stow", intakeAtStow);
   }
 
