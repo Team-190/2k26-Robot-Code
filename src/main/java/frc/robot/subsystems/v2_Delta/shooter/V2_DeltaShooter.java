@@ -30,6 +30,7 @@ import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoal;
 import frc.robot.util.AllianceFlipUtil;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -46,18 +47,21 @@ public class V2_DeltaShooter extends SubsystemBase {
   private Voltage overrideTurretVoltage;
   private Voltage overrideHoodVoltage;
   private Voltage overrideFlywheelVoltage;
+  private final BooleanSupplier staticShooterSupplier;
 
   private final Setpoint<AngleUnit> hoodSetpoint;
   private final Setpoint<AngleUnit> hoodStowSetpoint;
 
   private final Trigger flywheelTrigger;
   private final Trigger hoodTuckTrigger;
+  private double flywheelVelocityThresholdRadPerSec;
 
   public V2_DeltaShooter(
       TurretIO turretIO,
       HoodIO hoodIO,
       GenericFlywheelIO flywheelIO,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier) {
+      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      BooleanSupplier staticShooterSupplier) {
     setName("Shooter");
 
     hoodSetpoint =
@@ -92,11 +96,24 @@ public class V2_DeltaShooter extends SubsystemBase {
 
     fixedShotParameters = V2_DeltaRobotState.FixedShots.HUB.getParameters();
 
+    flywheelVelocityThresholdRadPerSec = 0;
+
     flywheelTrigger =
-        new Trigger(flywheel::atVelocityGoal).debounce(.5, Debouncer.DebounceType.kFalling);
+        new Trigger(
+                () -> {
+                  double delta =
+                      flywheel
+                          .getFlywheelVelocity()
+                          .minus(flywheel.getVelocityGoal().getNewSetpoint())
+                          .in(RadiansPerSecond);
+                  return delta <= flywheelVelocityThresholdRadPerSec
+                      && delta >= -flywheelVelocityThresholdRadPerSec / 3;
+                })
+            .debounce(.5, Debouncer.DebounceType.kFalling);
     hoodTuckTrigger =
         new Trigger(V2_DeltaRobotState::isShouldHoodTuck)
             .debounce(0.35, Debouncer.DebounceType.kFalling);
+    this.staticShooterSupplier = staticShooterSupplier;
   }
 
   @Trace
@@ -116,16 +133,20 @@ public class V2_DeltaShooter extends SubsystemBase {
           break;
         case SCORE:
           hood.setPositionGoal(hoodSetpoint);
-          turret.setFieldRelativeGoal(
-              AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
-              V2_DeltaRobotState.getTurretVelocity());
+          if (!staticShooterSupplier.getAsBoolean())
+            turret.setFieldRelativeGoal(
+                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+                V2_DeltaRobotState.getTurretVelocity());
+          else turret.setVoltageGoal(Volts.zero());
           hood.setPositionGoal(V2_DeltaRobotState.getHoodAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFlywheelVelocity());
           break;
         case FEED:
           hood.setPositionGoal(hoodSetpoint);
-          turret.setFieldRelativeGoal(
-              V2_DeltaRobotState.getFeedTranslation(), V2_DeltaRobotState.getTurretVelocity());
+          if (!staticShooterSupplier.getAsBoolean())
+            turret.setFieldRelativeGoal(
+                V2_DeltaRobotState.getFeedTranslation(), V2_DeltaRobotState.getTurretVelocity());
+          else turret.setVoltageGoal(Volts.zero());
           hood.setPositionGoal(V2_DeltaRobotState.getHoodAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFlywheelVelocity());
           break;
@@ -192,8 +213,17 @@ public class V2_DeltaShooter extends SubsystemBase {
         "Elastic/Shooter/Flywheel/Velocity Magnitude",
         String.format("%.0f", Math.abs(flywheel.getFlywheelVelocity().in(RadiansPerSecond))));
     Logger.recordOutput(
+        "Elastic/Shooter/Flywheel/Velocity Threshold",
+        String.format("%.0f", flywheelVelocityThresholdRadPerSec));
+    Logger.recordOutput(
         "Elastic/Shooter/Flywheel/Velocity Offset",
         String.format("%.0f", flywheel.getVelocityGoal().getOffset().in(RadiansPerSecond)));
+
+    Logger.recordOutput(
+        "Elastic/Shooter/Hood/Angle", String.format("%.1f", hood.getAngle().getDegrees()));
+    Logger.recordOutput(
+        "Elastic/Shooter/Hood/Angle Offset",
+        String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {
@@ -283,6 +313,14 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command decrementFlywheelVelocity() {
     return Commands.runOnce(flywheel.getVelocityGoal()::decrement);
+  }
+
+  public Command incrementFlywheelVelocityThreshold() {
+    return Commands.runOnce(() -> flywheelVelocityThresholdRadPerSec += 5);
+  }
+
+  public Command decrementFlywheelVelocityThreshold() {
+    return Commands.runOnce(() -> flywheelVelocityThresholdRadPerSec -= 5);
   }
 
   public Command incrementHoodAngle() {

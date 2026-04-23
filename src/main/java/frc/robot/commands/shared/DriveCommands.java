@@ -170,7 +170,8 @@ public final class DriveCommands {
       DoubleSupplier hubSetpoint,
       DoubleSupplier hubFeedforward,
       BooleanSupplier cardinalDirectionAlign,
-      BooleanSupplier climbSlowMode) {
+      BooleanSupplier slowMode,
+      DoubleSupplier slowFactor) {
 
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
@@ -227,8 +228,8 @@ public final class DriveCommands {
                             lastCardinalDirection,
                             rotationSupplier.get().getRadians(),
                             drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-            climbSlowMode,
-            () -> .1));
+            slowMode,
+            slowFactor));
   }
 
   public static Command joystickDriveWithCardinalDirection(
@@ -287,6 +288,34 @@ public final class DriveCommands {
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
         slowMode,
         () -> slowFactor);
+  }
+
+  public static Command joystickDriveRotationLock(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier pointAtHub,
+      DoubleSupplier hubSetpoint,
+      DoubleSupplier hubFeedforward,
+      BooleanSupplier cardinalDirectionAlign,
+      BooleanSupplier climbSlowMode) {
+
+    return joystickDriveRotationLock(
+        drive,
+        driveConstants,
+        xSupplier,
+        ySupplier,
+        omegaSupplier,
+        rotationSupplier,
+        pointAtHub,
+        hubSetpoint,
+        hubFeedforward,
+        cardinalDirectionAlign,
+        climbSlowMode,
+        () -> .1);
   }
 
   public static Command incrementSlowFactor() {

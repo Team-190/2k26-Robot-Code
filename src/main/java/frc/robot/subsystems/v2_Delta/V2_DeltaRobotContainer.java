@@ -3,7 +3,9 @@ package frc.robot.subsystems.v2_Delta;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -16,9 +18,6 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
-import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
-import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIO;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveModuleIOSim;
@@ -68,7 +67,10 @@ import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaSimFuelCount;
+import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.FuelSimulator;
+import frc.robot.util.LTNUpdater;
+import frc.robot.util.command.ContinuousConditionalCommand;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
 import java.util.List;
@@ -83,6 +85,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private Intake intake;
   private FuelSimulator fuelSimulator;
   private V2_DeltaSimFuelCount simFuelCount;
+
+  private boolean staticShooter = false;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -134,7 +138,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFX(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFX(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
-                  drive::getMeasuredChassisSpeeds);
+                  drive::getMeasuredChassisSpeeds,
+                  () -> staticShooter);
           vision =
               new Vision(
                   () -> FieldConstants.tagLayoutType.getLayout(),
@@ -203,7 +208,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                   new TurretIOSim(V2_DeltaShooterConstants.TURRET_CONSTANTS),
                   new HoodIOTalonFXSim(V2_DeltaShooterConstants.HOOD_CONSTANTS),
                   new GenericFlywheelIOTalonFXSim(V2_DeltaShooterConstants.SHOOT_CONSTANTS),
-                  drive::getMeasuredChassisSpeeds);
+                  drive::getMeasuredChassisSpeeds,
+                  () -> staticShooter);
           vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
           break;
         default:
@@ -244,98 +250,61 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new TurretIO() {},
               new HoodIO() {},
               new GenericFlywheelIO() {},
-              drive::getMeasuredChassisSpeeds);
+              drive::getMeasuredChassisSpeeds,
+              () -> false);
     }
+
 
     autoChooser = new LoggedDashboardChooser<>("Autonomous Modes");
     configureButtonBindings();
     configureAutos();
     configureFuelSim();
-
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaConstants.DRIVE_GAINS,
-        g -> {
-          drive.setPIDGains(
-              g.getKP(),
-              g.getKD(),
-              V2_DeltaConstants.TURN_GAINS.getKP(),
-              V2_DeltaConstants.TURN_GAINS.getKD());
-          drive.setFFGains(g.getKS(), g.getKV());
-        });
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaConstants.TURN_GAINS,
-        g ->
-            drive.setPIDGains(
-                V2_DeltaConstants.DRIVE_GAINS.getKP(),
-                V2_DeltaConstants.DRIVE_GAINS.getKD(),
-                g.getKP(),
-                g.getKD()));
-
-    TunableUpdaterRegistry.registerGains(
-        IntakeConstants.LINKAGE_CONSTANTS.gains, intake.getLinkage()::setGains);
-
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.HOOD_CONSTANTS.gains, shooter::setHoodGains);
-    TunableUpdaterRegistry.registerConstraints(
-        V2_DeltaShooterConstants.HOOD_CONSTANTS.constraints,
-        c -> shooter.setHoodConstraints((AngularPositionConstraints) c));
-
-    TunableUpdaterRegistry.registerConstraints(
-        V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints,
-        c -> shooter.setFlywheelConstraints((AngularVelocityConstraints) c));
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.SHOOT_CONSTANTS.voltageGains, shooter::setFlywheelGains);
-
-    TunableUpdaterRegistry.registerConstraints(
-        V2_DeltaShooterConstants.TURRET_CONSTANTS.constraints,
-        c -> shooter.setTurretConstraints((AngularPositionConstraints) c));
-    TunableUpdaterRegistry.registerGains(
-        V2_DeltaShooterConstants.TURRET_CONSTANTS.gains, shooter::setTurretGains);
+    LTNUpdater.registerV2(drive, intake, shooter);
   }
 
   private void configureFuelSim() {
 
     fuelSimulator = new FuelSimulator("FuelSim");
-    simFuelCount = new V2_DeltaSimFuelCount(8);
-
-    fuelSimulator.registerRobot(
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
-        Units.inchesToMeters(6.0),
-        V2_DeltaRobotState::getGlobalPose,
-        () ->
-            new ChassisSpeeds(
-                drive.getFieldRelativeVelocity().getX(),
-                drive.getFieldRelativeVelocity().getY(),
-                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
-
-    fuelSimulator.registerIntake(
-        IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
-        IntakeConstants.LINKAGE_OFFSET.getX(),
-        -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
-        V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
-        () ->
-            intake.getIntakeState().equals(IntakeState.INTAKE)
-                && intake.atGoal()
-                && simFuelCount.getFuelStored() < V2_DeltaSimFuelCount.getCapacity(),
-        () ->
-            simFuelCount.setFuelStored(
-                Math.min(simFuelCount.getFuelStored() + 1, V2_DeltaSimFuelCount.getCapacity())));
-
-    fuelSimulator.registerShooter(
-        () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
-        () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
-        shooter.getHoodAngle()::getMeasure,
-        shooter.getTurretRotation()::getMeasure,
-        shooter::getFlywheelVelocity,
-        V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
-
-    fuelSimulator.setSubticks(1);
-    fuelSimulator.start();
-    fuelSimulator.spawnStartingFuel();
-    fuelSimulator.enableAirResistance();
-
     if (RobotBase.isSimulation()) {
+      simFuelCount = new V2_DeltaSimFuelCount(8);
+
+      fuelSimulator.registerRobot(
+          V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
+          V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
+          Units.inchesToMeters(6.0),
+          V2_DeltaRobotState::getGlobalPose,
+          () ->
+              new ChassisSpeeds(
+                  drive.getFieldRelativeVelocity().getX(),
+                  drive.getFieldRelativeVelocity().getY(),
+                  drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
+
+      fuelSimulator.registerIntake(
+          IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
+          IntakeConstants.LINKAGE_OFFSET.getX(),
+          -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+          V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+          () ->
+              intake.getIntakeState().equals(IntakeState.INTAKE)
+                  && intake.atGoal()
+                  && simFuelCount.getFuelStored() < V2_DeltaSimFuelCount.getCapacity(),
+          () ->
+              simFuelCount.setFuelStored(
+                  Math.min(simFuelCount.getFuelStored() + 1, V2_DeltaSimFuelCount.getCapacity())));
+
+      fuelSimulator.registerShooter(
+          () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
+          () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
+          shooter.getHoodAngle()::getMeasure,
+          shooter.getTurretRotation()::getMeasure,
+          shooter::getFlywheelVelocity,
+          V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
+
+      fuelSimulator.setSubticks(1);
+      fuelSimulator.start();
+      fuelSimulator.spawnStartingFuel();
+      fuelSimulator.enableAirResistance();
+
       fuelSimulator.start();
       RobotModeTriggers.autonomous()
           .onTrue(
@@ -428,15 +397,6 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   @Trace
   private void configureButtonBindings() {
-    // drive.setDefaultCommand(
-    // DriveCommands.joystickDrive(
-    // drive,
-    // V2_DeltaConstants.DRIVE_CONSTANTS,
-    // () -> -driver.getLeftY(),
-    // () -> -driver.getLeftX(),
-    // () -> -driver.getRightX(),
-    // V2_DeltaRobotState::getHeading));
-
     driver
         .povDown()
         .onTrue(
@@ -446,15 +406,56 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 () -> V2_DeltaRobotState.getGlobalPose().getTranslation()));
 
     drive.setDefaultCommand(
-        DriveCommands.joystickDriveWithCardinalDirection(
-                drive,
-                V2_DeltaConstants.DRIVE_CONSTANTS,
-                () -> -driver.getLeftY(),
-                () -> -driver.getLeftX(),
-                () -> -driver.getRightX(),
-                V2_DeltaRobotState::getHeading,
-                driver.leftTrigger(),
-                driver.rightTrigger())
+        new ContinuousConditionalCommand(
+                DriveCommands.joystickDriveRotationLock(
+                    drive,
+                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                    () -> -driver.getLeftY(),
+                    () -> -driver.getLeftX(),
+                    () -> -driver.getRightX(),
+                    V2_DeltaRobotState::getHeading,
+                    driver.rightBumper().negate(),
+                    () -> {
+                      Pose2d robotPose = V2_DeltaRobotState.getLookaheadPose();
+                      return (V2_DeltaRobotState.isInAllianceZone()
+                              ? AllianceFlipUtil.apply(
+                                  FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                              : V2_DeltaRobotState.getFeedTranslation())
+                          .minus(
+                              robotPose
+                                  .transformBy(
+                                      new Transform2d(
+                                          V2_DeltaShooterConstants.TURRET_CONSTANTS
+                                              .robotToTurretTransform.getX(),
+                                          V2_DeltaShooterConstants.TURRET_CONSTANTS
+                                              .robotToTurretTransform.getY(),
+                                          Rotation2d.kZero))
+                                  .getTranslation())
+                          .getAngle()
+                          .minus(
+                              shooter
+                                  .getTurretRotation()
+                                  .plus(
+                                      V2_DeltaShooterConstants.TURRET_CONSTANTS
+                                          .robotToTurretTransform
+                                          .getRotation()
+                                          .toRotation2d()))
+                          .getRadians();
+                    },
+                    () -> V2_DeltaRobotState.getTurretVelocity().in(RadiansPerSecond),
+                    driver.leftTrigger(),
+                    driver.rightTrigger(),
+                    DriveCommands::getSlowFactor),
+                DriveCommands.joystickDriveWithCardinalDirection(
+                    drive,
+                    V2_DeltaConstants.DRIVE_CONSTANTS,
+                    () -> -driver.getLeftY(),
+                    () -> -driver.getLeftX(),
+                    () -> -driver.getRightX(),
+                    V2_DeltaRobotState::getHeading,
+                    driver.leftTrigger(),
+                    driver.rightTrigger()),
+                () -> staticShooter)
             .withName("joystick-drive"));
 
     driver
@@ -673,11 +674,10 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             shooter
                 .setGoal(() -> V2_DeltaShooterConstants.ShooterGoal.IDLE)
                 .withName("xkeys-g4-false"));
+
     xkeys
         .g5()
-        .whileTrue(
-            V2_DeltaCompositeCommands.toggleHold(clopper, shooter).withName("xkeys-g5-toggle"));
-
+        .onTrue(Commands.runOnce(() -> staticShooter = !staticShooter).withName("xkeys-g5-true"));
     xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
     xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
 
