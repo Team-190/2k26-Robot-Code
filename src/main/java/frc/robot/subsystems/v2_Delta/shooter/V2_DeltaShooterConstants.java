@@ -95,7 +95,7 @@ public class V2_DeltaShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(4))
           .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 0.75))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 0.5))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0.0))
                   .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", .23467))
                   .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", .12959))

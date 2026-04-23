@@ -81,6 +81,9 @@ public class V2_DeltaRobotState {
   @Getter private static boolean inAllianceZone;
   @Getter private static boolean intakeAtStow;
 
+  private static final AngularVelocity
+      UMAMI; // Colleen made me put this in, it represents a 15 radian/second offset for all shots
+
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
 
@@ -248,6 +251,8 @@ public class V2_DeltaRobotState {
     intakeAtStow = false;
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
+
+    UMAMI = RadiansPerSecond.of(15.0);
   }
 
   @Trace
@@ -311,7 +316,7 @@ public class V2_DeltaRobotState {
             d -> inAllianceZone ? shootSpeedTree.get(d) : feedSpeedTree.get(d));
 
     hoodAngle = shotParameters.hoodAngle();
-    flywheelVelocity = shotParameters.flywheelSpeed();
+    flywheelVelocity = shotParameters.flywheelSpeed().plus(UMAMI);
     turretVelocity = shotParameters.turretVelocity();
 
     lookaheadPose = shotParameters.adjustedRobotPose();

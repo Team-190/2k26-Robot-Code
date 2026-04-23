@@ -26,7 +26,7 @@ public class V2_DeltaClopperConstants {
       case V2_DELTA:
       case V2_DELTA_SIM:
       default:
-        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(12.0);
+        ROLLER_FLOOR_FEED_VOLTAGE = Volts.of(9.0);
         BALL_TUNNEL_FEED_VOLTAGE = Volts.of(11.0);
         ROLLER_FLOOR_FEED_VOLTAGE_SLOW = Volts.of(4.0);
 
