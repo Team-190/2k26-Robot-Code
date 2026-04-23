@@ -64,8 +64,11 @@ public class V2_DeltaAutoRightHalf {
               drive.runOnce(drive::stop)),
           Commands.sequence(
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              intake.stopRoller(),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5),
+              intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              intake.stopRoller(),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();

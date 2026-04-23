@@ -8,6 +8,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -17,12 +18,13 @@ import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.Elastic;
 
 public class V2_DeltaAutoLeftFull {
   public static Command getAutoRoutine(
       SwerveDrive drive, Intake intake, V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
 
-    PathPlannerPath LEFT_FULL;
+    PathPlannerPath FULL;
     try {
       AutoBuilder.configure(
           V2_DeltaRobotState::getGlobalPose,
@@ -47,26 +49,40 @@ public class V2_DeltaAutoLeftFull {
             return false;
           },
           drive);
-      LEFT_FULL = PathPlannerPath.fromPathFile("LEFT_FULL_SWEEP");
+
+      FULL = PathPlannerPath.fromPathFile("LEFT_FULL_SWEEP");
+      RobotModeTriggers.autonomous()
+          .negate()
+          .onTrue(intake.stopRoller().alongWith(intake.deploy()).ignoringDisable(true));
+
       return Commands.parallel(
           Commands.sequence(
               Commands.runOnce(
                   () ->
                       V2_DeltaRobotState.resetPose(
-                          AllianceFlipUtil.apply(LEFT_FULL.getStartingHolonomicPose().get()))),
+                          AllianceFlipUtil.apply(FULL.getStartingHolonomicPose().get()))),
               intake
                   .deploy()
                   .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
-              AutoBuilder.followPath(LEFT_FULL),
+              AutoBuilder.followPath(FULL),
               drive.runOnce(drive::stop)),
           Commands.sequence(
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
-              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(7),
-              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.5),
+              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(2),
+              intake.setOverrideRollerVoltage(0),
+              Commands.waitUntil(V2_DeltaRobotState::isInAllianceZone),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();
-      return Commands.none();
+      return Commands.runOnce(
+              () ->
+                  Elastic.sendNotification(
+                      new Elastic.Notification(
+                          Elastic.NotificationLevel.ERROR,
+                          "Failed to load auto path",
+                          e.getMessage())))
+          .ignoringDisable(true);
     }
   }
 }
