@@ -176,7 +176,7 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(26)
           .withEncoder2ID(27)
-          .withMaxAngle(Rotation2d.fromDegrees(-48))
+          .withMaxAngle(Rotation2d.fromDegrees(0))
           .withMinAngle(Rotation2d.fromDegrees(-650))
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
@@ -230,6 +230,7 @@ public class V2_DeltaShooterConstants {
     OVERRIDE_HOOD,
     OVERRIDE_FLYWHEEL,
     SYSID,
+    ZERO,
     IDLE
   }
 

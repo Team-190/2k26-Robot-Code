@@ -134,13 +134,15 @@ public class Turret {
     if (outOfRange()
         && state != TurretState.UNWRAPPING
         && state != TurretState.IDLE
-        && state != TurretState.OPEN_LOOP_VOLTAGE_CONTROL) {
+        && state != TurretState.OPEN_LOOP_VOLTAGE_CONTROL
+        && state != TurretState.ZERO) {
       previousState = state;
       state = TurretState.UNWRAPPING;
     }
 
     isWrapping = state == TurretState.UNWRAPPING;
     switch (state) {
+      case ZERO -> io.setPositionGoal(Rotation2d.kZero, 0.0);
       case UNWRAPPING -> {
         double midPointAbsoluteRad =
             (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
@@ -251,6 +253,10 @@ public class Turret {
       positionGoal.setSetpoint(goal.getMeasure());
       angularVelocityGoal.setSetpoint(velocity);
     }
+  }
+
+  public void zero() {
+    state = TurretState.ZERO;
   }
 
   public void setPosition(Rotation2d position) {

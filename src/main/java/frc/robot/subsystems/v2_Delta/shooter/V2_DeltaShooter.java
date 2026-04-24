@@ -170,6 +170,11 @@ public class V2_DeltaShooter extends SubsystemBase {
           hood.setPositionGoal(fixedShotParameters.hoodAngle());
           flywheel.setVelocityGoal(fixedShotParameters.flywheelSpeed());
           break;
+        case ZERO:
+          turret.zero();
+          hood.setPositionGoal(Rotation2d.kZero);
+          flywheel.stop();
+          break;
         case SYSID:
         default:
           break;
@@ -304,6 +309,10 @@ public class V2_DeltaShooter extends SubsystemBase {
                       "Shooter/Flywheel/Sysid/velocity",
                       flywheel.getFlywheelVelocity().in(RotationsPerSecond));
                 }));
+  }
+
+  public Command zero() {
+    return setGoal(ShooterGoal.ZERO);
   }
 
   public Command incrementFlywheelVelocity() {
