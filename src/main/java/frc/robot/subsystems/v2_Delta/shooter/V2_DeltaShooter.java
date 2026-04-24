@@ -422,7 +422,8 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public Command setTurretGoal(Rotation2d goal) {
-    return setGoal(ShooterGoal.IDLE).andThen(Commands.runOnce(() -> turret.setPositionGoal(goal)));
+    return setGoal(ShooterGoal.IDLE)
+        .andThen(Commands.runOnce(() -> turret.setPositionGoal(goal, RadiansPerSecond.zero())));
   }
 
   public Command waitUntilTurretAtGoal() {

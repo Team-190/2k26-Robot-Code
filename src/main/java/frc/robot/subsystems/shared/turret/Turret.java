@@ -161,7 +161,7 @@ public class Turret {
       }
       case CLOSED_LOOP_POSITION_CONTROL ->
           io.setPositionGoal(
-              findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
+              new Rotation2d((Angle) positionGoal.getNewSetpoint()),
               (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
               0.0);
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
