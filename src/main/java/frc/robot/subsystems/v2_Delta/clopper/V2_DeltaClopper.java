@@ -200,7 +200,7 @@ public class V2_DeltaClopper extends SubsystemBase {
         this);
   }
 
-  public Command setOverrideBallToWallsVoltage(Voltage voltage) {
+  public Command setOverrideBallsToWallVoltage(Voltage voltage) {
     return this.startEnd(
         () -> {
           overrideBallsToWall = true;
@@ -210,6 +210,14 @@ public class V2_DeltaClopper extends SubsystemBase {
         () -> {
           overrideBallsToWall = false;
         });
+  }
+
+  public Command incrementBallsToWallVelocity() {
+    return Commands.runOnce(ballsToWallSetpoint::increment);
+  }
+
+  public Command decrementBallsToWallVelocity() {
+    return Commands.runOnce(ballsToWallSetpoint::decrement);
   }
 
   public Command incrementBallTunnelVelocity() {

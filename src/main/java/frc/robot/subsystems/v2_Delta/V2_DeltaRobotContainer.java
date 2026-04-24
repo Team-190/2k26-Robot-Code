@@ -473,8 +473,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                                     V2_DeltaRobotState.getHeading().getRadians() / (Math.PI / 2.0))
                                 * (Math.PI / 2.0)))
                 .withName("cardinal-direction-set"));
-    xkeys.b9().onTrue(DriveCommands.decrementSlowFactor());
-    xkeys.b10().onTrue(DriveCommands.incrementSlowFactor());
+    xkeys.b9().onTrue(DriveCommands.incrementSlowFactor().withName("xkeys-b9-true"));
+    xkeys.b10().onTrue(DriveCommands.decrementSlowFactor().withName("xkeys-b10-true"));
 
     driver
         .povDown()
@@ -591,18 +591,34 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("xkeys-b6-true"));
 
     xkeys
-        .b6()
+        .c4()
         .whileTrue(
             clopper
                 .setOverrideBallTunnelVoltage(V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE)
-                .withName("xkeys-b6-true"));
+                .withName("xkeys-c4-true"));
     xkeys
-        .b7()
+        .c5()
         .whileTrue(
             clopper
                 .setOverrideBallTunnelVoltage(
                     V2_DeltaClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
-                .withName("xkeys-b7-true"));
+                .withName("xkeys-c5-true"));
+
+    xkeys
+        .d4()
+        .whileTrue(
+            clopper
+                .setOverrideBallsToWallVoltage(
+                    V2_DeltaClopperConstants.BALLS_TO_THE_WALL_FORWARD_VOLTAGE)
+                .withName("xkeys-d4-true"));
+
+    xkeys
+        .d5()
+        .whileTrue(
+            clopper
+                .setOverrideBallsToWallVoltage(
+                    V2_DeltaClopperConstants.BALLS_TO_THE_WALL_FORWARD_VOLTAGE.unaryMinus())
+                .withName("xkeys-d5-true"));
 
     xkeys
         .b10()
@@ -611,17 +627,20 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                     drive,
                     V2_DeltaRobotState::resetPose,
                     V2_DeltaRobotState.getGlobalPose()::getTranslation)
-                .withName("xkeys-b10-while"));
+                .withName("xkeys-b10-true"));
 
     xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
     xkeys.c2().onTrue(intake.decrementCollectOffset().withName("xkeys-c2-true"));
     xkeys.c3().onTrue(intake.incrementCollectOffset().withName("xkeys-c3-true"));
 
-    xkeys.c4().onTrue(clopper.incrementRollerFloorVelocity().withName("xkeys-c4-true"));
-    xkeys.c5().onTrue(clopper.decrementRollerFloorVelocity().withName("xkeys-c5-true"));
+    xkeys.b6().onTrue(clopper.incrementRollerFloorVelocity().withName("xkeys-b6-true"));
+    xkeys.b7().onTrue(clopper.decrementRollerFloorVelocity().withName("xkeys-b7-true"));
 
     xkeys.c6().onTrue(clopper.incrementBallTunnelVelocity().withName("xkeys-c6-true"));
     xkeys.c7().onTrue(clopper.decrementBallTunnelVelocity().withName("xkeys-c7-true"));
+
+    xkeys.d6().onTrue(clopper.incrementBallsToWallVelocity().withName("xkeys-d6-true"));
+    xkeys.d7().onTrue(clopper.decrementBallsToWallVelocity().withName("xkeys-d7-true"));
 
     xkeys
         .d1()
@@ -646,8 +665,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
                 .withName("driver-y-while"))
         .onFalse(intake.setLinkageVoltage(0).withName("driver-y-false"));
-    xkeys.d9().onTrue(shooter.decrementFlywheelVelocityThreshold().withName("xkeys-d9-true"));
-    xkeys.d10().onTrue(shooter.incrementFlywheelVelocityThreshold().withName("xkeys-d10-true"));
+    xkeys.h5().onTrue(shooter.decrementFlywheelVelocityThreshold().withName("xkeys-h5-true"));
+    xkeys.h4().onTrue(shooter.incrementFlywheelVelocityThreshold().withName("xkeys-h4-true"));
 
     xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
     xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
@@ -697,9 +716,17 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     xkeys.g8().onTrue(shooter.zero().withName("xkeys-g8"));
     xkeys
-        .d4()
-        .whileTrue(clopper.feedShooterBallTunnel().alongWith(clopper.feedShooterRollerFloor()))
-        .onFalse(clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor()));
+        .f3()
+        .whileTrue(
+            clopper
+                .feedShooterBallTunnel()
+                .alongWith(clopper.feedShooterRollerFloor())
+                .withName("xkeys-f3-while"))
+        .onFalse(
+            clopper
+                .stopBallTunnel()
+                .alongWith(clopper.stopRollerFloor())
+                .withName("xkeys-f3-false"));
 
     xkeys.g10().onTrue(shooter.resetTurretZero().withName("xkeys-g10-true"));
 
