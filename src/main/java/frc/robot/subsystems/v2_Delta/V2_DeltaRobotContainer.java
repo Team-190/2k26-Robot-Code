@@ -639,6 +639,13 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-d2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
+    driver
+        .y()
+        .whileTrue(
+            intake
+                .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                .withName("driver-y-while"))
+        .onFalse(intake.setLinkageVoltage(0).withName("driver-y-false"));
     xkeys.d9().onTrue(shooter.decrementFlywheelVelocityThreshold().withName("xkeys-d9-true"));
     xkeys.d10().onTrue(shooter.incrementFlywheelVelocityThreshold().withName("xkeys-d10-true"));
 
