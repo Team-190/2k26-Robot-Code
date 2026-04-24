@@ -96,7 +96,8 @@ public class V2_DeltaShooter extends SubsystemBase {
 
     fixedShotParameters = V2_DeltaRobotState.FixedShots.HUB.getParameters();
 
-    flywheelVelocityThresholdRadPerSec = 0;
+    flywheelVelocityThresholdRadPerSec =
+        V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints.goalTolerance().get(RadiansPerSecond);
 
     flywheelTrigger =
         new Trigger(

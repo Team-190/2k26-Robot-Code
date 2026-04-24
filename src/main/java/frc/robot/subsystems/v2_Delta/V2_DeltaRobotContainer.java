@@ -132,7 +132,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFX(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_DeltaClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
           shooter =
               new V2_DeltaShooter(
                   new TurretIOTalonFX(V2_DeltaShooterConstants.TURRET_CONSTANTS),
@@ -201,7 +202,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
           clopper =
               new V2_DeltaClopper(
                   new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS));
+                  new GenericRollerIOTalonFXSim(V2_DeltaClopperConstants.BALL_TUNNEL_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(
+                      V2_DeltaClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
 
           shooter =
               new V2_DeltaShooter(
@@ -239,7 +242,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               new Intake.IntakeStateSetter());
     }
     if (clopper == null) {
-      clopper = new V2_DeltaClopper(new GenericRollerIO() {}, new GenericRollerIO() {});
+      clopper =
+          new V2_DeltaClopper(
+              new GenericRollerIO() {}, new GenericRollerIO() {}, new GenericRollerIO() {});
     }
     if (vision == null) {
       vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
@@ -634,6 +639,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-d2-while"))
         .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
+    xkeys.d9().onTrue(shooter.decrementFlywheelVelocityThreshold().withName("xkeys-d9-true"));
+    xkeys.d10().onTrue(shooter.incrementFlywheelVelocityThreshold().withName("xkeys-d10-true"));
 
     xkeys.e1().onTrue(intake.increaseSpeedOffset().withName("xkeys-e1-true"));
     xkeys.e2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-e2-true"));
@@ -732,7 +739,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         shooter.getTurretRotation(),
         shooter.isTurretWrapping(),
         drive.getMeasuredChassisSpeeds(),
-        intake.isIntakeAtStow());
+        intake.isIntakeAtStow(),
+        driver.rightBumper().getAsBoolean());
     fuelSimulator.updateSim();
   }
 

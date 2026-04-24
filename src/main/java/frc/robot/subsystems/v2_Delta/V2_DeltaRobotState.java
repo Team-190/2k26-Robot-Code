@@ -263,7 +263,8 @@ public class V2_DeltaRobotState {
       Rotation2d turretRotation,
       boolean isTurretWrapping,
       ChassisSpeeds robotVelocity,
-      boolean intakeStowed) {
+      boolean intakeStowed,
+      boolean holding) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -338,8 +339,8 @@ public class V2_DeltaRobotState {
 
     intakeAtStow = intakeStowed;
 
-    ledStates.setShooterShooting(!prohibitShot && inAllianceZone);
-    ledStates.setShooterFeeding(!prohibitShot && !inAllianceZone);
+    ledStates.setShooterShooting(!prohibitShot && inAllianceZone && !holding);
+    ledStates.setShooterFeeding(!prohibitShot && !inAllianceZone && !holding);
 
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
