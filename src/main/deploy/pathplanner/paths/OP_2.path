@@ -168,7 +168,20 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "SCORE_OR_FEED",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": 1.33,
+      "command": null
+    },
+    {
+      "name": "HOLD",
+      "waypointRelativePos": 1.34,
+      "endWaypointRelativePos": 6.0,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
