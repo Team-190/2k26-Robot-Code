@@ -244,13 +244,14 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && flywheelTrigger.getAsBoolean() && turret.atPositionGoal();
+    return hood.atPositionGoal()
+        && flywheelTrigger.getAsBoolean()
+        && (turret.atPositionGoal()
+            || staticShooterSupplier.getAsBoolean());
   }
 
   public Command waitUntilAtGoal() {
-    return hood.waitUntilAtGoal()
-        .alongWith(flywheel.waitUntilAtGoal())
-        .alongWith(turret.waitUntilAtGoal());
+    return Commands.waitUntil(this::atGoal);
   }
 
   public Command waitUntilHoodAtGoal() {

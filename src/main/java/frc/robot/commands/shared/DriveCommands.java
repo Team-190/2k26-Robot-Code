@@ -367,8 +367,8 @@ public final class DriveCommands {
         .beforeStarting(ShotCalculator::clear);
   }
 
-  public static boolean atAngle(Rotation2d targetRotation) {
-    return Math.abs(V1_DoomSpiralRobotState.getHeading().minus(targetRotation).getRadians())
+  public static boolean atAngle(Rotation2d currentRotation, Rotation2d targetRotation) {
+    return Math.abs(currentRotation.minus(targetRotation).getRadians())
         <= Units.degreesToRadians(2.0);
   }
 
