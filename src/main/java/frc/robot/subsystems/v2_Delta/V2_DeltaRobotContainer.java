@@ -333,19 +333,17 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     NamedCommands.registerCommand(
         "SCORE_AGITATE_OP_1",
-        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+        shooter
+            .setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE)
             .alongWith(
+                clopper.intake(),
                 Commands.sequence(
-                    intake.stopRollerOverride(),
-                    Commands.waitSeconds(1),
-                    clopper.intake(),
-                    Commands.sequence(
-                        Commands.waitSeconds(0.25),
-                        intake
-                            .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE / 2)
-                            .alongWith(intake.stopRollerOverride()),
-                        Commands.waitSeconds(5),
-                        intake.deploy()))));
+                    Commands.waitSeconds(0.25),
+                    intake
+                        .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE / 2)
+                        .alongWith(intake.stopRollerOverride()),
+                    Commands.waitSeconds(5),
+                    intake.deploy())));
 
     NamedCommands.registerCommand(
         "SCORE_AGITATE_OP_2",

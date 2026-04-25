@@ -192,24 +192,24 @@
       }
     },
     {
+      "name": "HOLD",
+      "waypointRelativePos": 1.34,
+      "endWaypointRelativePos": 5.7811980897009985,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD"
+        }
+      }
+    },
+    {
       "name": "DEPLOY",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 2.2286648671096336,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "DEPLOY"
-        }
-      }
-    },
-    {
-      "name": "HOLD",
-      "waypointRelativePos": 1.34,
-      "endWaypointRelativePos": 6.0,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "HOLD"
         }
       }
     },
