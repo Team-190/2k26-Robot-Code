@@ -142,9 +142,14 @@
   "eventMarkers": [
     {
       "name": "HOLD",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": 5.0,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD"
+        }
+      }
     }
   ],
   "globalConstraints": {
