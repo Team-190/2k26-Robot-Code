@@ -1,6 +1,7 @@
 package frc.robot.commands.v2_Delta.autonomous;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,41 +34,10 @@ public class V2_DeltaAutoLeftOP {
               () ->
                   V2_DeltaRobotState.resetPose(
                       AllianceFlipUtil.apply(OP_1.getStartingHolonomicPose().get()))),
-          Commands.deadline(
-              AutoBuilder.followPath(OP_1),
-              intake.deploy(),
-              intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
-              Commands.sequence(
-                  Commands.waitSeconds(1),
-                  shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE),
-                  V2_DeltaCompositeCommands.hold(clopper, shooter))),
-          intake.setOverrideRollerVoltage(0),
-          Commands.deadline(
-              AutoBuilder.followPath(OP_2),
-              Commands.sequence(
-                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(6.25),
-                  Commands.sequence(
-                      Commands.waitSeconds(0.25),
-                      intake
-                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE / 3)
-                          .alongWith(intake.stopRollerOverride()),
-                      Commands.waitSeconds(5),
-                      intake.deploy()),
-                  Commands.parallel(
-                          V2_DeltaCompositeCommands.hold(clopper, shooter),
-                          intake.deploy(),
-                          intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
-                      .withTimeout(5.75))),
-          intake.setOverrideRollerVoltage(0),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-              .alongWith(
-                  Commands.sequence(
-                      Commands.waitSeconds(1),
-                      intake
-                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                          .alongWith(intake.stopRollerOverride()),
-                      Commands.waitSeconds(1.25),
-                      intake.deploy())));
+            intake.deploy(),
+            AutoBuilder.followPath(OP_1),
+            AutoBuilder.followPath(OP_2)
+          );
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(
