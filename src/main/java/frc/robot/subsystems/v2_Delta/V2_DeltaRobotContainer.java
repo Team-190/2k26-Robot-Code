@@ -261,7 +261,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     configureButtonBindings();
     configureAutos();
     configureFuelSim();
-    LTNUpdater.registerV2(drive, intake, shooter);
+    if (Constants.TUNING_MODE) LTNUpdater.registerV2(drive, intake, shooter);
   }
 
   private void configureFuelSim() {
