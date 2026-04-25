@@ -336,6 +336,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
             .alongWith(
                 Commands.sequence(
+                    intake.stopRollerOverride(),
                     Commands.waitSeconds(1),
                     clopper.intake(),
                     Commands.sequence(
@@ -351,6 +352,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
             .alongWith(
                 Commands.sequence(
+                    intake.stopRollerOverride(),
                     Commands.waitSeconds(1),
                     intake
                         .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
@@ -363,6 +365,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     NamedCommands.registerCommand(
         "DEPLOY",
         intake.deploy().alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
+
+    NamedCommands.registerCommand("STOP_ROLLER", intake.setOverrideRollerVoltage(0));
 
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
