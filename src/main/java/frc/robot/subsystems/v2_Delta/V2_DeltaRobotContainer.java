@@ -39,11 +39,9 @@ import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoDepot;
-import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftFull;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftHalf;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOPBucks;
-import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightFull;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightHalf;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOPBucks;
@@ -385,13 +383,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     autoChooser.addOption(
         "Right OP", V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter));
     autoChooser.addOption(
-        "Left Full", V2_DeltaAutoLeftFull.getAutoRoutine(drive, intake, clopper, shooter));
-    autoChooser.addOption(
         "Right OP Bucks", V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
     autoChooser.addOption(
         "Left OP Bucks", V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
-    autoChooser.addOption(
-        "Right Full", V2_DeltaAutoRightFull.getAutoRoutine(drive, intake, clopper, shooter));
     autoChooser.addOption(
         "Left Half", V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter));
     autoChooser.addOption(
