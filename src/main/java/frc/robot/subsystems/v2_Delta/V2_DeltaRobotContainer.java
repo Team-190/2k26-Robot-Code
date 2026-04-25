@@ -324,9 +324,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private void configureAutos() {
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
-    final boolean BRING_UP = false;
 
-    if (BRING_UP) {
+    if (Constants.TUNING_MODE) {
 
       //      autoChooser.addOption("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive,
       // shooter));
