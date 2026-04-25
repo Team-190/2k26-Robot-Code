@@ -30,7 +30,7 @@ public class V2_DeltaAutoLeftOP {
               () ->
                   V2_DeltaRobotState.resetPose(
                       AllianceFlipUtil.apply(OP_1.getStartingHolonomicPose().get()))),
-          intake.deploy(),
+          intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
           AutoBuilder.followPath(OP_1),
           AutoBuilder.followPath(OP_2));
     } catch (Exception e) {
