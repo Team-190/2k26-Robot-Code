@@ -214,6 +214,17 @@
       }
     },
     {
+      "name": "STOP_ROLLER",
+      "waypointRelativePos": 5.294292803970212,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "STOP_ROLLER"
+        }
+      }
+    },
+    {
       "name": "SCORE_AGITATE_OP_2",
       "waypointRelativePos": 5.9,
       "endWaypointRelativePos": null,
