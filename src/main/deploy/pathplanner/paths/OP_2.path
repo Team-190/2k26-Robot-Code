@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.5222530120481936,
-        "y": 7.061975903614458
+        "x": 3.037246021412037,
+        "y": 6.497311993634259
       },
       "isLocked": false,
       "linkedName": null
@@ -68,12 +68,12 @@
         "y": 4.6
       },
       "prevControl": {
-        "x": 7.756397590361445,
-        "y": 6.8543493975903615
+        "x": 7.850310076678241,
+        "y": 5.469450737847223
       },
       "nextControl": {
-        "x": 7.760399494976572,
-        "y": 4.350000319192676
+        "x": 7.684689940257827,
+        "y": 3.8749603430917388
       },
       "isLocked": false,
       "linkedName": null
@@ -84,12 +84,12 @@
         "y": 4.821795180722892
       },
       "prevControl": {
-        "x": 6.775303660382711,
-        "y": 3.9009172999763715
+        "x": 6.300716054525035,
+        "y": 4.060454896994648
       },
       "nextControl": {
-        "x": 5.51621686746988,
-        "y": 6.056626506024097
+        "x": 6.1321538990162034,
+        "y": 6.088787579571759
       },
       "isLocked": false,
       "linkedName": null
@@ -100,8 +100,8 @@
         "y": 5.662
       },
       "prevControl": {
-        "x": 2.46036539444925,
-        "y": 5.590759170256542
+        "x": 2.7866881872106486,
+        "y": 5.313101888020833
       },
       "nextControl": null,
       "isLocked": false,
@@ -128,14 +128,27 @@
   ],
   "constraintZones": [
     {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 3.0,
+      "name": "SOTM",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.2174974020190024,
       "constraints": {
-        "maxVelocity": 3.0,
+        "maxVelocity": 2.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 60.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Bump",
+      "minWaypointRelativePos": 5.0,
+      "maxWaypointRelativePos": 5.5,
+      "constraints": {
+        "maxVelocity": 2.3,
         "maxAcceleration": 3.0,
-        "maxAngularVelocity": 400.0,
-        "maxAngularAcceleration": 200.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
         "unlimited": false
       }
@@ -159,7 +172,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

@@ -95,18 +95,18 @@ public class V2_DeltaShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(4))
           .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", .65))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 0.5))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0.0))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", 0.2651))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.13047))
-                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/VoltageKa", 0.0046038))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", .23467))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", .12959))
+                  .withKA(new LoggedTunableNumber("Shooter/Flywheel/VoltageKa", 0.0084495))
                   .build())
           .withTorqueGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 6.1402131239))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/TorqueKp", 15))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/TorqueKd", 0))
-                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 3.3))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", .01))
+                  .withKS(new LoggedTunableNumber("Shooter/Flywheel/TorqueKs", 3.6))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/TorqueKv", 0.003))
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/TorqueKa", 0))
                   .build())
           .withConstraints(
@@ -176,8 +176,8 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(26)
           .withEncoder2ID(27)
-          .withMaxAngle(Rotation2d.fromDegrees(-48))
-          .withMinAngle(Rotation2d.fromDegrees(-650))
+          .withMaxAngle(Rotation2d.fromDegrees(0))
+          .withMinAngle(Rotation2d.fromDegrees(-720))
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
@@ -230,6 +230,7 @@ public class V2_DeltaShooterConstants {
     OVERRIDE_HOOD,
     OVERRIDE_FLYWHEEL,
     SYSID,
+    ZERO,
     IDLE
   }
 

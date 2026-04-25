@@ -1,18 +1,13 @@
 package frc.robot.commands.v2_Delta.autonomous;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
-import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
@@ -25,29 +20,6 @@ public class V2_DeltaAutoRightHalf {
     PathPlannerPath RIGHT_HALF_1;
     PathPlannerPath RIGHT_HALF_2;
     try {
-      AutoBuilder.configure(
-          V2_DeltaRobotState::getGlobalPose,
-          V2_DeltaRobotState::resetPose,
-          drive::getMeasuredChassisSpeeds,
-          drive::runVelocity,
-          new PPHolonomicDriveController(
-              new PIDConstants(
-                  V2_DeltaConstants.DRIVE_CONSTANTS.autoTranslationGains.kP().getAsDouble(),
-                  V2_DeltaConstants.DRIVE_CONSTANTS.autoTranslationGains.kI().getAsDouble(),
-                  V2_DeltaConstants.DRIVE_CONSTANTS.autoTranslationGains.kD().getAsDouble()),
-              new PIDConstants(
-                  V2_DeltaConstants.DRIVE_CONSTANTS.autoRotationGains.kP().getAsDouble(),
-                  V2_DeltaConstants.DRIVE_CONSTANTS.autoRotationGains.kI().getAsDouble(),
-                  V2_DeltaConstants.DRIVE_CONSTANTS.autoRotationGains.kD().getAsDouble())),
-          RobotConfig.fromGUISettings(),
-          () -> {
-            var alliance = DriverStation.getAlliance();
-            if (alliance.isPresent()) {
-              return alliance.get() == DriverStation.Alliance.Red;
-            }
-            return false;
-          },
-          drive);
       RIGHT_HALF_1 = PathPlannerPath.fromPathFile("RIGHT_HALF_SWEEP_1_FLIP").mirrorPath();
       RIGHT_HALF_2 = PathPlannerPath.fromPathFile("RIGHT_HALF_SWEEP_2");
       return Commands.parallel(
@@ -64,8 +36,11 @@ public class V2_DeltaAutoRightHalf {
               drive.runOnce(drive::stop)),
           Commands.sequence(
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              intake.stopRoller(),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5),
+              intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
+              intake.stopRoller(),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();

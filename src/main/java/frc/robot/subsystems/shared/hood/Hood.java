@@ -43,7 +43,13 @@ public class Hood {
    * @param subsystem the parent subsystem
    * @param name the name of the hood (for logging purposes)
    */
-  public Hood(HoodIO io, HoodConstants constants, Subsystem subsystem, String name) {
+  public Hood(
+      HoodIO io,
+      HoodConstants constants,
+      Subsystem subsystem,
+      String name,
+      Setpoint<AngleUnit> positionGoal,
+      Setpoint<VoltageUnit> voltageGoal) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
@@ -60,15 +66,38 @@ public class Hood {
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltage, null, subsystem));
 
-    positionGoal =
+    this.positionGoal = positionGoal;
+    this.voltageGoal = voltageGoal;
+
+    this.constants = constants;
+  }
+
+  public Hood(
+      HoodIO io,
+      HoodConstants constants,
+      Subsystem subsystem,
+      String name,
+      Setpoint<AngleUnit> positionGoal) {
+    this(
+        io,
+        constants,
+        subsystem,
+        name,
+        positionGoal,
+        new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12)));
+  }
+
+  public Hood(HoodIO io, HoodConstants constants, Subsystem subsystem, String name) {
+    this(
+        io,
+        constants,
+        subsystem,
+        name,
         new Setpoint<>(
             Radians.zero(),
             constants.offsetStep,
             constants.minAngle.getMeasure(),
-            constants.maxAngle.getMeasure());
-    voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
-
-    this.constants = constants;
+            constants.maxAngle.getMeasure()));
   }
 
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */

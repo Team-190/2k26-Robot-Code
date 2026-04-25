@@ -1,4 +1,4 @@
-package frc.robot.subsystems.v2_Delta.shooter;
+package frc.robot.util;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;

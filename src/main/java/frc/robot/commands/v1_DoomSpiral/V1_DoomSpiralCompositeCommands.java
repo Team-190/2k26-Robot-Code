@@ -46,6 +46,7 @@ public class V1_DoomSpiralCompositeCommands {
             () ->
                 shooter.atGoal()
                     && DriveCommands.atAngle(
+                        V1_DoomSpiralRobotState.getHeading(),
                         V1_DoomSpiralRobotState.getShootingParameters().chassisAngle())));
   }
 

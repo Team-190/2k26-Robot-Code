@@ -26,6 +26,7 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
+import frc.robot.commands.shared.DriveCommands;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
@@ -78,6 +79,10 @@ public class V2_DeltaRobotState {
   @Getter private static boolean prohibitShot;
   @Getter private static boolean shouldHoodTuck;
   @Getter private static boolean inAllianceZone;
+  @Getter private static boolean intakeAtStow;
+
+  private static final AngularVelocity
+      UMAMI; // Colleen made me put this in, it represents a 15 radian/second offset for all shots
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -185,6 +190,10 @@ public class V2_DeltaRobotState {
     shootSpeedTree.put(Meters.of(4.894654), RotationsPerSecond.of(35.5));
     shootSpeedTree.put(Meters.of(5.336559), RotationsPerSecond.of(37));
 
+    shootTimeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
+    shootTimeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
+    shootTimeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
+
     feedAngleTree.put(Meters.of(2.834202), Rotation2d.fromDegrees(21.621094));
     feedSpeedTree.put(Meters.of(2.834202), RadiansPerSecond.of(109.297199));
     feedTimeOfFlightTree.put(Meters.of(2.834202), Seconds.of(.9));
@@ -209,30 +218,6 @@ public class V2_DeltaRobotState {
     feedSpeedTree.put(Meters.of(7.82451), RadiansPerSecond.of(252.807586));
     feedTimeOfFlightTree.put(Meters.of(7.82451), Seconds.of(1.5));
 
-    // feedHoodAngleTree.put(Meters.of(1.78), Rotation2d.fromDegrees(7.0));
-    // feedHoodAngleTree.put(Meters.of(2.17), Rotation2d.fromDegrees(7.0));
-    // feedHoodAngleTree.put(Meters.of(2.81), Rotation2d.fromDegrees(9.0));
-    // feedHoodAngleTree.put(Meters.of(3.82), Rotation2d.fromDegrees(10.0));
-    // feedHoodAngleTree.put(Meters.of(4.09), Rotation2d.fromDegrees(13.0));
-    // feedHoodAngleTree.put(Meters.of(4.40), Rotation2d.fromDegrees(14.0));
-    // feedHoodAngleTree.put(Meters.of(4.77), Rotation2d.fromDegrees(16.0));
-    // feedHoodAngleTree.put(Meters.of(5.57), Rotation2d.fromDegrees(17.0));
-    // feedHoodAngleTree.put(Meters.of(5.60), Rotation2d.fromDegrees(20.0));
-
-    // feedFlywheelSpeedTree.put(Meters.of(1.78), RadiansPerSecond.of(220.0));
-    // feedFlywheelSpeedTree.put(Meters.of(2.17), RadiansPerSecond.of(220.0));
-    // feedFlywheelSpeedTree.put(Meters.of(2.81), RadiansPerSecond.of(230.0));
-    // feedFlywheelSpeedTree.put(Meters.of(3.82), RadiansPerSecond.of(250.0));
-    // feedFlywheelSpeedTree.put(Meters.of(4.09), RadiansPerSecond.of(255.0));
-    // feedFlywheelSpeedTree.put(Meters.of(4.40), RadiansPerSecond.of(260.0));
-    // feedFlywheelSpeedTree.put(Meters.of(4.77), RadiansPerSecond.of(265.0));
-    // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
-    // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
-
-    shootTimeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
-    shootTimeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
-    shootTimeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
-
     lookaheadPose = new Pose2d();
     hoodAngle = new Rotation2d();
     flywheelVelocity = RadiansPerSecond.of(0.0);
@@ -243,8 +228,11 @@ public class V2_DeltaRobotState {
     shouldHoodTuck = false;
     prohibitShot = false;
     inAllianceZone = false;
+    intakeAtStow = false;
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
+
+    UMAMI = RadiansPerSecond.of(15.0);
   }
 
   @Trace
@@ -254,7 +242,9 @@ public class V2_DeltaRobotState {
       SwerveModulePosition[] modulePositions,
       Rotation2d turretRotation,
       boolean isTurretWrapping,
-      ChassisSpeeds robotVelocity) {
+      ChassisSpeeds robotVelocity,
+      boolean intakeStowed,
+      boolean holding) {
     V2_DeltaRobotState.robotYawVelocity = robotYawVelocity;
 
     localization.addOdometryObservation(Timer.getTimestamp(), robotHeading, modulePositions);
@@ -292,10 +282,12 @@ public class V2_DeltaRobotState {
 
     inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
 
+    Translation2d targetPose = inAllianceZone ? hubTranslation : feedTranslation;
+
     V2_DeltaShotCalculator.ShotParameters shotParameters =
         V2_DeltaShotCalculator.getShotParameters(
             inAllianceZone ? hubPose : getGlobalPose(),
-            inAllianceZone ? hubTranslation : feedTranslation,
+            targetPose,
             new Transform2d(
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getX(),
                 V2_DeltaShooterConstants.TURRET_CONSTANTS.robotToTurretTransform.getY(),
@@ -307,7 +299,7 @@ public class V2_DeltaRobotState {
             d -> inAllianceZone ? shootSpeedTree.get(d) : feedSpeedTree.get(d));
 
     hoodAngle = shotParameters.hoodAngle();
-    flywheelVelocity = shotParameters.flywheelSpeed();
+    flywheelVelocity = shotParameters.flywheelSpeed().plus(UMAMI);
     turretVelocity = shotParameters.turretVelocity();
 
     lookaheadPose = shotParameters.adjustedRobotPose();
@@ -325,8 +317,16 @@ public class V2_DeltaRobotState {
             || GeometryUtil.contains(FieldConstants.Zones.PROHIBIT_LAUNCH_ZONES, getGlobalPose())
             || !shotParameters.isValid();
 
+    intakeAtStow = intakeStowed;
+
+    ledStates.setShooterShooting(!prohibitShot && inAllianceZone && !holding);
+    ledStates.setShooterFeeding(!prohibitShot && !inAllianceZone && !holding);
+
     Logger.recordOutput(
         NTPrefixes.ROBOT_STATE + "Feed Translation", new Pose2d(feedTranslation, Rotation2d.kZero));
+
+    Logger.recordOutput(
+        NTPrefixes.POSE_DATA + "Aiming Location", new Pose2d(targetPose, Rotation2d.kZero));
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Feed", distanceToFeedTranslation);
@@ -373,6 +373,8 @@ public class V2_DeltaRobotState {
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "In Alliance Zone", inAllianceZone);
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Prohibit Shot", prohibitShot);
     Logger.recordOutput(NTPrefixes.SHOOTING_DATA + "Should Hood Tuck", shouldHoodTuck);
+
+    Logger.recordOutput("Elastic/Drive/Slow Factor", DriveCommands.getSlowFactor());
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
@@ -509,6 +511,11 @@ public class V2_DeltaRobotState {
   @Data
   @AllArgsConstructor
   public static class LEDStates {
-    boolean IntakeCollecting, IntakeIn, ShooterPrepping, ShooterShooting, Spitting, AutoClimbing;
+    boolean IntakeCollecting,
+        IntakeIn,
+        ShooterFeeding,
+        ShooterShooting,
+        IntakeSlowRolling,
+        AutoClimbing;
   }
 }

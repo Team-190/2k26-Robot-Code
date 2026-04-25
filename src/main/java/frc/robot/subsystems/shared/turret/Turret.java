@@ -33,9 +33,9 @@ public class Turret {
   private final String aKitTopic;
   private final TurretIOInputsAutoLogged inputs;
 
-  private final Setpoint<VoltageUnit> voltageGoal;
-  private final Setpoint<AngleUnit> positionGoal;
-  private final Setpoint<AngularVelocityUnit> angularVelocityGoal;
+  @Getter private final Setpoint<VoltageUnit> voltageGoal;
+  @Getter private final Setpoint<AngleUnit> positionGoal;
+  @Getter private final Setpoint<AngularVelocityUnit> angularVelocityGoal;
 
   private Translation2d translationGoal;
 
@@ -107,7 +107,7 @@ public class Turret {
                       / (double) constants.turretAngleCalculation.gear0ToothCount()));
     }
 
-    //    io.setPosition(startingAngle);
+    // io.setPosition(startingAngle);
     io.setPosition(new Rotation2d());
 
     feedforwardController =
@@ -134,14 +134,15 @@ public class Turret {
     if (outOfRange()
         && state != TurretState.UNWRAPPING
         && state != TurretState.IDLE
-        && state != TurretState.OPEN_LOOP_VOLTAGE_CONTROL) {
+        && state != TurretState.OPEN_LOOP_VOLTAGE_CONTROL
+        && state != TurretState.ZERO) {
       previousState = state;
       state = TurretState.UNWRAPPING;
     }
 
     isWrapping = state == TurretState.UNWRAPPING;
-
     switch (state) {
+      case ZERO -> io.setPositionGoal(Rotation2d.kZero, 0.0);
       case UNWRAPPING -> {
         double midPointAbsoluteRad =
             (constants.maxAngle.getRadians() + constants.minAngle.getRadians()) / 2.0;
@@ -162,7 +163,7 @@ public class Turret {
       }
       case CLOSED_LOOP_POSITION_CONTROL ->
           io.setPositionGoal(
-              findClosest(new Rotation2d((Angle) positionGoal.getNewSetpoint()), inputs.angle),
+              new Rotation2d((Angle) positionGoal.getNewSetpoint()),
               (AngularVelocity) angularVelocityGoal.getNewSetpoint(),
               0.0);
       case OPEN_LOOP_VOLTAGE_CONTROL -> io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());
@@ -254,6 +255,10 @@ public class Turret {
     }
   }
 
+  public void zero() {
+    state = TurretState.ZERO;
+  }
+
   public void setPosition(Rotation2d position) {
     io.setPosition(position);
   }
@@ -327,7 +332,8 @@ public class Turret {
   public static Rotation2d calculateTurretAngle(
       Angle e1, Angle e2, TurretConstants.TurretAngleCalculation gearRatios) {
 
-    // Get encoder positions in rotations (0 to 1), using full floating point precision
+    // Get encoder positions in rotations (0 to 1), using full floating point
+    // precision
     double e1Rotations = e1.in(Rotations) % 1.0;
     if (e1Rotations < 0) {
       e1Rotations += 1.0;

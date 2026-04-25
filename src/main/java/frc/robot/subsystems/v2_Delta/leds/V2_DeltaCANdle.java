@@ -15,8 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
-import frc.robot.Robot;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
 import org.littletonrobotics.junction.Logger;
@@ -40,7 +39,7 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
         (leds, section) ->
             leds.setControl(
                 new SolidColor(section.getStart(), section.getEnd())
-                    .withColor(new RGBWColor(Color.kRed)))),
+                    .withColor(new RGBWColor(Color.kWhite)))),
     LOW_BATTERY(
         (leds, section) ->
             leds.setControl(
@@ -48,88 +47,35 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
                     .withColor(new RGBWColor(Color.kOrange))
                     .withSlot(section.getSlot())
                     .withFrameRate(120))),
-    INTAKE_IN(
-        (leds, section) ->
-            leds.setControl(
-                new SolidColor(section.getStart(), section.getEnd())
-                    .withColor(new RGBWColor(Color.kDarkOrange)))),
     INTAKE_COLLECTING(
         (leds, section) -> {
           leds.setControl(
-              new ColorFlowAnimation(
-                      section.getEnd(),
-                      (section.getStart() + (section.getEnd() - section.getStart()) / 2) + 1)
-                  .withSlot(section.getSlot())
-                  .withColor(new RGBWColor(Color.kAqua))
-                  .withDirection(AnimationDirectionValue.Forward)
-                  .withFrameRate(70));
-
-          leds.setControl(
-              new ColorFlowAnimation(
-                      section.getStart() + (section.getEnd() - section.getStart()) / 2,
-                      section.getStart() + 1)
-                  .withSlot(section.getSlot() + 1)
-                  .withColor(new RGBWColor(Color.kAqua))
-                  .withDirection(AnimationDirectionValue.Backward)
-                  .withFrameRate(70));
+              new SolidColor(section.getStart(), section.getEnd())
+                  .withColor(new RGBWColor(Color.kAqua)));
         }),
-
-    PREPPING(
-        (leds, section) ->
-            leds.setControl(
-                new StrobeAnimation(section.getStart(), section.getEnd())
-                    .withSlot(section.getSlot())
-                    .withColor(new RGBWColor(Color.kGreen))
-                    .withFrameRate(70))),
     SHOOTING(
         (leds, section) ->
             leds.setControl(
-                new FireAnimation(125, section.getStart())
-                    .withSlot(section.getSlot())
-                    .withSparking(0.586)
-                    .withCooling(0.226)
-                    .withFrameRate(130))),
-    SPITTING(
+                new SolidColor(section.getStart(), section.getEnd())
+                    .withColor(new RGBWColor(Color.kGreen)))),
+    FEEDING(
+        (leds, section) ->
+            leds.setControl(
+                new SolidColor(section.getStart(), section.getEnd())
+                    .withColor(new RGBWColor(Color.kYellow)))),
+    INTAKE_SLOWER(
         (leds, section) -> {
           leds.setControl(
-              new ColorFlowAnimation(
-                      section.getEnd(),
-                      (section.getStart() + (section.getEnd() - section.getStart()) / 2) + 1)
-                  .withSlot(section.getSlot())
-                  .withColor(new RGBWColor(Color.kPurple))
-                  .withDirection(AnimationDirectionValue.Backward)
-                  .withFrameRate(70));
-
-          leds.setControl(
-              new ColorFlowAnimation(
-                      section.getStart() + (section.getEnd() - section.getStart()) / 2,
-                      section.getStart() + 1)
-                  .withSlot(section.getSlot() + 1)
-                  .withColor(new RGBWColor(Color.kPurple))
-                  .withDirection(AnimationDirectionValue.Forward)
-                  .withFrameRate(70));
+              new SolidColor(section.getStart(), section.getEnd())
+                  .withColor(new RGBWColor(Color.kPurple)));
         }),
-    AUTO_CLIMB(
-        (leds, section) ->
-            leds.setControl(
-                new RainbowAnimation(section.getStart(), section.getEnd())
-                    .withSlot(section.getSlot())
-                    .withFrameRate(150)
-                    .withDirection(AnimationDirectionValue.Forward))),
-    JITTING(
-        (leds, section) ->
-            leds.setControl(
-                new SingleFadeAnimation(section.getStart(), section.getEnd())
-                    .withColor(new RGBWColor(204, 255, 0))
-                    .withSlot(section.getSlot())
-                    .withFrameRate(30))),
     DEFAULT(
         (leds, section) ->
             leds.setControl(
                 new SingleFadeAnimation(section.getStart(), section.getEnd())
-                    .withColor(new RGBWColor(Color.kGreen))
+                    .withColor(new RGBWColor(Color.kRed))
                     .withSlot(section.getSlot())
-                    .withFrameRate(30)));
+                    .withFrameRate(2)));
 
     public final BiConsumer<CANdle, Section> animationSetter;
   }
@@ -188,9 +134,9 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
       leds.setControl(
           new SingleFadeAnimation(0, V2_DeltaCANdleConstants.LED_COUNT)
               .withSlot(1)
-              .withColor(new RGBWColor(Color.kRed)));
+              .withColor(new RGBWColor(Color.kWhite)));
     }
-    lightType = AnimationType.JITTING;
+    lightType = AnimationType.DEFAULT;
   }
 
   private void clearSlots(int startSlot, int endSlot) {
@@ -227,6 +173,9 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
       leds.setControl(candleAnimation);
       primaryAnimationType.animationSetter.accept(leds, Section.MAIN);
       lightType = primaryAnimationType;
+      leds.setControl(
+          new RainbowAnimation(Section.STATUS.getStart(), Section.STATUS.getEnd())
+              .withFrameRate(80));
     }
   }
 
@@ -237,38 +186,23 @@ public class V2_DeltaCANdle extends VirtualSubsystem {
         return AnimationType.LOW_BATTERY;
       }
 
-      if (Robot.isJitting()) {
-        return AnimationType.JITTING;
-      }
-
       return AnimationType.DEFAULT;
     }
-    if (DriverStation.isAutonomous() && V1_DoomSpiralRobotState.getLedStates().isAutoClimbing()) {
-      return AnimationType.AUTO_CLIMB;
-    }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isShooterShooting()) {
-      return AnimationType.SHOOTING;
-    }
-
-    if (V1_DoomSpiralRobotState.getLedStates().isShooterPrepping()) {
-      return AnimationType.PREPPING;
-    }
-
-    if (V1_DoomSpiralRobotState.getLedStates().isIntakeCollecting()) {
+    if (V2_DeltaRobotState.getLedStates().isIntakeCollecting()) {
       return AnimationType.INTAKE_COLLECTING;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isSpitting()) {
-      return AnimationType.SPITTING;
+    if (V2_DeltaRobotState.getLedStates().isShooterShooting()) {
+      return AnimationType.SHOOTING;
     }
 
-    if (V1_DoomSpiralRobotState.getLedStates().isIntakeIn()) {
-      return AnimationType.INTAKE_IN;
+    if (V2_DeltaRobotState.getLedStates().isShooterFeeding()) {
+      return AnimationType.FEEDING;
     }
 
-    if (Robot.isJitting()) {
-      return AnimationType.JITTING;
+    if (V2_DeltaRobotState.getLedStates().isIntakeSlowRolling()) {
+      return AnimationType.INTAKE_SLOWER;
     }
 
     return AnimationType.DEFAULT;
