@@ -46,6 +46,13 @@ public class V2_DeltaAutoLeftOP {
               AutoBuilder.followPath(OP_2),
               Commands.sequence(
                   V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(6.25),
+                  Commands.sequence(
+                      Commands.waitSeconds(0.25),
+                      intake
+                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE / 3)
+                          .alongWith(intake.stopRollerOverride()),
+                      Commands.waitSeconds(5),
+                      intake.deploy()),
                   Commands.parallel(
                           V2_DeltaCompositeCommands.hold(clopper, shooter),
                           intake.deploy(),
