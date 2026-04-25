@@ -3,6 +3,8 @@ package frc.robot.subsystems.v2_Delta;
 import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathfindingCommand;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -324,6 +326,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private void configureAutos() {
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
+    CommandScheduler.getInstance()
+        .schedule(PathfindingCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
     final boolean BRING_UP = false;
 
     if (BRING_UP) {
