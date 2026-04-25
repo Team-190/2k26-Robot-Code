@@ -1,5 +1,7 @@
 package frc.robot.commands.v2_Delta;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
@@ -55,7 +57,12 @@ public class V2_DeltaCompositeCommands {
   public static Command runHopperWhenReady(V2_DeltaShooter shooter, V2_DeltaClopper clopper) {
     return new ContinuousConditionalCommand(
         clopper.feedShooterRollerFloor().alongWith(clopper.feedShooterBallTunnel(), clopper.idle()),
-        clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor(), clopper.idle()),
+        new ContinuousConditionalCommand(
+            clopper
+                .setOverrideBallsToWallVoltage(Volts.of(-5))
+                .alongWith(clopper.stopBallTunnel(), clopper.stopRollerFloor()),
+            clopper.stopBallTunnel().alongWith(clopper.stopRollerFloor(), clopper.idle()),
+            () -> !V2_DeltaRobotState.isProhibitShot() && !shooter.atGoal()),
         () -> !V2_DeltaRobotState.isProhibitShot() && shooter.atGoal());
   }
 

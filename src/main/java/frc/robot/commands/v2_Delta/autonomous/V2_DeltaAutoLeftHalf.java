@@ -23,7 +23,7 @@ public class V2_DeltaAutoLeftHalf {
       PathPlannerPath HALF = PathPlannerPath.fromPathFile("LEFT_HALF_SWEEP");
       RobotModeTriggers.autonomous()
           .negate()
-          .onTrue(intake.stopRoller().alongWith(intake.deploy()).ignoringDisable(true));
+          .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
       return Commands.parallel(
           Commands.sequence(
               Commands.runOnce(
@@ -39,7 +39,7 @@ public class V2_DeltaAutoLeftHalf {
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.5),
               V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(1.5),
-              intake.stopRoller(),
+              intake.stopRollerOverride(),
               V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
     } catch (Exception e) {
       e.printStackTrace();

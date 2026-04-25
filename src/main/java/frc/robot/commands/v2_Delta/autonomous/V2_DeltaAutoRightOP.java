@@ -25,7 +25,7 @@ public class V2_DeltaAutoRightOP {
 
       RobotModeTriggers.autonomous()
           .negate()
-          .onTrue(intake.stopRoller().alongWith(intake.deploy()).ignoringDisable(true));
+          .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
       return Commands.sequence(
           Commands.runOnce(

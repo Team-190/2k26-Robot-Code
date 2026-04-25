@@ -116,7 +116,7 @@ public class Intake extends SubsystemBase {
             roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
           } else {
             roller.setVoltageGoal(overrideVoltageSetpoint);
-            roller.setVoltageGoal(Volts.of(8));
+            roller.setVoltageGoal(Volts.of(5));
           }
           break;
         case AGITATE:
@@ -191,7 +191,7 @@ public class Intake extends SubsystemBase {
     return Commands.runOnce(() -> linkage.setVoltageGoal(Volts.of(voltage)));
   }
 
-  public Command stopRoller() {
+  public Command stopRollerOverride() {
     return Commands.runOnce(
         () -> {
           overrideRoller = false;
@@ -343,7 +343,7 @@ public class Intake extends SubsystemBase {
   public Command defaultCommand() {
     Command defaultCommand =
         Commands.either(
-            Commands.either(stopRoller(), Commands.none(), this::atGoal),
+            Commands.either(stopRollerOverride(), Commands.none(), this::atGoal),
             Commands.none(),
             () -> (intakeState.equals(IntakeState.STOW)));
     defaultCommand.addRequirements(this);

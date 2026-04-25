@@ -201,7 +201,7 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(50)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
+                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(5)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()

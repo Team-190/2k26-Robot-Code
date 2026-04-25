@@ -44,7 +44,7 @@ public class V1_DoomSpiralAutoClimb {
             Commands.sequence(
                 Commands.parallel(
                         CLIMB.resetOdometry(),
-                        intake.stopRoller(),
+                        intake.stopRollerOverride(),
                         shooter.setGoal(
                             V1_DoomSpiralShooterConstants.HoodGoal.SCORE,
                             () ->

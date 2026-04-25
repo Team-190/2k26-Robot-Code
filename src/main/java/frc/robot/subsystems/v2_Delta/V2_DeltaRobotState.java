@@ -378,7 +378,7 @@ public class V2_DeltaRobotState {
   }
 
   public static void addLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {
-    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(20.0))
+    if (Math.abs(robotYawVelocity) <= Units.degreesToRadians(10.0))
       localization.addPoseObservations(observations);
   }
 

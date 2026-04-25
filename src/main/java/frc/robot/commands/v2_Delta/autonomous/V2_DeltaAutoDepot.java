@@ -24,7 +24,7 @@ public class V2_DeltaAutoDepot {
       DEPOT = PathPlannerPath.fromPathFile("DEPOT");
       RobotModeTriggers.autonomous()
           .negate()
-          .onTrue(intake.stopRoller().alongWith(intake.deploy()).ignoringDisable(true));
+          .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
       return Commands.sequence(
           Commands.runOnce(

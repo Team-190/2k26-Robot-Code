@@ -32,6 +32,7 @@ import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoa
 import frc.robot.util.AllianceFlipUtil;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaShooter extends SubsystemBase {
@@ -41,8 +42,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   private final Hood hood;
 
   private final GenericFlywheel flywheel;
-
-  private ShooterGoal shooterGoal;
+  @Getter private ShooterGoal shooterGoal;
   private V2_DeltaRobotState.FixedShotParameters fixedShotParameters;
   private Voltage overrideTurretVoltage;
   private Voltage overrideHoodVoltage;
@@ -129,6 +129,11 @@ public class V2_DeltaShooter extends SubsystemBase {
           hood.setPositionGoal(hoodStowSetpoint);
           hood.setPositionGoal(Rotation2d.kZero);
           flywheel.stop();
+          turret.setFieldRelativeGoal(
+              V2_DeltaRobotState.isInAllianceZone()
+                  ? AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+                  : V2_DeltaRobotState.getFeedTranslation(),
+              V2_DeltaRobotState.getTurretVelocity());
           break;
         case SCORE:
           hood.setPositionGoal(hoodSetpoint);

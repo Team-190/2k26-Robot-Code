@@ -26,31 +26,41 @@ public class V2_DeltaAutoLeftOP {
 
       RobotModeTriggers.autonomous()
           .negate()
-          .onTrue(intake.stopRoller().alongWith(intake.deploy()).ignoringDisable(true));
+          .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
       return Commands.sequence(
           Commands.runOnce(
               () ->
                   V2_DeltaRobotState.resetPose(
                       AllianceFlipUtil.apply(OP_1.getStartingHolonomicPose().get()))),
-          shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE),
           Commands.deadline(
               AutoBuilder.followPath(OP_1),
               intake.deploy(),
               intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
-              V2_DeltaCompositeCommands.hold(clopper, shooter)),
+              Commands.sequence(
+                  Commands.waitSeconds(1),
+                  shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE),
+                  V2_DeltaCompositeCommands.hold(clopper, shooter))),
           intake.setOverrideRollerVoltage(0),
           Commands.deadline(
               AutoBuilder.followPath(OP_2),
               Commands.sequence(
-                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(4.5),
+                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(6.25),
                   Commands.parallel(
                           V2_DeltaCompositeCommands.hold(clopper, shooter),
                           intake.deploy(),
                           intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
-                      .withTimeout(5.5))),
+                      .withTimeout(5.75))),
           intake.setOverrideRollerVoltage(0),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+              .alongWith(
+                  Commands.sequence(
+                      Commands.waitSeconds(1),
+                      intake
+                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                          .alongWith(intake.stopRollerOverride()),
+                      Commands.waitSeconds(1.25),
+                      intake.deploy())));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(

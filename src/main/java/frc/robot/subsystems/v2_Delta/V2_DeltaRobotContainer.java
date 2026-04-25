@@ -563,7 +563,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                 .withName("xkeys-f1-while"))
         .onFalse(intake.setLinkageVoltage(0).withName("xkeys-f1-false"));
 
-    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
+    xkeys
+        .b1()
+        .onTrue(intake.stopRollerOverride().alongWith(intake.stow()).withName("xkeys-b1-true"));
     xkeys.b2().onTrue(intake.decrementStowOffset().withName("xkeys-b2-true"));
     xkeys.b3().onTrue(intake.incrementStowOffset().withName("xkeys-b3-true"));
 
@@ -622,7 +624,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
                     V2_DeltaRobotState.getGlobalPose()::getTranslation)
                 .withName("xkeys-b10-true"));
 
-    xkeys.c1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-c1-true"));
+    xkeys
+        .c1()
+        .onTrue(intake.deploy().alongWith(intake.stopRollerOverride()).withName("xkeys-c1-true"));
     xkeys.c2().onTrue(intake.decrementCollectOffset().withName("xkeys-c2-true"));
     xkeys.c3().onTrue(intake.incrementCollectOffset().withName("xkeys-c3-true"));
 
@@ -641,7 +645,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             intake
                 .setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-d1-while"))
-        .onFalse(intake.stopRoller().withName("xkeys-d1-false"));
+        .onFalse(intake.stopRollerOverride().withName("xkeys-d1-false"));
 
     xkeys
         .d2()
@@ -650,7 +654,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             intake
                 .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-d2-while"))
-        .onFalse(intake.stopRoller().withName("xkeys-d2-false"));
+        .onFalse(intake.stopRollerOverride().withName("xkeys-d2-false"));
     driver
         .y()
         .whileTrue(

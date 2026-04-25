@@ -119,10 +119,9 @@ public class V2_DeltaClopper extends SubsystemBase {
         new Trigger(
                 () ->
                     rollerFloor.getTorqueCurrent().length > 0
-                        && rollerFloor.getTorqueCurrent()[0] >= 65
+                        && rollerFloor.getTorqueCurrent()[0] >= 25
                         && rollerFloor.getVoltageGoal().getSetpoint().in(Volts) > 0)
-            .debounce(0.25)
-            .debounce(5, Debouncer.DebounceType.kFalling);
+            .debounce(0.125);
   }
 
   @Override
@@ -168,7 +167,7 @@ public class V2_DeltaClopper extends SubsystemBase {
     return new ContinuousConditionalCommand(
         Commands.sequence(
                 setRollerFloorVoltage(Volts.of(-12)),
-                Commands.waitSeconds(.5),
+                Commands.waitSeconds(.125),
                 setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE))
             .alongWith(Commands.idle()),
         setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE)

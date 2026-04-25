@@ -74,7 +74,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         .onTrue(
             Commands.parallel(
                     V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                    intake.stopRoller(),
+                    intake.stopRollerOverride(),
                     intake.deploy())
                 .ignoringDisable(true));
 

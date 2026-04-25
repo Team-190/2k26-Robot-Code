@@ -33,7 +33,7 @@ public class V1_DoomSpiralCompositeCommands {
   public static Command scoreCommand(
       V1_DoomSpiralShooter shooter, Intake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
-        intake.stopRoller(),
+        intake.stopRollerOverride(),
         shooter.setGoal(
             HoodGoal.SCORE,
             () ->
@@ -63,7 +63,7 @@ public class V1_DoomSpiralCompositeCommands {
       Intake intake,
       FixedShotParameters shotParameters) {
     return Commands.sequence(
-        intake.stopRoller(),
+        intake.stopRollerOverride(),
         Commands.parallel(
                 DriveCommands.rotateToAngle(
                     drive,
