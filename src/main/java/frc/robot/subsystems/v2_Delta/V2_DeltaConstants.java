@@ -200,7 +200,7 @@ public class V2_DeltaConstants {
           .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
           .robotToCameraTransform(
               new Transform3d(
-                  -0.275571,
+                  -0.275571 + Units.inchesToMeters(2.3125),
                   0.305,
                   0.443327,
                   Rotation3d.kZero
