@@ -187,7 +187,7 @@
       "command": {
         "type": "named",
         "data": {
-          "name": "SCORE_OR_FEED"
+          "name": "SCORE_NO_ROLLER"
         }
       }
     },
