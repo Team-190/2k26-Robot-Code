@@ -149,7 +149,6 @@ public class V2_DeltaShooter extends SubsystemBase {
           hood.setPositionGoal(V2_DeltaRobotState.getHoodAngle());
           flywheel.setVelocityGoal(V2_DeltaRobotState.getFlywheelVelocity());
           break;
-
         case OVERRIDE_TURRET:
           turret.setVoltageGoal(overrideTurretVoltage);
           break;

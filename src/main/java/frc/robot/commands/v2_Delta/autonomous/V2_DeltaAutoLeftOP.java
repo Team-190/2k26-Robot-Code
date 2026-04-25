@@ -43,7 +43,7 @@ public class V2_DeltaAutoLeftOP {
           Commands.deadline(
               AutoBuilder.followPath(OP_2),
               Commands.sequence(
-                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(4.9),
+                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(4.5),
                   Commands.parallel(
                           V2_DeltaCompositeCommands.hold(clopper, shooter),
                           intake.deploy(),
