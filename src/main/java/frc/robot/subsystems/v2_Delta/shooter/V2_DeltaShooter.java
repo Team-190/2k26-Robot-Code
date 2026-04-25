@@ -246,8 +246,7 @@ public class V2_DeltaShooter extends SubsystemBase {
   public boolean atGoal() {
     return hood.atPositionGoal()
         && flywheelTrigger.getAsBoolean()
-        && (turret.atPositionGoal()
-            || staticShooterSupplier.getAsBoolean());
+        && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
   }
 
   public Command waitUntilAtGoal() {
