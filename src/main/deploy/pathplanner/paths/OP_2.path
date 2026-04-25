@@ -170,18 +170,18 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SCORE_AGITATE",
+      "name": "SCORE_AGITATE_OP_1",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 0.35,
       "command": {
         "type": "named",
         "data": {
-          "name": "SCORE_AGITATE"
+          "name": "SCORE_AGITATE_OP_1"
         }
       }
     },
     {
-      "name": "SCORE_OR_FEED",
+      "name": "SCORE_NO_ROLLER",
       "waypointRelativePos": 0.36,
       "endWaypointRelativePos": 0.95,
       "command": {
@@ -214,13 +214,13 @@
       }
     },
     {
-      "name": "SCORE_AGITATE",
+      "name": "SCORE_AGITATE_OP_2",
       "waypointRelativePos": 5.9,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "SCORE_AGITATE"
+          "name": "SCORE_AGITATE_OP_2"
         }
       }
     }

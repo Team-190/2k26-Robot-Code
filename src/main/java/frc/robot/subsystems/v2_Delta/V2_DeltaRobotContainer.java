@@ -7,9 +7,13 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
@@ -42,8 +46,6 @@ import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOPBucks;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightHalf;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOPBucks;
-// import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP; TODO: Bring back when we have
-// a right OP auto
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -52,6 +54,7 @@ import frc.robot.subsystems.shared.hood.HoodIOTalonFX;
 import frc.robot.subsystems.shared.hood.HoodIOTalonFXSim;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.shared.intake.IntakeConstants;
+import frc.robot.subsystems.shared.intake.IntakeConstants.IntakeState;
 import frc.robot.subsystems.shared.turret.TurretIO;
 import frc.robot.subsystems.shared.turret.TurretIOSim;
 import frc.robot.subsystems.shared.turret.TurretIOTalonFX;
@@ -60,9 +63,10 @@ import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopperConstants;
 import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaSimFuelCount;
 // import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaSimFuelCount;
 import frc.robot.util.AllianceFlipUtil;
-// import frc.robot.util.FuelSimulator;
+import frc.robot.util.FuelSimulator;
 import frc.robot.util.LTNUpdater;
 import frc.robot.util.command.ContinuousConditionalCommand;
 import frc.robot.util.input.XKeysInput;
@@ -77,8 +81,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   private Vision vision;
   private V2_DeltaShooter shooter;
   private Intake intake;
-  //   private FuelSimulator fuelSimulator;s
-  //   private V2_DeltaSimFuelCount simFuelCount;
+  private FuelSimulator fuelSimulator;
+  private V2_DeltaSimFuelCount simFuelCount;
 
   private boolean staticShooter = false;
 
@@ -256,67 +260,66 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Autonomous Modes");
     configureButtonBindings();
     configureAutos();
-    //     configureFuelSim();
+    configureFuelSim();
     if (Constants.TUNING_MODE) LTNUpdater.registerV2(drive, intake, shooter);
   }
 
-  //   private void configureFuelSim() {
+  private void configureFuelSim() {
 
-  //     fuelSimulator = new FuelSimulator("FuelSim");
-  //     if (RobotBase.isSimulation()) {
-  //       simFuelCount = new V2_DeltaSimFuelCount(8);
+    fuelSimulator = new FuelSimulator("FuelSim");
+    if (RobotBase.isSimulation()) {
+      simFuelCount = new V2_DeltaSimFuelCount(8);
 
-  //       fuelSimulator.registerRobot(
-  //           V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
-  //           V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
-  //           Units.inchesToMeters(6.0),
-  //           V2_DeltaRobotState::getGlobalPose,
-  //           () ->
-  //               new ChassisSpeeds(
-  //                   drive.getFieldRelativeVelocity().getX(),
-  //                   drive.getFieldRelativeVelocity().getY(),
-  //                   drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
+      fuelSimulator.registerRobot(
+          V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth(),
+          V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperLength(),
+          Units.inchesToMeters(6.0),
+          V2_DeltaRobotState::getGlobalPose,
+          () ->
+              new ChassisSpeeds(
+                  drive.getFieldRelativeVelocity().getX(),
+                  drive.getFieldRelativeVelocity().getY(),
+                  drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond));
 
-  //       fuelSimulator.registerIntake(
-  //           IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
-  //           IntakeConstants.LINKAGE_OFFSET.getX(),
-  //           -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
-  //           V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
-  //           () ->
-  //               intake.getIntakeState().equals(IntakeState.INTAKE)
-  //                   && intake.atGoal()
-  //                   && simFuelCount.getFuelStored() < V2_DeltaSimFuelCount.getCapacity(),
-  //           () ->
-  //               simFuelCount.setFuelStored(
-  //                   Math.min(simFuelCount.getFuelStored() + 1,
-  // V2_DeltaSimFuelCount.getCapacity())));
+      fuelSimulator.registerIntake(
+          IntakeConstants.LINKAGE_OFFSET.getX() - Units.inchesToMeters(4),
+          IntakeConstants.LINKAGE_OFFSET.getX(),
+          -V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+          V2_DeltaConstants.DRIVE_CONSTANTS.driveConfig.bumperWidth() / 2,
+          () ->
+              intake.getIntakeState().equals(IntakeState.INTAKE)
+                  && intake.atGoal()
+                  && simFuelCount.getFuelStored() < V2_DeltaSimFuelCount.getCapacity(),
+          () ->
+              simFuelCount.setFuelStored(
+                  Math.min(simFuelCount.getFuelStored() + 1, V2_DeltaSimFuelCount.getCapacity())));
 
-  //       fuelSimulator.registerShooter(
-  //           () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
-  //           () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
-  //           shooter.getHoodAngle()::getMeasure,
-  //           shooter.getTurretRotation()::getMeasure,
-  //           shooter::getFlywheelVelocity,
-  //           V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
+      fuelSimulator.registerShooter(
+          () -> simFuelCount.getFuelStored() > 0 && !V2_DeltaRobotState.isProhibitShot(),
+          () -> simFuelCount.setFuelStored(simFuelCount.getFuelStored() - 1),
+          shooter.getHoodAngle()::getMeasure,
+          shooter.getTurretRotation()::getMeasure,
+          shooter::getFlywheelVelocity,
+          V2_DeltaConstants.ROBOT_TO_SHOOTER_TRANSFORM.getMeasureZ());
 
-  //       fuelSimulator.setSubticks(1);
-  //       fuelSimulator.start();
-  //       fuelSimulator.spawnStartingFuel();
-  //       fuelSimulator.enableAirResistance();
+      fuelSimulator.setSubticks(1);
+      fuelSimulator.start();
+      fuelSimulator.spawnStartingFuel();
+      fuelSimulator.enableAirResistance();
 
-  //       fuelSimulator.start();
-  //       RobotModeTriggers.autonomous()
-  //           .onTrue(
-  //               Commands.runOnce(
-  //                   () -> {
-  //                     fuelSimulator.clearFuel();
-  //                     fuelSimulator.spawnStartingFuel();
-  //                     simFuelCount.setFuelStored(8);
-  //                   }));
-  //     } else {
-  //       fuelSimulator.stop();
-  //     }
-  //   }
+      fuelSimulator.start();
+      RobotModeTriggers.autonomous()
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    fuelSimulator.clearFuel();
+                    fuelSimulator.spawnStartingFuel();
+                    simFuelCount.setFuelStored(8);
+                  }));
+    } else {
+      fuelSimulator.stop();
+    }
+  }
 
   private void configureAutos() {
     // Named commands that are used during the paths
@@ -324,17 +327,36 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         "SCORE_OR_FEED", V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
 
     NamedCommands.registerCommand(
-        "SCORE_AGITATE",
+        "SCORE_NO_ROLLER",
+        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            .alongWith(intake.setOverrideRollerVoltage(0)));
+
+    NamedCommands.registerCommand(
+        "SCORE_AGITATE_OP_1",
         V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
             .alongWith(
                 Commands.sequence(
-                        Commands.waitSeconds(1),
+                    Commands.waitSeconds(1),
+                    clopper.intake(),
+                    Commands.sequence(
+                        Commands.waitSeconds(0.25),
                         intake
-                            .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                            .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE / 2)
                             .alongWith(intake.stopRollerOverride()),
-                        Commands.waitSeconds(1.25),
-                        intake.deploy())
-                    .repeatedly()));
+                        Commands.waitSeconds(5),
+                        intake.deploy()))));
+
+    NamedCommands.registerCommand(
+        "SCORE_AGITATE_OP_2",
+        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            .alongWith(
+                Commands.sequence(
+                    Commands.waitSeconds(1),
+                    intake
+                        .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                        .alongWith(intake.stopRollerOverride()),
+                    Commands.waitSeconds(1.25),
+                    intake.deploy())));
 
     NamedCommands.registerCommand("HOLD", V2_DeltaCompositeCommands.hold(clopper, shooter));
 
@@ -787,7 +809,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         drive.getMeasuredChassisSpeeds(),
         intake.isIntakeAtStow(),
         driver.rightBumper().getAsBoolean());
-    //     fuelSimulator.updateSim();
+    fuelSimulator.updateSim();
   }
 
   @Override
