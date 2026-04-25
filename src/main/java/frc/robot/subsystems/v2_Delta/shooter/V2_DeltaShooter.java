@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -129,11 +130,11 @@ public class V2_DeltaShooter extends SubsystemBase {
           hood.setPositionGoal(hoodStowSetpoint);
           hood.setPositionGoal(Rotation2d.kZero);
           flywheel.stop();
-          turret.setFieldRelativeGoal(
-              V2_DeltaRobotState.isInAllianceZone()
-                  ? AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d())
-                  : V2_DeltaRobotState.getFeedTranslation(),
-              V2_DeltaRobotState.getTurretVelocity());
+          if (DriverStation.isAutonomous()) {
+            turret.setFieldRelativeGoal(
+                AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d()),
+                V2_DeltaRobotState.getTurretVelocity());
+          }
           break;
         case SCORE:
           hood.setPositionGoal(hoodSetpoint);

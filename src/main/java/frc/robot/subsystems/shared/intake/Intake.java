@@ -150,7 +150,14 @@ public class Intake extends SubsystemBase {
             roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
-    intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
+    intakeAtStow =
+        intakeState.equals(IntakeState.STOW)
+            || linkage.getPosition().getRadians()
+                <= IntakeConstants.INTAKE_STATES
+                    .get(IntakeState.STOW)
+                    .getSetpoint()
+                    .plus(Degrees.of(30))
+                    .in(Radians);
 
     Logger.recordOutput(
         "Elastic/Intake/Linkage/Offset Degrees",
