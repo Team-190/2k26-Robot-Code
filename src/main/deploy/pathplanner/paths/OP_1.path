@@ -80,12 +80,12 @@
     },
     {
       "anchor": {
-        "x": 2.6995840072631836,
-        "y": 5.662278652191162
+        "x": 3.307,
+        "y": 5.662
       },
       "prevControl": {
-        "x": 2.449584028798712,
-        "y": 5.662382420026838
+        "x": 3.0570000215355284,
+        "y": 5.662103767835676
       },
       "nextControl": null,
       "isLocked": false,
@@ -113,10 +113,10 @@
   "constraintZones": [
     {
       "name": "Intaking",
-      "minWaypointRelativePos": 1.8576320213607598,
-      "maxWaypointRelativePos": 3.074070411392407,
+      "minWaypointRelativePos": 1.7742940199335553,
+      "maxWaypointRelativePos": 3.4874636627906996,
       "constraints": {
-        "maxVelocity": 2.5,
+        "maxVelocity": 2.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -146,7 +146,7 @@
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
-    "unlimited": false
+    "unlimited": true
   },
   "goalEndState": {
     "velocity": 0,
@@ -158,5 +158,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

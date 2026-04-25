@@ -707,7 +707,7 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     xkeys.g6().onTrue(shooter.incrementTurretZero().withName("xkeys-g6-true"));
     xkeys.g7().onTrue(shooter.decrementTurretZero().withName("xkeys-g7-true"));
 
-    xkeys.g8().onTrue(shooter.zero().withName("xkeys-g8"));
+    xkeys.g9().onTrue(shooter.zero().withName("xkeys-g9"));
     xkeys
         .f3()
         .whileTrue(

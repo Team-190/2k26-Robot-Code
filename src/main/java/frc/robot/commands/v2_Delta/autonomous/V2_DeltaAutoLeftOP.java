@@ -12,6 +12,7 @@ import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
 
@@ -32,6 +33,7 @@ public class V2_DeltaAutoLeftOP {
               () ->
                   V2_DeltaRobotState.resetPose(
                       AllianceFlipUtil.apply(OP_1.getStartingHolonomicPose().get()))),
+          shooter.setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE),
           Commands.deadline(
               AutoBuilder.followPath(OP_1),
               intake.deploy(),
@@ -41,12 +43,12 @@ public class V2_DeltaAutoLeftOP {
           Commands.deadline(
               AutoBuilder.followPath(OP_2),
               Commands.sequence(
-                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(3.8),
+                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(4.9),
                   Commands.parallel(
                           V2_DeltaCompositeCommands.hold(clopper, shooter),
                           intake.deploy(),
                           intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
-                      .withTimeout(4.5))),
+                      .withTimeout(5.5))),
           intake.setOverrideRollerVoltage(0),
           V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
     } catch (Exception e) {

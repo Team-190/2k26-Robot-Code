@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
+import frc.robot.util.command.ContinuousConditionalCommand;
 import org.littletonrobotics.junction.Logger;
 
 public class V2_DeltaClopper extends SubsystemBase {
@@ -28,6 +29,7 @@ public class V2_DeltaClopper extends SubsystemBase {
   private final Setpoint<VoltageUnit> ballsToWallSetpoint, ballsToWallsverrideSetpoint;
 
   private final Trigger ballToWallCurrentTrigger;
+  private final Trigger rollerFloorCurrentTrigger;
   private boolean shouldReverse;
 
   public V2_DeltaClopper(
@@ -113,6 +115,14 @@ public class V2_DeltaClopper extends SubsystemBase {
         Commands.run(() -> shouldReverse = true)
             .withTimeout(1)
             .andThen(Commands.runOnce(() -> shouldReverse = false)));
+    rollerFloorCurrentTrigger =
+        new Trigger(
+                () ->
+                    rollerFloor.getTorqueCurrent().length > 0
+                        && rollerFloor.getTorqueCurrent()[0] >= 65
+                        && rollerFloor.getVoltageGoal().getSetpoint().in(Volts) > 0)
+            .debounce(0.25)
+            .debounce(5, Debouncer.DebounceType.kFalling);
   }
 
   @Override
@@ -155,7 +165,15 @@ public class V2_DeltaClopper extends SubsystemBase {
   }
 
   public Command feedShooterRollerFloor() {
-    return setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
+    return new ContinuousConditionalCommand(
+        Commands.sequence(
+                setRollerFloorVoltage(Volts.of(-12)),
+                Commands.waitSeconds(.5),
+                setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE))
+            .alongWith(Commands.idle()),
+        setRollerFloorVoltage(V2_DeltaClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE)
+            .alongWith(Commands.idle()),
+        rollerFloorCurrentTrigger);
   }
 
   public Command setOverrideRollerFloorVoltage(Voltage voltage) {
