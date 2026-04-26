@@ -131,7 +131,7 @@ public class V2_DeltaShooterConstants {
   public static final HoodConstants HOOD_CONSTANTS =
       HoodConstants.builder()
           .withMotorCanId(20)
-          .withCurrentLimits(40.0)
+          .withCurrentLimits(new CurrentLimits(40, 35))
           .withGearRatio((18.0 / 12.0) * (28.0 / 8.0) * (324.0 / 14.0))
           .withMomentOfInertia(0.0001)
           .withInvertedValue(InvertedValue.CounterClockwise_Positive)
@@ -141,7 +141,7 @@ public class V2_DeltaShooterConstants {
           .withMinAngle(Rotation2d.fromDegrees(0.3))
           .withMaxAngle(Rotation2d.fromDegrees(29.0))
           .withZeroVoltage(Volts.of(1.0))
-          .withZeroCurrentThreshold(Amps.of(40.0))
+          .withZeroCurrentThreshold(Amps.of(30.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
