@@ -239,6 +239,11 @@ public class V2_DeltaShooter extends SubsystemBase {
     return this.runOnce(() -> this.shooterGoal = shooterGoal);
   }
 
+  /** NEVER use this anywhere but auto. It will clash with other autos!*/
+  public Command setNonRequiringGoal(ShooterGoal shooterGoal) {
+    return Commands.runOnce(() -> this.shooterGoal = shooterGoal);
+  }
+
   public Command setGoal(Supplier<ShooterGoal> goalSupplier) {
     return this.run(() -> this.shooterGoal = goalSupplier.get());
   }
