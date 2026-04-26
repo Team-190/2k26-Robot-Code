@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
+import frc.robot.subsystems.shared.intake.Intake;
 import java.util.List;
 
 public class V1_DoomSpiralMechanism3d {
@@ -18,15 +18,13 @@ public class V1_DoomSpiralMechanism3d {
       new Translation3d(0.142476, 0, 0.278075);
   private static final Translation3d intakeFollowerTranslation =
       new Translation3d(0.278238, 0, 0.196629);
-  private static final Pose3d hopperWallOffset =
-      new Pose3d(new Translation3d(-0.009856, 0, 0.304569), new Rotation3d());
 
   private static final Rotation2d crankOffset = Rotation2d.fromDegrees(-171);
   private static final Rotation2d couplerOffset = Rotation2d.fromDegrees(-18.88);
   private static final Rotation2d followerOffset = Rotation2d.fromDegrees(-60.909742);
 
   public static Pose3d[] getPoses(
-      Rotation2d spindexerPosition, Rotation2d climberPosition, V1_DoomSpiralIntake intake) {
+      Rotation2d spindexerPosition, Rotation2d climberPosition, Intake intake) {
 
     List<LinkageState> linkageStates = intake.getLinkage().getLinkagePoses();
 
@@ -56,16 +54,8 @@ public class V1_DoomSpiralMechanism3d {
                 linkageStates.get(2).rotation().minus(followerOffset).unaryMinus().getRadians(),
                 0.0));
 
-    Pose3d hopperWallPose = hopperWallOffset.transformBy(intake.getHopperWallTransform());
-
     return new Pose3d[] {
-      spindexerPose,
-      climberPose,
-      staticIntakePose,
-      crankPose,
-      couplerPose,
-      followerPose,
-      hopperWallPose
+      spindexerPose, climberPose, staticIntakePose, crankPose, couplerPose, followerPose,
     };
   }
 }

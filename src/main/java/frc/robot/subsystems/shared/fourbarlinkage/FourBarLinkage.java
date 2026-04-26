@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -86,9 +88,9 @@ public class FourBarLinkage {
     characterizationRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                Volts.of(0.5).per(Seconds),
-                Volts.of(3.5),
-                Seconds.of(10),
+                Volts.of(1).per(Seconds),
+                Volts.of(5),
+                Seconds.of(8),
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltageGoal, null, subsystem));
 
@@ -157,10 +159,10 @@ public class FourBarLinkage {
     Rotation2d followerAngle = currentPoses.get(2);
     Rotation2d groundAngle = currentPoses.get(3);
 
-    crank.setAngle(crankAngle.unaryMinus());
-    coupler.setAngle(couplerAngle.minus(crankAngle).unaryMinus());
-    follower.setAngle(followerAngle.minus(couplerAngle).unaryMinus());
-    ground.setAngle(groundAngle.minus(followerAngle).unaryMinus());
+    crank.setAngle(crankAngle);
+    coupler.setAngle(couplerAngle.minus(crankAngle));
+    follower.setAngle(followerAngle.minus(couplerAngle));
+    ground.setAngle(groundAngle.minus(followerAngle));
 
     Logger.recordOutput(aKitTopic + "/LinkageMechanism", mechanism2d);
   }
@@ -172,6 +174,10 @@ public class FourBarLinkage {
    */
   public Rotation2d getPosition() {
     return inputs.position;
+  }
+
+  public AngularVelocity getVelocity() {
+    return inputs.velocity;
   }
 
   public Command setIdle() {
@@ -242,6 +248,10 @@ public class FourBarLinkage {
 
   public boolean atVoltageGoal(Voltage voltageReference) {
     return io.atVoltageGoal(voltageReference);
+  }
+
+  public Current getTorqueCurrent() {
+    return inputs.torqueCurrent;
   }
 
   /**
@@ -323,10 +333,10 @@ public class FourBarLinkage {
     Pose3d followerPose = new Pose3d(point3, new Rotation3d(0, -theta5, 0));
     Pose3d groundPose = new Pose3d(point4, new Rotation3d(0, -(Math.PI + theta1), 0));
 
-    Rotation2d crankAngle = Rotation2d.fromRadians(-(theta2 + theta1));
-    Rotation2d couplerAngle = Rotation2d.fromRadians(-(theta3 + theta1));
-    Rotation2d followerAngle = Rotation2d.fromRadians(-theta5);
-    Rotation2d groundAngle = Rotation2d.fromRadians(-(Math.PI + theta1));
+    Rotation2d crankAngle = Rotation2d.fromRadians((theta2 + theta1));
+    Rotation2d couplerAngle = Rotation2d.fromRadians((theta3 + theta1));
+    Rotation2d followerAngle = Rotation2d.fromRadians(theta5);
+    Rotation2d groundAngle = Rotation2d.fromRadians((Math.PI + theta1));
 
     LinkageState link1 = new LinkageState(crankPose, crankAngle);
     LinkageState link2 = new LinkageState(couplerPose, couplerAngle);

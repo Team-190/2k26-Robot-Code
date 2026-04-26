@@ -3,13 +3,15 @@ package frc.robot;
 import lombok.Getter;
 
 public final class RobotConfig {
-  public static final RobotType ROBOT = RobotType.V1_DOOMSPIRAL;
+  public static final RobotType ROBOT = RobotType.V2_TURNOVER;
 
   public enum RobotType {
     V0_FUNKY("2026.+"),
     V0_FUNKY_SIM("2026.+"),
     V1_DOOMSPIRAL("2026.+"),
-    V1_DOOMSPIRAL_SIM("2026.+");
+    V1_DOOMSPIRAL_SIM("2026.+"),
+    V2_TURNOVER("2026.+"),
+    V2_TURNOVER_SIM("2026.+");
 
     @Getter private final String gompeiLibVersion;
 

@@ -2,6 +2,9 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 
 import choreo.Choreo;
 import choreo.trajectory.Trajectory;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class V1_DoomSpiralAutoTrajectoryCache {
   public static final Trajectory<?> DEPOT_AND_BACK_HUB_PATH_2 =
@@ -31,4 +34,12 @@ public class V1_DoomSpiralAutoTrajectoryCache {
       Choreo.loadTrajectory("LEFT_TRENCH_SIMPLE_CROSSES").get();
   public static final Trajectory<?> RIGHT_TRENCH_SIMPLE_CROSSES =
       Choreo.loadTrajectory("RIGHT_TRENCH_SIMPLE_CROSSES").get();
+  public static final Trajectory<?> LEFT_RETURN_TO_MID =
+      Choreo.loadTrajectory("LEFT_RETURN_TO_MID").get();
+  public static final Trajectory<?> RIGHT_RETURN_TO_MID =
+      Choreo.loadTrajectory("RIGHT_RETURN_TO_MID").get();
+  public static final Trajectory<?> FAIL_PATH = Choreo.loadTrajectory("FAIL_PATH").get();
+
+  public static final Trigger GO_BACK_TRIGGER =
+      RobotModeTriggers.autonomous().debounce(17.5, Debouncer.DebounceType.kRising);
 }

@@ -6,13 +6,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
+import frc.robot.subsystems.shared.intake.Intake;
+import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
-import frc.robot.subsystems.v1_DoomSpiral.climber.V1_DoomSpiralClimber;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntake;
-import frc.robot.subsystems.v1_DoomSpiral.intake.V1_DoomSpiralIntakeConstants;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
@@ -20,10 +20,9 @@ import frc.robot.util.BetterAutoChooser;
 public class V1_DoomSpiralAutoDepotAndBackHub {
   public static final BetterAutoChooser.AutoRoutineConfiguration getAutoRoutine(
       SwerveDrive drive,
-      V1_DoomSpiralIntake intake,
+      Intake intake,
       V1_DoomSpiralShooter shooter,
-      V1_DoomSpiralSpindexer spindexer,
-      V1_DoomSpiralClimber climber) {
+      V1_DoomSpiralSpindexer spindexer) {
 
     // Create the routine and the trajectory
 
@@ -33,6 +32,9 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.DEPOT_AND_XXX_PATH_1);
     AutoTrajectory DEPOT_AND_BACK_HUB_PATH_2 =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.DEPOT_AND_BACK_HUB_PATH_2);
+
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(() -> DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get());
 
     routine
         .active()
@@ -47,13 +49,22 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
 
                 intake
                     .deploy()
-                    .alongWith(
-                        intake.setOverrideRollerVoltage(
-                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                    .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
 
                 // Follow the path
 
                 DEPOT_AND_BACK_HUB_PATH_1.cmd(),
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                      return !isFinished;
+                    }),
 
                 // Stop drive
 
@@ -70,8 +81,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
                     .deploy()
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                        intake.setOverrideRollerVoltage(
-                            V1_DoomSpiralIntakeConstants.INTAKE_VOLTAGE)),
+                        intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
                 DEPOT_AND_BACK_HUB_PATH_2.cmd()));
 
     RobotModeTriggers.autonomous()
@@ -79,7 +89,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         .onTrue(
             Commands.parallel(
                     V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                    intake.stopRoller(),
+                    intake.stopRollerOverride(),
                     intake.deploy())
                 .ignoringDisable(true));
 
