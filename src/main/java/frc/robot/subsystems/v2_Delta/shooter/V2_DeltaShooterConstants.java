@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Milliamps;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
@@ -33,47 +34,42 @@ import lombok.RequiredArgsConstructor;
 public class V2_DeltaShooterConstants {
 
   public static final AngularVelocity LEFT_TRENCH_SHOT_FLYWHEEL_SPEED =
-      RadiansPerSecond.of(420.0); // fake
-  public static final Rotation2d LEFT_TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(20.0); // fake
+      RotationsPerSecond.of(26.679);
+  public static final Rotation2d LEFT_TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromRotations(0.273);
   public static final Translation2d LEFT_TRENCH_SHOT_LOCATION =
       new Translation2d(
           FieldConstants.LeftTrench.openingTopLeft.getX(),
           FieldConstants.LeftTrench.openingTopLeft.getY() - FieldConstants.LeftTrench.width / 2);
 
   public static final AngularVelocity RIGHT_TRENCH_SHOT_FLYWHEEL_SPEED =
-      RadiansPerSecond.of(420.0); // fake
-  public static final Rotation2d RIGHT_TRENCH_SHOT_HOOD_ANGLE =
-      Rotation2d.fromDegrees(20.0); // fake
+      RotationsPerSecond.of(27.980);
+  public static final Rotation2d RIGHT_TRENCH_SHOT_HOOD_ANGLE = Rotation2d.fromRotations(0.314);
   public static final Translation2d RIGHT_TRENCH_SHOT_LOCATION =
       new Translation2d(
           FieldConstants.RightTrench.openingTopLeft.getX(),
           FieldConstants.RightTrench.openingTopLeft.getY() - FieldConstants.RightTrench.width / 2);
 
-  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(205);
-  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(0.175781); // fake
+  public static final AngularVelocity HUB_SHOT_FLYWHEEL_SPEED = RotationsPerSecond.of(23);
+  public static final Rotation2d HUB_SHOT_HOOD_ANGLE = Rotation2d.fromRotations(0);
   public static final Translation2d HUB_SHOT_LOCATION =
       new Translation2d(
           FieldConstants.LinesVertical.starting - Units.inchesToMeters(29.000 / 2),
           FieldConstants.LinesHorizontal.center); // Robot width: 29.000
 
-  public static final AngularVelocity RIGHT_CORNER_SHOT_FLYWHEEL_SPEED =
-      RadiansPerSecond.of(308.181632);
-  public static final Rotation2d RIGHT_CORNER_SHOT_HOOD_ANGLE =
-      Rotation2d.fromDegrees(21.269531); // fake
+  public static final AngularVelocity RIGHT_CORNER_SHOT_FLYWHEEL_SPEED = RotationsPerSecond.of(35);
+  public static final Rotation2d RIGHT_CORNER_SHOT_HOOD_ANGLE = Rotation2d.fromRotations(0.44);
   public static final Translation2d RIGHT_CORNER_SHOT_LOCATION =
       new Translation2d(Units.inchesToMeters(29.000 / 2), Units.inchesToMeters(29.000 / 2));
 
-  public static final AngularVelocity LEFT_CORNER_SHOT_FLYWHEEL_SPEED =
-      RadiansPerSecond.of(308.181632);
-  public static final Rotation2d LEFT_CORNER_SHOT_HOOD_ANGLE =
-      Rotation2d.fromDegrees(21.269531); // fake
+  public static final AngularVelocity LEFT_CORNER_SHOT_FLYWHEEL_SPEED = RotationsPerSecond.of(35);
+  public static final Rotation2d LEFT_CORNER_SHOT_HOOD_ANGLE = Rotation2d.fromRotations(0.440);
   public static final Translation2d LEFT_CORNER_SHOT_LOCATION =
       new Translation2d(
           Units.inchesToMeters(29.000 / 2),
           FieldConstants.fieldWidth - Units.inchesToMeters(29.000 / 2));
 
-  public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RadiansPerSecond.of(238.049275);
-  public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(14.589844);
+  public static final AngularVelocity TOWER_SHOT_FLYWHEEL_SPEED = RotationsPerSecond.of(26.49);
+  public static final Rotation2d TOWER_SHOT_HOOD_ANGLE = Rotation2d.fromDegrees(0.267);
   public static final Translation2d TOWER_SHOT_LOCATION =
       new Translation2d(
           FieldConstants.Tower.frontFaceX + Units.inchesToMeters(29.000 / 2),
