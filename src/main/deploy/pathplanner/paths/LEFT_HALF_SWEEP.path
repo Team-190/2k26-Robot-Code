@@ -256,12 +256,6 @@
     },
     {
       "name": "SCORE_OR_FEED",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": 10.0,
-      "command": null
-    },
-    {
-      "name": "SCORE_OR_FEED",
       "waypointRelativePos": 3.01,
       "endWaypointRelativePos": 5.05,
       "command": null
@@ -276,6 +270,12 @@
           "name": "HOLD_WHILE_INTAKE"
         }
       }
+    },
+    {
+      "name": "SCORE_OR_FEED",
+      "waypointRelativePos": 7.264,
+      "endWaypointRelativePos": 10.0,
+      "command": null
     }
   ],
   "globalConstraints": {
