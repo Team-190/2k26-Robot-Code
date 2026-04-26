@@ -1,10 +1,7 @@
 package frc.robot.commands.v2_Delta.autonomous;
 
-import java.util.function.Supplier;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -18,10 +15,15 @@ import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.util.AllianceFlipUtil;
+import java.util.function.Supplier;
 
 public class V2_DeltaAutoRightHalf {
   public static Command getAutoRoutine(
-      SwerveDrive drive, Intake intake, V2_DeltaClopper clopper, V2_DeltaShooter shooter, Supplier<AdjustPathCommand.PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
+      SwerveDrive drive,
+      Intake intake,
+      V2_DeltaClopper clopper,
+      V2_DeltaShooter shooter,
+      Supplier<AdjustPathCommand.PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     PathPlannerPath RIGHT_HALF_1;
     PathPlannerPath RIGHT_HALF_2;
@@ -52,7 +54,8 @@ public class V2_DeltaAutoRightHalf {
               followCommandRIGHT_HALF_1.onlyWhile(
                   () -> {
                     Pose2d currentPose = V2_DeltaRobotState.getGlobalPose();
-                    Pose2d targetPose = RIGHT_HALF_1.getPathPoses().get(RIGHT_HALF_1.getPathPoses().size() - 1);
+                    Pose2d targetPose =
+                        RIGHT_HALF_1.getPathPoses().get(RIGHT_HALF_1.getPathPoses().size() - 1);
                     double distanceToTarget =
                         currentPose.getTranslation().getDistance(targetPose.getTranslation());
                     boolean isFinished =
@@ -63,7 +66,8 @@ public class V2_DeltaAutoRightHalf {
               followCommandRIGHT_HALF_2.onlyWhile(
                   () -> {
                     Pose2d currentPose = V2_DeltaRobotState.getGlobalPose();
-                    Pose2d targetPose = RIGHT_HALF_2.getPathPoses().get(RIGHT_HALF_2.getPathPoses().size() - 1);
+                    Pose2d targetPose =
+                        RIGHT_HALF_2.getPathPoses().get(RIGHT_HALF_2.getPathPoses().size() - 1);
                     double distanceToTarget =
                         currentPose.getTranslation().getDistance(targetPose.getTranslation());
                     boolean isFinished =

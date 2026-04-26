@@ -474,15 +474,21 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         V2_DeltaAutoRightOP.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Right OP Bucks", V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+        "Right OP Bucks",
+        V2_DeltaAutoRightOPBucks.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
         "Left OP Bucks",
         V2_DeltaAutoLeftOPBucks.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Left Half", V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+        "Left Half",
+        V2_DeltaAutoLeftHalf.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Right Half", V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+        "Right Half",
+        V2_DeltaAutoRightHalf.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
         "Depot", V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter));
   }
