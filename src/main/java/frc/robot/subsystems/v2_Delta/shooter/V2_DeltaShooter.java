@@ -273,7 +273,7 @@ public class V2_DeltaShooter extends SubsystemBase {
         ? flywheelShootingTrigger.getAsBoolean()
         : flywheelFeedingTrigger.getAsBoolean()
             && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
-    }
+  }
 
   public Command waitUntilAtGoal() {
     return Commands.waitUntil(this::atGoal);
