@@ -168,31 +168,36 @@ public class V2_DeltaRobotState {
                     Interpolator.forDouble().interpolate(start.in(Seconds), end.in(Seconds), t),
                     Seconds));
 
-    shootAngleTree.put(Meters.of(1.074934), Rotation2d.fromRotations(0.0));
-    shootAngleTree.put(Meters.of(1.490425), Rotation2d.fromRotations(0.0));
-    shootAngleTree.put(Meters.of(1.988254), Rotation2d.fromRotations(0.008));
-    shootAngleTree.put(Meters.of(2.481035), Rotation2d.fromRotations(0.012));
-    shootAngleTree.put(Meters.of(3.002048), Rotation2d.fromRotations(0.018));
-    shootAngleTree.put(Meters.of(3.519295), Rotation2d.fromRotations(0.034));
-    shootAngleTree.put(Meters.of(3.972171), Rotation2d.fromRotations(0.040));
-    shootAngleTree.put(Meters.of(4.551259), Rotation2d.fromRotations(0.045));
-    shootAngleTree.put(Meters.of(4.894654), Rotation2d.fromRotations(0.05));
-    shootAngleTree.put(Meters.of(5.336559), Rotation2d.fromRotations(0.06));
+    shootAngleTree.put(Meters.of(1.216412), Rotation2d.fromRotations(0.0));
+    shootAngleTree.put(Meters.of(1.516677), Rotation2d.fromRotations(0.01));
+    shootAngleTree.put(Meters.of(2.012264), Rotation2d.fromRotations(0.02));
+    shootAngleTree.put(Meters.of(2.522274), Rotation2d.fromRotations(0.03));
+    shootAngleTree.put(Meters.of(2.984916), Rotation2d.fromRotations(0.04));
+    shootAngleTree.put(Meters.of(3.582623), Rotation2d.fromRotations(0.05));
+    shootAngleTree.put(Meters.of(4.034540), Rotation2d.fromRotations(0.06));
+    shootAngleTree.put(Meters.of(4.497936), Rotation2d.fromRotations(0.07));
+    shootAngleTree.put(Meters.of(5.015775), Rotation2d.fromRotations(0.07));
+    shootAngleTree.put(Meters.of(5.336559), Rotation2d.fromRotations(0.07));
 
-    shootSpeedTree.put(Meters.of(1.074934), RotationsPerSecond.of(22));
-    shootSpeedTree.put(Meters.of(1.490425), RotationsPerSecond.of(24));
-    shootSpeedTree.put(Meters.of(1.988254), RotationsPerSecond.of(26));
-    shootSpeedTree.put(Meters.of(2.481035), RotationsPerSecond.of(27));
-    shootSpeedTree.put(Meters.of(3.002048), RotationsPerSecond.of(28));
-    shootSpeedTree.put(Meters.of(3.519295), RotationsPerSecond.of(29));
-    shootSpeedTree.put(Meters.of(3.972171), RotationsPerSecond.of(30.5));
-    shootSpeedTree.put(Meters.of(4.551259), RotationsPerSecond.of(33));
-    shootSpeedTree.put(Meters.of(4.894654), RotationsPerSecond.of(35.5));
-    shootSpeedTree.put(Meters.of(5.336559), RotationsPerSecond.of(37));
+    shootSpeedTree.put(Meters.of(1.216412), RotationsPerSecond.of(23));
+    shootSpeedTree.put(Meters.of(1.516677), RotationsPerSecond.of(23));
+    shootSpeedTree.put(Meters.of(2.012264), RotationsPerSecond.of(23.5));
+    shootSpeedTree.put(Meters.of(2.522274), RotationsPerSecond.of(24.5));
+    shootSpeedTree.put(Meters.of(2.984916), RotationsPerSecond.of(26));
+    shootSpeedTree.put(Meters.of(3.582623), RotationsPerSecond.of(28));
+    shootSpeedTree.put(Meters.of(4.034540), RotationsPerSecond.of(29.5));
+    shootSpeedTree.put(Meters.of(4.497936), RotationsPerSecond.of(31));
+    shootSpeedTree.put(Meters.of(5.015775), RotationsPerSecond.of(33.5));
+    shootSpeedTree.put(Meters.of(5.336559), RotationsPerSecond.of(35));
 
-    shootTimeOfFlightTree.put(Meters.of(1.525345), Seconds.of(4.381 / 4.0));
-    shootTimeOfFlightTree.put(Meters.of(2.531303), Seconds.of(4.886 / 4.0));
-    shootTimeOfFlightTree.put(Meters.of(3.518323), Seconds.of(4.899 / 4.0));
+    shootTimeOfFlightTree.put(Meters.of(1.239737), Seconds.of(1.021));
+    shootTimeOfFlightTree.put(Meters.of(2.006357), Seconds.of(1.040));
+    shootTimeOfFlightTree.put(Meters.of(3.015107), Seconds.of(1.060));
+    shootTimeOfFlightTree.put(Meters.of(4.003837), Seconds.of(1.072));
+    shootTimeOfFlightTree.put(Meters.of(4.951601), Seconds.of(1.110));
+    shootTimeOfFlightTree.put(Meters.of(5.201445), Seconds.of(1.181));
+
+    shootTimeOfFlightTree.put(Meters.of(0.0), Seconds.of(0.0));
 
     feedAngleTree.put(Meters.of(2.834202), Rotation2d.fromDegrees(21.621094));
     feedSpeedTree.put(Meters.of(2.834202), RadiansPerSecond.of(109.297199));
@@ -232,7 +237,7 @@ public class V2_DeltaRobotState {
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
 
-    UMAMI = RadiansPerSecond.of(15.0);
+    UMAMI = RadiansPerSecond.of(0.0);
   }
 
   @Trace
