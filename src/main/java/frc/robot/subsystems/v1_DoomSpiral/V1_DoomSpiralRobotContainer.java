@@ -5,6 +5,9 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,9 +32,11 @@ import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIOTalonF
 import edu.wpi.team190.gompeilib.subsystems.vision.Vision;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraStaticLimelight;
 import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
+// import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
+import frc.robot.commands.shared.AdjustPathCommand.PathAdjustmentMode;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
@@ -58,7 +63,9 @@ import frc.robot.subsystems.v1_DoomSpiral.swank.*;
 import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -78,6 +85,18 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
 
   private final BetterAutoChooser autoChooser;
   private final LoggedNetworkBoolean returnToMidChooser;
+
+  private final NetworkTable pathAdjustmentTable =
+      NetworkTableInstance.getDefault().getTable("PathAdjustmentModes");
+
+  private final BooleanEntry leftBumpEntry =
+      pathAdjustmentTable.getBooleanTopic("Left Bump").getEntry(false);
+  private final BooleanEntry rightBumpEntry =
+      pathAdjustmentTable.getBooleanTopic("Right Bump").getEntry(false);
+  private final BooleanEntry leftTrenchEntry =
+      pathAdjustmentTable.getBooleanTopic("Left Trench").getEntry(false);
+  private final BooleanEntry rightTrenchEntry =
+      pathAdjustmentTable.getBooleanTopic("Right Trench").getEntry(false);
 
   public V1_DoomSpiralRobotContainer() {
     if (Constants.getMode() != RobotMode.REPLAY) {
@@ -274,8 +293,25 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser = new BetterAutoChooser(V1_DoomSpiralRobotState::resetPose);
     returnToMidChooser = new LoggedNetworkBoolean("ReturnToNeutralZone", true);
 
+    leftBumpEntry.set(false);
+    rightBumpEntry.set(false);
+    leftTrenchEntry.set(false);
+    rightTrenchEntry.set(false);
+
     configureButtonBindings();
     configureAutos();
+  }
+
+  public Supplier<PathAdjustmentMode[]> getAdjustmentModeSupplier() {
+    return () -> {
+      List<PathAdjustmentMode> modes = new ArrayList<>();
+      if (leftBumpEntry.get()) modes.add(PathAdjustmentMode.LEFT_BUMP);
+      if (rightBumpEntry.get()) modes.add(PathAdjustmentMode.RIGHT_BUMP);
+      if (leftTrenchEntry.get()) modes.add(PathAdjustmentMode.LEFT_TRENCH);
+      if (rightTrenchEntry.get()) modes.add(PathAdjustmentMode.RIGHT_TRENCH);
+      if (modes.isEmpty()) modes.add(PathAdjustmentMode.USE_ANY_AVAILABLE);
+      return modes.toArray(new PathAdjustmentMode[0]);
+    };
   }
 
   @Trace
@@ -542,19 +578,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutineConfig(
         "Left Trench Simple",
         V1_DoomSpiralAutoLeftTrenchSimple.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks",
         V1_DoomSpiralAutoLeftTrenchAntiBucks.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Right Trench Simple",
         V1_DoomSpiralAutoRightTrenchSimple.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks",
         V1_DoomSpiralAutoRightTrenchAntiBucks.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Depot And Back Hub",
         V1_DoomSpiralAutoDepotAndBackHub.getAutoRoutine(drive, intake, shooter, spindexer));
@@ -563,19 +599,19 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
     autoChooser.addRoutineConfig(
         "Left Trench Simple Crosses",
         V1_DoomSpiralAutoLeftTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Right Trench Simple Crosses",
         V1_DoomSpiralAutoRightTrenchSimpleCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Left Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoLeftTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     autoChooser.addRoutineConfig(
         "Right Trench Anti Bucks Crosses",
         V1_DoomSpiralAutoRightTrenchAntiBucksCrosses.getAutoRoutine(
-            drive, intake, shooter, spindexer, returnToMidChooser));
+            drive, intake, shooter, spindexer, returnToMidChooser, getAdjustmentModeSupplier()));
     SmartDashboard.putData("Autonomous Modes", autoChooser);
 
     RobotModeTriggers.autonomous()

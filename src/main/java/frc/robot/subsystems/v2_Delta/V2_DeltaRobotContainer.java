@@ -4,11 +4,15 @@ import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -36,6 +40,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.io.CameraIOLimelight;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.RobotConfig;
+import frc.robot.commands.shared.AdjustPathCommand.PathAdjustmentMode;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
@@ -71,7 +76,9 @@ import frc.robot.util.LTNUpdater;
 import frc.robot.util.command.ContinuousConditionalCommand;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class V2_DeltaRobotContainer implements RobotContainer {
@@ -90,6 +97,18 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
   private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
+
+  private final NetworkTable pathAdjustmentTable =
+      NetworkTableInstance.getDefault().getTable("PathAdjustmentModes");
+
+  private final BooleanEntry leftBumpEntry =
+      pathAdjustmentTable.getBooleanTopic("Left Bump").getEntry(false);
+  private final BooleanEntry rightBumpEntry =
+      pathAdjustmentTable.getBooleanTopic("Right Bump").getEntry(false);
+  private final BooleanEntry leftTrenchEntry =
+      pathAdjustmentTable.getBooleanTopic("Left Trench").getEntry(false);
+  private final BooleanEntry rightTrenchEntry =
+      pathAdjustmentTable.getBooleanTopic("Right Trench").getEntry(false);
 
   public V2_DeltaRobotContainer() {
 
@@ -257,6 +276,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
               () -> false);
     }
 
+    leftBumpEntry.set(false);
+    rightBumpEntry.set(false);
+    leftTrenchEntry.set(false);
+    rightTrenchEntry.set(false);
+
     autoChooser = new LoggedDashboardChooser<>("Autonomous Modes");
     configureButtonBindings();
     configureAutos();
@@ -321,6 +345,18 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     }
   }
 
+  public Supplier<PathAdjustmentMode[]> getAdjustmentModeSupplier() {
+    return () -> {
+      List<PathAdjustmentMode> modes = new ArrayList<>();
+      if (leftBumpEntry.get()) modes.add(PathAdjustmentMode.LEFT_BUMP);
+      if (rightBumpEntry.get()) modes.add(PathAdjustmentMode.RIGHT_BUMP);
+      if (leftTrenchEntry.get()) modes.add(PathAdjustmentMode.LEFT_TRENCH);
+      if (rightTrenchEntry.get()) modes.add(PathAdjustmentMode.RIGHT_TRENCH);
+      if (modes.isEmpty()) modes.add(PathAdjustmentMode.USE_ANY_AVAILABLE);
+      return modes.toArray(new PathAdjustmentMode[0]);
+    };
+  }
+
   private void configureAutos() {
     // Named commands that are used during the paths
     NamedCommands.registerCommand(
@@ -373,6 +409,9 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
+    CommandScheduler.getInstance()
+        .schedule(PathfindingCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
+    final boolean BRING_UP = false;
 
     if (Constants.TUNING_MODE) {
 
@@ -427,17 +466,29 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     }
 
     autoChooser.addOption(
-        "Left OP", V2_DeltaAutoLeftOP.getAutoRoutine(drive, intake, clopper, shooter));
+        "Left OP",
+        V2_DeltaAutoLeftOP.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Right OP", V2_DeltaAutoRightOP.getAutoRoutine(drive, intake, clopper, shooter));
+        "Right OP",
+        V2_DeltaAutoRightOP.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Right OP Bucks", V2_DeltaAutoRightOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
+        "Right OP Bucks",
+        V2_DeltaAutoRightOPBucks.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Left OP Bucks", V2_DeltaAutoLeftOPBucks.getAutoRoutine(drive, intake, clopper, shooter));
+        "Left OP Bucks",
+        V2_DeltaAutoLeftOPBucks.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Left Half", V2_DeltaAutoLeftHalf.getAutoRoutine(drive, intake, clopper, shooter));
+        "Left Half",
+        V2_DeltaAutoLeftHalf.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
-        "Right Half", V2_DeltaAutoRightHalf.getAutoRoutine(drive, intake, clopper, shooter));
+        "Right Half",
+        V2_DeltaAutoRightHalf.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
         "Depot", V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter));
   }

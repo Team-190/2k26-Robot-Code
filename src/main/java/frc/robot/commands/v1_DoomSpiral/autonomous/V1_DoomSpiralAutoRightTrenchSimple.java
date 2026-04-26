@@ -5,6 +5,8 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.commands.shared.AdjustPathCommand;
+import frc.robot.commands.shared.AdjustPathCommand.PathAdjustmentMode;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -14,6 +16,7 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V1_DoomSpiralAutoRightTrenchSimple {
@@ -24,18 +27,25 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
       Intake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
-      LoggedNetworkBoolean returnToMid) {
+      LoggedNetworkBoolean returnToMid,
+      Supplier<PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     // Create the routine and the trajectory
 
     AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE");
 
     AutoTrajectory RIGHT_TRENCH_SIMPLE =
+        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.FAIL_PATH);
+    AutoTrajectory RIGHT_TRENCH_SIMPLE_REAL =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE);
     AutoTrajectory RIGHT_RETURN =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_RETURN_TO_MID);
     V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.onTrue(
         Commands.runOnce(() -> RETURN_TO_MID = returnToMid.get()));
+
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(
+            () -> RIGHT_TRENCH_SIMPLE_REAL.getFinalPose().get(), 0, pathAdjustmentModeSupplier);
 
     routine
         .active()
@@ -55,7 +65,17 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
                 // Follow the path
 
                 RIGHT_TRENCH_SIMPLE.cmd(),
-
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = RIGHT_TRENCH_SIMPLE_REAL.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                      return !isFinished;
+                    }),
                 // Stop drive
 
                 Commands.runOnce(() -> drive.stop()),

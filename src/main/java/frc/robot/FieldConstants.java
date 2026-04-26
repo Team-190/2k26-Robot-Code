@@ -155,10 +155,10 @@ public class FieldConstants {
 
     // Relevant reference points on opposing side
     public static final Translation2d oppNearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
+        new Translation2d(LinesVertical.oppHubCenter - width / 2, Units.inchesToMeters(255));
     public static final Translation2d oppNearRightCorner = Hub.oppNearLeftCorner;
     public static final Translation2d oppFarLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
+        new Translation2d(LinesVertical.oppHubCenter + width / 2, Units.inchesToMeters(255));
     public static final Translation2d oppFarRightCorner = Hub.oppFarLeftCorner;
   }
 
@@ -170,20 +170,20 @@ public class FieldConstants {
     public static final double depth = Units.inchesToMeters(44.4);
 
     // Relevant reference points on alliance side
-    public static final Translation2d nearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
-    public static final Translation2d nearRightCorner = Hub.nearLeftCorner;
-    public static final Translation2d farLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
-    public static final Translation2d farRightCorner = Hub.farLeftCorner;
+    public static final Translation2d nearLeftCorner = Hub.nearRightCorner;
+    public static final Translation2d nearRightCorner =
+        Hub.nearRightCorner.minus(new Translation2d(0.0, width));
+    public static final Translation2d farLeftCorner = Hub.farRightCorner;
+    public static final Translation2d farRightCorner =
+        Hub.farRightCorner.minus(new Translation2d(0.0, width));
 
     // Relevant reference points on opposing side
-    public static final Translation2d oppNearLeftCorner =
-        new Translation2d(LinesVertical.hubCenter + width / 2, Units.inchesToMeters(255));
-    public static final Translation2d oppNearRightCorner = Hub.oppNearLeftCorner;
-    public static final Translation2d oppFarLeftCorner =
-        new Translation2d(LinesVertical.hubCenter - width / 2, Units.inchesToMeters(255));
-    public static final Translation2d oppFarRightCorner = Hub.oppFarLeftCorner;
+    public static final Translation2d oppNearLeftCorner = Hub.oppNearRightCorner;
+    public static final Translation2d oppNearRightCorner =
+        Hub.oppNearRightCorner.minus(new Translation2d(0.0, width));
+    public static final Translation2d oppFarLeftCorner = Hub.oppFarRightCorner;
+    public static final Translation2d oppFarRightCorner =
+        Hub.oppFarRightCorner.minus(new Translation2d(0.0, width));
   }
 
   /** Left Trench related constants */

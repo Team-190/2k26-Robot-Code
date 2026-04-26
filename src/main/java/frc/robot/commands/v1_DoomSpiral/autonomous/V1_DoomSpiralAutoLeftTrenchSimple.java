@@ -5,6 +5,8 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.commands.shared.AdjustPathCommand;
+import frc.robot.commands.shared.AdjustPathCommand.PathAdjustmentMode;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -14,6 +16,7 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V1_DoomSpiralAutoLeftTrenchSimple {
@@ -24,7 +27,8 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
       Intake intake,
       V1_DoomSpiralShooter shooter,
       V1_DoomSpiralSpindexer spindexer,
-      LoggedNetworkBoolean returnToMid) {
+      LoggedNetworkBoolean returnToMid,
+      Supplier<PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     // Create the routine and the trajectory
 
@@ -37,6 +41,10 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
 
     V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.onTrue(
         Commands.runOnce(() -> RETURN_TO_MID = returnToMid.get()));
+
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(
+            () -> LEFT_TRENCH_SIMPLE.getFinalPose().get(), 0, pathAdjustmentModeSupplier);
 
     routine
         .active()
@@ -56,6 +64,17 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                 // Follow the path
 
                 LEFT_TRENCH_SIMPLE.cmd(),
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = LEFT_TRENCH_SIMPLE.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                      return !isFinished;
+                    }),
 
                 // Stop drive
 

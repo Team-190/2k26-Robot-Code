@@ -216,4 +216,6 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(90.409532))))
           .enableRewind(true)
           .build();
+
+  public static final double AUTO_CORRECTION_THRESHOLD_METERS = 0.2;
 }

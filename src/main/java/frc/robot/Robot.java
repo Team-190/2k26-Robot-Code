@@ -2,6 +2,7 @@ package frc.robot;
 
 import choreo.Choreo;
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.math.MathShared;
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUsageId;
@@ -72,6 +73,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
+    Pathfinding.setPathfinder(new LocalADStarAK());
     SignalLogger.enableAutoLogging(false);
     LiveWindow.disableAllTelemetry();
     // Record metadata
