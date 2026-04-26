@@ -244,4 +244,5 @@ public class V2_DeltaConstants {
                   new Rotation3d(0.0, Units.degreesToRadians(90 - 57.826644), 0)))
           .enableRewind(true)
           .build();
+  public static final double AUTO_CORRECTION_THRESHOLD_METERS = 0.5;
 }
