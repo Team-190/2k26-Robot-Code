@@ -36,8 +36,8 @@
         "y": 4.014087882371439
       },
       "prevControl": {
-        "x": 5.759150422229645,
-        "y": 4.847927597931262
+        "x": 5.759149642930262,
+        "y": 4.847891677554105
       },
       "nextControl": null,
       "isLocked": false,
@@ -76,7 +76,12 @@
       "name": "DEPLOY",
       "waypointRelativePos": 1.3189773688663295,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "DEPLOY"
+        }
+      }
     }
   ],
   "globalConstraints": {

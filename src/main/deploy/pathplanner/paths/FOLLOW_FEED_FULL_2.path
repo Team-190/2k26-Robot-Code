@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.741060111731717,
+        "x": 5.741,
         "y": 4.014087882371439
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.727757298616253,
+        "x": 5.727697186884535,
         "y": 3.400919086533764
       },
       "isLocked": false,
@@ -81,13 +81,23 @@
       "name": "SCORE_OR_FEED",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 3.0,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SCORE_OR_FEED"
+        }
+      }
     },
     {
       "name": "DEPLOY",
       "waypointRelativePos": 0.5565513959390871,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "DEPLOY"
+        }
+      }
     }
   ],
   "globalConstraints": {

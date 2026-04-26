@@ -81,13 +81,23 @@
       "name": "SCORE_OR_FEED",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 3.0,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SCORE_OR_FEED"
+        }
+      }
     },
     {
       "name": "DEPLOY",
       "waypointRelativePos": 0.5565513959390871,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "DEPLOY"
+        }
+      }
     }
   ],
   "globalConstraints": {

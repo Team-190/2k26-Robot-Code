@@ -45,6 +45,11 @@ import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoDepot;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoFollowDepot;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoFollowFeedFullLeft;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoFollowFeedFullRight;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoFollowFeedMiddleLeft;
+import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoFollowFeedMiddleRight;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftHalf;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOPBucks;
@@ -367,6 +372,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
         V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
             .alongWith(intake.setOverrideRollerVoltage(0)));
 
+    NamedCommands.registerCommand("STOP_OVERRIDE_ROLLER", intake.stopRollerOverride());
+
     NamedCommands.registerCommand(
         "SCORE_AGITATE_OP_1",
         shooter
@@ -491,6 +498,26 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
     autoChooser.addOption(
         "Depot", V2_DeltaAutoDepot.getAutoRoutine(drive, intake, clopper, shooter));
+    autoChooser.addOption(
+        "Feed Full Right",
+        V2_DeltaAutoFollowFeedFullRight.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Feed Full Left",
+        V2_DeltaAutoFollowFeedFullLeft.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Feed Middle Right",
+        V2_DeltaAutoFollowFeedMiddleRight.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Feed Middle Left",
+        V2_DeltaAutoFollowFeedMiddleLeft.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Follow Depot",
+        V2_DeltaAutoFollowDepot.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
   }
 
   @Trace
