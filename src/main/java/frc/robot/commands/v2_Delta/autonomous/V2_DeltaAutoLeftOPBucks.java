@@ -32,23 +32,19 @@ public class V2_DeltaAutoLeftOPBucks {
               () ->
                   V2_DeltaRobotState.resetPose(
                       AllianceFlipUtil.apply(OP_1_CROSS.getStartingHolonomicPose().get()))),
-          Commands.deadline(
-              AutoBuilder.followPath(OP_1_CROSS),
-              intake.deploy(),
-              intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
-              V2_DeltaCompositeCommands.hold(clopper, shooter)),
-          intake.setOverrideRollerVoltage(0),
-          Commands.deadline(
-              AutoBuilder.followPath(OP_2),
-              Commands.sequence(
-                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(3.8),
-                  Commands.parallel(
-                          V2_DeltaCompositeCommands.hold(clopper, shooter),
-                          intake.deploy(),
-                          intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
-                      .withTimeout(4.5))),
-          intake.setOverrideRollerVoltage(0),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
+          AutoBuilder.followPath(OP_1_CROSS),
+          AutoBuilder.followPath(OP_2),
+          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+              .alongWith(
+                  Commands.sequence(
+                      intake.stopRollerOverride(),
+                      Commands.waitSeconds(.25),
+                      intake
+                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                          .alongWith(intake.stopRollerOverride()),
+                      Commands.waitSeconds(1.5),
+                      intake.deploy())));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(
