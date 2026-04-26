@@ -21,6 +21,7 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.AutoAlignConstants;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
+import frc.robot.subsystems.v1_DoomSpiral.shooter.ShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -28,12 +29,14 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 
 public final class DriveCommands {
 
   @Setter private static double lastCardinalDirection = 0.0;
+  @Getter private static double slowFactor = 0.5;
 
   /**
    * A command that drives a SwerveDrive using joystick input.
@@ -69,7 +72,8 @@ public final class DriveCommands {
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackXSuppliers,
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackYSuppliers,
       List<Pair<BooleanSupplier, DoubleSupplier>> hijackOmegaSuppliers,
-      BooleanSupplier slowMode) {
+      BooleanSupplier slowMode,
+      DoubleSupplier slowFactor) {
     return Commands.run(
         () -> {
           // Apply deadband
@@ -98,21 +102,27 @@ public final class DriveCommands {
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeXVel * 0.1) : fieldRelativeXVel);
+                  .orElse(
+                      slowMode.getAsBoolean()
+                          ? (fieldRelativeXVel * slowFactor.getAsDouble())
+                          : fieldRelativeXVel);
 
           fieldRelativeYVel =
               hijackYSuppliers.stream()
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (fieldRelativeYVel * 0.1) : fieldRelativeYVel);
+                  .orElse(
+                      slowMode.getAsBoolean()
+                          ? (fieldRelativeYVel * slowFactor.getAsDouble())
+                          : fieldRelativeYVel);
 
           angular =
               hijackOmegaSuppliers.stream()
                   .filter(pair -> pair.getFirst().getAsBoolean())
                   .map(pair -> pair.getSecond().getAsDouble())
                   .findFirst()
-                  .orElse(slowMode.getAsBoolean() ? (angular * 0.1) : angular);
+                  .orElse(slowMode.getAsBoolean() ? (angular * slowFactor.getAsDouble()) : angular);
 
           ChassisSpeeds chassisSpeeds =
               ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -145,7 +155,8 @@ public final class DriveCommands {
         List.of(),
         List.of(),
         List.of(),
-        () -> false);
+        () -> false,
+        () -> 1);
   }
 
   public static Command joystickDriveRotationLock(
@@ -157,8 +168,79 @@ public final class DriveCommands {
       Supplier<Rotation2d> rotationSupplier,
       BooleanSupplier pointAtHub,
       DoubleSupplier hubSetpoint,
+      DoubleSupplier hubFeedforward,
       BooleanSupplier cardinalDirectionAlign,
-      BooleanSupplier climbSlowMode) {
+      BooleanSupplier slowMode,
+      DoubleSupplier slowFactor) {
+
+    ProfiledPIDController omegaController =
+        new ProfiledPIDController(
+            driveConstants.autoAlignConstants.rotationGains().kP().get(),
+            0.0,
+            driveConstants.autoAlignConstants.rotationGains().kD().get(),
+            new TrapezoidProfile.Constraints(
+                driveConstants
+                    .autoAlignConstants
+                    .rotationConstraints()
+                    .maxVelocity()
+                    .get()
+                    .in(RadiansPerSecond),
+                Double.POSITIVE_INFINITY));
+    omegaController.enableContinuousInput(-Math.PI, Math.PI);
+    omegaController.setTolerance(
+        driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
+        0);
+
+    TunableUpdaterRegistry.registerGains(
+        driveConstants.autoAlignConstants.rotationGains(),
+        g ->
+            omegaController.setPID(
+                driveConstants.autoAlignConstants.rotationGains().kP().get(),
+                0,
+                driveConstants.autoAlignConstants.rotationGains().kD().get()));
+
+    return Commands.sequence(
+        Commands.runOnce(ShotCalculator::clear),
+        joystickDrive(
+            drive,
+            driveConstants,
+            xSupplier,
+            ySupplier,
+            omegaSupplier,
+            rotationSupplier,
+            List.of(),
+            List.of(),
+            List.of(
+                Pair.of(
+                    pointAtHub,
+                    () ->
+                        AutoAlignCommand.calculate(
+                                omegaController,
+                                hubSetpoint.getAsDouble(),
+                                rotationSupplier.get().getRadians(),
+                                drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)
+                            + hubFeedforward.getAsDouble()),
+                Pair.of(
+                    cardinalDirectionAlign,
+                    () ->
+                        AutoAlignCommand.calculate(
+                            omegaController,
+                            lastCardinalDirection,
+                            rotationSupplier.get().getRadians(),
+                            drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
+            slowMode,
+            slowFactor));
+  }
+
+  public static Command joystickDriveWithCardinalDirection(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier cardinalDirectionAlign,
+      BooleanSupplier slowMode) {
 
     ProfiledPIDController omegaController =
         new ProfiledPIDController(
@@ -197,14 +279,6 @@ public final class DriveCommands {
         List.of(),
         List.of(
             Pair.of(
-                pointAtHub,
-                () ->
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        hubSetpoint.getAsDouble(),
-                        rotationSupplier.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)),
-            Pair.of(
                 cardinalDirectionAlign,
                 () ->
                     AutoAlignCommand.calculate(
@@ -212,7 +286,47 @@ public final class DriveCommands {
                         lastCardinalDirection,
                         rotationSupplier.get().getRadians(),
                         drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond))),
-        climbSlowMode);
+        slowMode,
+        () -> slowFactor);
+  }
+
+  public static Command joystickDriveRotationLock(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier pointAtHub,
+      DoubleSupplier hubSetpoint,
+      DoubleSupplier hubFeedforward,
+      BooleanSupplier cardinalDirectionAlign,
+      BooleanSupplier climbSlowMode) {
+
+    return joystickDriveRotationLock(
+        drive,
+        driveConstants,
+        xSupplier,
+        ySupplier,
+        omegaSupplier,
+        rotationSupplier,
+        pointAtHub,
+        hubSetpoint,
+        hubFeedforward,
+        cardinalDirectionAlign,
+        climbSlowMode,
+        () -> .1);
+  }
+
+  public static Command incrementSlowFactor() {
+    return Commands.runOnce(
+        () -> {
+          slowFactor = Math.max(slowFactor + 0.05, 1.0);
+        });
+  }
+
+  public static Command decrementSlowFactor() {
+    return Commands.runOnce(() -> slowFactor = Math.min(slowFactor - 0.05, 0.0));
   }
 
   public static Command rotateToAngle(
@@ -239,21 +353,22 @@ public final class DriveCommands {
         driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
         0);
     return Commands.run(
-        () ->
-            drive.runVelocity(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                    0.0,
-                    0.0,
-                    AutoAlignCommand.calculate(
-                        omegaController,
-                        targetRotation.get().getRadians(),
-                        currentRotation.get().getRadians(),
-                        drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
-                    AllianceFlipUtil.apply(currentRotation.get()))));
+            () ->
+                drive.runVelocity(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        0.0,
+                        0.0,
+                        AutoAlignCommand.calculate(
+                            omegaController,
+                            targetRotation.get().getRadians(),
+                            currentRotation.get().getRadians(),
+                            drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
+                        AllianceFlipUtil.apply(currentRotation.get()))))
+        .beforeStarting(ShotCalculator::clear);
   }
 
-  public static boolean atAngle(Rotation2d targetRotation) {
-    return Math.abs(V1_DoomSpiralRobotState.getHeading().minus(targetRotation).getRadians())
+  public static boolean atAngle(Rotation2d currentRotation, Rotation2d targetRotation) {
+    return Math.abs(currentRotation.minus(targetRotation).getRadians())
         <= Units.degreesToRadians(2.0);
   }
 
@@ -314,10 +429,15 @@ public final class DriveCommands {
                   0.0,
                   0.0,
                   AutoAlignCommand.calculate(
-                      omegaController,
-                      V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
-                      V1_DoomSpiralRobotState.getHeading().getRadians(),
-                      drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
+                          omegaController,
+                          V1_DoomSpiralRobotState.getShootingParameters()
+                              .chassisAngle()
+                              .getRadians(),
+                          V1_DoomSpiralRobotState.getHeading().getRadians(),
+                          drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)
+                      + V1_DoomSpiralRobotState.getShootingParameters()
+                          .chassisVelocity()
+                          .in(RadiansPerSecond),
                   V1_DoomSpiralRobotState.getHeading()));
         });
   }

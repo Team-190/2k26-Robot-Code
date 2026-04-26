@@ -19,7 +19,7 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V0_FunkyConstants {
@@ -31,7 +31,7 @@ public class V0_FunkyConstants {
               V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond))
           .withWheelRadiusMeters(V0_FunkyTunerConstants.kWheelRadius.in(Meters))
           .withDriveModel(DCMotor.getKrakenX60Foc(1))
-          .withTurnModel(DCMotor.getKrakenX44Foc(1))
+          .withTurnModel(DCMotor.getKrakenX60Foc(1))
           .withFrontLeft(V0_FunkyTunerConstants.FrontLeft)
           .withFrontRight(V0_FunkyTunerConstants.FrontRight)
           .withBackLeft(V0_FunkyTunerConstants.BackLeft)
@@ -40,6 +40,11 @@ public class V0_FunkyConstants {
           .withSteerClosedLoopOutputType(V0_FunkyTunerConstants.kSteerClosedLoopOutput)
           .withBumperLength(Units.inchesToMeters(34.5))
           .withBumperWidth(Units.inchesToMeters(34.5))
+          .withTrackWidth(Units.inchesToMeters(0))
+          .withRobotMOI(7.897)
+          .withModuleCurrentLimit(60.0)
+          .withRobotMassKilograms(67.000)
+          .withWheelCOF(2.0)
           .build();
 
   public static final Gains DRIVE_GAINS =
@@ -177,15 +182,21 @@ public class V0_FunkyConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_CONFIG =
-      LimelightConfig.builder()
-          .key("limelight")
+  public static final StaticLimelightConfig LIMELIGHT_CONFIG =
+      StaticLimelightConfig.builder()
+          .key("right")
           .cameraType(CameraType.LIMELIGHT_4)
-          .horizontalFOV(82.0)
-          .verticalFOV(56.2)
-          .megatagXYStdev(0.1)
-          .metatagThetaStdev(0.0015)
-          .megatag2XYStdev(0.001)
-          .robotToCameraTransform(new Transform3d(0.0, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0)))
+          .verticalFOV(CameraType.LIMELIGHT_4.verticalFOV)
+          .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
+          .metatagThetaStdev(CameraType.LIMELIGHT_4.primaryThetaStandardDeviationCoefficient)
+          .megatagXYStdev(CameraType.LIMELIGHT_4.secondaryXYStandardDeviationCoefficient)
+          .megatag2XYStdev(CameraType.LIMELIGHT_4.primaryXYStandardDeviationCoefficient)
+          .enableRewind(false)
+          .robotToCameraTransform(
+              new Transform3d(
+                  Inches.of(11.25),
+                  Inches.of(0.0),
+                  Inches.of(13.3),
+                  new Rotation3d(0.0, 0.6974, 0.0)))
           .build();
 }

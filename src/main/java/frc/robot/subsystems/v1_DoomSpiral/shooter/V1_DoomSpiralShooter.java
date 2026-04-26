@@ -78,7 +78,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   private Rotation2d getHoodGoal(HoodGoal goal) {
     Rotation2d rotation =
         switch (goal) {
-          case SCORE -> V1_DoomSpiralRobotState.getScoreAngle();
+          case SCORE -> V1_DoomSpiralRobotState.getShootingParameters().hoodAngle();
           case FEED -> V1_DoomSpiralRobotState.getFeedAngle();
           default -> Rotation2d.kZero;
         };
@@ -151,7 +151,7 @@ public class V1_DoomSpiralShooter extends SubsystemBase {
   }
 
   public Command hoodSysId() {
-    return hood.runSysId();
+    return hood.runSysIdRoutine();
   }
 
   public Command flywheelSysId() {

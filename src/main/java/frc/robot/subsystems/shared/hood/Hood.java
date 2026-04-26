@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,7 +43,13 @@ public class Hood {
    * @param subsystem the parent subsystem
    * @param name the name of the hood (for logging purposes)
    */
-  public Hood(HoodIO io, HoodConstants constants, Subsystem subsystem, String name) {
+  public Hood(
+      HoodIO io,
+      HoodConstants constants,
+      Subsystem subsystem,
+      String name,
+      Setpoint<AngleUnit> positionGoal,
+      Setpoint<VoltageUnit> voltageGoal) {
     inputs = new HoodIOInputsAutoLogged();
     this.io = io;
 
@@ -59,15 +66,38 @@ public class Hood {
                 (state) -> Logger.recordOutput(aKitTopic + "/sysIDState", state.toString())),
             new SysIdRoutine.Mechanism(io::setVoltage, null, subsystem));
 
-    positionGoal =
+    this.positionGoal = positionGoal;
+    this.voltageGoal = voltageGoal;
+
+    this.constants = constants;
+  }
+
+  public Hood(
+      HoodIO io,
+      HoodConstants constants,
+      Subsystem subsystem,
+      String name,
+      Setpoint<AngleUnit> positionGoal) {
+    this(
+        io,
+        constants,
+        subsystem,
+        name,
+        positionGoal,
+        new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12)));
+  }
+
+  public Hood(HoodIO io, HoodConstants constants, Subsystem subsystem, String name) {
+    this(
+        io,
+        constants,
+        subsystem,
+        name,
         new Setpoint<>(
             Radians.zero(),
             constants.offsetStep,
             constants.minAngle.getMeasure(),
-            constants.maxAngle.getMeasure());
-    voltageGoal = new Setpoint<>(Volts.of(0), constants.voltageStep, Volts.of(-12), Volts.of(12));
-
-    this.constants = constants;
+            constants.maxAngle.getMeasure()));
   }
 
   /** Periodic method for the hood subsystem. Updates inputs and sets position if in closed loop. */
@@ -180,15 +210,7 @@ public class Hood {
    * @return A command sequence that resets the hood to the zero position
    */
   public Command resetHoodZero() {
-    return Commands.sequence(
-        Commands.runOnce(() -> io.setPosition(constants.maxAngle)),
-        Commands.runOnce(() -> currentState = HoodState.IDLE),
-        Commands.run(() -> io.setVoltage(constants.zeroVoltage.times(-1)))
-            .until(
-                () ->
-                    inputs.torqueCurrent.isNear(
-                        constants.zeroCurrentThreshold, constants.zeroCurrentEpsilon)),
-        Commands.runOnce(() -> io.setPosition(Rotation2d.kZero)));
+    return Commands.runOnce(() -> io.setPosition(Rotation2d.kZero));
   }
 
   /**
@@ -205,7 +227,7 @@ public class Hood {
    *
    * @return runs a sysID charecterization routine command
    */
-  public Command runSysId() {
+  public Command runSysIdRoutine() {
     return Commands.sequence(
         Commands.runOnce(() -> currentState = HoodState.IDLE),
         characterizationRoutine.quasistatic(Direction.kForward),
@@ -215,5 +237,13 @@ public class Hood {
         characterizationRoutine.dynamic(Direction.kForward),
         Commands.waitSeconds(3),
         characterizationRoutine.dynamic(Direction.kReverse));
+  }
+
+  public Rotation2d getAngle() {
+    return inputs.position;
+  }
+
+  public AngularVelocity getVelocity() {
+    return inputs.velocity;
   }
 }
