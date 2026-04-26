@@ -84,7 +84,7 @@ public class V1_DoomSpiralShooterConstants {
   public static final HoodConstants HOOD_CONSTANTS =
       HoodConstants.builder()
           .withMotorCanId(32)
-          .withCurrentLimits(40.0)
+          .withCurrentLimits(new CurrentLimits(40, 30))
           .withGearRatio((36.0 / 12.0) * (24.0 / 18.0) * (296.0 / 14.0))
           .withMomentOfInertia(0.0001)
           .withInvertedValue(InvertedValue.CounterClockwise_Positive)

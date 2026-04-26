@@ -6,7 +6,7 @@ public class V2_DeltaCANdleConstants {
 
   public static final int CAN_ID = 60;
   public static final CANBus CAN_LOOP = CANBus.roboRIO();
-  public static final int LED_COUNT = 74;
+  public static final int LED_COUNT = 74 - 17; // Not so happy accidents
 
   public static final double LOW_BATTERY_VOLTAGE = 11.5;
   public static final int MIN_LOOP_CYCLE_COUNT = 20;
