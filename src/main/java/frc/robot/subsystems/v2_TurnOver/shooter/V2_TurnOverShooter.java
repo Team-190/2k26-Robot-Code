@@ -79,7 +79,8 @@ public class V2_TurnOverShooter extends SubsystemBase {
             V2_TurnOverShooterConstants.HOOD_CONSTANTS.minAngle.getMeasure(),
             V2_TurnOverShooterConstants.HOOD_CONSTANTS.maxAngle.getMeasure());
 
-    flywheel = new GenericFlywheel(flywheelIO, this, V2_TurnOverShooterConstants.SHOOT_CONSTANTS, "");
+    flywheel =
+        new GenericFlywheel(flywheelIO, this, V2_TurnOverShooterConstants.SHOOT_CONSTANTS, "");
     hood = new Hood(hoodIO, V2_TurnOverShooterConstants.HOOD_CONSTANTS, this, "", hoodStowSetpoint);
 
     turret =
@@ -99,7 +100,10 @@ public class V2_TurnOverShooter extends SubsystemBase {
     fixedShotParameters = V2_TurnOverRobotState.FixedShots.HUB.getParameters();
 
     flywheelVelocityThresholdRadPerSec =
-        V2_TurnOverShooterConstants.SHOOT_CONSTANTS.constraints.goalTolerance().get(RadiansPerSecond);
+        V2_TurnOverShooterConstants.SHOOT_CONSTANTS
+            .constraints
+            .goalTolerance()
+            .get(RadiansPerSecond);
 
     flywheelShootingTrigger =
         new Trigger(
@@ -161,7 +165,8 @@ public class V2_TurnOverShooter extends SubsystemBase {
           hood.setPositionGoal(hoodSetpoint);
           if (!staticShooterSupplier.getAsBoolean())
             turret.setFieldRelativeGoal(
-                V2_TurnOverRobotState.getFeedTranslation(), V2_TurnOverRobotState.getTurretVelocity());
+                V2_TurnOverRobotState.getFeedTranslation(),
+                V2_TurnOverRobotState.getTurretVelocity());
           else turret.setVoltageGoal(Volts.zero());
           hood.setPositionGoal(V2_TurnOverRobotState.getHoodAngle());
           flywheel.setVelocityGoal(V2_TurnOverRobotState.getFlywheelVelocity());
@@ -204,7 +209,8 @@ public class V2_TurnOverShooter extends SubsystemBase {
     Logger.recordOutput(
         "Shooter/Fixed Shot/RobotPose",
         new Pose2d(
-            fixedShotParameters.robotPosition(), V2_TurnOverRobotState.getGlobalPose().getRotation()));
+            fixedShotParameters.robotPosition(),
+            V2_TurnOverRobotState.getGlobalPose().getRotation()));
 
     Logger.recordOutput("Shooter/Goal", shooterGoal);
     Logger.recordOutput(

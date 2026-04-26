@@ -122,7 +122,8 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
         case V2_TURNOVER:
           gyroIO =
               new GyroIOPigeon2(
-                  V2_TurnOverConstants.DRIVE_CONSTANTS, V2_TurnOverRobotState::setHeadingUpdateTimestamp);
+                  V2_TurnOverConstants.DRIVE_CONSTANTS,
+                  V2_TurnOverRobotState::setHeadingUpdateTimestamp);
           drive =
               new SwerveDrive(
                   V2_TurnOverConstants.DRIVE_CONSTANTS,
@@ -155,7 +156,8 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
               new V2_TurnOverClopper(
                   new GenericRollerIOTalonFX(V2_TurnOverClopperConstants.ROLLER_FLOOR_CONSTANTS),
                   new GenericRollerIOTalonFX(V2_TurnOverClopperConstants.BALL_TUNNEL_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_TurnOverClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
+                  new GenericRollerIOTalonFX(
+                      V2_TurnOverClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
           shooter =
               new V2_TurnOverShooter(
                   new TurretIOTalonFX(V2_TurnOverShooterConstants.TURRET_CONSTANTS),
@@ -321,7 +323,8 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
                   && simFuelCount.getFuelStored() < V2_TurnOverSimFuelCount.getCapacity(),
           () ->
               simFuelCount.setFuelStored(
-                  Math.min(simFuelCount.getFuelStored() + 1, V2_TurnOverSimFuelCount.getCapacity())));
+                  Math.min(
+                      simFuelCount.getFuelStored() + 1, V2_TurnOverSimFuelCount.getCapacity())));
 
       fuelSimulator.registerShooter(
           () -> simFuelCount.getFuelStored() > 0 && !V2_TurnOverRobotState.isProhibitShot(),
@@ -590,7 +593,8 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
                     () ->
                         DriveCommands.setLastCardinalDirection(
                             Math.round(
-                                    V2_TurnOverRobotState.getHeading().getRadians() / (Math.PI / 2.0))
+                                    V2_TurnOverRobotState.getHeading().getRadians()
+                                        / (Math.PI / 2.0))
                                 * (Math.PI / 2.0)))
                 .withName("cardinal-direction-set"));
     xkeys.b9().onTrue(DriveCommands.incrementSlowFactor().withName("xkeys-b9-true"));
@@ -610,14 +614,16 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
     driver
         .rightBumper()
         .whileTrue(
-            V2_TurnOverCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
+            V2_TurnOverCompositeCommands.hold(clopper, shooter)
+                .withName("driver-rightBumper-while"))
         .onFalse(
             V2_TurnOverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-rightBumper-false"));
     xkeys
         .b8()
         .onTrue(
-            V2_TurnOverCompositeCommands.hold(clopper, shooter).withName("driver-rightBumper-while"))
+            V2_TurnOverCompositeCommands.hold(clopper, shooter)
+                .withName("driver-rightBumper-while"))
         .onFalse(
             V2_TurnOverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-rightBumper-false"));

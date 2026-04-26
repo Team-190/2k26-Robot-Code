@@ -47,7 +47,9 @@ public class V2_TurnOverCompositeCommands {
   }
 
   public static Command fixedShotCommand(
-      V2_TurnOverShooter shooter, V2_TurnOverClopper clopper, V2_TurnOverRobotState.FixedShots fixedShot) {
+      V2_TurnOverShooter shooter,
+      V2_TurnOverClopper clopper,
+      V2_TurnOverRobotState.FixedShots fixedShot) {
     return Commands.parallel(
         Commands.runOnce(V2_TurnOverShotCalculator::clear),
         shooter.runFixedShot(fixedShot),
