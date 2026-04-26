@@ -351,11 +351,11 @@ public class V2_DeltaRobotContainer implements RobotContainer {
             .alongWith(
                 Commands.sequence(
                     intake.stopRollerOverride(),
-                    Commands.waitSeconds(1),
+                    Commands.waitSeconds(.25),
                     intake
                         .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
                         .alongWith(intake.stopRollerOverride()),
-                    Commands.waitSeconds(1.25),
+                    Commands.waitSeconds(1.5),
                     intake.deploy())));
 
     NamedCommands.registerCommand("HOLD", V2_DeltaCompositeCommands.hold(clopper, shooter));
@@ -786,8 +786,14 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     // xkeys.h4().onTrue(); SLOW WRAP MODE
     // xkeys.h5().onTrue(); FAST WRAP MODE
 
-    xkeys.h6().whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"));
-    xkeys.h7().whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"));
+    xkeys
+        .h6()
+        .whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h6-false"));
+    xkeys
+        .h7()
+        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h7-false"));
 
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
 

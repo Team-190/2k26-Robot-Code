@@ -108,21 +108,22 @@ public class V2_DeltaShooter extends SubsystemBase {
                                 .minus(flywheel.getVelocityGoal().getNewSetpoint())
                                 .in(RadiansPerSecond))
                         <= flywheelVelocityThresholdRadPerSec)
-            .debounce(.5, Debouncer.DebounceType.kFalling);
+            .debounce(.75, Debouncer.DebounceType.kFalling);
     hoodTuckTrigger =
         new Trigger(V2_DeltaRobotState::isShouldHoodTuck)
-            .debounce(0.35, Debouncer.DebounceType.kFalling);
+            .debounce(.5, Debouncer.DebounceType.kFalling);
     this.staticShooterSupplier = staticShooterSupplier;
   }
 
   @Trace
   public void periodic() {
-    if (hoodTuckTrigger.getAsBoolean()) {
-      hood.setPositionGoal(hoodStowSetpoint);
-    } else if (V2_DeltaRobotState.isIntakeAtStow()) {
+
+    if (V2_DeltaRobotState.isIntakeAtStow()) {
       hood.setPositionGoal(hoodStowSetpoint);
       turret.setVoltageGoal(Volts.zero());
       flywheel.stop();
+    } else if (hoodTuckTrigger.getAsBoolean()) {
+      hood.setPositionGoal(hoodStowSetpoint);
     } else {
       switch (shooterGoal) {
         case STOW:

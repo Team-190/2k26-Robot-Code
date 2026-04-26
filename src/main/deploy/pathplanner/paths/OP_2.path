@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.162310778942294,
-        "y": 7.7549996916840715
+        "x": 3.356595030207022,
+        "y": 7.726789712266736
       },
       "isLocked": false,
       "linkedName": null
@@ -20,12 +20,12 @@
         "y": 7.488156626506025
       },
       "prevControl": {
-        "x": 2.9467709517565535,
-        "y": 7.494036351420707
+        "x": 3.0371608520750364,
+        "y": 7.518618417819235
       },
       "nextControl": {
-        "x": 4.18699095775463,
-        "y": 7.473779224537037
+        "x": 4.183349467908152,
+        "y": 7.389106948238781
       },
       "isLocked": false,
       "linkedName": null
@@ -36,12 +36,12 @@
         "y": 7.488156626506025
       },
       "prevControl": {
-        "x": 4.596458237845442,
-        "y": 7.460004535375736
+        "x": 4.473012739996169,
+        "y": 7.633652180331236
       },
       "nextControl": {
-        "x": 7.353224030671297,
-        "y": 7.5162948495370365
+        "x": 7.360682555101732,
+        "y": 7.353961011435923
       },
       "isLocked": false,
       "linkedName": null
@@ -52,44 +52,44 @@
         "y": 6.887132530120482
       },
       "prevControl": {
-        "x": 7.582884020432944,
-        "y": 7.225205112535108
+        "x": 7.628209658675491,
+        "y": 7.0995738300919555
       },
       "nextControl": {
-        "x": 8.076694039471347,
-        "y": 6.2826383900597715
+        "x": 8.121888234831424,
+        "y": 6.303781684532584
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.76,
-        "y": 4.6
+        "x": 7.959739922361507,
+        "y": 4.466022279443465
       },
       "prevControl": {
-        "x": 8.162473989252309,
-        "y": 5.038050403269902
+        "x": 8.480037378664646,
+        "y": 4.456946306916359
       },
       "nextControl": {
-        "x": 7.463198926499069,
-        "y": 4.276963397859436
+        "x": 7.2867689625986785,
+        "y": 4.477761460306939
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.444217194733796,
-        "y": 5.276179578993055
+        "x": 6.298219542310797,
+        "y": 5.002867123910193
       },
       "prevControl": {
-        "x": 7.1528516749498285,
-        "y": 4.7749113378272305
+        "x": 5.753134229064261,
+        "y": 3.8932829920977987
       },
       "nextControl": {
-        "x": 5.712749457465278,
-        "y": 5.793599428530092
+        "x": 6.620962955026321,
+        "y": 5.659848628811162
       },
       "isLocked": false,
       "linkedName": null
@@ -100,8 +100,8 @@
         "y": 5.662
       },
       "prevControl": {
-        "x": 4.073576569733796,
-        "y": 5.626592592592592
+        "x": 4.439661262889968,
+        "y": 5.600082155692181
       },
       "nextControl": null,
       "isLocked": false,
@@ -183,7 +183,7 @@
     {
       "name": "SCORE_NO_ROLLER",
       "waypointRelativePos": 0.36,
-      "endWaypointRelativePos": 0.95,
+      "endWaypointRelativePos": 1.0707277823920274,
       "command": {
         "type": "named",
         "data": {
@@ -192,24 +192,24 @@
       }
     },
     {
-      "name": "HOLD",
-      "waypointRelativePos": 1.34,
-      "endWaypointRelativePos": 5.7811980897009985,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "HOLD"
-        }
-      }
-    },
-    {
       "name": "DEPLOY",
-      "waypointRelativePos": 2.2286648671096336,
+      "waypointRelativePos": 0.5044123754152823,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "DEPLOY"
+        }
+      }
+    },
+    {
+      "name": "HOLD",
+      "waypointRelativePos": 1.0889482973421927,
+      "endWaypointRelativePos": 5.7811980897009985,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD"
         }
       }
     },
@@ -221,17 +221,6 @@
         "type": "named",
         "data": {
           "name": "STOP_ROLLER"
-        }
-      }
-    },
-    {
-      "name": "SCORE_AGITATE_OP_2",
-      "waypointRelativePos": 5.9,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SCORE_AGITATE_OP_2"
         }
       }
     }
