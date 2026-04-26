@@ -4,12 +4,10 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -33,14 +31,14 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Voltage> appliedVolts;
 
-  private final StatusSignal<Angle> e1;
-  private final StatusSignal<Angle> e2;
+  // private final StatusSignal<Angle> e1;
+  // private final StatusSignal<Angle> e2;
 
   protected final TalonFX talonFX;
   private final TalonFXConfiguration config;
 
-  protected final CANcoder encoder2;
-  protected final CANcoder encoder1;
+  // protected final CANcoder encoder2;
+  // protected final CANcoder encoder1;
 
   private final VoltageOut voltageControlRequest;
   private final PositionVoltage positionControlRequest;
@@ -52,8 +50,8 @@ public class TurretIOTalonFX implements TurretIO {
 
     talonFX = new TalonFX(constants.turretCANID, constants.canBus);
 
-    encoder1 = new CANcoder(constants.encoder1ID, talonFX.getNetwork());
-    encoder2 = new CANcoder(constants.encoder2ID, talonFX.getNetwork());
+    // encoder1 = new CANcoder(constants.encoder1ID, talonFX.getNetwork());
+    // encoder2 = new CANcoder(constants.encoder2ID, talonFX.getNetwork());
 
     config = new TalonFXConfiguration();
     config.Feedback.SensorToMechanismRatio = constants.gearRatio;
@@ -82,23 +80,23 @@ public class TurretIOTalonFX implements TurretIO {
 
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
-    var e1CANcoderConfig = new CANcoderConfiguration();
-    e1CANcoderConfig
-        .MagnetSensor
-        .withAbsoluteSensorDiscontinuityPoint(1)
-        .withSensorDirection(constants.encoderInversion)
-        .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
-    PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(e1CANcoderConfig, 0.25));
+    // var e1CANcoderConfig = new CANcoderConfiguration();
+    // e1CANcoderConfig
+    //     .MagnetSensor
+    //     .withAbsoluteSensorDiscontinuityPoint(1)
+    //     .withSensorDirection(constants.encoderInversion)
+    //     .withMagnetOffset(Radians.of(constants.e1Offset.getRadians()));
+    // PhoenixUtil.tryUntilOk(5, () -> encoder1.getConfigurator().apply(e1CANcoderConfig, 0.25));
 
-    var e2CANcoderConfig =
-        e1CANcoderConfig
-            .clone()
-            .withMagnetSensor(
-                e1CANcoderConfig
-                    .MagnetSensor
-                    .clone()
-                    .withMagnetOffset(Radians.of(constants.e2Offset.getRadians())));
-    PhoenixUtil.tryUntilOk(5, () -> encoder2.getConfigurator().apply(e2CANcoderConfig, 0.25));
+    // var e2CANcoderConfig =
+    //     e1CANcoderConfig
+    //         .clone()
+    //         .withMagnetSensor(
+    //             e1CANcoderConfig
+    //                 .MagnetSensor
+    //                 .clone()
+    //                 .withMagnetOffset(Radians.of(constants.e2Offset.getRadians())));
+    // PhoenixUtil.tryUntilOk(5, () -> encoder2.getConfigurator().apply(e2CANcoderConfig, 0.25));
 
     position = talonFX.getPosition();
     velocity = talonFX.getVelocity();
@@ -109,8 +107,8 @@ public class TurretIOTalonFX implements TurretIO {
     torqueCurrent = talonFX.getTorqueCurrent();
     appliedVolts = talonFX.getMotorVoltage();
 
-    e1 = encoder1.getAbsolutePosition();
-    e2 = encoder2.getAbsolutePosition();
+    // e1 = encoder1.getAbsolutePosition();
+    // e2 = encoder2.getAbsolutePosition();
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         1 / GompeiLib.getLoopPeriod(),
@@ -121,12 +119,13 @@ public class TurretIOTalonFX implements TurretIO {
         positionError,
         supplyCurrent,
         torqueCurrent,
-        appliedVolts,
-        e1,
-        e2);
+        appliedVolts
+        // e1,
+        // e2
+        );
     talonFX.optimizeBusUtilization();
-    encoder1.optimizeBusUtilization();
-    encoder2.optimizeBusUtilization();
+    // encoder1.optimizeBusUtilization();
+    // encoder2.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
         constants.canBus.isNetworkFD(),
@@ -137,9 +136,10 @@ public class TurretIOTalonFX implements TurretIO {
         positionError,
         supplyCurrent,
         torqueCurrent,
-        appliedVolts,
-        e1,
-        e2);
+        appliedVolts
+        // e1,
+        // e2
+        );
 
     positionControlRequest = new PositionVoltage(0.0).withEnableFOC(true);
     voltageControlRequest = new VoltageOut(0.0).withEnableFOC(true);
@@ -184,8 +184,8 @@ public class TurretIOTalonFX implements TurretIO {
     inputs.positionError = Rotation2d.fromRotations(positionError.getValueAsDouble());
     inputs.positionGoal = Rotation2d.fromRotations(positionControlRequest.Position);
 
-    inputs.encoder1Position = new Rotation2d(e1.getValue());
-    inputs.encoder2Position = new Rotation2d(e2.getValue());
+    // inputs.encoder1Position = new Rotation2d(e1.getValue());
+    // inputs.encoder2Position = new Rotation2d(e2.getValue());
   }
 
   @Override
@@ -219,13 +219,13 @@ public class TurretIOTalonFX implements TurretIO {
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
   }
 
-  @Override
-  public Angle getEncoder1Position() {
-    return e1.getValue();
-  }
+  // @Override
+  // public Angle getEncoder1Position() {
+  //   return e1.getValue();
+  // }
 
-  @Override
-  public Angle getEncoder2Position() {
-    return e2.getValue();
-  }
+  // @Override
+  // public Angle getEncoder2Position() {
+  //   return e2.getValue();
+  // }
 }

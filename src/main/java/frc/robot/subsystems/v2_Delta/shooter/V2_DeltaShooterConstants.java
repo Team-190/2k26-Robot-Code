@@ -139,7 +139,7 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withLengthMeters(0.101596)
           .withMinAngle(Rotation2d.fromDegrees(0.3))
-          .withMaxAngle(Rotation2d.fromDegrees(30.549609))
+          .withMaxAngle(Rotation2d.fromDegrees(29.0))
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
