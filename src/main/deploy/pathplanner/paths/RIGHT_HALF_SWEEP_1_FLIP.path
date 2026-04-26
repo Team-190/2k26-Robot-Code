@@ -166,7 +166,26 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "HOLD_WHILE_INTAKE",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 3.461299294500723,
+      "command": null
+    },
+    {
+      "name": "SCORE_OR_FEED",
+      "waypointRelativePos": 3.47206268089725,
+      "endWaypointRelativePos": 4.770910591534008,
+      "command": null
+    },
+    {
+      "name": "HOLD_WHILE_INTAKE",
+      "waypointRelativePos": 4.78,
+      "endWaypointRelativePos": 7.0,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

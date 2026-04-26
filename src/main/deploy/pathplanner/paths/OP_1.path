@@ -80,12 +80,12 @@
     },
     {
       "anchor": {
-        "x": 2.6995840072631836,
-        "y": 5.662278652191162
+        "x": 3.307,
+        "y": 5.662
       },
       "prevControl": {
-        "x": 2.449584028798712,
-        "y": 5.662382420026838
+        "x": 3.0570000215355284,
+        "y": 5.662103767835676
       },
       "nextControl": null,
       "isLocked": false,
@@ -113,10 +113,10 @@
   "constraintZones": [
     {
       "name": "Intaking",
-      "minWaypointRelativePos": 1.8576320213607598,
-      "maxWaypointRelativePos": 3.074070411392407,
+      "minWaypointRelativePos": 1.7742940199335553,
+      "maxWaypointRelativePos": 3.4874636627906996,
       "constraints": {
-        "maxVelocity": 2.5,
+        "maxVelocity": 1.75,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -125,12 +125,12 @@
       }
     },
     {
-      "name": "Bump",
-      "minWaypointRelativePos": 3.998158128955694,
-      "maxWaypointRelativePos": 4.425156991693039,
+      "name": "Acceleration",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 2.0133298661360346,
       "constraints": {
-        "maxVelocity": 2.3,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 6.0,
+        "maxAcceleration": 6.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -139,7 +139,30 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "HOLD",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 5.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD"
+        }
+      }
+    },
+    {
+      "name": "STOP_ROLLER",
+      "waypointRelativePos": 4.004962779156333,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "STOP_ROLLER"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

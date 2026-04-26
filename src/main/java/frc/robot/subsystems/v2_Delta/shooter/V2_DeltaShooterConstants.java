@@ -119,7 +119,7 @@ public class V2_DeltaShooterConstants {
                           "Shooter/Flywheel/MaxAcceleration", RadiansPerSecondPerSecond.of(0)))
                   .withGoalTolerance(
                       new LoggedTunableMeasure<>(
-                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(10)))
+                          "Shooter/Flywheel/GoalTolerance", RadiansPerSecond.of(15)))
                   .build())
           .withAlignedFollowerCANID(23)
           .withOpposedFollowerCANID(22)
@@ -139,7 +139,7 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withLengthMeters(0.101596)
           .withMinAngle(Rotation2d.fromDegrees(0.3))
-          .withMaxAngle(Rotation2d.fromDegrees(30.549609))
+          .withMaxAngle(Rotation2d.fromDegrees(29.0))
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))
           .withZeroCurrentEpsilon(Milliamps.of(500))
@@ -176,8 +176,8 @@ public class V2_DeltaShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withEncoder1ID(26)
           .withEncoder2ID(27)
-          .withMaxAngle(Rotation2d.fromDegrees(0))
-          .withMinAngle(Rotation2d.fromDegrees(-720))
+          .withMaxAngle(Rotation2d.fromDegrees(615))
+          .withMinAngle(Rotation2d.fromDegrees(0))
           .withGearRatio((54.0 / 8.0) * (86.0 / 10.0))
           .withSupplyCurrentLimit(30.0)
           .withStatorCurrentLimit(30.0)
@@ -201,7 +201,7 @@ public class V2_DeltaShooterConstants {
                       new LoggedTunableMeasure<>(
                           "Shooter/Turret/MaxVelocity", RadiansPerSecond.of(50)))
                   .withGoalTolerance(
-                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(3)))
+                      new LoggedTunableMeasure<>("Shooter/Turret/GoalTolerance", Degrees.of(5)))
                   .build())
           .withTurretAngleCalculation(
               TurretAngleCalculation.builder()

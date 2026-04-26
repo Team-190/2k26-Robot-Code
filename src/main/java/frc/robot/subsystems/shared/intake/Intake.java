@@ -116,7 +116,7 @@ public class Intake extends SubsystemBase {
             roller.setVoltageGoal(Volts.of(IntakeConstants.INTAKE_VOLTAGE));
           } else {
             roller.setVoltageGoal(overrideVoltageSetpoint);
-            roller.setVoltageGoal(Volts.of(8));
+            roller.setVoltageGoal(Volts.of(5));
           }
           break;
         case AGITATE:
@@ -150,7 +150,14 @@ public class Intake extends SubsystemBase {
             roller.getVoltageGoal().getSetpoint().baseUnitMagnitude()
                 == IntakeConstants.EXTAKE_VOLTAGE);
 
-    intakeAtStow = intakeState.equals(IntakeState.STOW) && linkage.atPositionGoal();
+    intakeAtStow =
+        intakeState.equals(IntakeState.STOW)
+            || linkage.getPosition().getRadians()
+                <= IntakeConstants.INTAKE_STATES
+                    .get(IntakeState.STOW)
+                    .getSetpoint()
+                    .plus(Degrees.of(30))
+                    .in(Radians);
 
     Logger.recordOutput(
         "Elastic/Intake/Linkage/Offset Degrees",
@@ -191,7 +198,7 @@ public class Intake extends SubsystemBase {
     return Commands.runOnce(() -> linkage.setVoltageGoal(Volts.of(voltage)));
   }
 
-  public Command stopRoller() {
+  public Command stopRollerOverride() {
     return Commands.runOnce(
         () -> {
           overrideRoller = false;
@@ -343,7 +350,7 @@ public class Intake extends SubsystemBase {
   public Command defaultCommand() {
     Command defaultCommand =
         Commands.either(
-            Commands.either(stopRoller(), Commands.none(), this::atGoal),
+            Commands.either(stopRollerOverride(), Commands.none(), this::atGoal),
             Commands.none(),
             () -> (intakeState.equals(IntakeState.STOW)));
     defaultCommand.addRequirements(this);

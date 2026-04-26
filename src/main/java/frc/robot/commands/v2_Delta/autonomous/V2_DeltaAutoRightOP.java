@@ -15,6 +15,7 @@ import frc.robot.subsystems.v2_Delta.V2_DeltaConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
 import java.util.function.Supplier;
@@ -45,51 +46,32 @@ public class V2_DeltaAutoRightOP {
 
       RobotModeTriggers.autonomous()
           .negate()
-          .onTrue(intake.stopRoller().alongWith(intake.deploy()).ignoringDisable(true));
+          .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
       return Commands.sequence(
           Commands.runOnce(
               () ->
                   V2_DeltaRobotState.resetPose(
                       AllianceFlipUtil.apply(OP_1.getStartingHolonomicPose().get()))),
-          Commands.deadline(
-              AutoBuilder.followPath(OP_1),
-              intake.deploy(),
-              intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
-              V2_DeltaCompositeCommands.hold(clopper, shooter)),
-          followCommandOP_1.onlyWhile(
-              () -> {
-                Pose2d currentPose = V2_DeltaRobotState.getGlobalPose();
-                Pose2d targetPose = OP_1.getPathPoses().get(OP_1.getPathPoses().size() - 1);
-                double distanceToTarget =
-                    currentPose.getTranslation().getDistance(targetPose.getTranslation());
-                boolean isFinished =
-                    distanceToTarget < V2_DeltaConstants.AUTO_CORRECTION_THRESHOLD_METERS;
-                return !isFinished;
-              }),
-          intake.setOverrideRollerVoltage(0),
-          Commands.deadline(
-              AutoBuilder.followPath(OP_2),
-              Commands.sequence(
-                  V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(3.8),
-                  Commands.parallel(
-                          V2_DeltaCompositeCommands.hold(clopper, shooter),
-                          intake.deploy(),
-                          intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
-                      .withTimeout(4.5))),
-          followCommandOP_2.onlyWhile(
-              () -> {
-                Pose2d currentPose = V2_DeltaRobotState.getGlobalPose();
-                Pose2d targetPose = OP_2.getPathPoses().get(OP_2.getPathPoses().size() - 1);
-                double distanceToTarget =
-                    currentPose.getTranslation().getDistance(targetPose.getTranslation());
-                boolean isFinished =
-                    distanceToTarget < V2_DeltaConstants.AUTO_CORRECTION_THRESHOLD_METERS;
-                return !isFinished;
-              }),
-          intake.setOverrideRollerVoltage(0),
-          Commands.runOnce(drive::stop),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
+          AutoBuilder.followPath(OP_1),
+          AutoBuilder.followPath(OP_2)
+              .alongWith(
+                  Commands.sequence(
+                      Commands.waitSeconds(6.72),
+                      shooter.setNonRequiringGoal(V2_DeltaShooterConstants.ShooterGoal.STOW),
+                      clopper.stopBallTunnel(),
+                      clopper.stopRollerFloor())),
+          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+              .alongWith(
+                  Commands.sequence(
+                      intake.stopRollerOverride(),
+                      Commands.waitSeconds(.25),
+                      intake
+                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                          .alongWith(intake.stopRollerOverride()),
+                      Commands.waitSeconds(1.5),
+                      intake.deploy())));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(

@@ -519,11 +519,15 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                     V1_DoomSpiralRobotState.getGlobalPose()::getTranslation)
                 .withName("xkeys-b10-while"));
 
-    xkeys.b1().onTrue(intake.stopRoller().alongWith(intake.stow()).withName("xkeys-b1-true"));
+    xkeys
+        .b1()
+        .onTrue(intake.stopRollerOverride().alongWith(intake.stow()).withName("xkeys-b1-true"));
     xkeys.b3().onTrue(intake.decrementStowOffset().withName("xkeys-b3-true"));
     xkeys.b2().onTrue(intake.incrementStowOffset().withName("xkeys-b2-true"));
 
-    xkeys.d1().onTrue(intake.deploy().alongWith(intake.stopRoller()).withName("xkeys-d1-true"));
+    xkeys
+        .d1()
+        .onTrue(intake.deploy().alongWith(intake.stopRollerOverride()).withName("xkeys-d1-true"));
     xkeys.d3().onTrue(intake.decrementCollectOffset().withName("xkeys-d3-true"));
     xkeys.d2().onTrue(intake.incrementCollectOffset().withName("xkeys-d2-true"));
 
@@ -533,7 +537,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             intake
                 .setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)
                 .withName("xkeys-e1-while"))
-        .onFalse(intake.stopRoller().withName("xkeys-e1-false"));
+        .onFalse(intake.stopRollerOverride().withName("xkeys-e1-false"));
 
     xkeys
         .e2()
@@ -541,7 +545,7 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
             intake
                 .setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE)
                 .withName("xkeys-e2-while"))
-        .onFalse(intake.stopRoller().withName("xkeys-e2-false"));
+        .onFalse(intake.stopRollerOverride().withName("xkeys-e2-false"));
 
     xkeys.f1().onTrue(intake.increaseSpeedOffset().withName("xkeys-f1-true"));
     xkeys.f2().onTrue(intake.decreaseSpeedOffset().withName("xkeys-f2-true"));
