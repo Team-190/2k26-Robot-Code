@@ -12,6 +12,7 @@ import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants.ShooterGoal;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
 
@@ -33,9 +34,21 @@ public class V2_DeltaAutoDepot {
                           AllianceFlipUtil.apply(DEPOT.getStartingHolonomicPose().get())))
               .alongWith(
                   intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE), intake.deploy()),
-          AutoBuilder.followPath(DEPOT),
+          Commands.deadline(
+              AutoBuilder.followPath(DEPOT), V2_DeltaCompositeCommands.hold(clopper, shooter)),
           drive.runOnce(drive::stop),
-          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          Commands.parallel(
+              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper),
+              Commands.sequence(
+                  Commands.waitSeconds(4.0),
+                  intake.stopRollerOverride(),
+                  Commands.waitSeconds(.25),
+                  intake
+                      .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                      .alongWith(intake.stopRollerOverride()),
+                  Commands.waitSeconds(1.5),
+                  intake.deploy())),
+          shooter.setGoal(ShooterGoal.IDLE));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(
