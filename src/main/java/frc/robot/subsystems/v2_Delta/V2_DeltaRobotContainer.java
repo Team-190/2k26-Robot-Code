@@ -360,6 +360,8 @@ public class V2_DeltaRobotContainer implements RobotContainer {
 
     NamedCommands.registerCommand("HOLD", V2_DeltaCompositeCommands.hold(clopper, shooter));
 
+    NamedCommands.registerCommand("HOLD_WHILE_INTAKE", V2_DeltaCompositeCommands.hold(clopper, shooter).alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
+
     NamedCommands.registerCommand(
         "DEPLOY",
         intake.deploy().alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
