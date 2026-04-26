@@ -7,6 +7,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import lombok.Builder;
@@ -18,7 +19,7 @@ public class HoodConstants {
   @NonNull public final CANBus canBus;
 
   @NonNull public final Double gearRatio;
-  @NonNull public final Double currentLimits;
+  @NonNull public final CurrentLimits currentLimits;
   @NonNull public final Double momentOfInertia;
   @NonNull public final InvertedValue invertedValue;
   @NonNull public final DCMotor motorConfig;
