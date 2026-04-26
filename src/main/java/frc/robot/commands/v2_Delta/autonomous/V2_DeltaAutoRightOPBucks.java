@@ -12,11 +12,11 @@ import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
+import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
 
 public class V2_DeltaAutoRightOPBucks {
-
   public static Command getAutoRoutine(
       SwerveDrive drive, Intake intake, V2_DeltaClopper clopper, V2_DeltaShooter shooter) {
 
@@ -35,7 +35,13 @@ public class V2_DeltaAutoRightOPBucks {
                       AllianceFlipUtil.apply(OP_1_CROSS.getStartingHolonomicPose().get()))),
           intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
           AutoBuilder.followPath(OP_1_CROSS),
-          AutoBuilder.followPath(OP_2),
+          AutoBuilder.followPath(OP_2)
+              .alongWith(
+                  Commands.sequence(
+                      Commands.waitSeconds(6.72),
+                      shooter.setNonRequiringGoal(V2_DeltaShooterConstants.ShooterGoal.STOW),
+                      clopper.stopBallTunnel(),
+                      clopper.stopRollerFloor())),
           V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
               .alongWith(
                   Commands.sequence(
