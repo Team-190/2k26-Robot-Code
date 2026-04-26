@@ -252,13 +252,23 @@
       "name": "HOLD",
       "waypointRelativePos": 0.0,
       "endWaypointRelativePos": 3.0,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD"
+        }
+      }
     },
     {
       "name": "SCORE_OR_FEED",
       "waypointRelativePos": 3.01,
       "endWaypointRelativePos": 5.05,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SCORE_OR_FEED"
+        }
+      }
     },
     {
       "name": "HOLD_WHILE_INTAKE",
@@ -275,7 +285,12 @@
       "name": "SCORE_OR_FEED",
       "waypointRelativePos": 7.264,
       "endWaypointRelativePos": 10.0,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SCORE_OR_FEED"
+        }
+      }
     }
   ],
   "globalConstraints": {
