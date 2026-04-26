@@ -339,7 +339,7 @@ public class IntakeConstants {
                     MAX_ANGLE.getMeasure()));
         break;
 
-      case V2_DELTA:
+      case V2_TURNOVER:
         INTAKE_VOLTAGE = 11.0;
         EXTAKE_VOLTAGE = -4.0;
 
@@ -474,7 +474,7 @@ public class IntakeConstants {
                     MIN_ANGLE.getMeasure(),
                     MAX_ANGLE.getMeasure()));
         break;
-      case V2_DELTA_SIM:
+      case V2_TURNOVER_SIM:
       default:
         INTAKE_VOLTAGE = 11.0;
         EXTAKE_VOLTAGE = -4.0;

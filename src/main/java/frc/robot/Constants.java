@@ -9,10 +9,10 @@ public final class Constants {
 
   public static RobotMode getMode() {
     switch (RobotConfig.ROBOT) {
-      case V0_FUNKY, V1_DOOMSPIRAL, V2_DELTA:
+      case V0_FUNKY, V1_DOOMSPIRAL, V2_TURNOVER:
         return RobotBase.isReal() ? RobotMode.REAL : RobotMode.REPLAY;
 
-      case V0_FUNKY_SIM, V1_DOOMSPIRAL_SIM, V2_DELTA_SIM:
+      case V0_FUNKY_SIM, V1_DOOMSPIRAL_SIM, V2_TURNOVER_SIM:
         return RobotMode.SIM;
 
       default:
