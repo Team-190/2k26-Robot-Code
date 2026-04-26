@@ -210,15 +210,7 @@ public class Hood {
    * @return A command sequence that resets the hood to the zero position
    */
   public Command resetHoodZero() {
-    return Commands.sequence(
-        Commands.runOnce(() -> io.setPosition(constants.maxAngle)),
-        Commands.runOnce(() -> currentState = HoodState.IDLE),
-        Commands.run(() -> io.setVoltage(constants.zeroVoltage.times(-1)))
-            .until(
-                () ->
-                    inputs.torqueCurrent.isNear(
-                        constants.zeroCurrentThreshold, constants.zeroCurrentEpsilon)),
-        Commands.runOnce(() -> io.setPosition(Rotation2d.kZero)));
+    return Commands.runOnce(() -> io.setPosition(Rotation2d.kZero));
   }
 
   /**

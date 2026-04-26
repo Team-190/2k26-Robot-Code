@@ -2,6 +2,7 @@ package frc.robot.subsystems.v2_Delta;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,8 +46,6 @@ import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoLeftOPBucks;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightHalf;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP;
 import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOPBucks;
-// import frc.robot.commands.v2_Delta.autonomous.V2_DeltaAutoRightOP; TODO: Bring back when we have
-// a right OP auto
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOTalonFX;
@@ -65,6 +64,7 @@ import frc.robot.subsystems.v2_Delta.leds.V2_DeltaCANdle;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooterConstants;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaSimFuelCount;
+// import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaSimFuelCount;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.FuelSimulator;
 import frc.robot.util.LTNUpdater;
@@ -322,12 +322,61 @@ public class V2_DeltaRobotContainer implements RobotContainer {
   }
 
   private void configureAutos() {
+    // Named commands that are used during the paths
+    NamedCommands.registerCommand(
+        "SCORE_OR_FEED", V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+
+    NamedCommands.registerCommand(
+        "SCORE_NO_ROLLER",
+        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            .alongWith(intake.setOverrideRollerVoltage(0)));
+
+    NamedCommands.registerCommand(
+        "SCORE_AGITATE_OP_1",
+        shooter
+            .setGoal(V2_DeltaShooterConstants.ShooterGoal.SCORE)
+            .alongWith(
+                clopper.intake(),
+                Commands.sequence(
+                    Commands.waitSeconds(0.25),
+                    intake
+                        .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE / 2)
+                        .alongWith(intake.stopRollerOverride()),
+                    Commands.waitSeconds(5),
+                    intake.deploy())));
+
+    NamedCommands.registerCommand(
+        "SCORE_AGITATE_OP_2",
+        V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            .alongWith(
+                Commands.sequence(
+                    intake.stopRollerOverride(),
+                    Commands.waitSeconds(.25),
+                    intake
+                        .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
+                        .alongWith(intake.stopRollerOverride()),
+                    Commands.waitSeconds(1.5),
+                    intake.deploy())));
+
+    NamedCommands.registerCommand("HOLD", V2_DeltaCompositeCommands.hold(clopper, shooter));
+
+    NamedCommands.registerCommand(
+        "HOLD_WHILE_INTAKE",
+        V2_DeltaCompositeCommands.hold(clopper, shooter)
+            .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
+
+    NamedCommands.registerCommand(
+        "DEPLOY",
+        intake.deploy().alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
+
+    NamedCommands.registerCommand("STOP_ROLLER", intake.setOverrideRollerVoltage(0));
+
     CommandScheduler.getInstance()
         .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
 
     if (Constants.TUNING_MODE) {
 
-      //      autoChooser.addOption("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive,
+      // autoChooser.addOption("Turret Test", V2_TurretTestAuto.getAutoRoutine(drive,
       // shooter));
       autoChooser.addOption(
           "Drive Feedforward Characterization", DriveCommands.feedforwardCharacterization(drive));
@@ -742,8 +791,14 @@ public class V2_DeltaRobotContainer implements RobotContainer {
     // xkeys.h4().onTrue(); SLOW WRAP MODE
     // xkeys.h5().onTrue(); FAST WRAP MODE
 
-    xkeys.h6().whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"));
-    xkeys.h7().whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"));
+    xkeys
+        .h6()
+        .whileTrue(shooter.clockwiseSlow().withName("xkeys-h6-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h6-false"));
+    xkeys
+        .h7()
+        .whileTrue(shooter.counterClockwiseSlow().withName("xkeys-h7-while"))
+        .onFalse(shooter.stopTurret().withName("xkeys-h7-false"));
 
     xkeys.h9().onTrue(intake.resetIntakeZero().withName("xkeys-h9-true"));
 

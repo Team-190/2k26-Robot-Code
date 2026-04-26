@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.v2_Delta.V2_DeltaCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
-import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v2_Delta.V2_DeltaRobotState;
 import frc.robot.subsystems.v2_Delta.clopper.V2_DeltaClopper;
 import frc.robot.subsystems.v2_Delta.shooter.V2_DeltaShooter;
@@ -24,23 +23,15 @@ public class V2_DeltaAutoLeftHalf {
       RobotModeTriggers.autonomous()
           .negate()
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
-      return Commands.parallel(
-          Commands.sequence(
-              Commands.runOnce(
-                  () ->
-                      V2_DeltaRobotState.resetPose(
-                          AllianceFlipUtil.apply(HALF.getStartingHolonomicPose().get()))),
-              intake
-                  .deploy()
-                  .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)),
-              AutoBuilder.followPath(HALF),
-              drive.runOnce(drive::stop)),
-          Commands.sequence(
-              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(3),
-              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5.5),
-              V2_DeltaCompositeCommands.hold(clopper, shooter).withTimeout(1.5),
-              intake.stopRollerOverride(),
-              V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
+      return Commands.sequence(
+          Commands.runOnce(
+              () ->
+                  V2_DeltaRobotState.resetPose(
+                      AllianceFlipUtil.apply(HALF.getStartingHolonomicPose().get()))),
+          intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
+          AutoBuilder.followPath(HALF),
+          V2_DeltaCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(

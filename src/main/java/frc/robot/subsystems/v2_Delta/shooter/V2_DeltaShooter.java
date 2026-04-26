@@ -110,7 +110,7 @@ public class V2_DeltaShooter extends SubsystemBase {
                                 .minus(flywheel.getVelocityGoal().getNewSetpoint())
                                 .in(RadiansPerSecond))
                         <= flywheelVelocityThresholdRadPerSec)
-            .debounce(.5, Debouncer.DebounceType.kFalling);
+            .debounce(.75, Debouncer.DebounceType.kFalling);
     flywheelFeedingTrigger =
         new Trigger(
             () ->
@@ -122,18 +122,19 @@ public class V2_DeltaShooter extends SubsystemBase {
                     <= (flywheelVelocityThresholdRadPerSec + 35));
     hoodTuckTrigger =
         new Trigger(V2_DeltaRobotState::isShouldHoodTuck)
-            .debounce(0.35, Debouncer.DebounceType.kFalling);
+            .debounce(.5, Debouncer.DebounceType.kFalling);
     this.staticShooterSupplier = staticShooterSupplier;
   }
 
   @Trace
   public void periodic() {
-    if (hoodTuckTrigger.getAsBoolean()) {
-      hood.setPositionGoal(hoodStowSetpoint);
-    } else if (V2_DeltaRobotState.isIntakeAtStow()) {
+
+    if (V2_DeltaRobotState.isIntakeAtStow()) {
       hood.setPositionGoal(hoodStowSetpoint);
       turret.setVoltageGoal(Volts.zero());
       flywheel.stop();
+    } else if (hoodTuckTrigger.getAsBoolean()) {
+      hood.setPositionGoal(hoodStowSetpoint);
     } else {
       switch (shooterGoal) {
         case STOW:
@@ -251,6 +252,11 @@ public class V2_DeltaShooter extends SubsystemBase {
 
   public Command setGoal(ShooterGoal shooterGoal) {
     return this.runOnce(() -> this.shooterGoal = shooterGoal);
+  }
+
+  /** NEVER use this anywhere but auto. It will clash with other autos! */
+  public Command setNonRequiringGoal(ShooterGoal shooterGoal) {
+    return Commands.runOnce(() -> this.shooterGoal = shooterGoal);
   }
 
   public Command setGoal(Supplier<ShooterGoal> goalSupplier) {
