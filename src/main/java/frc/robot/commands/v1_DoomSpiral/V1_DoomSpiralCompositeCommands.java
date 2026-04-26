@@ -1,5 +1,7 @@
 package frc.robot.commands.v1_DoomSpiral;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
@@ -16,6 +18,7 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants.
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexerConstants;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.command.ContinuousConditionalCommand;
 
 public class V1_DoomSpiralCompositeCommands {
 
@@ -30,17 +33,21 @@ public class V1_DoomSpiralCompositeCommands {
   public static Command scoreCommand(
       V1_DoomSpiralShooter shooter, Intake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
-        intake.stopRoller(),
-        shooter.setGoal(HoodGoal.SCORE, V1_DoomSpiralRobotState::getScoreVelocity),
-        Commands.sequence(
-            spindexer
-                .agitateSpindexer()
-                .until(
-                    () ->
-                        (shooter.atGoal()
-                            && DriveCommands.atAngle(
-                                V1_DoomSpiralRobotState.getRobotToHubAngle()))),
-            spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE)));
+        intake.stopRollerOverride(),
+        shooter.setGoal(
+            HoodGoal.SCORE,
+            () ->
+                V1_DoomSpiralRobotState.getShootingParameters()
+                    .flywheelSpeed()
+                    .in(RadiansPerSecond)),
+        new ContinuousConditionalCommand(
+            spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE),
+            spindexer.agitateSpindexer(),
+            () ->
+                shooter.atGoal()
+                    && DriveCommands.atAngle(
+                        V1_DoomSpiralRobotState.getHeading(),
+                        V1_DoomSpiralRobotState.getShootingParameters().chassisAngle())));
   }
 
   public static Command stopShooterCommand(
@@ -56,7 +63,7 @@ public class V1_DoomSpiralCompositeCommands {
       Intake intake,
       FixedShotParameters shotParameters) {
     return Commands.sequence(
-        intake.stopRoller(),
+        intake.stopRollerOverride(),
         Commands.parallel(
                 DriveCommands.rotateToAngle(
                     drive,

@@ -45,7 +45,9 @@ public class HoodIOTalonFX implements HoodIO {
     hoodMotor = new TalonFX(constants.motorCanId, constants.canBus);
 
     config = new TalonFXConfiguration();
-    config.CurrentLimits.SupplyCurrentLimit = constants.currentLimits;
+    config.CurrentLimits.SupplyCurrentLimit = constants.currentLimits.supplyCurrentLimit().in(Amp);
+    config.CurrentLimits.StatorCurrentLimit = constants.currentLimits.statorCurrentLimit().in(Amp);
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.MotorOutput.Inverted = constants.invertedValue;

@@ -111,11 +111,13 @@ public class ClimberConstants {
                 .withEnableFOC(FOC_ENABLE)
                 .withInvertedValue(InvertedValue.Clockwise_Positive)
                 .withCanBus(CANBus.roboRIO())
+                .withVoltageOffsetStep(Volts.of(5.0))
+                .withPositionOffsetStep(new Rotation2d(5 * Math.PI / 180))
                 .build();
         break;
 
-      case V2_DELTA:
-      case V2_DELTA_SIM:
+      case V2_TURNOVER:
+      case V2_TURNOVER_SIM:
       default:
         SLOW_VOLTAGE = 1.0;
         SLOT_0_GAINS =

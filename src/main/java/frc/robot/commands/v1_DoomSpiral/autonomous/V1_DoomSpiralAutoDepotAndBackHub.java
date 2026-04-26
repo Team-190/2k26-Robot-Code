@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
+import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v1_DoomSpiral.V1_DoomSpiralCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
@@ -32,6 +33,9 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
     AutoTrajectory DEPOT_AND_BACK_HUB_PATH_2 =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.DEPOT_AND_BACK_HUB_PATH_2);
 
+    AdjustPathCommand followCommand =
+        new AdjustPathCommand(() -> DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get());
+
     routine
         .active()
         .onTrue(
@@ -50,6 +54,17 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
                 // Follow the path
 
                 DEPOT_AND_BACK_HUB_PATH_1.cmd(),
+                followCommand.onlyWhile(
+                    () -> {
+                      Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
+                      Pose2d targetPose = DEPOT_AND_BACK_HUB_PATH_2.getFinalPose().get();
+                      double distanceToTarget =
+                          currentPose.getTranslation().getDistance(targetPose.getTranslation());
+                      boolean isFinished =
+                          distanceToTarget
+                              < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
+                      return !isFinished;
+                    }),
 
                 // Stop drive
 
@@ -74,7 +89,7 @@ public class V1_DoomSpiralAutoDepotAndBackHub {
         .onTrue(
             Commands.parallel(
                     V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                    intake.stopRoller(),
+                    intake.stopRollerOverride(),
                     intake.deploy())
                 .ignoringDisable(true));
 

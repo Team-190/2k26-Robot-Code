@@ -90,6 +90,7 @@ public class IntakeConstants {
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
                 .withVoltageOffsetStep(Volts.of(0.25))
                 .withCanBus(CANBus.roboRIO())
+                .withEnableFOC(false)
                 .build();
 
         LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
@@ -177,6 +178,7 @@ public class IntakeConstants {
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(Rotation2d.fromRadians(-92.285156))
+                .withEnableFoc(false)
                 .build();
 
         INTAKE_STATES =
@@ -224,6 +226,7 @@ public class IntakeConstants {
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
                 .withVoltageOffsetStep(Volts.of(0.25))
                 .withCanBus(CANBus.roboRIO())
+                .withEnableFOC(false)
                 .build();
 
         LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276);
@@ -312,6 +315,7 @@ public class IntakeConstants {
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
                 .withCanCoderOffset(Rotation2d.fromRadians(92.285156))
+                .withEnableFoc(false)
                 .build();
         INTAKE_STATES =
             Map.of(
@@ -335,7 +339,7 @@ public class IntakeConstants {
                     MAX_ANGLE.getMeasure()));
         break;
 
-      case V2_DELTA:
+      case V2_TURNOVER:
         INTAKE_VOLTAGE = 11.0;
         EXTAKE_VOLTAGE = -4.0;
 
@@ -353,15 +357,16 @@ public class IntakeConstants {
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
                 .withRollerMotorGearRatio((16.0 / 40.0) * (52.0))
-                .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
+                .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
                 .withOpposedFollowerCANID(42)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0004))
-                .withVoltageOffsetStep(Volts.of(0.25))
+                .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
                 .withEnableFOC(false)
                 .build();
 
-        LINKAGE_OFFSET = new Translation3d(0.381, 0.141, 0.276); //TODO: Anshu says he doesn't really care
+        LINKAGE_OFFSET =
+            new Translation3d(0.381, 0.141, 0.276); // TODO: Anshu says he doesn't really care
 
         MOTOR_CAN_ID = 40; // Pivot
 
@@ -375,29 +380,29 @@ public class IntakeConstants {
 
         ZERO_OFFSET = Rotation2d.kPi;
         MIN_ANGLE = Rotation2d.fromDegrees(30.838927);
-        MAX_ANGLE = Rotation2d.fromDegrees(168.912511);
+        MAX_ANGLE = Rotation2d.fromDegrees(236.74);
         // points A and D on the intake.
 
         PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
 
         GAINS =
             Gains.builder()
-                .withKP(new LoggedTunableNumber("Linkage/KP", 200.0))
-                .withKD(new LoggedTunableNumber("Linkage/KD", 0.0))
-                .withKS(new LoggedTunableNumber("Linkage/KS", 0.35537))
-                .withKG(new LoggedTunableNumber("Linkage/KG", 0.0))
-                .withKV(new LoggedTunableNumber("Linkage/KV", 0.0))
+                .withKP(new LoggedTunableNumber("Linkage/KP", 120))
+                .withKD(new LoggedTunableNumber("Linkage/KD", 5.0))
+                .withKS(new LoggedTunableNumber("Linkage/KS", 0.049018))
+                .withKG(new LoggedTunableNumber("Linkage/KG", 0.35311))
+                .withKV(new LoggedTunableNumber("Linkage/KV", 4.7192))
                 .withKA(new LoggedTunableNumber("Linkage/KA", 0.0))
                 .build();
         CONSTRAINTS =
             AngularPositionConstraints.builder()
                 .withMaxVelocity(
-                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RotationsPerSecond.of(17)))
                 .withMaxAcceleration(
                     new LoggedTunableMeasure<>(
-                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                        "Linkage/Max Acceleration", RotationsPerSecondPerSecond.of(85)))
                 .withGoalTolerance(
-                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
+                    new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(2.0)))
                 .build();
 
         LINK_LENGTHS =
@@ -406,7 +411,7 @@ public class IntakeConstants {
                 Units.Inches.of(8.945053).in(Units.Meters),
                 Units.Inches.of(7.500000).in(Units.Meters),
                 Units.Inches.of(6.823672).in(Units.Meters));
-//
+        //
         // These don't matter for V2
         LINK_BOUNDS =
             new LinkBounds(
@@ -426,7 +431,7 @@ public class IntakeConstants {
                 .withConstraints(CONSTRAINTS)
                 .withGains(GAINS)
                 .withGearRatio(GEAR_RATIO)
-                .withStartAngle(MIN_ANGLE)
+                .withStartAngle(MAX_ANGLE)
                 .withIntakeAngleOffset(INTAKE_ANGLE_OFFSET)
                 .withLinkageOffset(LINKAGE_OFFSET)
                 .withLinkBounds(LINK_BOUNDS)
@@ -445,6 +450,7 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withEnableFoc(true)
                 .build();
 
         INTAKE_STATES =
@@ -468,7 +474,7 @@ public class IntakeConstants {
                     MIN_ANGLE.getMeasure(),
                     MAX_ANGLE.getMeasure()));
         break;
-      case V2_DELTA_SIM:
+      case V2_TURNOVER_SIM:
       default:
         INTAKE_VOLTAGE = 11.0;
         EXTAKE_VOLTAGE = -4.0;
@@ -578,6 +584,7 @@ public class IntakeConstants {
                         .build())
                 .withZeroOffset(ZERO_OFFSET)
                 .withPositionOffsetStep(LINKAGE_ANGLE_INCREMENT)
+                .withEnableFoc(true)
                 .build();
         INTAKE_STATES =
             Map.of(
@@ -606,6 +613,6 @@ public class IntakeConstants {
   public enum IntakeState {
     STOW,
     INTAKE,
-    AGITATE;
+    AGITATE
   }
 }

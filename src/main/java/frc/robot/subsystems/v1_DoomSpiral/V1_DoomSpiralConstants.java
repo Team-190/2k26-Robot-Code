@@ -20,7 +20,7 @@ import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableMeasure;
 import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants.DriveConfig;
-import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.LimelightConfig;
+import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.StaticLimelightConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 
 public class V1_DoomSpiralConstants {
@@ -39,7 +39,12 @@ public class V1_DoomSpiralConstants {
           V1_DoomSpiralTunerConstants.kDriveClosedLoopOutput,
           V1_DoomSpiralTunerConstants.kSteerClosedLoopOutput,
           Units.inchesToMeters(37.5),
-          Units.inchesToMeters(28.5));
+          Units.inchesToMeters(28.5),
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          2.0);
 
   public static final Gains DRIVE_GAINS =
       Gains.builder()
@@ -170,8 +175,8 @@ public class V1_DoomSpiralConstants {
           .withOperatorDeadband(OPERATOR_DEADBAND)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_SHOOTER_CONFIG =
-      LimelightConfig.builder()
+  public static final StaticLimelightConfig LIMELIGHT_SHOOTER_CONFIG =
+      StaticLimelightConfig.builder()
           .key("shooter")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
@@ -182,7 +187,7 @@ public class V1_DoomSpiralConstants {
           .robotToCameraTransform(
               new Transform3d(
                   -0.055,
-                  -0.054,
+                  0.054,
                   0.538,
                   new Rotation3d(
                       Units.degreesToRadians(0),
@@ -191,8 +196,8 @@ public class V1_DoomSpiralConstants {
           .enableRewind(true)
           .build();
 
-  public static final LimelightConfig LIMELIGHT_CLIMBER_CONFIG =
-      LimelightConfig.builder()
+  public static final StaticLimelightConfig LIMELIGHT_CLIMBER_CONFIG =
+      StaticLimelightConfig.builder()
           .key("climber")
           .cameraType(CameraType.LIMELIGHT_4)
           .horizontalFOV(CameraType.LIMELIGHT_4.horizontalFOV)
@@ -203,7 +208,7 @@ public class V1_DoomSpiralConstants {
           .robotToCameraTransform(
               new Transform3d(
                   -0.060142,
-                  -0.398769,
+                  0.398769,
                   0.305,
                   new Rotation3d(
                       Units.degreesToRadians(0),
@@ -211,4 +216,6 @@ public class V1_DoomSpiralConstants {
                       Units.degreesToRadians(90.409532))))
           .enableRewind(true)
           .build();
+
+  public static final double AUTO_CORRECTION_THRESHOLD_METERS = 0.2;
 }
