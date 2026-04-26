@@ -53,7 +53,8 @@ public class V2_DeltaShooter extends SubsystemBase {
   private final Setpoint<AngleUnit> hoodSetpoint;
   private final Setpoint<AngleUnit> hoodStowSetpoint;
 
-  private final Trigger flywheelTrigger;
+  private final Trigger flywheelShootingTrigger;
+  private final Trigger flywheelFeedingTrigger;
   private final Trigger hoodTuckTrigger;
   private double flywheelVelocityThresholdRadPerSec;
 
@@ -100,7 +101,7 @@ public class V2_DeltaShooter extends SubsystemBase {
     flywheelVelocityThresholdRadPerSec =
         V2_DeltaShooterConstants.SHOOT_CONSTANTS.constraints.goalTolerance().get(RadiansPerSecond);
 
-    flywheelTrigger =
+    flywheelShootingTrigger =
         new Trigger(
                 () ->
                     Math.abs(
@@ -110,6 +111,15 @@ public class V2_DeltaShooter extends SubsystemBase {
                                 .in(RadiansPerSecond))
                         <= flywheelVelocityThresholdRadPerSec)
             .debounce(.5, Debouncer.DebounceType.kFalling);
+    flywheelFeedingTrigger =
+        new Trigger(
+            () ->
+                Math.abs(
+                        flywheel
+                            .getFlywheelVelocity()
+                            .minus(flywheel.getVelocityGoal().getNewSetpoint())
+                            .in(RadiansPerSecond))
+                    <= (flywheelVelocityThresholdRadPerSec + 35));
     hoodTuckTrigger =
         new Trigger(V2_DeltaRobotState::isShouldHoodTuck)
             .debounce(0.35, Debouncer.DebounceType.kFalling);
@@ -215,7 +225,11 @@ public class V2_DeltaShooter extends SubsystemBase {
                         .toRotation2d())
                 .plus(V2_DeltaRobotState.getGlobalPose().getRotation())));
 
-    Logger.recordOutput("Shooter/Flywheel Ready", flywheelTrigger.getAsBoolean());
+    Logger.recordOutput(
+        "Shooter/Flywheel Ready",
+        V2_DeltaRobotState.isInAllianceZone()
+            ? flywheelShootingTrigger.getAsBoolean()
+            : flywheelFeedingTrigger.getAsBoolean());
     Logger.recordOutput("Shooter/Should Hood Tuck", hoodTuckTrigger.getAsBoolean());
 
     Logger.recordOutput(
@@ -249,10 +263,11 @@ public class V2_DeltaShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal()
-        && flywheelTrigger.getAsBoolean()
-        && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
-  }
+    return hood.atPositionGoal() && V2_DeltaRobotState.isInAllianceZone()
+        ? flywheelShootingTrigger.getAsBoolean()
+        : flywheelFeedingTrigger.getAsBoolean()
+            && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
+    }
 
   public Command waitUntilAtGoal() {
     return Commands.waitUntil(this::atGoal);
