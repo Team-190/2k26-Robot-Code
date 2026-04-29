@@ -408,7 +408,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
     return Commands.runEnd(
         () -> {
           shooterGoal = ShooterGoal.OVERRIDE_TURRET;
-          overrideTurretVoltage = Volts.of(3);
+          overrideTurretVoltage = Volts.of(2);
         },
         () -> overrideTurretVoltage = Volts.of(0));
   }
@@ -425,7 +425,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
     return Commands.runEnd(
         () -> {
           shooterGoal = ShooterGoal.OVERRIDE_TURRET;
-          overrideTurretVoltage = Volts.of(-3);
+          overrideTurretVoltage = Volts.of(-2);
         },
         () -> overrideTurretVoltage = Volts.of(0));
   }
