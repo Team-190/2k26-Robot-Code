@@ -418,10 +418,10 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
     NamedCommands.registerCommand("STOP_ROLLER", intake.setOverrideRollerVoltage(0));
 
     CommandScheduler.getInstance()
-        .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
-    CommandScheduler.getInstance()
-        .schedule(PathfindingCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
-    final boolean BRING_UP = false;
+        .schedule(
+            FollowPathCommand.warmupCommand(),
+            PathfindingCommand.warmupCommand(),
+            intake.deploy().ignoringDisable(true));
 
     if (Constants.TUNING_MODE) {
 
