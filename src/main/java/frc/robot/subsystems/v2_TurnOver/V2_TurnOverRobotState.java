@@ -245,7 +245,7 @@ public class V2_TurnOverRobotState {
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
 
-    UMAMI = RadiansPerSecond.of(10.0);
+    UMAMI = RadiansPerSecond.of(5.0);
   }
 
   @Trace
