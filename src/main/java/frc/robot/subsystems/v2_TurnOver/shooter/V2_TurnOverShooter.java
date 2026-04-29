@@ -275,10 +275,11 @@ public class V2_TurnOverShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && V2_TurnOverRobotState.isInAllianceZone()
-        ? flywheelShootingTrigger.getAsBoolean()
-        : flywheelFeedingTrigger.getAsBoolean()
-            && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
+    return hood.atPositionGoal()
+        && (V2_TurnOverRobotState.isInAllianceZone()
+            ? flywheelShootingTrigger.getAsBoolean()
+            : flywheelFeedingTrigger.getAsBoolean())
+        && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
   }
 
   public Command waitUntilAtGoal() {
