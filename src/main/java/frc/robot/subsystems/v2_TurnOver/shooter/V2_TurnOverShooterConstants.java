@@ -154,10 +154,10 @@ public class V2_TurnOverShooterConstants {
           .withGains(
               Gains.builder()
                   .withKP(new LoggedTunableNumber("Shooter/Hood/Kp", 1000))
-                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 5))
-                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", 0.13629))
-                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 15.786))
-                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0.17393))
+                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 20))
+                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", .42216))
+                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 11.141))
+                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0.20086))
                   .build())
           .withVoltageStep(Volts.of(0.5))
           .build();
