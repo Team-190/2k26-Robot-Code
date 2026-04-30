@@ -159,7 +159,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
                             .constraints
                             .goalTolerance()
                             .get(Radians)
-                        + Units.degreesToRadians(5)));
+                        + Units.degreesToRadians(10)));
 
     this.staticShooterSupplier = staticShooterSupplier;
   }
@@ -273,6 +273,9 @@ public class V2_TurnOverShooter extends SubsystemBase {
             : flywheelFeedingTrigger.getAsBoolean());
     Logger.recordOutput("Shooter/Should Hood Tuck", hoodTuckTrigger.getAsBoolean());
 
+    Logger.recordOutput("Shooter/Turret At Goal",  (V2_TurnOverRobotState.isInAllianceZone()) ? turret.atPositionGoal() : turretFeedingTrigger.getAsBoolean());
+    Logger.recordOutput("Shooter/Hood At Goal", (V2_TurnOverRobotState.isInAllianceZone()) ? hood.atPositionGoal() : hoodFeedingTrigger.getAsBoolean());
+
     Logger.recordOutput(
         "Elastic/Shooter/Flywheel/Velocity Magnitude",
         String.format("%.0f", Math.abs(flywheel.getFlywheelVelocity().in(RadiansPerSecond))));
@@ -288,6 +291,8 @@ public class V2_TurnOverShooter extends SubsystemBase {
     Logger.recordOutput(
         "Elastic/Shooter/Hood/Angle Offset",
         String.format("%.1f", hood.getPositionGoal().getOffset().in(Degrees)));
+
+
   }
 
   public Command setGoal(ShooterGoal shooterGoal) {
@@ -315,7 +320,8 @@ public class V2_TurnOverShooter extends SubsystemBase {
             && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean()))
         : (flywheelFeedingTrigger.getAsBoolean()
             && hoodFeedingTrigger.getAsBoolean()
-            && turretFeedingTrigger.getAsBoolean()));
+            && (turretFeedingTrigger.getAsBoolean()
+            || staticShooterSupplier.getAsBoolean())));
   }
 
   public Command waitUntilAtGoal() {
