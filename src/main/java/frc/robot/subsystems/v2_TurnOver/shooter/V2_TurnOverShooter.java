@@ -152,9 +152,9 @@ public class V2_TurnOverShooter extends SubsystemBase {
                 Math.abs(
                         turret
                             .getPosition()
-                            .getMeasure()
-                            .minus(turret.getPositionGoal().getNewSetpoint())
-                            .in(Radians))
+                            .getMeasure().in(Radians)%(2*Math.PI)
+                            - (turret.getPositionGoal().getNewSetpoint()
+                            .in(Radians)%(2*Math.PI)))
                     <= (V2_TurnOverShooterConstants.TURRET_CONSTANTS
                             .constraints
                             .goalTolerance()
