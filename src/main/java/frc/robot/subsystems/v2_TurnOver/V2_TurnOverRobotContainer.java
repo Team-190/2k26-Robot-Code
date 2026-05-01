@@ -848,7 +848,6 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
                 .setGoal(V2_TurnOverShooterConstants.ShooterGoal.STOW)
                 .withName("xkeys-g4-true"));
 
-
     xkeys
         .g5()
         .onTrue(Commands.runOnce(() -> staticShooter = !staticShooter).withName("xkeys-g5-true"));
