@@ -271,6 +271,8 @@ public class V2_TurnOverShooter extends SubsystemBase {
             : flywheelFeedingTrigger.getAsBoolean());
     Logger.recordOutput("Shooter/Should Hood Tuck", hoodTuckTrigger.getAsBoolean());
 
+    Logger.recordOutput("Shooter/Static Turret", staticShooterSupplier.getAsBoolean());
+
     Logger.recordOutput(
         "Shooter/Turret At Goal",
         (V2_TurnOverRobotState.isInAllianceZone())
