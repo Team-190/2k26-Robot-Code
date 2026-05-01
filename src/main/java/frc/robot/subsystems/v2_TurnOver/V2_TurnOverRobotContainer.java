@@ -636,6 +636,13 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
             V2_TurnOverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-rightBumper-false"));
 
+    xkeys
+        .b10() 
+        .onTrue(
+            V2_TurnOverCompositeCommands.holdAndIntake(clopper, shooter, intake)
+                .withName("xkeys-b10-true"));
+       
+
     driver
         .topLeftPaddle()
         .whileTrue(
@@ -756,14 +763,14 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
                     V2_TurnOverClopperConstants.BALLS_TO_THE_WALL_FORWARD_VOLTAGE.unaryMinus())
                 .withName("xkeys-d5-true"));
 
-    xkeys
-        .b10()
-        .onTrue(
-            SharedCompositeCommands.resetHeading(
-                    drive,
-                    V2_TurnOverRobotState::resetPose,
-                    V2_TurnOverRobotState.getGlobalPose()::getTranslation)
-                .withName("xkeys-b10-true"));
+    // xkeys
+    //     .b10()
+    //     .onTrue(
+    //         SharedCompositeCommands.resetHeading(
+    //                 drive,
+    //                 V2_TurnOverRobotState::resetPose,
+    //                 V2_TurnOverRobotState.getGlobalPose()::getTranslation)
+    //             .withName("xkeys-b10-true"));
 
     xkeys
         .c1()

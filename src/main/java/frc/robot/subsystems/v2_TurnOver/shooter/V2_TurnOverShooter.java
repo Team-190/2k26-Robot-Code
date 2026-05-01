@@ -237,7 +237,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
     }
 
     hood.periodic();
-    // flywheel.periodic();
+    flywheel.periodic();
     turret.periodic();
 
     Logger.recordOutput(
@@ -512,5 +512,9 @@ public class V2_TurnOverShooter extends SubsystemBase {
 
   public Command waitUntilTurretAtGoal() {
     return turret.waitUntilAtGoal();
+  }
+
+  public Command stopAll(){
+    return Commands.parallel(stopTurret(), Commands.runOnce(() -> hood.setVoltageGoal(Volts.zero())), Commands.runOnce(()->flywheel.stop()));
   }
 }
