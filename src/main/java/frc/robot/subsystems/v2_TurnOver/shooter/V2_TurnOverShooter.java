@@ -324,7 +324,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
             && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean()))
         : (flywheelFeedingTrigger.getAsBoolean()
             && hoodFeedingTrigger.getAsBoolean()
-            && (turretFeedingTrigger.getAsBoolean() || staticShooterSupplier.getAsBoolean())));
+            && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean())));
   }
 
   public Command waitUntilAtGoal() {
