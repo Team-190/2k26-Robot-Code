@@ -637,11 +637,10 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
                 .withName("driver-rightBumper-false"));
 
     xkeys
-        .b10() 
+        .b10()
         .onTrue(
             V2_TurnOverCompositeCommands.holdAndIntake(clopper, shooter, intake)
                 .withName("xkeys-b10-true"));
-       
 
     driver
         .topLeftPaddle()

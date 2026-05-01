@@ -8,7 +8,6 @@ import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import frc.robot.subsystems.shared.climber.Climber;
 import frc.robot.subsystems.shared.climber.ClimberConstants.ClimberGoal;
 import frc.robot.subsystems.shared.intake.Intake;
-import frc.robot.subsystems.shared.turret.Turret;
 import frc.robot.subsystems.v2_TurnOver.V2_TurnOverRobotState;
 import frc.robot.subsystems.v2_TurnOver.clopper.V2_TurnOverClopper;
 import frc.robot.subsystems.v2_TurnOver.shooter.V2_TurnOverShooter;
@@ -28,7 +27,8 @@ public class V2_TurnOverCompositeCommands {
         Commands.runOnce(V2_TurnOverShotCalculator::clear));
   }
 
-  public static Command holdAndIntake(V2_TurnOverClopper clopper, V2_TurnOverShooter shooter, Intake intake) {
+  public static Command holdAndIntake(
+      V2_TurnOverClopper clopper, V2_TurnOverShooter shooter, Intake intake) {
     return Commands.parallel(
         clopper.stopBallTunnel(),
         clopper.stopRollerFloor(),
