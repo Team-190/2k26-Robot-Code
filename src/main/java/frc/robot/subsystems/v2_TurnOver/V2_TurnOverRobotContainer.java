@@ -843,14 +843,11 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
 
     xkeys
         .g4()
-        .whileTrue(
+        .onTrue(
             shooter
-                .setGoal(() -> V2_TurnOverShooterConstants.ShooterGoal.STOW)
-                .withName("xkeys-g4-true"))
-        .onFalse(
-            shooter
-                .setGoal(() -> V2_TurnOverShooterConstants.ShooterGoal.IDLE)
-                .withName("xkeys-g4-false"));
+                .setGoal(V2_TurnOverShooterConstants.ShooterGoal.STOW)
+                .withName("xkeys-g4-true"));
+
 
     xkeys
         .g5()
