@@ -150,7 +150,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
         new Trigger(
             () ->
                 Math.abs(
-                        turret.getPosition().getMeasure().in(Radians) % (2 * Math.PI)
+                        (turret.getPosition().getMeasure().in(Radians) % (2 * Math.PI))
                             - (turret.getPositionGoal().getNewSetpoint().in(Radians)
                                 % (2 * Math.PI)))
                     <= (V2_TurnOverShooterConstants.TURRET_CONSTANTS
