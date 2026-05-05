@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -56,6 +57,9 @@ public class V2_TurnOverShooter extends SubsystemBase {
   private final Trigger flywheelShootingTrigger;
   private final Trigger flywheelFeedingTrigger;
   private final Trigger hoodTuckTrigger;
+  private final Trigger hoodFeedingTrigger;
+  private final Trigger turretFeedingTrigger;
+
   private double flywheelVelocityThresholdRadPerSec;
 
   public V2_TurnOverShooter(
@@ -127,6 +131,34 @@ public class V2_TurnOverShooter extends SubsystemBase {
     hoodTuckTrigger =
         new Trigger(V2_TurnOverRobotState::isShouldHoodTuck)
             .debounce(.5, Debouncer.DebounceType.kFalling);
+
+    hoodFeedingTrigger =
+        new Trigger(
+            () ->
+                Math.abs(
+                        hood.getAngle()
+                            .getMeasure()
+                            .minus(hood.getPositionGoal().getNewSetpoint())
+                            .in(Radians))
+                    <= (V2_TurnOverShooterConstants.HOOD_CONSTANTS
+                            .constraints
+                            .goalTolerance()
+                            .get(Radians)
+                        + Units.degreesToRadians(5)));
+
+    turretFeedingTrigger =
+        new Trigger(
+            () ->
+                Math.abs(
+                        (turret.getPosition().getMeasure().in(Radians) % (2 * Math.PI))
+                            - (turret.getPositionGoal().getNewSetpoint().in(Radians)
+                                % (2 * Math.PI)))
+                    <= (V2_TurnOverShooterConstants.TURRET_CONSTANTS
+                            .constraints
+                            .goalTolerance()
+                            .get(Radians)
+                        + Units.degreesToRadians(10)));
+
     this.staticShooterSupplier = staticShooterSupplier;
   }
 
@@ -239,6 +271,19 @@ public class V2_TurnOverShooter extends SubsystemBase {
             : flywheelFeedingTrigger.getAsBoolean());
     Logger.recordOutput("Shooter/Should Hood Tuck", hoodTuckTrigger.getAsBoolean());
 
+    Logger.recordOutput("Shooter/Static Turret", staticShooterSupplier.getAsBoolean());
+
+    Logger.recordOutput(
+        "Shooter/Turret At Goal",
+        (V2_TurnOverRobotState.isInAllianceZone())
+            ? turret.atPositionGoal()
+            : turretFeedingTrigger.getAsBoolean());
+    Logger.recordOutput(
+        "Shooter/Hood At Goal",
+        (V2_TurnOverRobotState.isInAllianceZone())
+            ? hood.atPositionGoal()
+            : hoodFeedingTrigger.getAsBoolean());
+
     Logger.recordOutput(
         "Elastic/Shooter/Flywheel/Velocity Magnitude",
         String.format("%.0f", Math.abs(flywheel.getFlywheelVelocity().in(RadiansPerSecond))));
@@ -275,10 +320,13 @@ public class V2_TurnOverShooter extends SubsystemBase {
   }
 
   public boolean atGoal() {
-    return hood.atPositionGoal() && V2_TurnOverRobotState.isInAllianceZone()
-        ? flywheelShootingTrigger.getAsBoolean()
-        : flywheelFeedingTrigger.getAsBoolean()
-            && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean());
+    return (V2_TurnOverRobotState.isInAllianceZone()
+        ? (flywheelShootingTrigger.getAsBoolean()
+            && hood.atPositionGoal()
+            && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean()))
+        : (flywheelFeedingTrigger.getAsBoolean()
+            && hoodFeedingTrigger.getAsBoolean()
+            && (turret.atPositionGoal() || staticShooterSupplier.getAsBoolean())));
   }
 
   public Command waitUntilAtGoal() {
@@ -407,7 +455,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
     return Commands.runEnd(
         () -> {
           shooterGoal = ShooterGoal.OVERRIDE_TURRET;
-          overrideTurretVoltage = Volts.of(3);
+          overrideTurretVoltage = Volts.of(2);
         },
         () -> overrideTurretVoltage = Volts.of(0));
   }
@@ -424,7 +472,7 @@ public class V2_TurnOverShooter extends SubsystemBase {
     return Commands.runEnd(
         () -> {
           shooterGoal = ShooterGoal.OVERRIDE_TURRET;
-          overrideTurretVoltage = Volts.of(-3);
+          overrideTurretVoltage = Volts.of(-2);
         },
         () -> overrideTurretVoltage = Volts.of(0));
   }
@@ -469,5 +517,12 @@ public class V2_TurnOverShooter extends SubsystemBase {
 
   public Command waitUntilTurretAtGoal() {
     return turret.waitUntilAtGoal();
+  }
+
+  public Command stopAll() {
+    return Commands.parallel(
+        stopTurret(),
+        Commands.runOnce(() -> hood.setVoltageGoal(Volts.zero())),
+        Commands.runOnce(() -> flywheel.stop()));
   }
 }

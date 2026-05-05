@@ -122,13 +122,17 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void setVoltage(Voltage volts) {
-    hoodMotor.setControl(voltageControlRequest.withOutput(volts).withEnableFOC(true));
+    hoodMotor.setControl(
+        voltageControlRequest.withOutput(volts).withEnableFOC(true).withIgnoreSoftwareLimits(true));
   }
 
   @Override
   public void setPositionGoal(Rotation2d positionGoal) {
     hoodMotor.setControl(
-        positionControlRequest.withPosition(positionGoal.getRotations()).withEnableFOC(true));
+        positionControlRequest
+            .withPosition(positionGoal.getRotations())
+            .withEnableFOC(true)
+            .withIgnoreSoftwareLimits(false));
   }
 
   public void setPosition(Rotation2d position) {

@@ -127,7 +127,7 @@ public class V2_TurnOverShooterConstants {
   public static final HoodConstants HOOD_CONSTANTS =
       HoodConstants.builder()
           .withMotorCanId(20)
-          .withCurrentLimits(new CurrentLimits(40, 30))
+          .withCurrentLimits(new CurrentLimits(40, 20))
           .withGearRatio((18.0 / 12.0) * (28.0 / 8.0) * (324.0 / 14.0))
           .withMomentOfInertia(0.0001)
           .withInvertedValue(InvertedValue.CounterClockwise_Positive)
@@ -135,9 +135,9 @@ public class V2_TurnOverShooterConstants {
           .withCanBus(CANBus.roboRIO())
           .withLengthMeters(0.101596)
           .withMinAngle(Rotation2d.fromDegrees(0.3))
-          .withMaxAngle(Rotation2d.fromDegrees(29.0))
+          .withMaxAngle(Rotation2d.fromDegrees(27.5))
           .withZeroVoltage(Volts.of(1.0))
-          .withZeroCurrentThreshold(Amps.of(30.0))
+          .withZeroCurrentThreshold(Amps.of(15))
           .withZeroCurrentEpsilon(Milliamps.of(500))
           .withOffsetStep(Degrees.of(0.5))
           .withConstraints(
@@ -153,11 +153,11 @@ public class V2_TurnOverShooterConstants {
                   .build())
           .withGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Hood/Kp", 1000))
-                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 5))
-                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", 0.13629))
-                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 15.786))
-                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0.17393))
+                  .withKP(new LoggedTunableNumber("Shooter/Hood/Kp", 1400))
+                  .withKD(new LoggedTunableNumber("Shooter/Hood/Kd", 30))
+                  .withKS(new LoggedTunableNumber("Shooter/Hood/Ks", .42216))
+                  .withKV(new LoggedTunableNumber("Shooter/Hood/Kv", 11.141))
+                  .withKA(new LoggedTunableNumber("Shooter/Hood/Ka", 0.20086))
                   .build())
           .withVoltageStep(Volts.of(0.5))
           .build();

@@ -10,9 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.BooleanEntry;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -81,10 +78,13 @@ import frc.robot.util.LTNUpdater;
 import frc.robot.util.command.ContinuousConditionalCommand;
 import frc.robot.util.input.XKeysInput;
 import frc.robot.util.input.XboxElite2Input;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 public class V2_TurnOverRobotContainer implements RobotContainer {
   private GyroIO gyroIO;
@@ -103,17 +103,7 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
   private final XboxElite2Input driver = new XboxElite2Input(0);
   private final XKeysInput xkeys = new XKeysInput(1);
 
-  private final NetworkTable pathAdjustmentTable =
-      NetworkTableInstance.getDefault().getTable("PathAdjustmentModes");
-
-  private final BooleanEntry leftBumpEntry =
-      pathAdjustmentTable.getBooleanTopic("Left Bump").getEntry(false);
-  private final BooleanEntry rightBumpEntry =
-      pathAdjustmentTable.getBooleanTopic("Right Bump").getEntry(false);
-  private final BooleanEntry leftTrenchEntry =
-      pathAdjustmentTable.getBooleanTopic("Left Trench").getEntry(false);
-  private final BooleanEntry rightTrenchEntry =
-      pathAdjustmentTable.getBooleanTopic("Right Trench").getEntry(false);
+  private final Map<LoggedNetworkBoolean, PathAdjustmentMode> pathAdjustmentModeMap;
 
   public V2_TurnOverRobotContainer() {
 
@@ -283,10 +273,23 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
               () -> false);
     }
 
-    leftBumpEntry.set(false);
-    rightBumpEntry.set(false);
-    leftTrenchEntry.set(false);
-    rightTrenchEntry.set(false);
+    pathAdjustmentModeMap =
+        new HashMap<>() {
+          {
+            put(
+                new LoggedNetworkBoolean("PathAdjustmentMode/Left Bump", false),
+                PathAdjustmentMode.LEFT_BUMP);
+            put(
+                new LoggedNetworkBoolean("PathAdjustmentMode/Right Bump", false),
+                PathAdjustmentMode.RIGHT_BUMP);
+            put(
+                new LoggedNetworkBoolean("PathAdjustmentMode/Left Trench", false),
+                PathAdjustmentMode.LEFT_TRENCH);
+            put(
+                new LoggedNetworkBoolean("PathAdjustmentMode/Right Trench", false),
+                PathAdjustmentMode.RIGHT_TRENCH);
+          }
+        };
 
     autoChooser = new LoggedDashboardChooser<>("Autonomous Modes");
     configureButtonBindings();
@@ -354,15 +357,20 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
   }
 
   public Supplier<PathAdjustmentMode[]> getAdjustmentModeSupplier() {
-    return () -> {
-      List<PathAdjustmentMode> modes = new ArrayList<>();
-      if (leftBumpEntry.get()) modes.add(PathAdjustmentMode.LEFT_BUMP);
-      if (rightBumpEntry.get()) modes.add(PathAdjustmentMode.RIGHT_BUMP);
-      if (leftTrenchEntry.get()) modes.add(PathAdjustmentMode.LEFT_TRENCH);
-      if (rightTrenchEntry.get()) modes.add(PathAdjustmentMode.RIGHT_TRENCH);
-      if (modes.isEmpty()) modes.add(PathAdjustmentMode.USE_ANY_AVAILABLE);
-      return modes.toArray(new PathAdjustmentMode[0]);
-    };
+    return () ->
+        pathAdjustmentModeMap.entrySet().stream()
+            .filter(entry -> entry.getKey().get())
+            .map(Map.Entry::getValue)
+            .collect(
+                Collectors.collectingAndThen(
+                    Collectors.<PathAdjustmentMode>toList(),
+                    (List<PathAdjustmentMode> list) -> {
+                      if (list.isEmpty()) {
+                        list.add(PathAdjustmentMode.USE_ANY_AVAILABLE);
+                      }
+                      return list;
+                    }))
+            .toArray(PathAdjustmentMode[]::new);
   }
 
   private void configureAutos() {
@@ -418,10 +426,10 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
     NamedCommands.registerCommand("STOP_ROLLER", intake.setOverrideRollerVoltage(0));
 
     CommandScheduler.getInstance()
-        .schedule(FollowPathCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
-    CommandScheduler.getInstance()
-        .schedule(PathfindingCommand.warmupCommand(), intake.deploy().ignoringDisable(true));
-    final boolean BRING_UP = false;
+        .schedule(
+            FollowPathCommand.warmupCommand(),
+            PathfindingCommand.warmupCommand(),
+            intake.deploy().ignoringDisable(true));
 
     if (Constants.TUNING_MODE) {
 
@@ -628,6 +636,12 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
             V2_TurnOverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
                 .withName("driver-rightBumper-false"));
 
+    xkeys
+        .b10()
+        .onTrue(
+            V2_TurnOverCompositeCommands.holdAndIntake(clopper, shooter, intake)
+                .withName("xkeys-b10-true"));
+
     driver
         .topLeftPaddle()
         .whileTrue(
@@ -748,14 +762,14 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
                     V2_TurnOverClopperConstants.BALLS_TO_THE_WALL_FORWARD_VOLTAGE.unaryMinus())
                 .withName("xkeys-d5-true"));
 
-    xkeys
-        .b10()
-        .onTrue(
-            SharedCompositeCommands.resetHeading(
-                    drive,
-                    V2_TurnOverRobotState::resetPose,
-                    V2_TurnOverRobotState.getGlobalPose()::getTranslation)
-                .withName("xkeys-b10-true"));
+    // xkeys
+    //     .b10()
+    //     .onTrue(
+    //         SharedCompositeCommands.resetHeading(
+    //                 drive,
+    //                 V2_TurnOverRobotState::resetPose,
+    //                 V2_TurnOverRobotState.getGlobalPose()::getTranslation)
+    //             .withName("xkeys-b10-true"));
 
     xkeys
         .c1()
@@ -829,14 +843,10 @@ public class V2_TurnOverRobotContainer implements RobotContainer {
 
     xkeys
         .g4()
-        .whileTrue(
+        .onTrue(
             shooter
-                .setGoal(() -> V2_TurnOverShooterConstants.ShooterGoal.STOW)
-                .withName("xkeys-g4-true"))
-        .onFalse(
-            shooter
-                .setGoal(() -> V2_TurnOverShooterConstants.ShooterGoal.IDLE)
-                .withName("xkeys-g4-false"));
+                .setGoal(V2_TurnOverShooterConstants.ShooterGoal.STOW)
+                .withName("xkeys-g4-true"));
 
     xkeys
         .g5()
