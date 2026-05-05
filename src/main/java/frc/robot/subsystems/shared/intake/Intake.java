@@ -252,7 +252,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command collect() {
-    return deploy();
+    return Commands.parallel(deploy(), stopRollerOverride());
   }
 
   public Command stopCollect() {

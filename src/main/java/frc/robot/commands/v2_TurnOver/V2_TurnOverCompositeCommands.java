@@ -27,6 +27,18 @@ public class V2_TurnOverCompositeCommands {
         Commands.runOnce(V2_TurnOverShotCalculator::clear));
   }
 
+  public static Command holdAndIntake(
+      V2_TurnOverClopper clopper, V2_TurnOverShooter shooter, Intake intake) {
+    return Commands.parallel(
+        clopper.stopBallTunnel(),
+        clopper.stopRollerFloor(),
+        clopper.idle(),
+        Commands.sequence(shooter.setGoal(ShooterGoal.IDLE), shooter.stopAll()),
+        intake.setLinkageVoltage(0),
+        intake.setOverrideRollerVoltage(8),
+        Commands.runOnce(V2_TurnOverShotCalculator::clear));
+  }
+
   private static boolean toggleShouldHold = false;
 
   public static Command toggleHold(V2_TurnOverClopper clopper, V2_TurnOverShooter shooter) {

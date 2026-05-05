@@ -9,7 +9,6 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.v2_TurnOver.V2_TurnOverCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
-import frc.robot.subsystems.shared.intake.IntakeConstants;
 import frc.robot.subsystems.v2_TurnOver.V2_TurnOverRobotState;
 import frc.robot.subsystems.v2_TurnOver.clopper.V2_TurnOverClopper;
 import frc.robot.subsystems.v2_TurnOver.shooter.V2_TurnOverShooter;
@@ -61,16 +60,7 @@ public class V2_TurnOverAutoLeftOP {
                       shooter.setNonRequiringGoal(V2_TurnOverShooterConstants.ShooterGoal.STOW),
                       clopper.stopBallTunnel(),
                       clopper.stopRollerFloor())),
-          V2_TurnOverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-              .alongWith(
-                  Commands.sequence(
-                      intake.stopRollerOverride(),
-                      Commands.waitSeconds(.25),
-                      intake
-                          .setLinkageVoltage(-IntakeConstants.LINKAGE_SLOW_VOLTAGE)
-                          .alongWith(intake.stopRollerOverride()),
-                      Commands.waitSeconds(1.5),
-                      intake.deploy())));
+          V2_TurnOverCompositeCommands.scoreOrFeedCommand(shooter, clopper));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(

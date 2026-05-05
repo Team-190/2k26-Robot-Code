@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRoller;
 import edu.wpi.team190.gompeilib.subsystems.generic.roller.GenericRollerIO;
-import frc.robot.util.command.ContinuousConditionalCommand;
 import org.littletonrobotics.junction.Logger;
 
 public class V2_TurnOverClopper extends SubsystemBase {
@@ -164,15 +163,7 @@ public class V2_TurnOverClopper extends SubsystemBase {
   }
 
   public Command feedShooterRollerFloor() {
-    return new ContinuousConditionalCommand(
-        Commands.sequence(
-                setRollerFloorVoltage(Volts.of(-12)),
-                Commands.waitSeconds(.125),
-                setRollerFloorVoltage(V2_TurnOverClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE))
-            .alongWith(Commands.idle()),
-        setRollerFloorVoltage(V2_TurnOverClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE)
-            .alongWith(Commands.idle()),
-        rollerFloorCurrentTrigger);
+    return setRollerFloorVoltage(V2_TurnOverClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE);
   }
 
   public Command setOverrideRollerFloorVoltage(Voltage voltage) {

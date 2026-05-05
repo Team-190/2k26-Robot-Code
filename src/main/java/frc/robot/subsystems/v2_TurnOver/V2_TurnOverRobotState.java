@@ -223,6 +223,14 @@ public class V2_TurnOverRobotState {
     feedSpeedTree.put(Meters.of(7.82451), RadiansPerSecond.of(252.807586));
     feedTimeOfFlightTree.put(Meters.of(7.82451), Seconds.of(1.5));
 
+    feedAngleTree.put(Meters.of(11.275), Rotation2d.fromDegrees(26.156623));
+    feedSpeedTree.put(Meter.of(11.275), RadiansPerSecond.of(377.807586));
+    feedTimeOfFlightTree.put(Meters.of(11.275), Seconds.of(1.85));
+
+    feedAngleTree.put(Meters.of(13.170), Rotation2d.fromDegrees(26.78));
+    feedSpeedTree.put(Meter.of(13.170), RadiansPerSecond.of(457));
+    feedTimeOfFlightTree.put(Meters.of(13.170), Seconds.of(2.8));
+
     lookaheadPose = new Pose2d();
     hoodAngle = new Rotation2d();
     flywheelVelocity = RadiansPerSecond.of(0.0);
@@ -237,7 +245,7 @@ public class V2_TurnOverRobotState {
 
     headingUpdateTimestamp = NetworkTablesJNI.now();
 
-    UMAMI = RadiansPerSecond.of(0.0);
+    UMAMI = RadiansPerSecond.of(5.0);
   }
 
   @Trace
