@@ -1,0 +1,88 @@
+
+[versions]
+wpilib = "2026.2.1"
+wpilib-jni = "2025.3.2"
+phoenix6 = "26.1.3"
+choreo = "2026.0.2"
+aspectj = "1.9.21"
+advantagekit = "26.0.2"
+quickbuf = "1.4"
+jackson = "2.17.2"
+pathplanner = "2026.1.2"
+
+[libraries]
+# WPILib Core
+wpilib-wpilibj = { group = "edu.wpi.first.wpilibj", name = "wpilibj-java", version.ref = "wpilib" }
+wpilib-wpimath = { group = "edu.wpi.first.wpimath", name = "wpimath-java", version.ref = "wpilib" }
+wpilib-ntcore = { group = "edu.wpi.first.ntcore", name = "ntcore-java", version.ref = "wpilib" }
+wpilib-wpinet = { group = "edu.wpi.first.wpinet", name = "wpinet-java", version.ref = "wpilib" }
+wpilib-cscore = { group = "edu.wpi.first.cscore", name = "cscore-java", version.ref = "wpilib" }
+wpilib-cameraserver = { group = "edu.wpi.first.cameraserver", name = "cameraserver-java", version.ref = "wpilib" }
+wpilib-wpiutil = { group = "edu.wpi.first.wpiutil", name = "wpiutil-java", version.ref = "wpilib" }
+wpilib-wpiunits = { group = "edu.wpi.first.wpiunits", name = "wpiunits-java", version.ref = "wpilib" }
+wpilib-commands = { group = "edu.wpi.first.wpilibNewCommands", name = "wpilibNewCommands-java", version.ref = "wpilib" }
+wpilib-hal = { group = "edu.wpi.first.hal", name = "hal-java", version.ref = "wpilib" }
+wpilib-apriltag = {group = "edu.wpi.first.apriltag", name="apriltag-java", version.ref = "wpilib"}
+
+# WPILib JNI
+wpilib-ntcore-jni = { group = "edu.wpi.first.ntcore", name = "ntcore-jni", version.ref = "wpilib-jni" }
+wpilib-wpiutil-jni = { group = "edu.wpi.first.wpiutil", name = "wpiutil-jni", version.ref = "wpilib-jni" }
+wpilib-hal-jni = { group = "edu.wpi.first.hal", name = "hal-jni", version.ref = "wpilib-jni" }
+
+# CTRE Phoenix 6/Pro
+phoenix6 = { group = "com.ctre.phoenix6", name = "wpiapi-java", version.ref = "phoenix6" }
+
+# Choreo
+choreo = { group = "choreo", name = "ChoreoLib-java", version.ref = "choreo" }
+
+# PathplannerLib
+pathplanner = { group = "com.pathplanner.lib", name = "PathplannerLib-java", version.ref = "pathplanner" }
+
+# AspectJ
+aspectj-rt = { group = "org.aspectj", name = "aspectjrt", version.ref = "aspectj" }
+aspectj-tools = { group = "org.aspectj", name = "aspectjtools", version.ref = "aspectj" }
+
+# AdvantageKit
+advantagekit-java = { group = "org.littletonrobotics.akit", name = "akit-java", version.ref = "advantagekit" }
+advantagekit-autolog = { group = "org.littletonrobotics.akit", name = "akit-autolog", version.ref = "advantagekit" }
+
+# QuickBuf / Jackson (runtime dependencies needed for generated code)
+quickbuf = { group = "us.hebi.quickbuf", name = "quickbuf-runtime", version.ref = "quickbuf" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
+jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
+jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+
+[bundles]
+wpilib = [
+    "wpilib-wpilibj",
+    "wpilib-wpimath",
+    "wpilib-ntcore",
+    "wpilib-wpinet",
+    "wpilib-cscore",
+    "wpilib-cameraserver",
+    "wpilib-wpiutil",
+    "wpilib-wpiunits",
+    "wpilib-commands",
+    "wpilib-hal",
+    "wpilib-apriltag"
+]
+
+wpilib-runtime = [
+    "wpilib-ntcore-jni",
+    "wpilib-wpiutil-jni",
+    "wpilib-hal-jni"
+]
+
+aspectj =  [
+    "aspectj-rt",
+    "aspectj-tools"
+]
+
+advantagekit = [
+    "advantagekit-java",
+    "advantagekit-autolog",
+    "quickbuf",
+    "jackson-annotations",
+    "jackson-core",
+    "jackson-databind"
+]
