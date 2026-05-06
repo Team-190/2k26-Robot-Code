@@ -5,6 +5,6 @@ on:
 
 jobs:
   sync:
-    uses: Team-190/CI-Workflows/.github/workflows/gompeilib/syncgompeilib.yaml@v1
+    uses: Team-190/CI-Workflows/.github/workflows/syncgompeilib.yaml@v1
     with:
       direction: pull
