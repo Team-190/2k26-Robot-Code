@@ -1,0 +1,4 @@
+rootProject.name = 'gompeilib'
+
+include(":swerve")
+project(":swerve").projectDir = file("examples/swerve")
