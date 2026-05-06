@@ -18,7 +18,7 @@ import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
 import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
-import frc.robot.subsystems.v2_TurnOver.V2_TurnOverRobotContainer;
+import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotContainer;
 import frc.robot.util.*;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -197,7 +197,7 @@ public class Robot extends LoggedRobot {
         switch (RobotConfig.ROBOT) {
           case V0_FUNKY, V0_FUNKY_SIM -> new V0_FunkyRobotContainer();
           case V1_DOOMSPIRAL, V1_DOOMSPIRAL_SIM -> new V1_DoomSpiralRobotContainer();
-          case V2_TURNOVER, V2_TURNOVER_SIM -> new V2_TurnOverRobotContainer();
+          case V2_TURNOVER, V2_TURNOVER_SIM -> new V2_TurnoverRobotContainer();
           default -> new RobotContainer() {};
         };
 
