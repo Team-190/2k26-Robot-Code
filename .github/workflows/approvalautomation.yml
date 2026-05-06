@@ -39,14 +39,34 @@ jobs:
             const latestHumanReview = humanReviews[0];
 
             if (prAuthor === 'ElliotScher') {
-              console.log("Auto-approving PR by ElliotScher");
+              // Auto-approve logic
+              let needsApproval = false;
 
-              await github.rest.pulls.createReview({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: prNumber,
-                event: 'APPROVE'
-              });
+              if (!latestBotReview) {
+                needsApproval = true;
+              } else {
+                const lastApprovalTime = new Date(latestBotReview.submitted_at);
+                if (prUpdatedAt > lastApprovalTime) {
+                  needsApproval = true;
+                }
+              }
+
+              // Don't approve if human requested changes
+              if (latestHumanReview && latestHumanReview.state === 'CHANGES_REQUESTED') {
+                needsApproval = false;
+              }
+
+              if (needsApproval && pr.draft === false) {
+                console.log("Auto-approving PR by ElliotScher");
+                await github.rest.pulls.createReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  event: 'APPROVE'
+                });
+              } else {
+                console.log("No approval needed at this time");
+              }
 
             } else {
               // Request review from ElliotScher for other authors
