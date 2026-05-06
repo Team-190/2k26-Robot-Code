@@ -70,16 +70,23 @@ jobs:
 
             } else {
               // Request review from ElliotScher for other authors
-              const alreadyRequested = pr.requested_reviewers.map(r => r.login).includes('ElliotScher');
-              if (!alreadyRequested) {
-                console.log("Requesting review from ElliotScher");
-                await github.rest.pulls.requestReviewers({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                  reviewers: ['ElliotScher']
-                });
+              if (prAuthor !== 'ElliotScher') {
+                const alreadyRequested = pr.requested_reviewers
+                  .map(r => r.login)
+                  .includes('ElliotScher');
+
+                if (!alreadyRequested) {
+                  console.log("Requesting review from ElliotScher");
+                  await github.rest.pulls.requestReviewers({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                    reviewers: ['ElliotScher']
+                  });
+                } else {
+                  console.log("ElliotScher already requested as reviewer");
+                }
               } else {
-                console.log("ElliotScher already requested as reviewer");
+                console.log("Skipping review request because author is ElliotScher");
               }
             }
