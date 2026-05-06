@@ -5,6 +5,8 @@ on:
 
 jobs:
   sync:
-    uses: Team-190/CI-Workflows/.github/workflows/syncgompeilib.yaml@main
+    uses: Team-190/CI-Workflows/.github/workflows/syncgompeilib.yml@main
     with:
       direction: pull
+    secrets:
+      GOMPEILIB_SYNC: ${{ secrets.GOMPEILIB_SYNC }}
