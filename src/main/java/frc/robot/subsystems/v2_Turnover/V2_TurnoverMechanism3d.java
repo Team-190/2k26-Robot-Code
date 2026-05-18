@@ -3,35 +3,55 @@ package frc.robot.subsystems.v2_Turnover;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageConstants.LinkageState;
 import frc.robot.subsystems.shared.intake.Intake;
+import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import java.util.List;
 
 public class V2_TurnoverMechanism3d {
-  private static final Translation3d spindexerTranslation =
-      new Translation3d(-0.009525, 0, 0.067589);
-  private static final Translation3d climberTranslation =
-      new Translation3d(-0.202788, 0.090048, 0.477077);
-  private static final Translation3d staticIntakeTranslation = new Translation3d(0.0, 0.0, 0.0);
-  private static final Translation3d intakeCrankTranslation =
-      new Translation3d(0.142476, 0, 0.278075);
-  private static final Translation3d intakeFollowerTranslation =
-      new Translation3d(0.278238, 0, 0.196629);
+  // Shooter
+  private static final Translation3d baseTurretTranslation = // robot centric
+      new Translation3d(-0.017463, -0.163513, 0.371475);
+  private static final Translation3d baseHoodTranslation =
+      new Translation3d(0.043168, -0.1635125, 0.474975); // robot centric
+  private static final Transform3d turretToHoodTransform =
+      new Transform3d(baseHoodTranslation.minus(baseTurretTranslation), Rotation3d.kZero);
 
-  private static final Rotation2d crankOffset = Rotation2d.fromDegrees(-171);
-  private static final Rotation2d couplerOffset = Rotation2d.fromDegrees(-18.88);
-  private static final Rotation2d followerOffset = Rotation2d.fromDegrees(-60.909742);
+  // Climber
+  private static final Translation3d climberTranslation =
+      new Translation3d(-0.317482, 0.090043, 0.477114);
+
+  // Intake
+  private static final Translation3d intakeCrankTranslation =
+      new Translation3d(0.139700, 0, 0.254000);
+  private static final Translation3d intakeFollowerTranslation =
+      new Translation3d(0.292100, 0, 0.171450);
+
+  private static final Rotation2d crankOffset = Rotation2d.fromDegrees(-180 + 30.838927);
+  private static final Rotation2d couplerOffset = Rotation2d.fromDegrees(0);
+  private static final Rotation2d followerOffset = Rotation2d.fromDegrees(-70.753060);
 
   public static Pose3d[] getPoses(
-      Rotation2d spindexerPosition, Rotation2d climberPosition, Intake intake) {
+      Rotation2d climberPosition, Intake intake, V2_TurnoverShooter shooter) {
+    // Shooter
+    Pose3d turretPose =
+        new Pose3d(
+            baseTurretTranslation,
+            new Rotation3d(Rotation2d.k180deg.plus(shooter.getTurretRotation())));
+    Pose3d hoodPose =
+        turretPose.transformBy(
+            new Transform3d(
+                turretToHoodTransform.getTranslation(),
+                new Rotation3d(0.0, shooter.getHoodAngle().getRadians(), 0.0)));
 
-    List<LinkageState> linkageStates = intake.getLinkage().getLinkagePoses();
-
-    Pose3d spindexerPose = new Pose3d(spindexerTranslation, new Rotation3d(spindexerPosition));
+    // Climber
     Pose3d climberPose =
         new Pose3d(climberTranslation, new Rotation3d(-climberPosition.getRadians(), 0.0, 0.0));
-    Pose3d staticIntakePose = new Pose3d(staticIntakeTranslation, new Rotation3d());
+
+    // Intake
+    List<LinkageState> linkageStates = intake.getLinkage().getLinkagePoses();
     Pose3d crankPose =
         new Pose3d(
             intakeCrankTranslation,
@@ -55,7 +75,7 @@ public class V2_TurnoverMechanism3d {
                 0.0));
 
     return new Pose3d[] {
-      spindexerPose, climberPose, staticIntakePose, crankPose, couplerPose, followerPose,
+      turretPose, hoodPose, climberPose, Pose3d.kZero, crankPose, couplerPose, followerPose
     };
   }
 }

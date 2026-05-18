@@ -83,6 +83,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -917,6 +918,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         intake.isIntakeAtStow(),
         driver.rightBumper().getAsBoolean());
     fuelSimulator.updateSim();
+    Logger.recordOutput(
+        "Mechanism 3d", V2_TurnoverMechanism3d.getPoses(Rotation2d.kZero, intake, shooter));
   }
 
   @Override
