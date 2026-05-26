@@ -90,7 +90,8 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
                     .cmd()
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                        intake.collect())));
+                        intake.collect()),
+                        DriveCommands.stop(drive)));
 
     return new BetterAutoChooser.AutoRoutineConfiguration(
         () -> routine,

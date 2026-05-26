@@ -35,8 +35,6 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
     AutoRoutine routine = drive.getAutoFactory().newRoutine("RIGHT_TRENCH_SIMPLE");
 
     AutoTrajectory RIGHT_TRENCH_SIMPLE =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.FAIL_PATH);
-    AutoTrajectory RIGHT_TRENCH_SIMPLE_REAL =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE);
     AutoTrajectory RIGHT_RETURN =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_RETURN_TO_MID);
@@ -45,7 +43,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
 
     AdjustPathCommand followCommand =
         new AdjustPathCommand(
-            () -> RIGHT_TRENCH_SIMPLE_REAL.getFinalPose().get(), 0, pathAdjustmentModeSupplier);
+            () -> RIGHT_TRENCH_SIMPLE.getFinalPose().get(), 0, pathAdjustmentModeSupplier);
 
     routine
         .active()
@@ -68,7 +66,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
                 followCommand.onlyWhile(
                     () -> {
                       Pose2d currentPose = V1_DoomSpiralRobotState.getGlobalPose();
-                      Pose2d targetPose = RIGHT_TRENCH_SIMPLE_REAL.getFinalPose().get();
+                      Pose2d targetPose = RIGHT_TRENCH_SIMPLE.getFinalPose().get();
                       double distanceToTarget =
                           currentPose.getTranslation().getDistance(targetPose.getTranslation());
                       boolean isFinished =
@@ -91,7 +89,8 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
                     .cmd()
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                        intake.collect())));
+                        intake.collect()),
+                        DriveCommands.stop(drive)));
 
     return new BetterAutoChooser.AutoRoutineConfiguration(
         () -> routine,

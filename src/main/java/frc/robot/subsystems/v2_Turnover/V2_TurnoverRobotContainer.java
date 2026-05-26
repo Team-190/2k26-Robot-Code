@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -42,6 +43,7 @@ import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Turnover.V2_TurnoverCompositeCommands;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoDepot;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowDepot;
+import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowDepotBC;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedFullLeft;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedFullRight;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedMiddleLeft;
@@ -82,6 +84,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -528,6 +531,15 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         "Follow Depot",
         V2_TurnoverAutoFollowDepot.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Follow Depot BC",
+        V2_TurnoverAutoFollowDepotBC.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+
+    PathPlannerLogging.setLogActivePathCallback(
+        l -> Logger.recordOutput("Auto/PathPlanner/Path", l.toArray(Pose2d[]::new)));
+    PathPlannerLogging.setLogTargetPoseCallback(
+        p -> Logger.recordOutput("Auto/PathPlanner/Target", p));
   }
 
   private void configureButtonBindings() {

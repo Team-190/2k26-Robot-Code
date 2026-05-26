@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class FieldConstants {
 
-  public static AprilTagLayoutType tagLayoutType = AprilTagLayoutType.WELDED;
+  public static AprilTagLayoutType tagLayoutType = AprilTagLayoutType.ANDYMARK;
 
   // AprilTag related constants
   public static final int aprilTagCount = tagLayoutType.getLayout().getTags().size();
