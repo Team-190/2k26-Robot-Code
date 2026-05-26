@@ -43,6 +43,7 @@ import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Turnover.V2_TurnoverCompositeCommands;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoDepot;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowDepot;
+import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowDepotBC;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedFullLeft;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedFullRight;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedMiddleLeft;
@@ -528,6 +529,10 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     autoChooser.addOption(
         "Follow Depot",
         V2_TurnoverAutoFollowDepot.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Follow Depot BC",
+        V2_TurnoverAutoFollowDepotBC.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
   }
 
