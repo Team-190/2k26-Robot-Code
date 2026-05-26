@@ -93,7 +93,7 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
                         intake.collect()),
-                        DriveCommands.stop(drive)));
+                DriveCommands.stop(drive)));
     return new BetterAutoChooser.AutoRoutineConfiguration(
         () -> routine,
         () -> RIGHT_TRENCH_ANTI_BUCKS_CROSSES.getInitialPose().orElse(new Pose2d()),

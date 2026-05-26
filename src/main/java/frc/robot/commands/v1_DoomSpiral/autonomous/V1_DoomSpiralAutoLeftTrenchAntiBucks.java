@@ -92,7 +92,7 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
                     .alongWith(
                         V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
                         intake.collect()),
-                        DriveCommands.stop(drive)));
+                DriveCommands.stop(drive)));
 
     return new BetterAutoChooser.AutoRoutineConfiguration(
         () -> routine,

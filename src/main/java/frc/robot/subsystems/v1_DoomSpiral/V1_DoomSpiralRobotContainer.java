@@ -326,11 +326,9 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
                 () -> -driver.getRightX(),
                 V1_DoomSpiralRobotState::getHeading,
                 driver.rightTrigger(),
-                () -> V1_DoomSpiralRobotState.getShootingParameters().chassisAngle().getRadians(),
+                () -> V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
                 () ->
-                    V1_DoomSpiralRobotState.getShootingParameters()
-                        .chassisVelocity()
-                        .in(RadiansPerSecond),
+                    0.0,
                 driver.leftTrigger().or(driver.x()),
                 driver.x())
             .withName("joystickDriveRotationLock"));
