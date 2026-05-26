@@ -123,10 +123,10 @@ public class IntakeConstants {
         CONSTRAINTS =
             AngularPositionConstraints.builder()
                 .withMaxVelocity(
-                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(50.0)))
                 .withMaxAcceleration(
                     new LoggedTunableMeasure<>(
-                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(15.0)))
                 .withGoalTolerance(
                     new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
                 .build();
