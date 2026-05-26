@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
-import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
@@ -531,7 +530,6 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
   }
 
-  @Trace
   private void configureButtonBindings() {
     driver
         .povDown()
@@ -540,6 +538,10 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 drive,
                 V2_TurnoverRobotState::resetPose,
                 () -> V2_TurnoverRobotState.getGlobalPose().getTranslation()));
+
+    driver.povUp().onTrue(drive.runOnce(() -> drive.stopWithX()).withName("driver-povUp"));
+
+    xkeys.g8().whileTrue(drive.run(() -> drive.stopWithX()).withName("xkeys-g8"));
 
     drive.setDefaultCommand(
         new ContinuousConditionalCommand(
@@ -605,8 +607,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                                         / (Math.PI / 2.0))
                                 * (Math.PI / 2.0)))
                 .withName("cardinal-direction-set"));
-    xkeys.b9().onTrue(DriveCommands.incrementSlowFactor().withName("xkeys-b9-true"));
-    xkeys.b10().onTrue(DriveCommands.decrementSlowFactor().withName("xkeys-b10-true"));
+
+    xkeys.b9().onTrue(DriveCommands.decrementSlowFactor().withName("xkeys-b10-true"));
 
     driver
         .povDown()
