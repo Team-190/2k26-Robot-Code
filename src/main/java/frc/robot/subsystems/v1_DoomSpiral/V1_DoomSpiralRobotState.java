@@ -247,6 +247,10 @@ public class V1_DoomSpiralRobotState {
             .minus(shooterPosition.getTranslation())
             .getAngle()
             .minus(V1_DoomSpiralShooterConstants.SHOOTER_POSE.getRotation());
+
+    scoreAngle = shootAngleTree.get(distanceToHub);
+    scoreVelocity = shootSpeedTree.get(distanceToHub).in(RadiansPerSecond);
+
     feedAngle = feedAngleTree.get(distanceToFeedTranslation);
     feedVelocity = feedSpeedTree.get(distanceToFeedTranslation).in(RadiansPerSecond);
 
