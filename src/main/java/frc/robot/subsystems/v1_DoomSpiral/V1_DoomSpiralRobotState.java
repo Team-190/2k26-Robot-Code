@@ -24,7 +24,6 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.v1_DoomSpiral.shooter.ShotCalculator;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
@@ -60,6 +59,8 @@ public class V1_DoomSpiralRobotState {
   private static final InterpolatingTreeMap<Distance, Rotation2d> feedAngleTree;
   private static final InterpolatingTreeMap<Distance, AngularVelocity> feedSpeedTree;
 
+  @Getter private static Rotation2d scoreAngle;
+  @Getter private static double scoreVelocity;
   @Getter private static Rotation2d feedAngle;
   @Getter private static double feedVelocity;
 
@@ -100,7 +101,7 @@ public class V1_DoomSpiralRobotState {
                 .getNorm(),
             Meters);
 
-            robotToHubAngle = Rotation2d.fromDegrees(0);
+    robotToHubAngle = Rotation2d.fromDegrees(0);
 
     ledStates = new LEDStates(false, false, false, false, false, false);
 
@@ -196,6 +197,8 @@ public class V1_DoomSpiralRobotState {
     // feedFlywheelSpeedTree.put(Meters.of(5.57), RadiansPerSecond.of(275.0));
     // feedFlywheelSpeedTree.put(Meters.of(5.60), RadiansPerSecond.of(290.0));
 
+    scoreAngle = new Rotation2d();
+    scoreVelocity = 0;
     feedAngle = new Rotation2d();
     feedVelocity = 0;
 
@@ -223,7 +226,6 @@ public class V1_DoomSpiralRobotState {
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
-
     distanceToHub =
         Distance.ofBaseUnits(
             getHubZonePose()
@@ -239,8 +241,8 @@ public class V1_DoomSpiralRobotState {
                 .getDistance(AllianceFlipUtil.apply(FieldConstants.Outpost.BLUE_FEED_TRANSLATION)),
             Meters);
 
-  Pose2d shooterPosition = hubPose.transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
-                robotToHubAngle =
+    Pose2d shooterPosition = hubPose.transformBy(V1_DoomSpiralShooterConstants.SHOOTER_POSE);
+    robotToHubAngle =
         hubTranslation
             .minus(shooterPosition.getTranslation())
             .getAngle()

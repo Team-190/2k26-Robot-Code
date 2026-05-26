@@ -1,7 +1,5 @@
 package frc.robot.commands.v1_DoomSpiral;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
@@ -34,12 +32,7 @@ public class V1_DoomSpiralCompositeCommands {
       V1_DoomSpiralShooter shooter, Intake intake, V1_DoomSpiralSpindexer spindexer) {
     return Commands.parallel(
         intake.stopRollerOverride(),
-        shooter.setGoal(
-            HoodGoal.SCORE,
-            () ->
-                V1_DoomSpiralRobotState.getShootingParameters()
-                    .flywheelSpeed()
-                    .in(RadiansPerSecond)),
+        shooter.setGoal(HoodGoal.SCORE, () -> V1_DoomSpiralRobotState.getScoreVelocity()),
         new ContinuousConditionalCommand(
             spindexer.setVoltage(V1_DoomSpiralSpindexerConstants.SPINDEXER_VOLTAGE),
             spindexer.agitateSpindexer(),
@@ -47,7 +40,7 @@ public class V1_DoomSpiralCompositeCommands {
                 shooter.atGoal()
                     && DriveCommands.atAngle(
                         V1_DoomSpiralRobotState.getHeading(),
-                        V1_DoomSpiralRobotState.getShootingParameters().chassisAngle())));
+                        V1_DoomSpiralRobotState.getRobotToHubAngle())));
   }
 
   public static Command stopShooterCommand(
