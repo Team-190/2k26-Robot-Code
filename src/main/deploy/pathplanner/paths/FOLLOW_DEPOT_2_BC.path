@@ -200,7 +200,7 @@
     },
     {
       "name": "SCORE_OR_FEED",
-      "waypointRelativePos": 1.5061728395061598,
+      "waypointRelativePos": 1.5,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -210,20 +210,9 @@
       }
     },
     {
-      "name": "DEPLOY",
-      "waypointRelativePos": 2.4634377967711267,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "DEPLOY"
-        }
-      }
-    },
-    {
       "name": "HOLD_WHILE_INTAKE",
-      "waypointRelativePos": 5.01,
-      "endWaypointRelativePos": 7.0,
+      "waypointRelativePos": 4.8,
+      "endWaypointRelativePos": null,
       "command": null
     }
   ],
