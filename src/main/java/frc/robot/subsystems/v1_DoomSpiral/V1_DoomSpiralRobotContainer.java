@@ -560,21 +560,21 @@ public class V1_DoomSpiralRobotContainer implements RobotContainer {
         .whileTrue(intake.agitate().withName("xkeys-g1-g2-g3-while"));
 
     operator
+        .leftTrigger()
+        .onTrue(intake.stopRollerOverride().alongWith(intake.stow()).withName("op-lt"));
+    operator
+        .rightTrigger()
+        .onTrue(intake.deploy().alongWith(intake.stopRollerOverride()).withName("op-rt"));
+    operator
         .leftBumper()
-        .onTrue(intake.stopRollerOverride().alongWith(intake.stow()).withName("op-lb"));
+        .whileTrue(
+            intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE).withName("op-lb-while"))
+        .onFalse(intake.stopRollerOverride().withName("op-lb-false"));
     operator
         .rightBumper()
-        .onTrue(intake.deploy().alongWith(intake.stopRollerOverride()).withName("op-rb"));
-    operator
-        .leftTrigger()
         .whileTrue(
-            intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE).withName("op-lt-while"))
-        .onFalse(intake.stopRollerOverride().withName("op-lt-false"));
-    operator
-        .leftTrigger()
-        .whileTrue(
-            intake.setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE).withName("op-lt-while"))
-        .onFalse(intake.stopRollerOverride().withName("op-lt-false"));
+            intake.setOverrideRollerVoltage(IntakeConstants.EXTAKE_VOLTAGE).withName("op-rb-while"))
+        .onFalse(intake.stopRollerOverride().withName("op-rb-false"));
 
     operator.povUp().onTrue(climber.setPositionDefault().withName("op-povUp"));
     operator.povDown().onTrue(climber.resetClimberZero().withName("op-povDown"));
