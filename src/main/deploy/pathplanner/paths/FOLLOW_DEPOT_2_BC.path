@@ -52,7 +52,7 @@
         "y": 5.940848692267805
       },
       "prevControl": {
-        "x": 0.43901824679799234,
+        "x": 0.4390182467979923,
         "y": 6.123612509328522
       },
       "nextControl": {
@@ -178,8 +178,8 @@
   "eventMarkers": [
     {
       "name": "HOLD",
-      "waypointRelativePos": 0.1,
-      "endWaypointRelativePos": 1.4377967711300947,
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 1.2777453271028036,
       "command": {
         "type": "named",
         "data": {
@@ -211,9 +211,14 @@
     },
     {
       "name": "HOLD_WHILE_INTAKE",
-      "waypointRelativePos": 4.8,
+      "waypointRelativePos": 5.184068341121513,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD_WHILE_INTAKE"
+        }
+      }
     }
   ],
   "globalConstraints": {
