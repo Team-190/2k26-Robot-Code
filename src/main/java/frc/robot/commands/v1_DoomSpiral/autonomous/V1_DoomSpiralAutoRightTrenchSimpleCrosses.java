@@ -50,6 +50,10 @@ public class V1_DoomSpiralAutoRightTrenchSimpleCrosses {
         .onTrue(
             Commands.sequence(
 
+                // Reset the RETURN_TO_MID flag
+
+                Commands.runOnce(() -> RETURN_TO_MID = false),
+
                 // Set the inital pose
 
                 RIGHT_TRENCH_SIMPLE_CROSSES.resetOdometry(),

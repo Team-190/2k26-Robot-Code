@@ -51,6 +51,10 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucks {
         .onTrue(
             Commands.sequence(
 
+                // Reset the RETURN_TO_MID flag
+
+                Commands.runOnce(() -> RETURN_TO_MID = false),
+
                 // Set the inital pose
 
                 RIGHT_TRENCH_ANTI_BUCKS.resetOdometry(),

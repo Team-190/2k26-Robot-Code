@@ -12,7 +12,6 @@ import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotState;
 import frc.robot.subsystems.v2_Turnover.clopper.V2_TurnoverClopper;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
-import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
 import frc.robot.util.command.AutoCommandBuilder;
@@ -50,8 +49,7 @@ public class V2_TurnoverAutoFollowDepotBC {
                       AllianceFlipUtil.apply(FOLLOW_DEPOT_1.getStartingHolonomicPose().get()))),
           intake.deploy(),
           AutoCommandBuilder.sequence(
-              AutoBuilder.followPath(FOLLOW_DEPOT_1),
-              AutoBuilder.followPath(FOLLOW_DEPOT_2)),
+              AutoBuilder.followPath(FOLLOW_DEPOT_1), AutoBuilder.followPath(FOLLOW_DEPOT_2)),
           DriveCommands.stop(drive));
 
     } catch (Exception e) {
