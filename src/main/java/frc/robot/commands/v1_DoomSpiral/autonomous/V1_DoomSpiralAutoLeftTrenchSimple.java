@@ -109,7 +109,7 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                     ? AutoBuilder.followPath(LEFT_RETURN_PATH)
                         .alongWith(
                             V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                            intake.collect(), intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
+                            intake.collect())
                     : Commands.print("V1_RETURN path unavailable, skipping"),
                 DriveCommands.stop(drive)));
 
