@@ -96,16 +96,16 @@
     },
     {
       "anchor": {
-        "x": 6.173937232524963,
-        "y": 5.940848692267805
+        "x": 6.516351780761163,
+        "y": 4.42316933166271
       },
       "prevControl": {
-        "x": 6.088144649006129,
-        "y": 6.1756669892831
+        "x": 6.734933150487484,
+        "y": 4.301834321016297
       },
       "nextControl": {
-        "x": 6.782387346898929,
-        "y": 4.275492389707105
+        "x": 6.297770411034842,
+        "y": 4.544504342309124
       },
       "isLocked": false,
       "linkedName": null
@@ -146,11 +146,11 @@
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 5.9984276729559705,
+      "waypointRelativePos": 5.5,
       "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 6.1016042780748725,
+      "waypointRelativePos": 5.6,
       "rotationDegrees": -90.0
     }
   ],
@@ -170,8 +170,8 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 5.5170556552962235,
-      "maxWaypointRelativePos": 6.082585278276478,
+      "minWaypointRelativePos": 5.25,
+      "maxWaypointRelativePos": 5.6,
       "constraints": {
         "maxVelocity": 2.5,
         "maxAcceleration": 2.5,
@@ -219,7 +219,7 @@
     },
     {
       "name": "HOLD_WHILE_INTAKE",
-      "waypointRelativePos": 5.184068341121513,
+      "waypointRelativePos": 5.1,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
