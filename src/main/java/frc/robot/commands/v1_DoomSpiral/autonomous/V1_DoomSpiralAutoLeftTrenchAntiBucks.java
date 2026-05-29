@@ -19,7 +19,6 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.Elastic;
-
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -105,7 +104,6 @@ public class V1_DoomSpiralAutoLeftTrenchAntiBucks {
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
                         Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))
                     .until(() -> RETURN_TO_MID),
-                
                 LEFT_RETURN_PATH != null
                     ? AutoBuilder.followPath(LEFT_RETURN_PATH)
                         .alongWith(

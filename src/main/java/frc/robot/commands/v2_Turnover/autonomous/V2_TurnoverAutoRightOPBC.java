@@ -73,6 +73,5 @@ public class V2_TurnoverAutoRightOPBC {
                           e.getMessage())))
           .ignoringDisable(true);
     }
-    
   }
 }
