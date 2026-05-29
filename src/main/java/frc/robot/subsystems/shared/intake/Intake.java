@@ -223,7 +223,7 @@ public class Intake extends SubsystemBase {
                 () -> {
                   intakeState = IntakeState.AGITATE;
                   linkage.setPositionGoal(IntakeConstants.INTAKE_STATES.get(IntakeState.AGITATE));
-                  linkage.setPositionGoal(Rotation2d.fromDegrees(168.134766 + 8.0));
+                  linkage.setPositionGoal(Rotation2d.fromDegrees(168.134766 + 18.0));
                 }),
             linkage
                 .waitUntilLinkageAtGoal()
@@ -234,7 +234,7 @@ public class Intake extends SubsystemBase {
                       linkage
                           .getPosition()
                           .minus(
-                              Rotation2d.fromDegrees(168.134766 + 8.0)
+                              Rotation2d.fromDegrees(168.134766 + 18.0)
                                   .minus(Rotation2d.fromDegrees(90 + 5.0))));
                 }),
             linkage

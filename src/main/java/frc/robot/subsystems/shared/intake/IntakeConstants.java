@@ -191,13 +191,13 @@ public class IntakeConstants {
                         MAX_ANGLE.getMeasure()),
                 IntakeState.INTAKE,
                     new Setpoint<>(
-                        Rotation2d.fromDegrees(168.134766 + 8.0).getMeasure(),
+                        Rotation2d.fromDegrees(168.134766 + 18.0).getMeasure(),
                         LINKAGE_ANGLE_INCREMENT.getMeasure(),
                         MIN_ANGLE.getMeasure(),
                         MAX_ANGLE.getMeasure()),
                 IntakeState.AGITATE,
                     new Setpoint<>(
-                        Rotation2d.fromDegrees(168.134766 + 8.0).getMeasure(),
+                        Rotation2d.fromDegrees(168.134766 + 18.0).getMeasure(),
                         LINKAGE_ANGLE_INCREMENT.getMeasure(),
                         MIN_ANGLE.getMeasure(),
                         MAX_ANGLE.getMeasure()));
