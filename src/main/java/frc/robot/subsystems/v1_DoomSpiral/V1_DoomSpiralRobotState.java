@@ -24,6 +24,7 @@ import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import frc.robot.FieldConstants;
+import frc.robot.commands.v1_DoomSpiral.autonomous.V1_DoomSpiralAutoTrajectoryCache;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.HubActivePeriod;
@@ -225,6 +226,9 @@ public class V1_DoomSpiralRobotState {
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
     Translation2d hubTranslation =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+    Logger.recordOutput(
+        "GO_BACK_TRIGGER", V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.getAsBoolean());
 
     distanceToHub =
         Distance.ofBaseUnits(

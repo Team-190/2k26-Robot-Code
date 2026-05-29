@@ -91,7 +91,7 @@ public class V1_DoomSpiralShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX44Foc(1))
           .withCanBus(CANBus.roboRIO())
           .withLengthMeters(0.101596)
-          .withMinAngle(Rotation2d.fromDegrees(0.1))
+          .withMinAngle(Rotation2d.fromDegrees(2))
           .withMaxAngle(Rotation2d.fromDegrees(20))
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))

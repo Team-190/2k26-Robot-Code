@@ -2,6 +2,8 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
@@ -16,6 +18,7 @@ import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotState;
 import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
+import frc.robot.util.Elastic;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -36,8 +39,19 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
 
     AutoTrajectory LEFT_TRENCH_SIMPLE =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_SIMPLE);
-    AutoTrajectory LEFT_RETURN =
-        routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_RETURN_TO_MID);
+
+    PathPlannerPath LEFT_RETURN_PP;
+    try {
+      LEFT_RETURN_PP = PathPlannerPath.fromPathFile("V1_RETURN");
+    } catch (Exception e) {
+      e.printStackTrace();
+      Elastic.sendNotification(
+          new Elastic.Notification(
+              Elastic.NotificationLevel.ERROR, "Failed to load V1_RETURN path", e.getMessage()));
+      LEFT_RETURN_PP = null;
+    }
+
+    final PathPlannerPath LEFT_RETURN_PATH = LEFT_RETURN_PP;
 
     V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.onTrue(
         Commands.runOnce(() -> RETURN_TO_MID = returnToMid.get()));
@@ -50,6 +64,10 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
         .active()
         .onTrue(
             Commands.sequence(
+
+                // Reset the RETURN_TO_MID flag
+
+                Commands.runOnce(() -> RETURN_TO_MID = false),
 
                 // Set the inital pose
 
@@ -87,11 +105,12 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
                         Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))
                     .until(() -> RETURN_TO_MID),
-                LEFT_RETURN
-                    .cmd()
-                    .alongWith(
-                        V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
-                        intake.collect()),
+                LEFT_RETURN_PATH != null
+                    ? AutoBuilder.followPath(LEFT_RETURN_PATH)
+                        .alongWith(
+                            V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                            intake.collect())
+                    : Commands.print("V1_RETURN path unavailable, skipping"),
                 DriveCommands.stop(drive)));
 
     return new BetterAutoChooser.AutoRoutineConfiguration(
@@ -103,7 +122,7 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                   drive.setAutoControllers(
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_SIMPLE, LEFT_RETURN);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(LEFT_TRENCH_SIMPLE);
                 }));
   }
 }

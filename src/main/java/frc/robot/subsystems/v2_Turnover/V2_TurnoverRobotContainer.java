@@ -419,7 +419,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     NamedCommands.registerCommand(
         "HOLD_WHILE_INTAKE",
         V2_TurnoverCompositeCommands.hold(clopper, shooter)
-            .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
+            .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
+            .withName("HOLD_WHILE_INTAKE"));
 
     NamedCommands.registerCommand(
         "DEPLOY",
