@@ -379,11 +379,12 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
   private void configureAutos() {
     // Named commands that are used during the paths
     NamedCommands.registerCommand(
-        "SCORE_OR_FEED", V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, ()->false));
+        "SCORE_OR_FEED",
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, () -> false));
 
     NamedCommands.registerCommand(
         "SCORE_NO_ROLLER",
-        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, ()->false)
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, () -> false)
             .alongWith(intake.setOverrideRollerVoltage(0)));
 
     NamedCommands.registerCommand("STOP_OVERRIDE_ROLLER", intake.stopRollerOverride());
@@ -404,7 +405,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
 
     NamedCommands.registerCommand(
         "SCORE_AGITATE_OP_2",
-        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, ()->false)
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, () -> false)
             .alongWith(
                 Commands.sequence(
                     intake.stopRollerOverride(),
