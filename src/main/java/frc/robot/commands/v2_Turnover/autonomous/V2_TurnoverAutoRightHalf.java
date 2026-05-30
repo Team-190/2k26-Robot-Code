@@ -15,6 +15,8 @@ import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotState;
 import frc.robot.subsystems.v2_Turnover.clopper.V2_TurnoverClopper;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.util.AllianceFlipUtil;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class V2_TurnoverAutoRightHalf {
@@ -41,7 +43,8 @@ public class V2_TurnoverAutoRightHalf {
               () -> RIGHT_HALF_2.getPathPoses().get(RIGHT_HALF_2.getPathPoses().size() - 1),
               0,
               pathAdjustmentModeSupplier);
-      return Commands.parallel(
+      BooleanSupplier invertScoreLocation = () -> false;
+    return Commands.parallel(
           Commands.sequence(
               Commands.runOnce(
                   () ->
@@ -78,11 +81,11 @@ public class V2_TurnoverAutoRightHalf {
           Commands.sequence(
               V2_TurnoverCompositeCommands.hold(clopper, shooter).withTimeout(3),
               intake.stopRollerOverride(),
-              V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper).withTimeout(5),
+              V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation).withTimeout(5),
               intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE),
               V2_TurnoverCompositeCommands.hold(clopper, shooter).withTimeout(3),
               intake.stopRollerOverride(),
-              V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)));
+              V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.none();

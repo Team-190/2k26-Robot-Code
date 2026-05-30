@@ -14,6 +14,8 @@ import frc.robot.subsystems.v2_Turnover.clopper.V2_TurnoverClopper;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class V2_TurnoverAutoLeftHalf {
@@ -35,6 +37,7 @@ public class V2_TurnoverAutoLeftHalf {
       RobotModeTriggers.autonomous()
           .negate()
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
+      BooleanSupplier invertScoreLocation = () -> false;
       return Commands.sequence(
           Commands.runOnce(
               () ->
@@ -42,7 +45,7 @@ public class V2_TurnoverAutoLeftHalf {
                       AllianceFlipUtil.apply(HALF.getStartingHolonomicPose().get()))),
           intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
           AutoBuilder.followPath(HALF),
-          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation));
 
     } catch (Exception e) {
       e.printStackTrace();

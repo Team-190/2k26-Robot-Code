@@ -15,6 +15,8 @@ import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
 import frc.robot.util.command.AutoCommandBuilder;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class V2_TurnoverAutoFollowDepot {
@@ -42,7 +44,8 @@ public class V2_TurnoverAutoFollowDepot {
       RobotModeTriggers.autonomous()
           .negate()
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
-      return Commands.sequence(
+      BooleanSupplier invertScoreLocation = () -> false;
+    return Commands.sequence(
           Commands.runOnce(
               () ->
                   V2_TurnoverRobotState.resetPose(
@@ -50,7 +53,7 @@ public class V2_TurnoverAutoFollowDepot {
           intake.deploy(),
           AutoCommandBuilder.sequence(
               AutoBuilder.followPath(FOLLOW_DEPOT_1), AutoBuilder.followPath(FOLLOW_DEPOT_2)),
-          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation));
 
     } catch (Exception e) {
       e.printStackTrace();
