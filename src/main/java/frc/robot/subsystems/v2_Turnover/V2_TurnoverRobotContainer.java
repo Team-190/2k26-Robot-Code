@@ -51,9 +51,11 @@ import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedMiddle
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedMiddleRight;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoLeftHalf;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoLeftOP;
+import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoLeftOPBC;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoLeftOPBucks;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoRightHalf;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoRightOP;
+import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoRightOPBC;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoRightOPBucks;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIO;
 import frc.robot.subsystems.shared.fourbarlinkage.FourBarLinkageIOSim;
@@ -537,6 +539,14 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     autoChooser.addOption(
         "Follow Depot BC",
         V2_TurnoverAutoFollowDepotBC.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Right OP BC",
+        V2_TurnoverAutoRightOPBC.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Left OP BC",
+        V2_TurnoverAutoLeftOPBC.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
 
     PathPlannerLogging.setLogActivePathCallback(
