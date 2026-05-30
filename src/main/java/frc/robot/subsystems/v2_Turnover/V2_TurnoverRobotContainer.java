@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
@@ -378,11 +379,11 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
   private void configureAutos() {
     // Named commands that are used during the paths
     NamedCommands.registerCommand(
-        "SCORE_OR_FEED", V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+        "SCORE_OR_FEED", V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, ()->false));
 
     NamedCommands.registerCommand(
         "SCORE_NO_ROLLER",
-        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, ()->false)
             .alongWith(intake.setOverrideRollerVoltage(0)));
 
     NamedCommands.registerCommand("STOP_OVERRIDE_ROLLER", intake.stopRollerOverride());
@@ -403,7 +404,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
 
     NamedCommands.registerCommand(
         "SCORE_AGITATE_OP_2",
-        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, ()->false)
             .alongWith(
                 Commands.sequence(
                     intake.stopRollerOverride(),
@@ -544,6 +545,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
   }
 
   private void configureButtonBindings() {
+    Trigger invertScoreLocation = driver.povRight();
     driver
         .povDown()
         .onTrue(
@@ -640,7 +642,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
             V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-rightBumper-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-rightBumper-false"));
     xkeys
         .b8()
@@ -648,7 +650,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
             V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-rightBumper-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-rightBumper-false"));
 
     xkeys
@@ -664,7 +666,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.LEFT_TRENCH)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
@@ -674,7 +676,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.RIGHT_TRENCH)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topRightPaddle-false"));
 
     driver
@@ -684,7 +686,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.LEFT_CORNER)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
@@ -694,7 +696,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.RIGHT_CORNER)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topRightPaddle-false"));
 
     driver
@@ -704,7 +706,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.HUB)
                 .withName("driver-bottomLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-bottomLeftPaddle-false"));
 
     driver
@@ -714,7 +716,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.TOWER)
                 .withName("driver-bottomRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-bottomRightPaddle-false"));
 
     driver
@@ -894,7 +896,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 .alongWith(clopper.intake())
                 .withName("xkeys-h1-h2-h3-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("xkeys-h1-h2-h3-false"));
 
     // xkeys.h4().onTrue(); SLOW WRAP MODE
