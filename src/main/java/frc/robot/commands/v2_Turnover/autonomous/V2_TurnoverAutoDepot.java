@@ -1,7 +1,5 @@
 package frc.robot.commands.v2_Turnover.autonomous;
 
-import java.util.function.BooleanSupplier;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,6 +15,7 @@ import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooterConstants.ShooterGoal;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
+import java.util.function.BooleanSupplier;
 
 public class V2_TurnoverAutoDepot {
   public static Command getAutoRoutine(
@@ -30,7 +29,7 @@ public class V2_TurnoverAutoDepot {
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
       BooleanSupplier invertScoreLocation = () -> false;
-    return Commands.sequence(
+      return Commands.sequence(
           Commands.runOnce(
                   () ->
                       V2_TurnoverRobotState.resetPose(
@@ -41,7 +40,8 @@ public class V2_TurnoverAutoDepot {
               AutoBuilder.followPath(DEPOT), V2_TurnoverCompositeCommands.hold(clopper, shooter)),
           drive.runOnce(drive::stop),
           Commands.parallel(
-              V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation),
+              V2_TurnoverCompositeCommands.scoreOrFeedCommand(
+                  shooter, clopper, invertScoreLocation),
               Commands.sequence(
                   Commands.waitSeconds(4.0),
                   intake.stopRollerOverride(),

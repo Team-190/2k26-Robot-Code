@@ -14,7 +14,6 @@ import frc.robot.subsystems.v2_Turnover.clopper.V2_TurnoverClopper;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
