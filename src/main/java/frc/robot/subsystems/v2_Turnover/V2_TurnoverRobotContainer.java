@@ -101,7 +101,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
   private FuelSimulator fuelSimulator;
   private V2_TurnoverSimFuelCount simFuelCount;
 
-  private boolean staticShooter = true;
+  private boolean staticShooter = false;
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
