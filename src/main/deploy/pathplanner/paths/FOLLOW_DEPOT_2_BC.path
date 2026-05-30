@@ -80,32 +80,32 @@
     },
     {
       "anchor": {
-        "x": 3.2368616262482157,
-        "y": 5.154194008559203
+        "x": 3.3144935805991436,
+        "y": 5.425905848787448
       },
       "prevControl": {
-        "x": 2.6237437095223393,
-        "y": 5.177993164416805
+        "x": 2.701375663873267,
+        "y": 5.44970500464505
       },
       "nextControl": {
-        "x": 4.575196265581743,
-        "y": 5.102244401799681
+        "x": 4.652828219932671,
+        "y": 5.373956242027926
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.516351780761163,
-        "y": 4.42316933166271
+        "x": 6.186875891583452,
+        "y": 5.940848692267805
       },
       "prevControl": {
-        "x": 6.734933150487484,
-        "y": 4.301834321016297
+        "x": 6.204462829373812,
+        "y": 6.190229324272688
       },
       "nextControl": {
-        "x": 6.297770411034842,
-        "y": 4.544504342309124
+        "x": 6.057489300998572,
+        "y": 4.106162624821684
       },
       "isLocked": false,
       "linkedName": null
@@ -146,11 +146,7 @@
       "rotationDegrees": 0.0
     },
     {
-      "waypointRelativePos": 5.5,
-      "rotationDegrees": 180.0
-    },
-    {
-      "waypointRelativePos": 5.6,
+      "waypointRelativePos": 6.164179104477555,
       "rotationDegrees": -90.0
     }
   ],
@@ -163,19 +159,6 @@
         "maxVelocity": 0.75,
         "maxAcceleration": 0.75,
         "maxAngularVelocity": 45.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 5.25,
-      "maxWaypointRelativePos": 5.6,
-      "constraints": {
-        "maxVelocity": 2.5,
-        "maxAcceleration": 2.5,
-        "maxAngularVelocity": 30.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
         "unlimited": false
@@ -238,7 +221,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 2.0,
+    "velocity": 0.0,
     "rotation": -90.0
   },
   "reversed": false,
