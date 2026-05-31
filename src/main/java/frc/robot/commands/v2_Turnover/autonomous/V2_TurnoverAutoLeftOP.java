@@ -58,7 +58,7 @@ public class V2_TurnoverAutoLeftOP {
           AutoBuilder.followPath(OP_2)
               .alongWith(
                   Commands.sequence(
-                      Commands.waitSeconds(6.72),
+                      Commands.waitSeconds(7.8),
                       shooter.setNonRequiringGoal(V2_TurnoverShooterConstants.ShooterGoal.STOW),
                       clopper.stopBallTunnel(),
                       clopper.stopRollerFloor())),
