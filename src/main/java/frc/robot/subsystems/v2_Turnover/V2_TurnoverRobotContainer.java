@@ -710,15 +710,12 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
             V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topRightPaddle-false"));
 
-    driver
-        .a()
+    driver.a()
         .whileTrue(
-            V2_TurnoverCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_TurnoverRobotState.FixedShots.HUB)
-                .withName("driver-bottomLeftPaddle-while"))
-        .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("driver-bottomLeftPaddle-false"));
+            intake
+                .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
+                .withName("driver-a-while"))
+        .onFalse(intake.stopRollerOverride().withName("driver-a-false"));
 
     driver
         .b()
