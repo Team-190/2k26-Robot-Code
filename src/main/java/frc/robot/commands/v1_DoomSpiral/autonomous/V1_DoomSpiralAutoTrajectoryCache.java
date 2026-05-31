@@ -40,5 +40,5 @@ public class V1_DoomSpiralAutoTrajectoryCache {
       Choreo.loadTrajectory("RIGHT_RETURN_TO_MID").get();
 
   public static final Trigger GO_BACK_TRIGGER =
-      RobotModeTriggers.autonomous().debounce(17.5, Debouncer.DebounceType.kRising);
+      RobotModeTriggers.autonomous().debounce(16, Debouncer.DebounceType.kRising);
 }
