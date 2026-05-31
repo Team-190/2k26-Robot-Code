@@ -150,7 +150,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
           clopper =
               new V2_TurnoverClopper(
                   new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS), 
                   new GenericRollerIOTalonFX(
                       V2_TurnoverClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
           shooter =
@@ -221,7 +222,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
           clopper =
               new V2_TurnoverClopper(
                   new GenericRollerIOTalonFXSim(V2_TurnoverClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFXSim(V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS),
                   new GenericRollerIOTalonFXSim(
                       V2_TurnoverClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
 
@@ -263,7 +265,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     if (clopper == null) {
       clopper =
           new V2_TurnoverClopper(
-              new GenericRollerIO() {}, new GenericRollerIO() {}, new GenericRollerIO() {});
+              new GenericRollerIO() {}, new GenericRollerIO() {}, new GenericRollerIO() {}, new GenericRollerIO() {});
     }
     if (vision == null) {
       vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
@@ -770,6 +772,14 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 .setOverrideBallTunnelVoltage(
                     V2_TurnoverClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
                 .withName("xkeys-c5-true"));
+
+    xkeys
+        .d3()
+        .whileTrue(
+            clopper
+                .marcusCommand())
+        .onFalse(clopper.stopBallTunnel());
+
 
     xkeys
         .d4()

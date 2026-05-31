@@ -16,14 +16,16 @@ import org.littletonrobotics.junction.Logger;
 
 public class V2_TurnoverClopper extends SubsystemBase {
   private final GenericRoller rollerFloor;
-  private final GenericRoller ballTunnel;
+  private final GenericRoller ballTunnelTop;
+  private final GenericRoller ballTunnelBottom;
   private final GenericRoller ballsToWall;
 
-  private boolean overrideBallTunnel;
+  private boolean overrideTopBallTunnel;
+  private boolean overrideBottomBallTunnel;
   private boolean overrideRollerFloor;
   private boolean overrideBallsToWall;
 
-  private final Setpoint<VoltageUnit> ballTunnelSetpoint, ballTunnelOverrideSetpoint;
+  private final Setpoint<VoltageUnit> ballTunnelTopSetpoint, ballTunnelBottomSetpoint, ballTunnelTopOverrideSetpoint, ballTunnelBottomOverrideSetpoint;
   private final Setpoint<VoltageUnit> rollerFloorSetpoint, rollerFloorOverrideSetpoint;
   private final Setpoint<VoltageUnit> ballsToWallSetpoint, ballsToWallsverrideSetpoint;
 
@@ -32,7 +34,7 @@ public class V2_TurnoverClopper extends SubsystemBase {
   private boolean shouldReverse;
 
   public V2_TurnoverClopper(
-      GenericRollerIO rollerFloorIO, GenericRollerIO ballTunnelIO, GenericRollerIO ballsToWallIO) {
+      GenericRollerIO rollerFloorIO, GenericRollerIO ballTunnelTopIO, GenericRollerIO ballTunnelBottomIO, GenericRollerIO ballsToWallIO) {
     setName("Hopper");
 
     rollerFloorSetpoint =
@@ -48,16 +50,31 @@ public class V2_TurnoverClopper extends SubsystemBase {
             Volts.of(-12),
             Volts.of(12));
 
-    ballTunnelSetpoint =
+    ballTunnelTopSetpoint =
         new Setpoint<>(
             Volts.of(0),
-            V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS.voltageOffsetStep,
+            V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS.voltageOffsetStep,
             Volts.of(-12),
             Volts.of(12));
-    ballTunnelOverrideSetpoint =
+
+    ballTunnelBottomSetpoint =
         new Setpoint<>(
             Volts.of(0),
-            V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS.voltageOffsetStep,
+            V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+    
+    ballTunnelTopOverrideSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS.voltageOffsetStep,
+            Volts.of(-12),
+            Volts.of(12));
+
+    ballTunnelBottomOverrideSetpoint =
+        new Setpoint<>(
+            Volts.of(0),
+            V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS.voltageOffsetStep,
             Volts.of(-12),
             Volts.of(12));
 
@@ -81,13 +98,20 @@ public class V2_TurnoverClopper extends SubsystemBase {
             V2_TurnoverClopperConstants.ROLLER_FLOOR_CONSTANTS,
             " Floor",
             rollerFloorSetpoint);
-    ballTunnel =
+    ballTunnelTop =
         new GenericRoller(
-            ballTunnelIO,
+            ballTunnelTopIO,
             this,
-            V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS,
+            V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS,
             " Tunnel",
-            ballTunnelSetpoint);
+            ballTunnelTopSetpoint);
+    ballTunnelBottom =
+        new GenericRoller(
+            ballTunnelBottomIO,
+            this,
+            V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS,
+            " Tunnel",
+            ballTunnelBottomSetpoint);
     ballsToWall =
         new GenericRoller(
             ballsToWallIO,
@@ -96,7 +120,8 @@ public class V2_TurnoverClopper extends SubsystemBase {
             " Side",
             ballsToWallSetpoint);
 
-    overrideBallTunnel = false;
+    overrideTopBallTunnel = false;
+    overrideBottomBallTunnel = false;
     overrideRollerFloor = false;
     overrideBallsToWall = false;
 
@@ -107,7 +132,9 @@ public class V2_TurnoverClopper extends SubsystemBase {
                     ballsToWall.getTorqueCurrent().length > 0
                         && ballsToWall.getTorqueCurrent()[0]
                             >= V2_TurnoverClopperConstants.BALLS_TO_WALL_CURRENT_THRESHOLD
-                        && Math.abs(ballTunnel.getVoltageGoal().getSetpoint().in(Volts)) > 0)
+                        && Math.abs(ballTunnelTop.getVoltageGoal().getSetpoint().in(Volts)) > 0
+                        && Math.abs(ballTunnelBottom.getVoltageGoal().getSetpoint().in(Volts)) > 0)
+
             .debounce(0.1)
             .debounce(3, Debouncer.DebounceType.kFalling);
     ballToWallCurrentTrigger.onTrue(
@@ -125,8 +152,11 @@ public class V2_TurnoverClopper extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (!overrideBallTunnel) {
-      ballTunnel.setVoltageGoal(ballTunnelSetpoint);
+    if (!overrideTopBallTunnel) {
+      ballTunnelTop.setVoltageGoal(ballTunnelTopSetpoint);
+    }
+    if (!overrideBottomBallTunnel) {
+      ballTunnelBottom.setVoltageGoal(ballTunnelBottomSetpoint);
     }
     if (!overrideRollerFloor) {
       rollerFloor.setVoltageGoal(rollerFloorSetpoint);
@@ -135,12 +165,13 @@ public class V2_TurnoverClopper extends SubsystemBase {
       ballsToWall.setVoltageGoal(ballsToWallSetpoint);
       if (shouldReverse) {
         ballsToWall.setVoltageGoal(V2_TurnoverClopperConstants.BALLS_TO_THE_WALL_REVERSE_VOLTAGE);
-      } else if (Math.abs(ballTunnel.getVoltageGoal().getSetpoint().in(Volts)) > 0) {
+      } else if (Math.abs(ballTunnelTop.getVoltageGoal().getSetpoint().in(Volts)) > 0 && Math.abs(ballTunnelBottom.getVoltageGoal().getSetpoint().in(Volts)) > 0) {
         ballsToWall.setVoltageGoal(V2_TurnoverClopperConstants.BALLS_TO_THE_WALL_FORWARD_VOLTAGE);
       } else ballsToWall.setVoltageGoal(Volts.of(0));
     }
     rollerFloor.periodic();
-    ballTunnel.periodic();
+    ballTunnelTop.periodic();
+    ballTunnelBottom.periodic();
     ballsToWall.periodic();
 
     Logger.recordOutput(
@@ -151,12 +182,20 @@ public class V2_TurnoverClopper extends SubsystemBase {
         String.format("%.1f", rollerFloor.getVoltageGoal().getOffset().in(Volts)));
 
     Logger.recordOutput(
-        "Elastic/Hopper/BallTunnel/Voltage Magnitude",
-        String.format("%.1f", Math.abs(ballTunnel.getVoltageGoal().getSetpoint().in(Volts))));
+        "Elastic/Hopper/BallTunnelTop/Voltage Magnitude",
+        String.format("%.1f", Math.abs(ballTunnelTop.getVoltageGoal().getSetpoint().in(Volts))));
     Logger.recordOutput(
-        "Elastic/Hopper/BallTunnel/Voltage Offset",
-        String.format("%.1f", ballTunnel.getVoltageGoal().getOffset().in(Volts)));
+        "Elastic/Hopper/BallTunnelTop/Voltage Offset",
+        String.format("%.1f", ballTunnelTop.getVoltageGoal().getOffset().in(Volts)));
+
+    Logger.recordOutput(
+        "Elastic/Hopper/BallTunnelBottom/Voltage Magnitude",
+        String.format("%.1f", Math.abs(ballTunnelBottom.getVoltageGoal().getSetpoint().in(Volts))));
+    Logger.recordOutput(
+        "Elastic/Hopper/BallTunnelBottom/Voltage Offset",
+        String.format("%.1f", ballTunnelBottom.getVoltageGoal().getOffset().in(Volts)));
   }
+
 
   public Command setRollerFloorVoltage(Voltage voltage) {
     return Commands.runOnce(() -> rollerFloorSetpoint.setSetpoint(voltage));
@@ -192,18 +231,26 @@ public class V2_TurnoverClopper extends SubsystemBase {
   }
 
   public Command setBallTunnelVoltage(Voltage voltage) {
-    return Commands.runOnce(() -> ballTunnelSetpoint.setSetpoint(voltage));
+    return Commands.runOnce(() -> {ballTunnelTopSetpoint.setSetpoint(voltage); ballTunnelBottomSetpoint.setSetpoint(voltage);});
+  }
+
+  public Command setBallTunnelVoltage(Voltage voltage, Voltage voltage2) {
+    return Commands.runOnce(() -> {ballTunnelTopSetpoint.setSetpoint(voltage); ballTunnelBottomSetpoint.setSetpoint(voltage2);});
   }
 
   public Command setOverrideBallTunnelVoltage(Voltage voltage) {
     return Commands.startEnd(
         () -> {
-          overrideBallTunnel = true;
-          ballTunnel.setVoltageGoal(ballTunnelOverrideSetpoint);
-          ballTunnel.setVoltageGoal(voltage);
+          overrideTopBallTunnel = true;
+          overrideBottomBallTunnel = true;
+          ballTunnelTop.setVoltageGoal(ballTunnelTopOverrideSetpoint);
+          ballTunnelTop.setVoltageGoal(voltage);
+          ballTunnelBottom.setVoltageGoal(ballTunnelBottomOverrideSetpoint);
+          ballTunnelBottom.setVoltageGoal(voltage);
         },
         () -> {
-          overrideBallTunnel = false;
+          overrideTopBallTunnel = false;
+          overrideBottomBallTunnel = false;
         },
         this);
   }
@@ -229,11 +276,11 @@ public class V2_TurnoverClopper extends SubsystemBase {
   }
 
   public Command incrementBallTunnelVelocity() {
-    return Commands.runOnce(ballTunnelSetpoint::increment);
+    return Commands.runOnce(() -> {ballTunnelTopSetpoint.increment(); ballTunnelBottomSetpoint.increment();});
   }
 
   public Command decrementBallTunnelVelocity() {
-    return Commands.runOnce(ballTunnelSetpoint::decrement);
+    return Commands.runOnce(() -> {ballTunnelTopSetpoint.decrement(); ballTunnelBottomSetpoint.decrement();});
   }
 
   public Command feedShooterBallTunnel() {
@@ -242,6 +289,10 @@ public class V2_TurnoverClopper extends SubsystemBase {
 
   public Command stopBallTunnel() {
     return setBallTunnelVoltage(Volts.of(0.0));
+  }
+
+  public Command marcusCommand() {
+    return setBallTunnelVoltage(Volts.of(V2_TurnoverClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.in(Volts)), Volts.of(-V2_TurnoverClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE.in(Volts)));
   }
 
   public Command intake() {
