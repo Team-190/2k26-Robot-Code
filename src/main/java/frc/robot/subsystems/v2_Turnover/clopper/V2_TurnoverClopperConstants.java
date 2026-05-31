@@ -23,7 +23,8 @@ public class V2_TurnoverClopperConstants {
   public static final double BALLS_TO_WALL_CURRENT_THRESHOLD;
 
   public static final GenericRollerConstants ROLLER_FLOOR_CONSTANTS;
-  public static final GenericRollerConstants BALL_TUNNEL_CONSTANTS;
+  public static final GenericRollerConstants BALL_TUNNEL_TOP_CONSTANTS;
+  public static final GenericRollerConstants BALL_TUNNEL_BOTTOM_CONSTANTS;
   public static final GenericRollerConstants BALLS_TO_THE_WALL_CONSTANTS;
 
   static {
@@ -54,7 +55,7 @@ public class V2_TurnoverClopperConstants {
                 .withCanBus(CANBus.roboRIO())
                 .withEnableFOC(false)
                 .build();
-        BALL_TUNNEL_CONSTANTS =
+        BALL_TUNNEL_BOTTOM_CONSTANTS =
             GenericRollerConstants.builder()
                 .withLeaderCANID(31) // Bottom Ball Tunnel
                 .withCurrentLimits(
@@ -66,7 +67,23 @@ public class V2_TurnoverClopperConstants {
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
                 .withRollerMotorGearRatio(42.0)
                 .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
-                .withAlignedFollowerCANID(30) // Top Ball Tunnel
+                .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
+                .withVoltageOffsetStep(Volts.of(1))
+                .withCanBus(CANBus.roboRIO())
+                .withEnableFOC(false)
+                .build();
+        BALL_TUNNEL_TOP_CONSTANTS =
+            GenericRollerConstants.builder()
+                .withLeaderCANID(30) // Tiop Ball Tunnel
+                .withCurrentLimits(
+                    CurrentLimits.builder()
+                        .withSupplyCurrentLimit(Amps.of(40.0))
+                        .withStatorCurrentLimit(Amps.of(80.0))
+                        .build())
+                .withNeutralMode(NeutralModeValue.Coast)
+                .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
+                .withRollerMotorGearRatio(42.0)
+                .withLeaderInvertedValue(InvertedValue.CounterClockwise_Positive)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(1))
                 .withCanBus(CANBus.roboRIO())
