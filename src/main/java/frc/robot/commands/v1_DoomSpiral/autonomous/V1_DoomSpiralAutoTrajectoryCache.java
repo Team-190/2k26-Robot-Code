@@ -38,8 +38,6 @@ public class V1_DoomSpiralAutoTrajectoryCache {
       Choreo.loadTrajectory("LEFT_RETURN_TO_MID").get();
   public static final Trajectory<?> RIGHT_RETURN_TO_MID =
       Choreo.loadTrajectory("RIGHT_RETURN_TO_MID").get();
-  public static final Trajectory<?> LEFT_DOT_1 = Choreo.loadTrajectory("LEFT_DOT_1").get();
-  public static final Trajectory<?> RIGHT_DOT_1 = Choreo.loadTrajectory("RIGHT_DOT_1").get();
 
   public static final Trigger GO_BACK_TRIGGER =
       RobotModeTriggers.autonomous().debounce(16, Debouncer.DebounceType.kRising);
