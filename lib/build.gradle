@@ -67,10 +67,17 @@ dependencies {
     testImplementation libs.bundles.wpilib
     testImplementation libs.bundles.aspectj
     testImplementation libs.bundles.advantagekit
+    testImplementation libs.phoenix6
+    testImplementation libs.pathplanner
+    testImplementation libs.choreo
+    testImplementation "org.ejml:ejml-simple:0.44.0"
 
     testRuntimeOnly libs.bundles.wpilib
     testRuntimeOnly libs.bundles.aspectj
     testRuntimeOnly libs.bundles.advantagekit
+    testRuntimeOnly libs.phoenix6
+    testRuntimeOnly libs.pathplanner
+    testRuntimeOnly libs.choreo
 }
 
 publishing {
