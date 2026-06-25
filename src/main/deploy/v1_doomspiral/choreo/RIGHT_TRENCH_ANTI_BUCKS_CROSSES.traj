@@ -40,7 +40,7 @@
     {"from":2, "to":3, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"1e-5 m", "val":0.00001}}}, "enabled":true},
     {"from":2, "to":3, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0 rad / s", "val":0.0}}}, "enabled":true},
     {"from":5, "to":6, "data":{"type":"MaxAngularVelocity", "props":{"max":{"exp":"0 rad / s", "val":0.0}}}, "enabled":true},
-    {"from":1, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"INTAKE_VELOCITY", "val":0.85}}}, "enabled":true},
+    {"from":1, "to":3, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"INTAKE_VELOCITY", "val":0.55}}}, "enabled":true},
     {"from":5, "to":6, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
     {"from":4, "to":6, "data":{"type":"MaxVelocity", "props":{"max":{"exp":"2 m / s", "val":2.0}}}, "enabled":true}],
   "targetDt":{

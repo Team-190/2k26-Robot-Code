@@ -2,6 +2,8 @@ package frc.robot.commands.v1_DoomSpiral.autonomous;
 
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
@@ -17,12 +19,8 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.V1_DoomSpiralShooter;
 import frc.robot.subsystems.v1_DoomSpiral.spindexer.V1_DoomSpiralSpindexer;
 import frc.robot.util.BetterAutoChooser;
 import frc.robot.util.Elastic;
-
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
 
 public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
   private static boolean RETURN_TO_MID = false;
@@ -124,8 +122,7 @@ public class V1_DoomSpiralAutoRightTrenchAntiBucksCrosses {
                   drive.setAutoControllers(
                       V1_DoomSpiralConstants.TRANSLATION_AUTO_GAINS,
                       V1_DoomSpiralConstants.ROTATION_AUTO_GAINS);
-                  V1_DoomSpiralRobotState.setAutoTrajectory(
-                      RIGHT_TRENCH_ANTI_BUCKS_CROSSES);
+                  V1_DoomSpiralRobotState.setAutoTrajectory(RIGHT_TRENCH_ANTI_BUCKS_CROSSES);
                 }));
   }
 }
