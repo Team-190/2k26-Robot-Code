@@ -953,6 +953,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         intake.isIntakeAtStow(),
         driver.rightBumper().getAsBoolean());
     fuelSimulator.updateSim();
+    Logger.recordOutput(
+        "Mechanism 3d", V2_TurnoverMechanism3d.getPoses(Rotation2d.kZero, intake, shooter));
   }
 
   @Override
