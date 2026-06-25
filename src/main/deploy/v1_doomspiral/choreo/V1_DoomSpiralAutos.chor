@@ -7,8 +7,8 @@
    "INTAKE_VELOCITY":{
     "dimension":"LinVel",
     "var":{
-     "exp":"0.85 m / s",
-     "val":0.85
+     "exp":"0.55 m / s",
+     "val":0.55
     }
    }
   },

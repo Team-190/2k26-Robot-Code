@@ -40,6 +40,19 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
     AutoTrajectory LEFT_TRENCH_SIMPLE =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.LEFT_TRENCH_SIMPLE);
 
+    PathPlannerPath V1_SIMPLE;
+    try {
+      V1_SIMPLE = PathPlannerPath.fromPathFile("V1_SIMPLE");
+    } catch (Exception e) {
+      e.printStackTrace();
+      Elastic.sendNotification(
+          new Elastic.Notification(
+              Elastic.NotificationLevel.ERROR, "Failed to load V1_SIMPLE path", e.getMessage()));
+      V1_SIMPLE = null;
+    }
+
+    final PathPlannerPath V1_SIMPLE_PATH = V1_SIMPLE;
+
     PathPlannerPath LEFT_RETURN_PP;
     try {
       LEFT_RETURN_PP = PathPlannerPath.fromPathFile("V1_RETURN");
@@ -93,6 +106,12 @@ public class V1_DoomSpiralAutoLeftTrenchSimple {
                               < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
                       return !isFinished;
                     }),
+                V1_SIMPLE_PATH != null
+                    ? AutoBuilder.followPath(V1_SIMPLE_PATH)
+                        .alongWith(
+                            V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                            intake.collect())
+                    : Commands.print("V1_DOT path unavailable, skipping"),
 
                 // Stop drive
 

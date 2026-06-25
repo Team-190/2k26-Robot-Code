@@ -39,6 +39,20 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
 
     AutoTrajectory RIGHT_TRENCH_SIMPLE =
         routine.trajectory(V1_DoomSpiralAutoTrajectoryCache.RIGHT_TRENCH_SIMPLE);
+
+    PathPlannerPath V1_SIMPLE;
+    try {
+      V1_SIMPLE = PathPlannerPath.fromPathFile("V1_SIMPLE").mirrorPath();
+    } catch (Exception e) {
+      e.printStackTrace();
+      Elastic.sendNotification(
+          new Elastic.Notification(
+              Elastic.NotificationLevel.ERROR, "Failed to load V1_SIMPLE path", e.getMessage()));
+      V1_SIMPLE = null;
+    }
+
+    final PathPlannerPath V1_SIMPLE_PATH = V1_SIMPLE;
+
     PathPlannerPath RIGHT_RETURN_PP;
     try {
       RIGHT_RETURN_PP = PathPlannerPath.fromPathFile("V1_RETURN").mirrorPath();
@@ -50,7 +64,7 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
       RIGHT_RETURN_PP = null;
     }
 
-    final PathPlannerPath RIGHT_RETURN_PATH = RIGHT_RETURN_PP;
+    final PathPlannerPath LEFT_RETURN_PATH = RIGHT_RETURN_PP;
 
     V1_DoomSpiralAutoTrajectoryCache.GO_BACK_TRIGGER.onTrue(
         Commands.runOnce(() -> RETURN_TO_MID = returnToMid.get()));
@@ -92,6 +106,13 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
                               < V1_DoomSpiralConstants.AUTO_CORRECTION_THRESHOLD_METERS;
                       return !isFinished;
                     }),
+                V1_SIMPLE_PATH != null
+                    ? AutoBuilder.followPath(V1_SIMPLE_PATH)
+                        .alongWith(
+                            V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
+                            intake.collect())
+                    : Commands.print("V1_DOT path unavailable, skipping"),
+
                 // Stop drive
 
                 Commands.runOnce(() -> drive.stop()),
@@ -103,8 +124,8 @@ public class V1_DoomSpiralAutoRightTrenchSimple {
                         DriveCommands.aimAtHub(drive, V1_DoomSpiralConstants.DRIVE_CONSTANTS),
                         Commands.sequence(Commands.waitSeconds(3.0), intake.agitate()))
                     .until(() -> RETURN_TO_MID),
-                RIGHT_RETURN_PATH != null
-                    ? AutoBuilder.followPath(RIGHT_RETURN_PATH)
+                LEFT_RETURN_PATH != null
+                    ? AutoBuilder.followPath(LEFT_RETURN_PATH)
                         .alongWith(
                             V1_DoomSpiralCompositeCommands.stopShooterCommand(shooter, spindexer),
                             intake.collect())
