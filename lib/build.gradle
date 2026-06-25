@@ -168,6 +168,27 @@ jacocoTestReport {
             ])
         }))
     }
+
+    doLast {
+        def reportFile = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+        if (reportFile.exists()) {
+            def parser = new groovy.xml.XmlParser(false, false)
+            parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+            parser.setFeature("http://xml.org/sax/features/validation", false)
+            def xml = parser.parse(reportFile)
+            println "\n=== JaCoCo Coverage Summary for :gompeilib ==="
+            xml.counter.each { counter ->
+                def type = counter.attribute('type')
+                def missed = counter.attribute('missed').toInteger()
+                def covered = counter.attribute('covered').toInteger()
+                def total = missed + covered
+                def percentage = total > 0 ? (covered * 100.0 / total) : 0.0
+                printf("%-12s: %.2f%% (%d/%d)%n", type, percentage, covered, total)
+            }
+            println "==============================================\n"
+        }
+    }
 }
 
 jacocoTestCoverageVerification {
