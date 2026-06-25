@@ -48,7 +48,7 @@ public class GenericFlywheelIOSimTest {
                     .withKI(0.0)
                     .withKD(0.1)
                     .withKS(0.01)
-                    .withKV(0.1)
+                    .withKV(0.0104)
                     .withKA(0.0)
                     .withKG(0.0)
                     .build())

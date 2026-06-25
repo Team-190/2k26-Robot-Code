@@ -103,8 +103,9 @@ public class EstimationRegion {
             .plus(cameraPose.toPose2d().getRotation().plus(Rotation2d.fromRadians(-tx)));
     int tagId = observation.tagId();
 
-    Pose2d tagPose2d = aprilTags.get(tagId).toPose2d();
-    if (tagPose2d == null) return;
+    Pose3d tagPose3d = aprilTags.get(tagId);
+    if (tagPose3d == null) return;
+    Pose2d tagPose2d = tagPose3d.toPose2d();
 
     // Compute camera position in field frame
     Rotation2d tagToCameraRotation = camToTagRotation2d.plus(Rotation2d.kPi);

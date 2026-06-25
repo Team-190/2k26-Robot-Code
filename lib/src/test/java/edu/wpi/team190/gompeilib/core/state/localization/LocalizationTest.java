@@ -48,6 +48,15 @@ public class LocalizationTest {
             edu.wpi.first.math.VecBuilder.fill(0.1, 0.1, 0.1));
     loc.addPoseObservations(List.of(poseObs));
 
+    // Test filtering out NaN poses
+    VisionPoseObservation nanPoseObs =
+        new VisionPoseObservation(
+            new Pose2d(Double.NaN, 2.1, new Rotation2d()),
+            Set.of(1),
+            1.1,
+            edu.wpi.first.math.VecBuilder.fill(0.1, 0.1, 0.1));
+    loc.addPoseObservations(List.of(nanPoseObs));
+
     VisionMultiTxTyObservation txTyObs =
         new VisionMultiTxTyObservation(
             1,

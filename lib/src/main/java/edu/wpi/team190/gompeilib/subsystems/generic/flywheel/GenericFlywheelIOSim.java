@@ -64,11 +64,18 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
   public void updateInputs(GenericFlywheelIOInputs inputs) {
     if (isClosedLoop) {
       double meas = motorSim.getAngularVelocityRadPerSec();
-      double setp = feedback.getSetpoint();
-      double pidOut = feedback.calculate(meas);
-      double ffOut = feedforward.calculate(feedback.getSetpoint());
+      double nextSetpoint = profile.calculateSetpoint();
+      double pidOut = feedback.calculate(meas, nextSetpoint);
+      double ffOut = feedforward.calculate(nextSetpoint);
       System.out.println(
-          "DEBUG FLYWHEEL SIM: meas=" + meas + " setp=" + setp + " pid=" + pidOut + " ff=" + ffOut);
+          "DEBUG FLYWHEEL SIM: meas="
+              + meas
+              + " setp="
+              + nextSetpoint
+              + " pid="
+              + pidOut
+              + " ff="
+              + ffOut);
       appliedVolts = Volts.of(pidOut + ffOut);
     }
 
@@ -128,6 +135,7 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
 
   @Override
   public void setNeutralControl() {
+    isClosedLoop = false;
     appliedVolts = Volts.of(0.0);
     profile.reset();
   }
@@ -139,9 +147,16 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
 
   @Override
   public boolean atVelocityGoal(AngularVelocity velocityReference) {
+    System.out.println(
+        "DEBUG atVelocityGoal: getAngularVelocity="
+            + motorSim.getAngularVelocity()
+            + " velocityReference="
+            + velocityReference
+            + " tolerance="
+            + constants.constraints.goalTolerance().get());
     return motorSim
         .getAngularVelocity()
-        .isNear(velocityReference, constants.constraints.goalTolerance().get(RadiansPerSecond));
+        .isNear(velocityReference, constants.constraints.goalTolerance().get());
   }
 
   @Override

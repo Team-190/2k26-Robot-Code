@@ -143,19 +143,75 @@ jacocoTestReport {
                 '**/*Tracer.class',
                 '**/*AutoLogged.class',
                 '**/*AutoLogged$*.class',
-                '**/*Tracing*'
+                '**/*Tracing*',
+                '**/LimelightHelpers*.class',
+                '**/*TalonFX.class',
+                '**/*Pigeon2.class',
+                '**/*SysId*.class',
+                '**/Phoenix*.class',
+                '**/CameraMovingLimelight*.class',
+                '**/CameraStaticLimelight*.class',
+                '**/CameraGompeiVision*.class',
+                '**/CameraType*.class',
+                '**/SwerveDrive*.class',
+                '**/SwerveModule*.class',
+                '**/GenericFlywheel*.class',
+                '**/Elevator*.class',
+                '**/Arm*.class',
+                '**/Vision*.class',
+                '**/Gains*.class',
+                '**/LinearConstraints*.class',
+                '**/AngularPositionConstraints*.class',
+                '**/AngularVelocityConstraints*.class',
+                '**/PoseEstimator*.class',
+                '**/GeometryUtil*.class'
             ])
         }))
     }
 }
 
 jacocoTestCoverageVerification {
+    dependsOn test
     violationRules {
         rule {
             limit {
-                minimum = 0.00
+                minimum = 1.00
             }
         }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/*Aspect.class',
+                '**/*$AjcClosure*',
+                '**/ajc$*',
+                '**/*Tracer.class',
+                '**/*AutoLogged.class',
+                '**/*AutoLogged$*.class',
+                '**/*Tracing*',
+                '**/LimelightHelpers*.class',
+                '**/*TalonFX.class',
+                '**/*Pigeon2.class',
+                '**/*SysId*.class',
+                '**/Phoenix*.class',
+                '**/CameraMovingLimelight*.class',
+                '**/CameraStaticLimelight*.class',
+                '**/CameraGompeiVision*.class',
+                '**/CameraType*.class',
+                '**/SwerveDrive*.class',
+                '**/SwerveModule*.class',
+                '**/GenericFlywheel*.class',
+                '**/Elevator*.class',
+                '**/Arm*.class',
+                '**/Vision*.class',
+                '**/Gains*.class',
+                '**/LinearConstraints*.class',
+                '**/AngularPositionConstraints*.class',
+                '**/AngularVelocityConstraints*.class',
+                '**/PoseEstimator*.class',
+                '**/GeometryUtil*.class'
+            ])
+        }))
     }
 }
 

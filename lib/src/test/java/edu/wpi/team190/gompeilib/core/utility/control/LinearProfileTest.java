@@ -53,7 +53,15 @@ public class LinearProfileTest {
     Twist2d t1 = new Twist2d(1.0, 2.0, 3.0);
     Twist2d t2 = new Twist2d(1.0, 2.0, 3.0);
     Twist2d t3 = new Twist2d(1.1, 2.0, 3.0);
+    Twist2d t4 = new Twist2d(1.0, 2.1, 3.0);
+    Twist2d t5 = new Twist2d(1.0, 2.0, 3.1);
     assertTrue(LinearProfile.EqualsUtil.GeomExtensions.epsilonEquals(t1, t2));
-    assertFalse(LinearProfile.EqualsUtil.GeomExtensions.epsilonEquals(t1, t3));
+    assertFalse(LinearProfile.EqualsUtil.GeomExtensions.epsilonEquals(t1, t3)); // dx diff
+    assertFalse(LinearProfile.EqualsUtil.GeomExtensions.epsilonEquals(t1, t4)); // dy diff
+    assertFalse(LinearProfile.EqualsUtil.GeomExtensions.epsilonEquals(t1, t5)); // dtheta diff
+
+    // test calculateSetpoint with NaN goal (covers else branch of goal < currentSetpoint)
+    profile.setGoal(Double.NaN, 5.0);
+    assertEquals(5.0, profile.calculateSetpoint());
   }
 }

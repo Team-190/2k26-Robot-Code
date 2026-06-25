@@ -3,6 +3,7 @@ package edu.wpi.team190.gompeilib.subsystems.generic.roller;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
@@ -43,6 +44,9 @@ public class GenericRollerIOSim implements GenericRollerIO {
         Radians.of(
             accumulatedPosition.in(Radians)
                 + (motorSim.getAngularVelocityRadPerSec() * GompeiLib.getLoopPeriod()));
+
+    inputs.position = Rotation2d.fromRadians(accumulatedPosition.in(Radians));
+    inputs.velocity = RadiansPerSecond.of(motorSim.getAngularVelocityRadPerSec());
 
     int numMotors =
         1 + constants.alignedFollowerCANIDs.size() + constants.opposedFollowerCANIDs.size();
