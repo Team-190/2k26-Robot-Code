@@ -49,10 +49,10 @@ public class V1_DoomSpiralShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX60Foc(2))
           .withVoltageGains(
               Gains.builder()
-                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 1.5))
+                  .withKP(new LoggedTunableNumber("Shooter/Flywheel/VoltageKp", 0.5))
                   .withKD(new LoggedTunableNumber("Shooter/Flywheel/VoltageKd", 0.0))
                   .withKS(new LoggedTunableNumber("Shooter/Flywheel/VoltageKs", 0.21467))
-                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.3915))
+                  .withKV(new LoggedTunableNumber("Shooter/Flywheel/VoltageKv", 0.14015))
                   .withKA(new LoggedTunableNumber("Shooter/Flywheel/VoltageKa", 0.0045447))
                   .build())
           .withTorqueGains(
@@ -91,7 +91,7 @@ public class V1_DoomSpiralShooterConstants {
           .withMotorConfig(DCMotor.getKrakenX44Foc(1))
           .withCanBus(CANBus.roboRIO())
           .withLengthMeters(0.101596)
-          .withMinAngle(Rotation2d.fromDegrees(0.1))
+          .withMinAngle(Rotation2d.fromDegrees(2))
           .withMaxAngle(Rotation2d.fromDegrees(20))
           .withZeroVoltage(Volts.of(1.0))
           .withZeroCurrentThreshold(Amps.of(40.0))

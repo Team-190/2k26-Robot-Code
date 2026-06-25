@@ -7,18 +7,18 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.AdjustPathCommand;
+import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v2_Turnover.V2_TurnoverCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotState;
 import frc.robot.subsystems.v2_Turnover.clopper.V2_TurnoverClopper;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
-import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
-import java.util.function.BooleanSupplier;
+import frc.robot.util.command.AutoCommandBuilder;
 import java.util.function.Supplier;
 
-public class V2_TurnoverAutoLeftOP {
+public class V2_TurnoverAutoFollowDepotBC {
   public static Command getAutoRoutine(
       SwerveDrive drive,
       Intake intake,
@@ -27,42 +27,32 @@ public class V2_TurnoverAutoLeftOP {
       Supplier<AdjustPathCommand.PathAdjustmentMode[]> pathAdjustmentModeSupplier) {
 
     try {
-
-      PathPlannerPath OP_1 = PathPlannerPath.fromPathFile("OP_1");
-      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("OP_2");
-
-      AdjustPathCommand followCommandOP_1 =
+      PathPlannerPath FOLLOW_DEPOT_1 = PathPlannerPath.fromPathFile("FOLLOW_FEED_1");
+      PathPlannerPath FOLLOW_DEPOT_2 = PathPlannerPath.fromPathFile("FOLLOW_DEPOT_2_BC");
+      AdjustPathCommand adjustPathCommand1 =
           new AdjustPathCommand(
-              () -> OP_1.getPathPoses().get(OP_1.getPathPoses().size() - 1),
+              () -> FOLLOW_DEPOT_1.getPathPoses().get(FOLLOW_DEPOT_1.getPathPoses().size() - 1),
               0,
               pathAdjustmentModeSupplier);
-
-      AdjustPathCommand followCommandOP_2 =
+      AdjustPathCommand adjustPathCommand2 =
           new AdjustPathCommand(
-              () -> OP_2.getPathPoses().get(OP_2.getPathPoses().size() - 1),
+              () -> FOLLOW_DEPOT_2.getPathPoses().get(FOLLOW_DEPOT_2.getPathPoses().size() - 1),
               0,
               pathAdjustmentModeSupplier);
 
       RobotModeTriggers.autonomous()
           .negate()
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
-
-      BooleanSupplier invertScoreLocation = () -> false;
       return Commands.sequence(
           Commands.runOnce(
               () ->
                   V2_TurnoverRobotState.resetPose(
-                      AllianceFlipUtil.apply(OP_1.getStartingHolonomicPose().get()))),
-          intake.deploy().alongWith(intake.setOverrideRollerVoltage(11)),
-          AutoBuilder.followPath(OP_1),
-          AutoBuilder.followPath(OP_2)
-              .alongWith(
-                  Commands.sequence(
-                      Commands.waitSeconds(7.8),
-                      shooter.setNonRequiringGoal(V2_TurnoverShooterConstants.ShooterGoal.STOW),
-                      clopper.stopBallTunnel(),
-                      clopper.stopRollerFloor())),
-          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation));
+                      AllianceFlipUtil.apply(FOLLOW_DEPOT_1.getStartingHolonomicPose().get()))),
+          intake.deploy(),
+          AutoCommandBuilder.sequence(
+              AutoBuilder.followPath(FOLLOW_DEPOT_1), AutoBuilder.followPath(FOLLOW_DEPOT_2)),
+          DriveCommands.stop(drive).alongWith(V2_TurnoverCompositeCommands.hold(clopper, shooter)));
+
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(

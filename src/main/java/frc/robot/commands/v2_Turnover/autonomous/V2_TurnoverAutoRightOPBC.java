@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.AdjustPathCommand;
+import frc.robot.commands.shared.DriveCommands;
 import frc.robot.commands.v2_Turnover.V2_TurnoverCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotState;
@@ -15,10 +16,9 @@ import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class V2_TurnoverAutoLeftOP {
+public class V2_TurnoverAutoRightOPBC {
   public static Command getAutoRoutine(
       SwerveDrive drive,
       Intake intake,
@@ -28,8 +28,8 @@ public class V2_TurnoverAutoLeftOP {
 
     try {
 
-      PathPlannerPath OP_1 = PathPlannerPath.fromPathFile("OP_1");
-      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("OP_2");
+      PathPlannerPath OP_1 = PathPlannerPath.fromPathFile("OP_1").mirrorPath();
+      PathPlannerPath OP_2 = PathPlannerPath.fromPathFile("OP_2_BC").mirrorPath();
 
       AdjustPathCommand followCommandOP_1 =
           new AdjustPathCommand(
@@ -47,7 +47,6 @@ public class V2_TurnoverAutoLeftOP {
           .negate()
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
-      BooleanSupplier invertScoreLocation = () -> false;
       return Commands.sequence(
           Commands.runOnce(
               () ->
@@ -58,11 +57,11 @@ public class V2_TurnoverAutoLeftOP {
           AutoBuilder.followPath(OP_2)
               .alongWith(
                   Commands.sequence(
-                      Commands.waitSeconds(7.8),
+                      Commands.waitSeconds(6.72),
                       shooter.setNonRequiringGoal(V2_TurnoverShooterConstants.ShooterGoal.STOW),
                       clopper.stopBallTunnel(),
                       clopper.stopRollerFloor())),
-          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation));
+          V2_TurnoverCompositeCommands.hold(clopper, shooter).alongWith(DriveCommands.stop(drive)));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(
