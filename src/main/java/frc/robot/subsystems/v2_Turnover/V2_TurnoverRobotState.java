@@ -290,8 +290,9 @@ public class V2_TurnoverRobotState {
         new Rectangle2d(
             AllianceFlipUtil.apply(
                 new Translation2d(
-                    FieldConstants.LinesVertical.neutralZoneNear, FieldConstants.fieldWidth)),
-            AllianceFlipUtil.apply(new Translation2d(0, 0)));
+                    FieldConstants.LinesVertical.neutralZoneNear,
+                    FieldConstants.fieldWidth + Units.inchesToMeters(15))),
+            AllianceFlipUtil.apply(new Translation2d(0, -Units.inchesToMeters(-15))));
 
     inAllianceZone = allianceZone.contains(getGlobalPose().getTranslation());
 

@@ -82,6 +82,17 @@
           "name": "DEPLOY"
         }
       }
+    },
+    {
+      "name": "HOLD_WHILE_INTAKE",
+      "waypointRelativePos": 1.33,
+      "endWaypointRelativePos": 2.0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "HOLD_WHILE_INTAKE"
+        }
+      }
     }
   ],
   "globalConstraints": {

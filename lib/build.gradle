@@ -1,0 +1,279 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id "com.diffplug.spotless" version "6.25.0"
+    id "io.freefair.lombok" version "8.4"
+    id "io.freefair.aspectj.post-compile-weaving" version "8.6"
+    id "jacoco"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+group = 'edu.wpi.team190'
+version = project.hasProperty("releaseVersion") ? project.property("releaseVersion") : "0.0.0-SNAPSHOT"
+
+// Detect OS
+def osClassifier = {
+    def osName = System.getProperty("os.name").toLowerCase()
+    if (osName.contains("win")) return "windowsx86-64"
+    if (osName.contains("mac")) return "osxuniversal"
+    return "linuxx86-64"
+}()
+
+repositories {
+    mavenCentral()
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/release") }
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release") }
+    maven { url = uri("https://maven.ctr-electronics.com/release/") }
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/sleipnirgroup-mvn-release/") }
+    maven { url = uri("https://3015rangerrobotics.github.io/pathplannerlib/repo") }
+}
+
+apply from: "gradle/native-utils.gradle"
+
+dependencies {
+    // WPILib bundle
+    compileOnly libs.bundles.wpilib
+
+    // AspectJ
+    compileOnly libs.aspectj.rt
+    runtimeOnly libs.aspectj.tools
+
+    // PathPlanner
+    compileOnly libs.pathplanner
+
+    // CTRE
+    compileOnly libs.phoenix6
+
+    // Choreo
+    compileOnly libs.choreo
+
+    // AdvantageKit + runtime dependencies
+    compileOnly(libs.bundles.advantagekit)
+    annotationProcessor libs.advantagekit.autolog
+
+    // Tests
+    testImplementation platform('org.junit:junit-bom:5.11.0')
+    testImplementation "org.mockito:mockito-inline:5.2.0"
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation libs.bundles.wpilib
+    testImplementation libs.bundles.aspectj
+    testImplementation libs.bundles.advantagekit
+    testImplementation libs.phoenix6
+    testImplementation libs.pathplanner
+    testImplementation libs.choreo
+    testImplementation "org.ejml:ejml-simple:0.44.0"
+
+    testRuntimeOnly libs.bundles.wpilib
+    testRuntimeOnly libs.bundles.aspectj
+    testRuntimeOnly libs.bundles.advantagekit
+    testRuntimeOnly libs.phoenix6
+    testRuntimeOnly libs.pathplanner
+    testRuntimeOnly libs.choreo
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = group
+            artifactId = "gompeilib"
+            version = version
+        }
+    }
+
+    repositories {
+        // GitHub Packages ONLY in CI
+        if (System.getenv("CI") == "true") {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/Team-190/GompeiLib")
+                credentials {
+                    username = System.getenv("GPR_USER") ?: project.findProperty("gpr.user")
+                    password = System.getenv("GPR_KEY") ?: project.findProperty("gpr.key")
+                }
+            }
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+        showStandardStreams = true
+    }
+    jacoco {
+        enabled = true
+    }
+
+    // After tests finish, generate coverage report automatically
+    finalizedBy tasks.jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/*Aspect.class',
+                '**/*$AjcClosure*',
+                '**/ajc$*',
+                '**/*Tracer.class',
+                '**/*AutoLogged.class',
+                '**/*AutoLogged$*.class',
+                '**/*Tracing*',
+                '**/LimelightHelpers*.class',
+                '**/*TalonFX.class',
+                '**/*Pigeon2.class',
+                '**/*SysId*.class',
+                '**/Phoenix*.class',
+                '**/CameraMovingLimelight*.class',
+                '**/CameraStaticLimelight*.class',
+                '**/CameraGompeiVision*.class',
+                '**/CameraType*.class',
+                '**/SwerveDrive*.class',
+                '**/SwerveModule*.class',
+                '**/GenericFlywheel*.class',
+                '**/Elevator*.class',
+                '**/Arm*.class',
+                '**/Vision*.class',
+                '**/Gains*.class',
+                '**/LinearConstraints*.class',
+                '**/AngularPositionConstraints*.class',
+                '**/AngularVelocityConstraints*.class',
+                '**/PoseEstimator*.class',
+                '**/GeometryUtil*.class'
+            ])
+        }))
+    }
+
+    doLast {
+        def reportFile = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+        if (reportFile.exists()) {
+            def parser = new groovy.xml.XmlParser(false, false)
+            parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+            parser.setFeature("http://xml.org/sax/features/validation", false)
+            def xml = parser.parse(reportFile)
+            println "\n=== JaCoCo Coverage Summary for :gompeilib ==="
+            xml.counter.each { counter ->
+                def type = counter.attribute('type')
+                def missed = counter.attribute('missed').toInteger()
+                def covered = counter.attribute('covered').toInteger()
+                def total = missed + covered
+                def percentage = total > 0 ? (covered * 100.0 / total) : 0.0
+                printf("%-12s: %.2f%% (%d/%d)%n", type, percentage, covered, total)
+            }
+            println "==============================================\n"
+        }
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn test
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.00
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/*Aspect.class',
+                '**/*$AjcClosure*',
+                '**/ajc$*',
+                '**/*Tracer.class',
+                '**/*AutoLogged.class',
+                '**/*AutoLogged$*.class',
+                '**/*Tracing*',
+                '**/LimelightHelpers*.class',
+                '**/*TalonFX.class',
+                '**/*Pigeon2.class',
+                '**/*SysId*.class',
+                '**/Phoenix*.class',
+                '**/CameraMovingLimelight*.class',
+                '**/CameraStaticLimelight*.class',
+                '**/CameraGompeiVision*.class',
+                '**/CameraType*.class',
+                '**/SwerveDrive*.class',
+                '**/SwerveModule*.class',
+                '**/GenericFlywheel*.class',
+                '**/Elevator*.class',
+                '**/Arm*.class',
+                '**/Vision*.class',
+                '**/Gains*.class',
+                '**/LinearConstraints*.class',
+                '**/AngularPositionConstraints*.class',
+                '**/AngularVelocityConstraints*.class',
+                '**/PoseEstimator*.class',
+                '**/GeometryUtil*.class'
+            ])
+        }))
+    }
+}
+
+// Spotless formatting
+project.compileJava.dependsOn(spotlessApply)
+spotless {
+    java {
+        target fileTree(".") {
+            include "**/*.java"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        toggleOffOn()
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    json {
+        target fileTree(".") {
+            include "**/*.json"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        gson().indentWithSpaces(2)
+    }
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
+}
