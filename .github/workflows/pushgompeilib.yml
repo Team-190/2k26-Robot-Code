@@ -6,7 +6,7 @@ on:
 
 jobs:
   sync:
-    uses: Team-190/CI-Workflows/.github/workflows/syncgompeilib.yml@main
+    uses: Team-190/CI-Workflows/.github/workflows/syncgompeilib.yaml@main
     with:
       direction: push
     secrets:

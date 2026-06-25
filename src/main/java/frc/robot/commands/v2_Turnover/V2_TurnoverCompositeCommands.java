@@ -14,6 +14,7 @@ import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooterConstants.ShooterGoal;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShotCalculator;
 import frc.robot.util.command.ContinuousConditionalCommand;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class V2_TurnoverCompositeCommands {
@@ -41,9 +42,12 @@ public class V2_TurnoverCompositeCommands {
 
   private static boolean toggleShouldHold = false;
 
-  public static Command toggleHold(V2_TurnoverClopper clopper, V2_TurnoverShooter shooter) {
+  public static Command toggleHold(
+      V2_TurnoverClopper clopper, V2_TurnoverShooter shooter, BooleanSupplier invert) {
     return Commands.either(
-            hold(clopper, shooter), scoreOrFeedCommand(shooter, clopper), () -> toggleShouldHold)
+            hold(clopper, shooter),
+            scoreOrFeedCommand(shooter, clopper, invert),
+            () -> toggleShouldHold)
         .beforeStarting(
             () -> {
               toggleShouldHold = !toggleShouldHold;
@@ -51,10 +55,18 @@ public class V2_TurnoverCompositeCommands {
             });
   }
 
-  public static Command scoreOrFeedCommand(V2_TurnoverShooter shooter, V2_TurnoverClopper clopper) {
+  public static Command scoreOrFeedCommand(
+      V2_TurnoverShooter shooter, V2_TurnoverClopper clopper, BooleanSupplier invert) {
     return Commands.parallel(
         shooter.setGoal(
-            () -> V2_TurnoverRobotState.isInAllianceZone() ? ShooterGoal.SCORE : ShooterGoal.FEED),
+            () ->
+                invert.getAsBoolean()
+                    ? (V2_TurnoverRobotState.isInAllianceZone()
+                        ? ShooterGoal.FEED
+                        : ShooterGoal.SCORE)
+                    : (V2_TurnoverRobotState.isInAllianceZone()
+                        ? ShooterGoal.SCORE
+                        : ShooterGoal.FEED)),
         runHopperWhenReady(shooter, clopper));
   }
 

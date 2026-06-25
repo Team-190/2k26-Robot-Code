@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import frc.robot.commands.shared.AdjustPathCommand;
 import frc.robot.commands.shared.DriveCommands;
+import frc.robot.commands.v2_Turnover.V2_TurnoverCompositeCommands;
 import frc.robot.subsystems.shared.intake.Intake;
 import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotState;
 import frc.robot.subsystems.v2_Turnover.clopper.V2_TurnoverClopper;
@@ -50,7 +51,7 @@ public class V2_TurnoverAutoFollowDepotBC {
           intake.deploy(),
           AutoCommandBuilder.sequence(
               AutoBuilder.followPath(FOLLOW_DEPOT_1), AutoBuilder.followPath(FOLLOW_DEPOT_2)),
-          DriveCommands.stop(drive));
+          DriveCommands.stop(drive).alongWith(V2_TurnoverCompositeCommands.hold(clopper, shooter)));
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -1,0 +1,84 @@
+{
+ "name":"V1_DoomSpiralAutos",
+ "version":2,
+ "type":"Swerve",
+ "variables":{
+  "expressions":{},
+  "poses":{}
+ },
+ "config":{
+  "frontLeft":{
+   "x":{
+    "exp":"8.875 in",
+    "val":0.225425
+   },
+   "y":{
+    "exp":"13.125 in",
+    "val":0.333375
+   }
+  },
+  "backLeft":{
+   "x":{
+    "exp":"-8.875 in",
+    "val":-0.225425
+   },
+   "y":{
+    "exp":"13.125 in",
+    "val":0.333375
+   }
+  },
+  "mass":{
+   "exp":"150 lbs",
+   "val":68.0388555
+  },
+  "inertia":{
+   "exp":"7.5 kg m ^ 2",
+   "val":7.5
+  },
+  "gearing":{
+   "exp":"7.03",
+   "val":7.03
+  },
+  "radius":{
+   "exp":"2 in",
+   "val":0.0508
+  },
+  "vmax":{
+   "exp":"5800 RPM",
+   "val":607.3745796940267
+  },
+  "tmax":{
+   "exp":"1.2 N * m",
+   "val":1.2
+  },
+  "cof":{
+   "exp":"1.5",
+   "val":1.5
+  },
+  "bumper":{
+   "front":{
+    "exp":"13.75 in",
+    "val":0.34925
+   },
+   "side":{
+    "exp":"17.5 in",
+    "val":0.4445
+   },
+   "back":{
+    "exp":"13.75 in",
+    "val":0.34925
+   }
+  },
+  "differentialTrackWidth":{
+   "exp":"22 in",
+   "val":0.5588
+  }
+ },
+ "generationFeatures":[],
+ "codegen":{
+  "root":"../../java/frc/robot",
+  "genVars":false,
+  "genTrajData":false,
+  "useChoreoLib":false
+ }
+}

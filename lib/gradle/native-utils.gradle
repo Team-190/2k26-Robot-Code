@@ -1,0 +1,40 @@
+// Detect OS for FRC Natives
+def osClassifier = {
+    def osName = System.getProperty("os.name").toLowerCase()
+    if (osName.contains("win")) return "windowsx86-64"
+    if (osName.contains("mac")) return "osxuniversal"
+    return "linuxx86-64"
+}()
+
+configurations {
+    nativeDeps
+}
+
+dependencies {
+    // Uses the version provider from your libs.versions.toml [cite: 4]
+    def wpilibVer = libs.versions.wpilib.jni.get()
+    nativeDeps "edu.wpi.first.ntcore:ntcore-jni:${wpilibVer}:${osClassifier}"
+    nativeDeps "edu.wpi.first.wpiutil:wpiutil-jni:${wpilibVer}:${osClassifier}"
+    nativeDeps "edu.wpi.first.hal:hal-jni:${wpilibVer}:${osClassifier}"
+}
+
+def jniDestDir = layout.buildDirectory.dir("jni")
+
+tasks.register('extractNativeLibs', Copy) {
+    from {
+        configurations.nativeDeps.collect { zipTree(it) }
+    }
+    into jniDestDir
+    // Supports Windows (.dll), OSX (.dylib), and Linux (.so)
+    include "**/*.so", "**/*.dll", "**/*.dylib"
+    eachFile { path = name }
+    includeEmptyDirs = false
+}
+
+// Ensure all test tasks depend on extraction and see the library path
+tasks.withType(Test).configureEach {
+    dependsOn extractNativeLibs
+    // .get().asFile converts the DirectoryProperty to a standard File object
+    systemProperty "java.library.path", jniDestDir.get().asFile.absolutePath
+    systemProperty "jni.extract.path", jniDestDir.get().asFile.absolutePath
+}

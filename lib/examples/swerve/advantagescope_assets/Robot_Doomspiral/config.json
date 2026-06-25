@@ -1,0 +1,142 @@
+{
+  "name": "Doomspiral",
+  "sourceUrl": "https://frc190.onshape.com/documents/b452dd5a31bf95c6384826fb/w/4d65f099a7d3627693a2bc3a/e/934f62b4a3bd58acfff00615",
+  "disableSimplification": true,
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0,
+    0,
+    0
+  ],
+  "cameras": [],
+  "components": [
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0.009525,
+        0,
+        -0.067589
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0.202788,
+        -0.090048,
+        -0.477077
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        -0.142476,
+        0,
+        -0.278075
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0.030565,
+        0,
+        -0.312095
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        -0.278238,
+        0,
+        -0.196629
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0.009856,
+        0,
+        -0.304569
+      ]
+    }
+  ]
+}
