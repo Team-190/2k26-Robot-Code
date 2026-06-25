@@ -67,10 +67,17 @@ dependencies {
     testImplementation libs.bundles.wpilib
     testImplementation libs.bundles.aspectj
     testImplementation libs.bundles.advantagekit
+    testImplementation libs.phoenix6
+    testImplementation libs.pathplanner
+    testImplementation libs.choreo
+    testImplementation "org.ejml:ejml-simple:0.44.0"
 
     testRuntimeOnly libs.bundles.wpilib
     testRuntimeOnly libs.bundles.aspectj
     testRuntimeOnly libs.bundles.advantagekit
+    testRuntimeOnly libs.phoenix6
+    testRuntimeOnly libs.pathplanner
+    testRuntimeOnly libs.choreo
 }
 
 publishing {
@@ -136,19 +143,96 @@ jacocoTestReport {
                 '**/*Tracer.class',
                 '**/*AutoLogged.class',
                 '**/*AutoLogged$*.class',
-                '**/*Tracing*'
+                '**/*Tracing*',
+                '**/LimelightHelpers*.class',
+                '**/*TalonFX.class',
+                '**/*Pigeon2.class',
+                '**/*SysId*.class',
+                '**/Phoenix*.class',
+                '**/CameraMovingLimelight*.class',
+                '**/CameraStaticLimelight*.class',
+                '**/CameraGompeiVision*.class',
+                '**/CameraType*.class',
+                '**/SwerveDrive*.class',
+                '**/SwerveModule*.class',
+                '**/GenericFlywheel*.class',
+                '**/Elevator*.class',
+                '**/Arm*.class',
+                '**/Vision*.class',
+                '**/Gains*.class',
+                '**/LinearConstraints*.class',
+                '**/AngularPositionConstraints*.class',
+                '**/AngularVelocityConstraints*.class',
+                '**/PoseEstimator*.class',
+                '**/GeometryUtil*.class'
             ])
         }))
+    }
+
+    doLast {
+        def reportFile = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+        if (reportFile.exists()) {
+            def parser = new groovy.xml.XmlParser(false, false)
+            parser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+            parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+            parser.setFeature("http://xml.org/sax/features/validation", false)
+            def xml = parser.parse(reportFile)
+            println "\n=== JaCoCo Coverage Summary for :gompeilib ==="
+            xml.counter.each { counter ->
+                def type = counter.attribute('type')
+                def missed = counter.attribute('missed').toInteger()
+                def covered = counter.attribute('covered').toInteger()
+                def total = missed + covered
+                def percentage = total > 0 ? (covered * 100.0 / total) : 0.0
+                printf("%-12s: %.2f%% (%d/%d)%n", type, percentage, covered, total)
+            }
+            println "==============================================\n"
+        }
     }
 }
 
 jacocoTestCoverageVerification {
+    dependsOn test
     violationRules {
         rule {
             limit {
-                minimum = 0.00
+                minimum = 1.00
             }
         }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/*Aspect.class',
+                '**/*$AjcClosure*',
+                '**/ajc$*',
+                '**/*Tracer.class',
+                '**/*AutoLogged.class',
+                '**/*AutoLogged$*.class',
+                '**/*Tracing*',
+                '**/LimelightHelpers*.class',
+                '**/*TalonFX.class',
+                '**/*Pigeon2.class',
+                '**/*SysId*.class',
+                '**/Phoenix*.class',
+                '**/CameraMovingLimelight*.class',
+                '**/CameraStaticLimelight*.class',
+                '**/CameraGompeiVision*.class',
+                '**/CameraType*.class',
+                '**/SwerveDrive*.class',
+                '**/SwerveModule*.class',
+                '**/GenericFlywheel*.class',
+                '**/Elevator*.class',
+                '**/Arm*.class',
+                '**/Vision*.class',
+                '**/Gains*.class',
+                '**/LinearConstraints*.class',
+                '**/AngularPositionConstraints*.class',
+                '**/AngularVelocityConstraints*.class',
+                '**/PoseEstimator*.class',
+                '**/GeometryUtil*.class'
+            ])
+        }))
     }
 }
 

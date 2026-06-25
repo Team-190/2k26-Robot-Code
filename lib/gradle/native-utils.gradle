@@ -16,6 +16,13 @@ dependencies {
     nativeDeps "edu.wpi.first.ntcore:ntcore-jni:${wpilibVer}:${osClassifier}"
     nativeDeps "edu.wpi.first.wpiutil:wpiutil-jni:${wpilibVer}:${osClassifier}"
     nativeDeps "edu.wpi.first.hal:hal-jni:${wpilibVer}:${osClassifier}"
+    nativeDeps "edu.wpi.first.wpimath:wpimath-jni:${wpilibVer}:${osClassifier}"
+
+    def phoenix6Ver = libs.versions.phoenix6.get()
+    nativeDeps "com.ctre.phoenix6:tools:${phoenix6Ver}:${osClassifier}@zip"
+    nativeDeps "com.ctre.phoenix6.sim:tools-sim:${phoenix6Ver}:${osClassifier}@zip"
+    nativeDeps "com.ctre.phoenix6:api-cpp:${phoenix6Ver}:${osClassifier}@zip"
+    nativeDeps "com.ctre.phoenix6.sim:api-cpp-sim:${phoenix6Ver}:${osClassifier}@zip"
 }
 
 def jniDestDir = layout.buildDirectory.dir("jni")

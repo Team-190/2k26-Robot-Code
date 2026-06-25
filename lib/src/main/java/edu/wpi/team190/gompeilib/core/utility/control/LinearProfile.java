@@ -28,6 +28,7 @@ public class LinearProfile {
    */
   public LinearProfile(double maxAcceleration, double maxVelocity, double period) {
     this.period = period;
+    this.maxVelocity = maxVelocity;
     setMaxAcceleration(maxAcceleration);
   }
 
