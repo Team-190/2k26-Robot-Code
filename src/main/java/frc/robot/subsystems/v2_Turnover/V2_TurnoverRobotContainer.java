@@ -546,7 +546,6 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         "Follow Depot BC",
         V2_TurnoverAutoFollowDepotBC.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
-    
 
     PathPlannerLogging.setLogActivePathCallback(
         l -> Logger.recordOutput("Auto/PathPlanner/Path", l.toArray(Pose2d[]::new)));
