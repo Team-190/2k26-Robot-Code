@@ -3,7 +3,15 @@
  "version":2,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
+  "expressions":{
+   "INTAKE_VELOCITY":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"0.55 m / s",
+     "val":0.55
+    }
+   }
+  },
   "poses":{}
  },
  "config":{

@@ -15,6 +15,7 @@ import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooter;
 import frc.robot.subsystems.v2_Turnover.shooter.V2_TurnoverShooterConstants;
 import frc.robot.util.AllianceFlipUtil;
 import frc.robot.util.Elastic;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class V2_TurnoverAutoLeftOPBucks {
@@ -45,6 +46,7 @@ public class V2_TurnoverAutoLeftOPBucks {
           .negate()
           .onTrue(intake.stopRollerOverride().alongWith(intake.deploy()).ignoringDisable(true));
 
+      BooleanSupplier invertScoreLocation = () -> false;
       return Commands.sequence(
           Commands.runOnce(
               () ->
@@ -59,7 +61,7 @@ public class V2_TurnoverAutoLeftOPBucks {
                       shooter.setNonRequiringGoal(V2_TurnoverShooterConstants.ShooterGoal.STOW),
                       clopper.stopBallTunnel(),
                       clopper.stopRollerFloor())),
-          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+          V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation));
     } catch (Exception e) {
       e.printStackTrace();
       return Commands.runOnce(

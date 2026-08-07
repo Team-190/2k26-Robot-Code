@@ -429,15 +429,10 @@ public final class DriveCommands {
                   0.0,
                   0.0,
                   AutoAlignCommand.calculate(
-                          omegaController,
-                          V1_DoomSpiralRobotState.getShootingParameters()
-                              .chassisAngle()
-                              .getRadians(),
-                          V1_DoomSpiralRobotState.getHeading().getRadians(),
-                          drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond)
-                      + V1_DoomSpiralRobotState.getShootingParameters()
-                          .chassisVelocity()
-                          .in(RadiansPerSecond),
+                      omegaController,
+                      V1_DoomSpiralRobotState.getRobotToHubAngle().getRadians(),
+                      V1_DoomSpiralRobotState.getHeading().getRadians(),
+                      drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond),
                   V1_DoomSpiralRobotState.getHeading()));
         });
   }

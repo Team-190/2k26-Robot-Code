@@ -13,12 +13,14 @@ import java.util.Arrays;
 
 public class GenericRollerIOSim implements GenericRollerIO {
   private final DCMotorSim motorSim;
+  private final GenericRollerConstants constants;
 
   private Voltage appliedVolts;
 
   private Angle accumulatedPosition;
 
   public GenericRollerIOSim(GenericRollerConstants constants) {
+    this.constants = constants;
     motorSim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
@@ -44,7 +46,15 @@ public class GenericRollerIOSim implements GenericRollerIO {
                 + (motorSim.getAngularVelocityRadPerSec() * GompeiLib.getLoopPeriod()));
 
     inputs.position = Rotation2d.fromRadians(accumulatedPosition.in(Radians));
-    inputs.velocity = motorSim.getAngularVelocity();
+    inputs.velocity = RadiansPerSecond.of(motorSim.getAngularVelocityRadPerSec());
+
+    int numMotors =
+        1 + constants.alignedFollowerCANIDs.size() + constants.opposedFollowerCANIDs.size();
+    inputs.appliedVolts = new double[numMotors];
+    inputs.supplyCurrentAmps = new double[numMotors];
+    inputs.torqueCurrentAmps = new double[numMotors];
+    inputs.temperatureCelsius = new double[numMotors];
+
     Arrays.fill(inputs.appliedVolts, appliedVolts.in(Volts));
     Arrays.fill(inputs.supplyCurrentAmps, motorSim.getCurrentDrawAmps());
     Arrays.fill(inputs.torqueCurrentAmps, motorSim.getCurrentDrawAmps());

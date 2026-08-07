@@ -224,4 +224,18 @@ public class GeometryUtilTest {
       assertEquals(poses[i], correctPoses[i]);
     }
   }
+
+  @Test
+  @Order(19)
+  void testRectangleIntersects() {
+    Rectangle2d[] rectangles = {new Rectangle2d(new Pose2d(0, 0, Rotation2d.kZero), 1, 1)};
+
+    // Intersects center
+    assertTrue(GeometryUtil.intersects(rectangles, new Pose2d(0, 0, Rotation2d.kZero), 1, 1));
+    // Does not intersect
+    assertFalse(GeometryUtil.intersects(rectangles, new Pose2d(5, 5, Rotation2d.kZero), 1, 1));
+
+    // Intersects via target containing rectangle center
+    assertTrue(GeometryUtil.intersects(rectangles, new Pose2d(0.5, 0.5, Rotation2d.kZero), 3, 3));
+  }
 }

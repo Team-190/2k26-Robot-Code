@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -15,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
-import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
@@ -43,6 +44,7 @@ import frc.robot.commands.shared.SharedCompositeCommands;
 import frc.robot.commands.v2_Turnover.V2_TurnoverCompositeCommands;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoDepot;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowDepot;
+import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowDepotBC;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedFullLeft;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedFullRight;
 import frc.robot.commands.v2_Turnover.autonomous.V2_TurnoverAutoFollowFeedMiddleLeft;
@@ -83,6 +85,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -145,7 +148,9 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
           clopper =
               new V2_TurnoverClopper(
                   new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS),
+                  new GenericRollerIOTalonFX(V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS),
+                  new GenericRollerIOTalonFX(
+                      V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS),
                   new GenericRollerIOTalonFX(
                       V2_TurnoverClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
           shooter =
@@ -216,7 +221,10 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
           clopper =
               new V2_TurnoverClopper(
                   new GenericRollerIOTalonFXSim(V2_TurnoverClopperConstants.ROLLER_FLOOR_CONSTANTS),
-                  new GenericRollerIOTalonFXSim(V2_TurnoverClopperConstants.BALL_TUNNEL_CONSTANTS),
+                  new GenericRollerIOTalonFXSim(
+                      V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS),
+                  new GenericRollerIOTalonFX(
+                      V2_TurnoverClopperConstants.BALL_TUNNEL_BOTTOM_CONSTANTS),
                   new GenericRollerIOTalonFXSim(
                       V2_TurnoverClopperConstants.BALLS_TO_THE_WALL_CONSTANTS));
 
@@ -258,7 +266,10 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     if (clopper == null) {
       clopper =
           new V2_TurnoverClopper(
-              new GenericRollerIO() {}, new GenericRollerIO() {}, new GenericRollerIO() {});
+              new GenericRollerIO() {},
+              new GenericRollerIO() {},
+              new GenericRollerIO() {},
+              new GenericRollerIO() {});
     }
     if (vision == null) {
       vision = new Vision(() -> FieldConstants.tagLayoutType.getLayout());
@@ -376,11 +387,12 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
   private void configureAutos() {
     // Named commands that are used during the paths
     NamedCommands.registerCommand(
-        "SCORE_OR_FEED", V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper));
+        "SCORE_OR_FEED",
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, () -> false));
 
     NamedCommands.registerCommand(
         "SCORE_NO_ROLLER",
-        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, () -> false)
             .alongWith(intake.setOverrideRollerVoltage(0)));
 
     NamedCommands.registerCommand("STOP_OVERRIDE_ROLLER", intake.stopRollerOverride());
@@ -401,7 +413,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
 
     NamedCommands.registerCommand(
         "SCORE_AGITATE_OP_2",
-        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+        V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, () -> false)
             .alongWith(
                 Commands.sequence(
                     intake.stopRollerOverride(),
@@ -417,7 +429,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     NamedCommands.registerCommand(
         "HOLD_WHILE_INTAKE",
         V2_TurnoverCompositeCommands.hold(clopper, shooter)
-            .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE)));
+            .alongWith(intake.setOverrideRollerVoltage(IntakeConstants.INTAKE_VOLTAGE))
+            .withName("HOLD_WHILE_INTAKE"));
 
     NamedCommands.registerCommand(
         "DEPLOY",
@@ -529,10 +542,19 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         "Follow Depot",
         V2_TurnoverAutoFollowDepot.getAutoRoutine(
             drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+    autoChooser.addOption(
+        "Follow Depot BC",
+        V2_TurnoverAutoFollowDepotBC.getAutoRoutine(
+            drive, intake, clopper, shooter, getAdjustmentModeSupplier()));
+
+    PathPlannerLogging.setLogActivePathCallback(
+        l -> Logger.recordOutput("Auto/PathPlanner/Path", l.toArray(Pose2d[]::new)));
+    PathPlannerLogging.setLogTargetPoseCallback(
+        p -> Logger.recordOutput("Auto/PathPlanner/Target", p));
   }
 
-  @Trace
   private void configureButtonBindings() {
+    Trigger invertScoreLocation = driver.povRight();
     driver
         .povDown()
         .onTrue(
@@ -540,6 +562,10 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 drive,
                 V2_TurnoverRobotState::resetPose,
                 () -> V2_TurnoverRobotState.getGlobalPose().getTranslation()));
+
+    driver.povUp().onTrue(drive.runOnce(() -> drive.stopWithX()).withName("driver-povUp"));
+
+    xkeys.g8().whileTrue(drive.run(() -> drive.stopWithX()).withName("xkeys-g8"));
 
     drive.setDefaultCommand(
         new ContinuousConditionalCommand(
@@ -605,8 +631,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                                         / (Math.PI / 2.0))
                                 * (Math.PI / 2.0)))
                 .withName("cardinal-direction-set"));
-    xkeys.b9().onTrue(DriveCommands.incrementSlowFactor().withName("xkeys-b9-true"));
-    xkeys.b10().onTrue(DriveCommands.decrementSlowFactor().withName("xkeys-b10-true"));
+
+    xkeys.b9().onTrue(DriveCommands.decrementSlowFactor().withName("xkeys-b10-true"));
 
     driver
         .povDown()
@@ -625,7 +651,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
             V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-rightBumper-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-rightBumper-false"));
     xkeys
         .b8()
@@ -633,7 +659,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
             V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-rightBumper-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-rightBumper-false"));
 
     xkeys
@@ -649,7 +675,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.LEFT_TRENCH)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
@@ -659,7 +685,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.RIGHT_TRENCH)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topRightPaddle-false"));
 
     driver
@@ -669,7 +695,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.LEFT_CORNER)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
@@ -679,18 +705,16 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.RIGHT_CORNER)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-topRightPaddle-false"));
 
     driver
         .a()
         .whileTrue(
-            V2_TurnoverCompositeCommands.fixedShotCommand(
-                    shooter, clopper, V2_TurnoverRobotState.FixedShots.HUB)
-                .withName("driver-bottomLeftPaddle-while"))
-        .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
-                .withName("driver-bottomLeftPaddle-false"));
+            intake
+                .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
+                .withName("driver-a-while"))
+        .onFalse(intake.stopRollerOverride().withName("driver-a-false"));
 
     driver
         .b()
@@ -699,7 +723,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.TOWER)
                 .withName("driver-bottomRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("driver-bottomRightPaddle-false"));
 
     driver
@@ -745,6 +769,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 .setOverrideBallTunnelVoltage(
                     V2_TurnoverClopperConstants.BALL_TUNNEL_FEED_VOLTAGE.unaryMinus())
                 .withName("xkeys-c5-true"));
+
+    xkeys.d3().whileTrue(clopper.marcusCommand()).onFalse(clopper.stopBallTunnel());
 
     xkeys
         .d4()
@@ -879,7 +905,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 .alongWith(clopper.intake())
                 .withName("xkeys-h1-h2-h3-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper)
+            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
                 .withName("xkeys-h1-h2-h3-false"));
 
     // xkeys.h4().onTrue(); SLOW WRAP MODE
@@ -917,6 +943,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         intake.isIntakeAtStow(),
         driver.rightBumper().getAsBoolean());
     fuelSimulator.updateSim();
+    Logger.recordOutput(
+        "Mechanism 3d", V2_TurnoverMechanism3d.getPoses(Rotation2d.kZero, intake, shooter));
   }
 
   @Override

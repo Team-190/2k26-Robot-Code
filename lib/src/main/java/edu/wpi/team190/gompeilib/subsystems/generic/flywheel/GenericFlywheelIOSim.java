@@ -53,7 +53,7 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
         new LinearProfile(
             constants.constraints.maxAcceleration().get().in(RadiansPerSecondPerSecond),
             constants.constraints.maxVelocity().get().in(RadiansPerSecond),
-            1 / GompeiLib.getLoopPeriod());
+            GompeiLib.getLoopPeriod());
 
     this.constants = constants;
 
@@ -62,15 +62,26 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
 
   @Override
   public void updateInputs(GenericFlywheelIOInputs inputs) {
-    if (isClosedLoop)
-      appliedVolts =
-          Volts.of(
-              feedback.calculate(motorSim.getAngularVelocityRadPerSec())
-                  + feedforward.calculate(feedback.getSetpoint()));
+    if (isClosedLoop) {
+      double meas = motorSim.getAngularVelocityRadPerSec();
+      double nextSetpoint = profile.calculateSetpoint();
+      double pidOut = feedback.calculate(meas, nextSetpoint);
+      double ffOut = feedforward.calculate(nextSetpoint);
+      System.out.println(
+          "DEBUG FLYWHEEL SIM: meas="
+              + meas
+              + " setp="
+              + nextSetpoint
+              + " pid="
+              + pidOut
+              + " ff="
+              + ffOut);
+      appliedVolts = Volts.of(pidOut + ffOut);
+    }
 
     appliedVolts = Volts.of(MathUtil.clamp(appliedVolts.in(Volts), -12.0, 12.0));
     motorSim.setInputVoltage(appliedVolts.in(Volts));
-    motorSim.update(1.0 / GompeiLib.getLoopPeriod());
+    motorSim.update(GompeiLib.getLoopPeriod());
 
     accumulatedPosition =
         accumulatedPosition.plus(
@@ -78,6 +89,13 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
 
     inputs.position = Rotation2d.fromRadians(accumulatedPosition.in(Radians));
     inputs.velocity = motorSim.getAngularVelocity();
+
+    int numMotors =
+        1 + constants.alignedFollowerCANIDs.size() + constants.opposedFollowerCANIDs.size();
+    inputs.appliedVolts = new double[numMotors];
+    inputs.supplyCurrentAmps = new double[numMotors];
+    inputs.torqueCurrentAmps = new double[numMotors];
+    inputs.temperatureCelsius = new double[numMotors];
 
     Arrays.fill(inputs.appliedVolts, appliedVolts.in(Volts));
     Arrays.fill(inputs.supplyCurrentAmps, motorSim.getCurrentDrawAmps());
@@ -100,14 +118,24 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
   public void setVelocityGoal(AngularVelocity velocityGoal) {
     isClosedLoop = true;
     profile.setGoal(velocityGoal.in(RadiansPerSecond), motorSim.getAngularVelocityRadPerSec());
-    appliedVolts =
-        Volts.of(
-            feedback.calculate(motorSim.getAngularVelocityRadPerSec(), profile.calculateSetpoint())
-                + feedforward.calculate(feedback.getSetpoint()));
+    double nextSetpoint = profile.calculateSetpoint();
+    double pidPart = feedback.calculate(motorSim.getAngularVelocityRadPerSec(), nextSetpoint);
+    double ffPart = feedforward.calculate(feedback.getSetpoint());
+    System.out.println(
+        "DEBUG FLYWHEEL SET VELOCITY: nextSetpoint="
+            + nextSetpoint
+            + " feedbackSetpoint="
+            + feedback.getSetpoint()
+            + " pidPart="
+            + pidPart
+            + " ffPart="
+            + ffPart);
+    appliedVolts = Volts.of(pidPart + ffPart);
   }
 
   @Override
   public void setNeutralControl() {
+    isClosedLoop = false;
     appliedVolts = Volts.of(0.0);
     profile.reset();
   }
@@ -119,9 +147,16 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
 
   @Override
   public boolean atVelocityGoal(AngularVelocity velocityReference) {
+    System.out.println(
+        "DEBUG atVelocityGoal: getAngularVelocity="
+            + motorSim.getAngularVelocity()
+            + " velocityReference="
+            + velocityReference
+            + " tolerance="
+            + constants.constraints.goalTolerance().get());
     return motorSim
         .getAngularVelocity()
-        .isNear(velocityReference, constants.constraints.goalTolerance().get(RadiansPerSecond));
+        .isNear(velocityReference, constants.constraints.goalTolerance().get());
   }
 
   @Override

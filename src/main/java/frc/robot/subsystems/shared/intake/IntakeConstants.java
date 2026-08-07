@@ -123,10 +123,10 @@ public class IntakeConstants {
         CONSTRAINTS =
             AngularPositionConstraints.builder()
                 .withMaxVelocity(
-                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(10.0)))
+                    new LoggedTunableMeasure<>("Linkage/Max Velocity", RadiansPerSecond.of(50.0)))
                 .withMaxAcceleration(
                     new LoggedTunableMeasure<>(
-                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(50.0)))
+                        "Linkage/Max Acceleration", RadiansPerSecondPerSecond.of(15.0)))
                 .withGoalTolerance(
                     new LoggedTunableMeasure<>("Linkage/Goal Tolerance", Degrees.of(1.0)))
                 .build();
@@ -191,13 +191,13 @@ public class IntakeConstants {
                         MAX_ANGLE.getMeasure()),
                 IntakeState.INTAKE,
                     new Setpoint<>(
-                        Rotation2d.fromDegrees(168.134766 + 8.0).getMeasure(),
+                        Rotation2d.fromDegrees(168.134766 + 18.0).getMeasure(),
                         LINKAGE_ANGLE_INCREMENT.getMeasure(),
                         MIN_ANGLE.getMeasure(),
                         MAX_ANGLE.getMeasure()),
                 IntakeState.AGITATE,
                     new Setpoint<>(
-                        Rotation2d.fromDegrees(168.134766 + 8.0).getMeasure(),
+                        Rotation2d.fromDegrees(168.134766 + 18.0).getMeasure(),
                         LINKAGE_ANGLE_INCREMENT.getMeasure(),
                         MIN_ANGLE.getMeasure(),
                         MAX_ANGLE.getMeasure()));
@@ -376,11 +376,11 @@ public class IntakeConstants {
 
         MOMENT_OF_INERTIA = 0.004;
         MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
-        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
+        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.838927);
 
         ZERO_OFFSET = Rotation2d.kPi;
         MIN_ANGLE = Rotation2d.fromDegrees(30.838927);
-        MAX_ANGLE = Rotation2d.fromDegrees(236.74);
+        MAX_ANGLE = Rotation2d.fromDegrees(168.912511);
         // points A and D on the intake.
 
         PIN_LENGTH = Units.Inches.of(6.125).in(Units.Meters);
@@ -510,7 +510,7 @@ public class IntakeConstants {
 
         MOMENT_OF_INERTIA = 0.004;
         MOTOR_CONFIG = DCMotor.getKrakenX60Foc(1);
-        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.9603232217);
+        INTAKE_ANGLE_OFFSET = Rotation2d.fromDegrees(-30.838927);
 
         ZERO_OFFSET = Rotation2d.kPi;
         MIN_ANGLE = Rotation2d.fromDegrees(30.838927);
@@ -590,19 +590,19 @@ public class IntakeConstants {
             Map.of(
                 IntakeState.STOW,
                 new Setpoint<>(
-                    Rotation2d.fromDegrees(9.0).getMeasure(),
+                    MIN_ANGLE.getMeasure(),
                     LINKAGE_ANGLE_INCREMENT.getMeasure(),
                     MIN_ANGLE.getMeasure(),
                     MAX_ANGLE.getMeasure()),
                 IntakeState.INTAKE,
                 new Setpoint<>(
-                    Rotation2d.fromDegrees(168.134766 + 8.0).getMeasure(),
+                    MAX_ANGLE.getMeasure(),
                     LINKAGE_ANGLE_INCREMENT.getMeasure(),
                     MIN_ANGLE.getMeasure(),
                     MAX_ANGLE.getMeasure()),
                 IntakeState.AGITATE,
                 new Setpoint<>(
-                    Rotation2d.fromDegrees(168.134766 + 8.0).getMeasure(),
+                    MAX_ANGLE.getMeasure(),
                     LINKAGE_ANGLE_INCREMENT.getMeasure(),
                     MIN_ANGLE.getMeasure(),
                     MAX_ANGLE.getMeasure()));
