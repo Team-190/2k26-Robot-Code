@@ -301,7 +301,7 @@ public class FieldConstants {
   }
 
   public enum AprilTagLayoutType {
-    ANDYMARK(AprilTagFields.k2026RebuiltAndyMark),
+    ANDYMARK(AprilTagFields.k2026RebuiltAndymark),
     WELDED(AprilTagFields.k2026RebuiltWelded);
 
     private final AprilTagFields name;
