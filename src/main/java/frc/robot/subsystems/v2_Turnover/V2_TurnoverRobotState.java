@@ -324,7 +324,14 @@ public class V2_TurnoverRobotState {
             FieldConstants.Zones.HOOD_TUCK_ZONES,
             getLookaheadPose(),
             V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-            V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
+            V2_TurnoverConstants.DRIVE_CONFIG.bumperLength()) ||
+            
+            GeometryUtil.intersects(
+                FieldConstants.Zones.HOOD_TUCK_ZONES,
+                getGlobalPose(),
+                V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+                V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
+                
     prohibitShot =
         isTurretWrapping
             || shouldHoodTuck
