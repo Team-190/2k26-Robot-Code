@@ -3,10 +3,11 @@ name: Push GompeiLib
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   sync:
-    uses: Team-190/CI-Workflows/.github/workflows/syncgompeilib.yaml@main
+    uses: Team-190/.github/.github/workflows/syncgompeilib.yaml@main
     with:
       direction: push
     secrets:
