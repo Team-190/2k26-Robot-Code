@@ -319,19 +319,25 @@ public class V2_TurnoverRobotState {
     lookaheadPose = shotParameters.adjustedRobotPose();
     field.setRobotPose(getGlobalPose());
 
+    Pose2d midpointPose = getGlobalPose().interpolate(getLookaheadPose(), 0.5);
+
     shouldHoodTuck =
         GeometryUtil.intersects(
-            FieldConstants.Zones.HOOD_TUCK_ZONES,
-            getLookaheadPose(),
-            V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-            V2_TurnoverConstants.DRIVE_CONFIG.bumperLength()) ||
-            
-            GeometryUtil.intersects(
+                FieldConstants.Zones.HOOD_TUCK_ZONES,
+                getLookaheadPose(),
+                V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+                V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
+            || GeometryUtil.intersects(
                 FieldConstants.Zones.HOOD_TUCK_ZONES,
                 getGlobalPose(),
                 V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+                V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
+            || GeometryUtil.intersects(
+                FieldConstants.Zones.HOOD_TUCK_ZONES,
+                midpointPose,
+                V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
                 V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
-                
+
     prohibitShot =
         isTurretWrapping
             || shouldHoodTuck
