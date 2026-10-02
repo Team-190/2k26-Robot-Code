@@ -11,7 +11,6 @@ configurations {
 }
 
 dependencies {
-    // Uses the version provider from your libs.versions.toml [cite: 4]
     def wpilibVer = libs.versions.wpilib.jni.get()
     nativeDeps "edu.wpi.first.ntcore:ntcore-jni:${wpilibVer}:${osClassifier}"
     nativeDeps "edu.wpi.first.wpiutil:wpiutil-jni:${wpilibVer}:${osClassifier}"
@@ -19,10 +18,15 @@ dependencies {
     nativeDeps "edu.wpi.first.wpimath:wpimath-jni:${wpilibVer}:${osClassifier}"
 
     def phoenix6Ver = libs.versions.phoenix6.get()
-    nativeDeps "com.ctre.phoenix6:tools:${phoenix6Ver}:${osClassifier}@zip"
+    // Sim natives exist for every desktop platform, including osxuniversal
     nativeDeps "com.ctre.phoenix6.sim:tools-sim:${phoenix6Ver}:${osClassifier}@zip"
-    nativeDeps "com.ctre.phoenix6:api-cpp:${phoenix6Ver}:${osClassifier}@zip"
     nativeDeps "com.ctre.phoenix6.sim:api-cpp-sim:${phoenix6Ver}:${osClassifier}@zip"
+
+    // Non-sim desktop natives are NOT published for macOS
+    if (osClassifier != "osxuniversal") {
+        nativeDeps "com.ctre.phoenix6:tools:${phoenix6Ver}:${osClassifier}@zip"
+        nativeDeps "com.ctre.phoenix6:api-cpp:${phoenix6Ver}:${osClassifier}@zip"
+    }
 }
 
 def jniDestDir = layout.buildDirectory.dir("jni")

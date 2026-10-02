@@ -578,7 +578,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     V2_TurnoverRobotState::getHeading,
                     driver.rightBumper().negate(),
                     () -> {
-                      Pose2d robotPose = V2_TurnoverRobotState.getLookaheadPose();
+                      Pose2d robotPose = V2_TurnoverRobotState.getShootLookaheadPose();
                       return (V2_TurnoverRobotState.isInAllianceZone()
                               ? AllianceFlipUtil.apply(
                                   FieldConstants.Hub.topCenterPoint.toTranslation2d())

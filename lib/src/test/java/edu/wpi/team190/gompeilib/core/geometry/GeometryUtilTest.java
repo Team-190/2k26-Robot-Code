@@ -1,4 +1,4 @@
-package edu.wpi.team190.gompeilib.core.utility;
+package edu.wpi.team190.gompeilib.core.geometry;
 
 import static org.junit.jupiter.api.Assertions.*;
 
