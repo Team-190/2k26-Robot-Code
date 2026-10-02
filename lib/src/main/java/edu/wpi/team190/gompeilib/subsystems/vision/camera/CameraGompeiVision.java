@@ -4,7 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
+import edu.wpi.team190.gompeilib.core.geometry.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.GompeiVisionConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
