@@ -3,7 +3,7 @@ package frc.robot;
 import lombok.Getter;
 
 public final class RobotConfig {
-  public static final RobotType ROBOT = RobotType.V2_TURNOVER;
+  public static final RobotType ROBOT = RobotType.V2_TURNOVER_SIM;
 
   public enum RobotType {
     V0_FUNKY("2026.+"),

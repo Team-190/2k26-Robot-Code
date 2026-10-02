@@ -92,7 +92,7 @@ public class V2_TurnoverShooter extends SubsystemBase {
             turretIO,
             this,
             "",
-            V2_TurnoverRobotState::getLookaheadPose,
+            V2_TurnoverRobotState::getShootLookaheadPose,
             chassisSpeedsSupplier,
             V2_TurnoverShooterConstants.TURRET_CONSTANTS);
 

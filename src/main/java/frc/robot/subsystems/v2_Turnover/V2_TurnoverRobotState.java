@@ -67,7 +67,8 @@ public class V2_TurnoverRobotState {
   private static final InterpolatingTreeMap<Distance, Time> feedTimeOfFlightTree;
 
   @Getter private static Rotation2d hoodAngle;
-  @Getter private static Pose2d lookaheadPose;
+  @Getter private static Pose2d shootLookaheadPose;
+  @Getter private static Pose2d hoodTuckLookaheadPose;
 
   @Getter private static AngularVelocity turretVelocity;
   @Getter private static AngularVelocity flywheelVelocity;
@@ -82,7 +83,9 @@ public class V2_TurnoverRobotState {
   @Getter private static boolean intakeAtStow;
 
   private static final AngularVelocity
-      UMAMI; // Colleen made me put this in, it represents a 15 radian/second offset for all shots
+      UMAMI; // Colleen made me put this in, it represents a 15 radian/second offset
+
+  // for all shots
 
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
@@ -231,7 +234,9 @@ public class V2_TurnoverRobotState {
     feedSpeedTree.put(Meter.of(13.170), RadiansPerSecond.of(457));
     feedTimeOfFlightTree.put(Meters.of(13.170), Seconds.of(2.8));
 
-    lookaheadPose = new Pose2d();
+    shootLookaheadPose = new Pose2d();
+    hoodTuckLookaheadPose = new Pose2d();
+
     hoodAngle = new Rotation2d();
     flywheelVelocity = RadiansPerSecond.of(0.0);
 
@@ -316,27 +321,40 @@ public class V2_TurnoverRobotState {
     flywheelVelocity = shotParameters.flywheelSpeed().plus(UMAMI);
     turretVelocity = shotParameters.turretVelocity();
 
-    lookaheadPose = shotParameters.adjustedRobotPose();
+    shootLookaheadPose = shotParameters.adjustedRobotPose();
+    hoodTuckLookaheadPose =
+        getGlobalPose()
+            .plus(
+                new Transform2d(
+                    robotVelocity.vxMetersPerSecond * V2_TurnoverShooterConstants.HOOD_TUCK_TIME,
+                    robotVelocity.vyMetersPerSecond * V2_TurnoverShooterConstants.HOOD_TUCK_TIME,
+                    new Rotation2d()));
     field.setRobotPose(getGlobalPose());
 
-    Pose2d midpointPose = getGlobalPose().interpolate(getLookaheadPose(), 0.5);
+    // shouldHoodTuck =
+    // GeometryUtil.intersects(
+    // FieldConstants.Zones.HOOD_TUCK_ZONES,
+    // new Translation2d(getGlobalPose(), getHoodTuckLookaheadPose()),
+    // V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+    // V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
+    // || GeometryUtil.intersects(
+    // FieldConstants.Zones.HOOD_TUCK_ZONES,
+    // getGlobalPose(),
+    // V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+    // V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
+    // || GeometryUtil.intersects(
+    // FieldConstants.Zones.HOOD_TUCK_ZONES,
+    // midpointPose,
+    // V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+    // V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
 
-    shouldHoodTuck =
-        GeometryUtil.intersects(
-                FieldConstants.Zones.HOOD_TUCK_ZONES,
-                getLookaheadPose(),
-                V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-                V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
-            || GeometryUtil.intersects(
-                FieldConstants.Zones.HOOD_TUCK_ZONES,
-                getGlobalPose(),
-                V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-                V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
-            || GeometryUtil.intersects(
-                FieldConstants.Zones.HOOD_TUCK_ZONES,
-                midpointPose,
-                V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-                V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
+    for (Rectangle2d zone : FieldConstants.Zones.HOOD_TUCK_ZONES) {
+      if (zone.intersects(
+          new Transform2d(getGlobalPose(), getHoodTuckLookaheadPose()).getTranslation())) {
+        shouldHoodTuck = true;
+        break;
+      }
+    }
 
     prohibitShot =
         isTurretWrapping
@@ -357,7 +375,7 @@ public class V2_TurnoverRobotState {
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Hub", distanceToHub);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Distance To Feed", distanceToFeedTranslation);
-    Logger.recordOutput(NTPrefixes.POSE_DATA + "Lookahead Pose", lookaheadPose);
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Lookahead Pose", shootLookaheadPose);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Hood/Score Angle", hoodAngle);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Shooter/Score Velocity", flywheelVelocity);
 
