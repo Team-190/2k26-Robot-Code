@@ -129,7 +129,7 @@ public class CameraStaticLimelight extends Camera {
         if (GompeiLib.isTuning()) {
           LimelightHelpers.SetThrottle(name, 0);
         } else {
-          LimelightHelpers.SetIMUMode(name, 190);
+          LimelightHelpers.SetThrottle(name, 190);
         }
       }
     }

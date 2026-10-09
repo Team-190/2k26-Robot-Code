@@ -75,6 +75,8 @@ public class V2_TurnoverShooterConstants {
           FieldConstants.Tower.frontFaceX + Units.inchesToMeters(29.000 / 2),
           FieldConstants.LinesHorizontal.center);
 
+  public static final double HOOD_TUCK_TIME = 0.5; // seconds
+
   public static final GenericFlywheelConstants SHOOT_CONSTANTS =
       GenericFlywheelConstants.builder()
           .withLeaderCANID(21)

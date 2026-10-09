@@ -1,4 +1,4 @@
-package edu.wpi.team190.gompeilib.core.utility;
+package edu.wpi.team190.gompeilib.core.geometry;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -214,10 +214,10 @@ public class GeometryUtilTest {
     Rectangle2d rectangle = new Rectangle2d(new Pose2d(0, 0, Rotation2d.kZero), 1, 1);
     Pose2d[] poses = GeometryUtil.rectanglePose2ds(rectangle);
     Pose2d[] correctPoses = {
-      new Pose2d(1.0, 1.0, Rotation2d.kZero),
-      new Pose2d(-1.0, 1.0, Rotation2d.kZero),
-      new Pose2d(-1.0, -1.0, Rotation2d.kZero),
-      new Pose2d(1.0, -1.0, Rotation2d.kZero),
+      new Pose2d(0.5, 0.5, Rotation2d.kZero),
+      new Pose2d(-0.5, 0.5, Rotation2d.kZero),
+      new Pose2d(-0.5, -0.5, Rotation2d.kZero),
+      new Pose2d(0.5, -0.5, Rotation2d.kZero),
       new Pose2d(0, 0, Rotation2d.kZero),
     };
     for (int i = 0; i < 5; i++) {
@@ -237,5 +237,93 @@ public class GeometryUtilTest {
 
     // Intersects via target containing rectangle center
     assertTrue(GeometryUtil.intersects(rectangles, new Pose2d(0.5, 0.5, Rotation2d.kZero), 3, 3));
+  }
+
+  @Test
+  @Order(20)
+  void testRectangleIntersectsPath() {
+    // 1x1 zone centered at the origin, so its edges are at +/-0.5
+    Rectangle2d[] rectangles = {new Rectangle2d(new Pose2d(0, 0, Rotation2d.kZero), 1, 1)};
+    double size = 0.1;
+
+    // Path fully outside
+    assertFalse(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(-3, 2, Rotation2d.kZero),
+            new Pose2d(3, 2, Rotation2d.kZero),
+            size,
+            size));
+
+    // Path crossing straight through, both endpoints outside
+    assertTrue(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(-3, 0, Rotation2d.kZero),
+            new Pose2d(3, 0, Rotation2d.kZero),
+            size,
+            size));
+
+    // Path just outside the real edge
+    assertFalse(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(-3, 0.7, Rotation2d.kZero),
+            new Pose2d(3, 0.7, Rotation2d.kZero),
+            size,
+            size));
+
+    // Path just inside the real edge
+    assertTrue(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(-3, 0.4, Rotation2d.kZero),
+            new Pose2d(3, 0.4, Rotation2d.kZero),
+            size,
+            size));
+
+    // One endpoint inside
+    assertTrue(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(0, 0, Rotation2d.kZero),
+            new Pose2d(3, 0, Rotation2d.kZero),
+            size,
+            size));
+
+    // Parallel to a wall, outside
+    assertFalse(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(0.7, -3, Rotation2d.kZero),
+            new Pose2d(0.7, 3, Rotation2d.kZero),
+            size,
+            size));
+
+    // Zero-length path (robot not moving), outside and inside
+    assertFalse(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(2, 2, Rotation2d.kZero),
+            new Pose2d(2, 2, Rotation2d.kZero),
+            size,
+            size));
+    assertTrue(
+        GeometryUtil.intersects(
+            rectangles,
+            new Pose2d(0, 0, Rotation2d.kZero),
+            new Pose2d(0, 0, Rotation2d.kZero),
+            size,
+            size));
+
+    // Crossing a thin rotated zone diagonally, both endpoints outside
+    Rectangle2d[] rotated = {new Rectangle2d(new Pose2d(5, 5, Rotation2d.fromDegrees(45)), 1, 0.2)};
+    assertTrue(
+        GeometryUtil.intersects(
+            rotated,
+            new Pose2d(4, 6, Rotation2d.kZero),
+            new Pose2d(6, 4, Rotation2d.kZero),
+            size,
+            size));
   }
 }

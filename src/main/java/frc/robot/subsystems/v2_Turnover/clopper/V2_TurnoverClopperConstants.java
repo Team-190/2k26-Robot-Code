@@ -48,7 +48,7 @@ public class V2_TurnoverClopperConstants {
                         .build())
                 .withNeutralMode(NeutralModeValue.Coast)
                 .withRollerGearbox(DCMotor.getKrakenX60Foc(1))
-                .withRollerMotorGearRatio(42.0)
+                .withRollerMotorGearRatio(42.0 * 1.5)
                 .withLeaderInvertedValue(InvertedValue.Clockwise_Positive)
                 .withMomentOfInertia(Units.KilogramSquareMeters.of(0.0001))
                 .withVoltageOffsetStep(Volts.of(1))

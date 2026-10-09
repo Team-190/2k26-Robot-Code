@@ -15,7 +15,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
-import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
+import edu.wpi.team190.gompeilib.core.geometry.GeometryUtil;
 import java.util.function.Function;
 import lombok.experimental.ExtensionMethod;
 

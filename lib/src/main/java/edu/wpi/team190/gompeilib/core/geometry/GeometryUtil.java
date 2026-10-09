@@ -1,4 +1,4 @@
-package edu.wpi.team190.gompeilib.core.utility;
+package edu.wpi.team190.gompeilib.core.geometry;
 
 import edu.wpi.first.math.geometry.*;
 
@@ -197,32 +197,80 @@ public class GeometryUtil {
    * @return The poses from the rectangle2d
    */
   public static Pose2d[] rectanglePose2ds(Rectangle2d rectangle2d) {
+    // getXWidth()/getYWidth() are full side lengths, so corners sit half of each from the center
+    double halfX = rectangle2d.getXWidth() / 2.0;
+    double halfY = rectangle2d.getYWidth() / 2.0;
+    Pose2d center = rectangle2d.getCenter();
     Pose2d[] poses = new Pose2d[5];
-    poses[0] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    rectangle2d.getXWidth(), rectangle2d.getYWidth(), new Rotation2d()));
-    poses[1] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    -rectangle2d.getXWidth(), rectangle2d.getYWidth(), new Rotation2d()));
-    poses[2] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    -rectangle2d.getXWidth(), -rectangle2d.getYWidth(), new Rotation2d()));
-    poses[3] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    rectangle2d.getXWidth(), -rectangle2d.getYWidth(), new Rotation2d()));
-    poses[4] = rectangle2d.getCenter();
+    poses[0] = center.transformBy(new Transform2d(halfX, halfY, new Rotation2d()));
+    poses[1] = center.transformBy(new Transform2d(-halfX, halfY, new Rotation2d()));
+    poses[2] = center.transformBy(new Transform2d(-halfX, -halfY, new Rotation2d()));
+    poses[3] = center.transformBy(new Transform2d(halfX, -halfY, new Rotation2d()));
+    poses[4] = center;
     return poses;
+  }
+
+  /**
+   * Checks whether the robot's footprint at either pose, or the straight path between the two
+   * poses, touches any rectangle. Catches fast motion that would skip over a zone between loops.
+   *
+   * @param rectangle2ds Array of rectangles to check against
+   * @param robotPose The current robot pose
+   * @param lookaheadPose The predicted future robot pose
+   * @param bumperWidth Full width of the robot footprint
+   * @param bumperLength Full length of the robot footprint
+   * @return Whether the robot touches any rectangle now, at the lookahead, or in between
+   */
+  public static boolean intersects(
+      Rectangle2d[] rectangle2ds,
+      Pose2d robotPose,
+      Pose2d lookaheadPose,
+      double bumperWidth,
+      double bumperLength) {
+    if (intersects(rectangle2ds, robotPose, bumperWidth, bumperLength)
+        || intersects(rectangle2ds, lookaheadPose, bumperWidth, bumperLength)) {
+      return true;
+    }
+
+    Translation2d pathStart = robotPose.getTranslation();
+    Translation2d pathVector =
+        lookaheadPose.getTranslation().minus(pathStart); // robot -> lookahead
+
+    for (Rectangle2d zone : rectangle2ds) {
+      Pose2d[] zonePoses = rectanglePose2ds(zone);
+      for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+        Translation2d wallStart = zonePoses[cornerIndex].getTranslation();
+        Translation2d wallEnd = zonePoses[(cornerIndex + 1) % 4].getTranslation();
+        Translation2d wallVector = wallEnd.minus(wallStart); // corner -> next corner
+
+        double crossOfDirections =
+            pathVector.getX() * wallVector.getY() - pathVector.getY() * wallVector.getX();
+        if (crossOfDirections == 0) {
+          continue; // path is parallel to this wall, can't cross it
+        }
+
+        Translation2d pathStartToWallStart = wallStart.minus(pathStart);
+
+        // 0 = at the robot, 1 = at the lookahead
+        double fractionAlongPath =
+            (pathStartToWallStart.getX() * wallVector.getY()
+                    - pathStartToWallStart.getY() * wallVector.getX())
+                / crossOfDirections;
+
+        // 0 = at wallStart, 1 = at wallEnd
+        double fractionAlongWall =
+            (pathStartToWallStart.getX() * pathVector.getY()
+                    - pathStartToWallStart.getY() * pathVector.getX())
+                / crossOfDirections;
+
+        boolean crossingIsOnPath = fractionAlongPath >= 0 && fractionAlongPath <= 1;
+        boolean crossingIsOnWall = fractionAlongWall >= 0 && fractionAlongWall <= 1;
+
+        if (crossingIsOnPath && crossingIsOnWall) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
