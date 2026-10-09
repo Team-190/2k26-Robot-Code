@@ -648,19 +648,19 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
     driver
         .rightBumper()
         .whileTrue(
-            V2_TurnoverCompositeCommands.hold(clopper, shooter)
-                .withName("driver-rightBumper-while"))
-        .onFalse(
             V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("driver-rightBumper-false"));
+                .withName("driver-rightBumper-false"))
+        .onFalse(
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
+                .withName("driver-rightBumper-while"));
     xkeys
         .b8()
         .onTrue(
-            V2_TurnoverCompositeCommands.hold(clopper, shooter)
-                .withName("driver-rightBumper-while"))
-        .onFalse(
             V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("driver-rightBumper-false"));
+                .withName("driver-rightBumper-false"))
+        .onFalse(
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
+                .withName("driver-rightBumper-while"));
 
     xkeys
         .b10()
@@ -675,7 +675,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.LEFT_TRENCH)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
@@ -695,7 +695,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.LEFT_CORNER)
                 .withName("driver-topLeftPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-topLeftPaddle-false"));
 
     driver
@@ -705,7 +705,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.RIGHT_CORNER)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-topRightPaddle-false"));
 
     driver
@@ -723,7 +723,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.TOWER)
                 .withName("driver-bottomRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-bottomRightPaddle-false"));
 
     driver
@@ -905,8 +905,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 .alongWith(clopper.intake())
                 .withName("xkeys-h1-h2-h3-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("xkeys-h1-h2-h3-false"));
+            V2_TurnoverCompositeCommands.hold(clopper, shooter).withName("xkeys-h1-h2-h3-false"));
 
     // xkeys.h4().onTrue(); SLOW WRAP MODE
     // xkeys.h5().onTrue(); FAST WRAP MODE
