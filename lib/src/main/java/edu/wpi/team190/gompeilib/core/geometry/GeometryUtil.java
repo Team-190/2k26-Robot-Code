@@ -197,35 +197,30 @@ public class GeometryUtil {
    * @return The poses from the rectangle2d
    */
   public static Pose2d[] rectanglePose2ds(Rectangle2d rectangle2d) {
+    // getXWidth()/getYWidth() are full side lengths, so corners sit half of each from the center
+    double halfX = rectangle2d.getXWidth() / 2.0;
+    double halfY = rectangle2d.getYWidth() / 2.0;
+    Pose2d center = rectangle2d.getCenter();
     Pose2d[] poses = new Pose2d[5];
-    poses[0] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    rectangle2d.getXWidth() / 2, rectangle2d.getYWidth() / 2, new Rotation2d()));
-    poses[1] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    -rectangle2d.getXWidth(), rectangle2d.getYWidth(), new Rotation2d()));
-    poses[2] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    -rectangle2d.getXWidth(), -rectangle2d.getYWidth(), new Rotation2d()));
-    poses[3] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    rectangle2d.getXWidth(), -rectangle2d.getYWidth(), new Rotation2d()));
-    poses[4] = rectangle2d.getCenter();
+    poses[0] = center.transformBy(new Transform2d(halfX, halfY, new Rotation2d()));
+    poses[1] = center.transformBy(new Transform2d(-halfX, halfY, new Rotation2d()));
+    poses[2] = center.transformBy(new Transform2d(-halfX, -halfY, new Rotation2d()));
+    poses[3] = center.transformBy(new Transform2d(halfX, -halfY, new Rotation2d()));
+    poses[4] = center;
     return poses;
   }
 
+  /**
+   * Checks whether the robot's footprint at either pose, or the straight path between the two
+   * poses, touches any rectangle. Catches fast motion that would skip over a zone between loops.
+   *
+   * @param rectangle2ds Array of rectangles to check against
+   * @param robotPose The current robot pose
+   * @param lookaheadPose The predicted future robot pose
+   * @param bumperWidth Full width of the robot footprint
+   * @param bumperLength Full length of the robot footprint
+   * @return Whether the robot touches any rectangle now, at the lookahead, or in between
+   */
   public static boolean intersects(
       Rectangle2d[] rectangle2ds,
       Pose2d robotPose,

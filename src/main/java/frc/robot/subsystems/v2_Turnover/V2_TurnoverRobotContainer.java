@@ -657,10 +657,8 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         .b8()
         .whileTrue(
             V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("driver-rightBumper-while"))
-        .onFalse(
-            V2_TurnoverCompositeCommands.hold(clopper, shooter)
-                .withName("driver-rightBumper-false"));
+                .withName("xkeys-b8-while"))
+        .onFalse(V2_TurnoverCompositeCommands.hold(clopper, shooter).withName("xkeys-b8-false"));
 
     xkeys
         .b10()

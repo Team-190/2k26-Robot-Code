@@ -133,8 +133,8 @@ public class FieldConstants {
     public static final Rectangle2d FEED_KEEPOUT =
         new Rectangle2d(
             new Pose2d(fieldLength / 2.0, fieldWidth / 2.0, new Rotation2d()),
-            Math.abs(farRightCorner.getX() - oppNearLeftCorner.getX()) / 2,
-            width / 2);
+            Math.abs(farRightCorner.getX() - oppNearLeftCorner.getX()),
+            width);
   }
 
   /** Left Bump related constants */
@@ -214,8 +214,8 @@ public class FieldConstants {
                     LinesVertical.hubCenter,
                     LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
                 new Rotation2d()),
-            openingWidth / 2,
-            openingWidth / 2);
+            openingWidth,
+            openingWidth);
     public static final Rectangle2d RED_TRENCH =
         new Rectangle2d(
             new Pose2d(
@@ -223,8 +223,8 @@ public class FieldConstants {
                     LinesVertical.oppHubCenter,
                     LinesHorizontal.leftTrenchOpenEnd + (openingWidth / 2)),
                 new Rotation2d()),
-            openingWidth / 2,
-            openingWidth / 2);
+            openingWidth,
+            openingWidth);
   }
 
   public static class RightTrench {
@@ -255,8 +255,8 @@ public class FieldConstants {
                     LinesVertical.hubCenter,
                     LinesHorizontal.rightTrenchOpenEnd + (openingWidth / 2)),
                 new Rotation2d()),
-            openingHeight,
-            openingHeight);
+            openingWidth,
+            openingWidth);
     public static final Rectangle2d RED_TRENCH =
         new Rectangle2d(
             new Pose2d(
@@ -264,8 +264,8 @@ public class FieldConstants {
                     LinesVertical.oppHubCenter,
                     LinesHorizontal.rightTrenchOpenEnd + (openingWidth / 2)),
                 new Rotation2d()),
-            openingHeight,
-            openingHeight);
+            openingWidth,
+            openingWidth);
   }
 
   /** Tower related constants */
@@ -322,16 +322,16 @@ public class FieldConstants {
             new Pose2d(
                 new Translation2d(centerPoint.getX() - depth / 2, centerPoint.getY()),
                 new Rotation2d()),
-            depth / 2,
-            depth / 2);
+            depth,
+            depth);
 
     public static final Rectangle2d RED_TOWER =
         new Rectangle2d(
             new Pose2d(
                 new Translation2d(oppCenterPoint.getX() + depth / 2, oppCenterPoint.getY()),
                 new Rotation2d()),
-            depth / 2,
-            depth / 2);
+            depth,
+            depth);
   }
 
   public static class Depot {
