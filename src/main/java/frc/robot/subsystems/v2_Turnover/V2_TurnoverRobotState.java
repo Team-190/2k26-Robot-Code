@@ -85,8 +85,6 @@ public class V2_TurnoverRobotState {
   private static final AngularVelocity
       UMAMI; // Colleen made me put this in, it represents a 15 radian/second offset
 
-  // for all shots
-
   static {
     fieldLayout = FieldConstants.tagLayoutType.getLayout();
 
@@ -328,41 +326,20 @@ public class V2_TurnoverRobotState {
         getGlobalPose()
             .plus(
                 new Transform2d(
+                    // robotVelocity is robot-relative (drive.getMeasuredChassisSpeeds()), so
+                    // .plus() rotates it into the field frame
                     robotVelocity.vxMetersPerSecond * V2_TurnoverShooterConstants.HOOD_TUCK_TIME,
                     robotVelocity.vyMetersPerSecond * V2_TurnoverShooterConstants.HOOD_TUCK_TIME,
                     new Rotation2d()));
     field.setRobotPose(getGlobalPose());
 
-    // shouldHoodTuck =
-    // GeometryUtil.intersects(
-    // FieldConstants.Zones.HOOD_TUCK_ZONES,
-    // new Translation2d(getGlobalPose(), getHoodTuckLookaheadPose()),
-    // V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-    // V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
-    // || GeometryUtil.intersects(
-    // FieldConstants.Zones.HOOD_TUCK_ZONES,
-    // getGlobalPose(),
-    // V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-    // V2_TurnoverConstants.DRIVE_CONFIG.bumperLength())
-    // || GeometryUtil.intersects(
-    // FieldConstants.Zones.HOOD_TUCK_ZONES,
-    // midpointPose,
-    // V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
-    // V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
-
-    // for (Rectangle2d zone : FieldConstants.Zones.HOOD_TUCK_ZONES) {
-    //   if (zone.intersects(
-    //       new Transform2d(getGlobalPose(), getHoodTuckLookaheadPose()).getTranslation()) ||
-    //       GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES,getGlobalPose()) ||
-    // GeometryUtil.contains(FieldConstants.Zones.HOOD_TUCK_ZONES,hoodTuckLookaheadPose)) {
-    //     shouldHoodTuck = true;
-    //       break;
-    //       }
-    // }
-
     shouldHoodTuck =
-        GeometryUtil.contains(
-            FieldConstants.Zones.HOOD_TUCK_ZONES, getGlobalPose(), getHoodTuckLookaheadPose());
+        GeometryUtil.intersects(
+            FieldConstants.Zones.HOOD_TUCK_ZONES,
+            getGlobalPose(),
+            getHoodTuckLookaheadPose(),
+            V2_TurnoverConstants.DRIVE_CONFIG.bumperWidth(),
+            V2_TurnoverConstants.DRIVE_CONFIG.bumperLength());
 
     prohibitShot =
         isTurretWrapping

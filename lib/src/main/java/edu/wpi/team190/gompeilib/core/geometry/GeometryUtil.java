@@ -203,7 +203,7 @@ public class GeometryUtil {
             .getCenter()
             .transformBy(
                 new Transform2d(
-                    rectangle2d.getXWidth(), rectangle2d.getYWidth(), new Rotation2d()));
+                    rectangle2d.getXWidth() / 2, rectangle2d.getYWidth() / 2, new Rotation2d()));
     poses[1] =
         rectangle2d
             .getCenter()
@@ -226,9 +226,14 @@ public class GeometryUtil {
     return poses;
   }
 
-  public static boolean contains(
-      Rectangle2d[] rectangle2ds, Pose2d robotPose, Pose2d lookaheadPose) {
-    if (contains(rectangle2ds, robotPose) || contains(rectangle2ds, lookaheadPose)) {
+  public static boolean intersects(
+      Rectangle2d[] rectangle2ds,
+      Pose2d robotPose,
+      Pose2d lookaheadPose,
+      double bumperWidth,
+      double bumperLength) {
+    if (intersects(rectangle2ds, robotPose, bumperWidth, bumperLength)
+        || intersects(rectangle2ds, lookaheadPose, bumperWidth, bumperLength)) {
       return true;
     }
 

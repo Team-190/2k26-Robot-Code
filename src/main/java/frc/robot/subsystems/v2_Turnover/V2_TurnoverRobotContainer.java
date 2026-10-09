@@ -649,18 +649,18 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         .rightBumper()
         .whileTrue(
             V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("driver-rightBumper-false"))
+                .withName("driver-rightBumper-while"))
         .onFalse(
             V2_TurnoverCompositeCommands.hold(clopper, shooter)
-                .withName("driver-rightBumper-while"));
+                .withName("driver-rightBumper-false"));
     xkeys
         .b8()
-        .onTrue(
+        .whileTrue(
             V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
-                .withName("driver-rightBumper-false"))
+                .withName("driver-rightBumper-while"))
         .onFalse(
             V2_TurnoverCompositeCommands.hold(clopper, shooter)
-                .withName("driver-rightBumper-while"));
+                .withName("driver-rightBumper-false"));
 
     xkeys
         .b10()
@@ -685,7 +685,7 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                     shooter, clopper, V2_TurnoverRobotState.FixedShots.RIGHT_TRENCH)
                 .withName("driver-topRightPaddle-while"))
         .onFalse(
-            V2_TurnoverCompositeCommands.scoreOrFeedCommand(shooter, clopper, invertScoreLocation)
+            V2_TurnoverCompositeCommands.hold(clopper, shooter)
                 .withName("driver-topRightPaddle-false"));
 
     driver
