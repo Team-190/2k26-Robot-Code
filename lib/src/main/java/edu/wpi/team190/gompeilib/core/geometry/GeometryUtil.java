@@ -225,4 +225,52 @@ public class GeometryUtil {
     poses[4] = rectangle2d.getCenter();
     return poses;
   }
+
+  public static boolean contains(
+      Rectangle2d[] rectangle2ds, Pose2d robotPose, Pose2d lookaheadPose) {
+    if (contains(rectangle2ds, robotPose) || contains(rectangle2ds, lookaheadPose)) {
+      return true;
+    }
+
+    Translation2d pathStart = robotPose.getTranslation();
+    Translation2d pathVector =
+        lookaheadPose.getTranslation().minus(pathStart); // robot -> lookahead
+
+    for (Rectangle2d zone : rectangle2ds) {
+      Pose2d[] zonePoses = rectanglePose2ds(zone);
+      for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+        Translation2d wallStart = zonePoses[cornerIndex].getTranslation();
+        Translation2d wallEnd = zonePoses[(cornerIndex + 1) % 4].getTranslation();
+        Translation2d wallVector = wallEnd.minus(wallStart); // corner -> next corner
+
+        double crossOfDirections =
+            pathVector.getX() * wallVector.getY() - pathVector.getY() * wallVector.getX();
+        if (crossOfDirections == 0) {
+          continue; // path is parallel to this wall, can't cross it
+        }
+
+        Translation2d pathStartToWallStart = wallStart.minus(pathStart);
+
+        // 0 = at the robot, 1 = at the lookahead
+        double fractionAlongPath =
+            (pathStartToWallStart.getX() * wallVector.getY()
+                    - pathStartToWallStart.getY() * wallVector.getX())
+                / crossOfDirections;
+
+        // 0 = at wallStart, 1 = at wallEnd
+        double fractionAlongWall =
+            (pathStartToWallStart.getX() * pathVector.getY()
+                    - pathStartToWallStart.getY() * pathVector.getX())
+                / crossOfDirections;
+
+        boolean crossingIsOnPath = fractionAlongPath >= 0 && fractionAlongPath <= 1;
+        boolean crossingIsOnWall = fractionAlongWall >= 0 && fractionAlongWall <= 1;
+
+        if (crossingIsOnPath && crossingIsOnWall) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }
