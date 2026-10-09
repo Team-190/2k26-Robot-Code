@@ -270,6 +270,7 @@ public class V2_TurnoverRobotState {
     Pose2d hubPose = getHubZonePose();
 
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Global Pose", getGlobalPose());
+    Logger.recordOutput(NTPrefixes.POSE_DATA + "Hood Tuck Lookahead Pose", getHoodTuckLookaheadPose());
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Hub Zone Pose", hubPose);
     Logger.recordOutput(NTPrefixes.POSE_DATA + "Tower Zone Pose", getTowerZonePose());
 
@@ -352,8 +353,8 @@ public class V2_TurnoverRobotState {
       if (zone.intersects(
           new Transform2d(getGlobalPose(), getHoodTuckLookaheadPose()).getTranslation())) {
         shouldHoodTuck = true;
-        break;
-      }
+          break;
+          }
     }
 
     prohibitShot =
