@@ -787,13 +787,13 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
                 .withName("xkeys-d5-true"));
 
     // xkeys
-    //     .b10()
-    //     .onTrue(
-    //         SharedCompositeCommands.resetHeading(
-    //                 drive,
-    //                 V2_TurnoverRobotState::resetPose,
-    //                 V2_TurnoverRobotState.getGlobalPose()::getTranslation)
-    //             .withName("xkeys-b10-true"));
+    // .b10()
+    // .onTrue(
+    // SharedCompositeCommands.resetHeading(
+    // drive,
+    // V2_TurnoverRobotState::resetPose,
+    // V2_TurnoverRobotState.getGlobalPose()::getTranslation)
+    // .withName("xkeys-b10-true"));
 
     xkeys
         .c1()
@@ -822,10 +822,16 @@ public class V2_TurnoverRobotContainer implements RobotContainer {
         .d2()
         .or(driver.y())
         .whileTrue(
-            intake
-                .setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE)
+            Commands.parallel(
+                    intake.setOverrideRollerVoltage(-IntakeConstants.INTAKE_VOLTAGE),
+                    clopper.setOverrideRollerFloorVoltage(
+                        V2_TurnoverClopperConstants.ROLLER_FLOOR_FEED_VOLTAGE.times(-1)))
                 .withName("xkeys-d2-while"))
-        .onFalse(intake.stopRollerOverride().withName("xkeys-d2-false"));
+        .onFalse(
+            intake
+                .stopRollerOverride()
+                .alongWith(clopper.stopRollerFloor())
+                .withName("xkeys-d2-false"));
     driver
         .y()
         .whileTrue(

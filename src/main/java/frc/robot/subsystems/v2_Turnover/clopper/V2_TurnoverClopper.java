@@ -61,7 +61,7 @@ public class V2_TurnoverClopper extends SubsystemBase {
             Volts.of(0),
             V2_TurnoverClopperConstants.BALL_TUNNEL_TOP_CONSTANTS.voltageOffsetStep,
             Volts.of(-12),
-            Volts.of(12));
+            Volts.of(8)); // testing ts
 
     ballTunnelBottomSetpoint =
         new Setpoint<>(
