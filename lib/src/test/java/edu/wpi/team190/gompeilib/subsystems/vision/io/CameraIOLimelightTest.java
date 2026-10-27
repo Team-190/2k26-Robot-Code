@@ -3,12 +3,12 @@ package edu.wpi.team190.gompeilib.subsystems.vision.io;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.team190.gompeilib.core.utility.LimelightHelpers;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Transform3d;
 
 public class CameraIOLimelightTest {
 
@@ -26,7 +26,7 @@ public class CameraIOLimelightTest {
     try (MockedStatic<LimelightHelpers> mockHelpers = mockStatic(LimelightHelpers.class)) {
       LimelightHelpers.PoseEstimate mockEst1 =
           new LimelightHelpers.PoseEstimate(
-              new Pose2d(1.0, 2.0, new edu.wpi.first.math.geometry.Rotation2d()),
+              new Pose2d(1.0, 2.0, new org.wpilib.math.geometry.Rotation2d()),
               1.0,
               2.0,
               1,
@@ -40,7 +40,7 @@ public class CameraIOLimelightTest {
 
       LimelightHelpers.PoseEstimate mockEst2 =
           new LimelightHelpers.PoseEstimate(
-              new Pose2d(3.0, 4.0, new edu.wpi.first.math.geometry.Rotation2d()),
+              new Pose2d(3.0, 4.0, new org.wpilib.math.geometry.Rotation2d()),
               3.0,
               4.0,
               2,

@@ -4,20 +4,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.Units;
 
 public class GenericFlywheelConstantsTest {
   @Test
   public void testConstantsAndBuilder() {
     DCMotor motor = DCMotor.getNeo550(1);
-    Gains gains = Gains.fromDoubles().withPrefix("test").withKP(1.0).build();
+    Gains gains = Gains.builder().withPrefix("test").withKP(1.0).build();
     AngularVelocityConstraints constraints =
-        AngularVelocityConstraints.fromMeasures()
+        AngularVelocityConstraints.builder()
             .withPrefix("test")
             .withMaxVelocity(Units.RadiansPerSecond.of(100.0))
             .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(200.0))

@@ -2,9 +2,9 @@ package edu.wpi.team190.gompeilib.core.utility.control;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Current;
 import org.junit.jupiter.api.Test;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.Current;
 
 public class CurrentLimitsTest {
   @Test

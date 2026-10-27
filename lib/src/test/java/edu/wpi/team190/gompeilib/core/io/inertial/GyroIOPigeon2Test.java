@@ -9,10 +9,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configurator;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
@@ -25,7 +21,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
 
+@SuppressWarnings({"unchecked", "rawtypes", "unused"}) // Mockito mocks of generic Phoenix types
 public class GyroIOPigeon2Test {
   @BeforeEach
   public void setUp() {
@@ -91,14 +92,14 @@ public class GyroIOPigeon2Test {
 
     when(yaw.getValueAsDouble()).thenReturn(10.0);
     when(yawVelocity.getValueAsDouble()).thenReturn(1.5);
-    when(pitch.getValue()).thenReturn(edu.wpi.first.units.Units.Degrees.of(5.0));
-    when(pitchVelocity.getValue()).thenReturn(edu.wpi.first.units.Units.DegreesPerSecond.of(0.2));
-    when(roll.getValue()).thenReturn(edu.wpi.first.units.Units.Degrees.of(-3.0));
-    when(rollVelocity.getValue()).thenReturn(edu.wpi.first.units.Units.DegreesPerSecond.of(-0.1));
+    when(pitch.getValue()).thenReturn(org.wpilib.units.Units.Degrees.of(5.0));
+    when(pitchVelocity.getValue()).thenReturn(org.wpilib.units.Units.DegreesPerSecond.of(0.2));
+    when(roll.getValue()).thenReturn(org.wpilib.units.Units.Degrees.of(-3.0));
+    when(rollVelocity.getValue()).thenReturn(org.wpilib.units.Units.DegreesPerSecond.of(-0.1));
 
     AtomicLong timestampInput = new AtomicLong(0);
 
-    try (MockedConstruction<Pigeon2> mockPigeon =
+    try (MockedConstruction<Pigeon2> pigeon2 =
             mockConstruction(
                 Pigeon2.class,
                 (mock, context) -> {

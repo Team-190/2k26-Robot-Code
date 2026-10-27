@@ -1,13 +1,11 @@
 package edu.wpi.team190.gompeilib.subsystems.arm;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.ctre.phoenix6.CANBus;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
@@ -19,6 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.littletonrobotics.junction.Logger;
 import org.mockito.MockedStatic;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Subsystem;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.Units;
 
 public class ArmTest {
   private ArmIO io;
@@ -27,7 +29,7 @@ public class ArmTest {
 
   @BeforeEach
   public void setUp() {
-    edu.wpi.first.hal.HAL.initialize(500, 0);
+    org.wpilib.hardware.hal.HAL.initialize();
     try {
       GompeiLib.deinit();
     } catch (Exception e) {
@@ -44,7 +46,7 @@ public class ArmTest {
             .withCanBus(new CANBus("rio"))
             .withArmParameters(
                 ArmConstants.ArmParameters.builder()
-                    .withMotorConfig(edu.wpi.first.math.system.plant.DCMotor.getNeo550(1))
+                    .withMotorConfig(org.wpilib.math.system.DCMotor.getNeo550(1))
                     .withMinAngle(Rotation2d.fromDegrees(-90))
                     .withMaxAngle(Rotation2d.fromDegrees(90))
                     .withContinuousOutput(false)
@@ -53,9 +55,9 @@ public class ArmTest {
                     .withLengthMeters(0.5)
                     .withMomentOfInertia(0.1)
                     .build())
-            .withSlot0Gains(Gains.fromDoubles().withPrefix("slot0").build())
+            .withSlot0Gains(Gains.builder().withPrefix("slot0").build())
             .withConstraints(
-                AngularPositionConstraints.fromMeasures()
+                AngularPositionConstraints.builder()
                     .withPrefix("constraints")
                     .withMaxVelocity(Units.RadiansPerSecond.of(1.0))
                     .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(1.0))
@@ -75,7 +77,7 @@ public class ArmTest {
 
   @Test
   public void testArm() {
-    try (MockedStatic<Logger> mockLogger = mockStatic(Logger.class)) {
+    try (MockedStatic<Logger> _ = mockStatic(Logger.class)) {
       Arm arm = new Arm(io, subsystem, 0, constants);
 
       assertNotNull(arm);
@@ -124,11 +126,11 @@ public class ArmTest {
       arm.setGainSlot(GainSlot.ONE);
       verify(io).setGainSlot(GainSlot.ONE);
 
-      arm.updateGains(Gains.fromDoubles().withPrefix("slot0").build(), GainSlot.ZERO);
+      arm.updateGains(Gains.builder().withPrefix("slot0").build(), GainSlot.ZERO);
       verify(io).updateGains(any(), eq(GainSlot.ZERO));
 
       arm.updateConstraints(
-          AngularPositionConstraints.fromMeasures()
+          AngularPositionConstraints.builder()
               .withPrefix("constraints")
               .withGoalTolerance(Units.Radians.of(0.01))
               .withMaxVelocity(Units.RadiansPerSecond.of(1.0))
@@ -150,6 +152,10 @@ public class ArmTest {
 
       Command sysIdCmd = arm.sysIdRoutine();
       assertNotNull(sysIdCmd);
+
+      sysIdCmd.initialize();
+      sysIdCmd.execute();
+      sysIdCmd.end(true);
     }
   }
 }

@@ -2,8 +2,8 @@ package edu.wpi.team190.gompeilib.subsystems.vision.data;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Pose3d;
 
 public class VisionMultiTxTyObservationTest {
 

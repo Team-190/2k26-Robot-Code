@@ -1,11 +1,11 @@
 package edu.wpi.team190.gompeilib.core.logging;
 
-import edu.wpi.first.wpilibj.Timer;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.system.Timer;
 
 /**
  * An AspectJ aspect that intercepts calls to methods annotated with @Tracer and logs their
@@ -24,12 +24,12 @@ public class TracerAspect {
   @Around("execution(@Trace * *.*(..))")
   public Object profile(ProceedingJoinPoint joinPoint) throws Throwable {
     // Use FPGA timestamp for high-resolution, synchronized timing
-    double startTime = Timer.getFPGATimestamp();
+    double startTime = Timer.getTimestamp();
 
     // Proceed with the original method call
     Object result = joinPoint.proceed();
 
-    double endTime = Timer.getFPGATimestamp();
+    double endTime = Timer.getTimestamp();
     double executionTimeMs = (endTime - startTime) * 1000.0;
 
     // Get method details for logging

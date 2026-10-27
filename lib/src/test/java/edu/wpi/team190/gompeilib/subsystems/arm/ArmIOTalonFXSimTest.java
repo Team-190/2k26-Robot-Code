@@ -12,14 +12,6 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
@@ -29,13 +21,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Current;
+import org.wpilib.units.measure.Temperature;
+import org.wpilib.units.measure.Voltage;
 
+@SuppressWarnings("unchecked") // Mockito mocks of generic types
 public class ArmIOTalonFXSimTest {
   private ArmConstants constants;
 
   @BeforeEach
   public void setUp() {
-    edu.wpi.first.hal.HAL.initialize(500, 0);
+    org.wpilib.hardware.hal.HAL.initialize();
     try {
       GompeiLib.deinit();
     } catch (Exception e) {
@@ -61,7 +62,7 @@ public class ArmIOTalonFXSimTest {
             .withCanBus(new CANBus("rio"))
             .withArmParameters(params)
             .withSlot0Gains(
-                Gains.fromDoubles()
+                Gains.builder()
                     .withPrefix("slot0")
                     .withKP(1.0)
                     .withKI(0.0)
@@ -72,11 +73,11 @@ public class ArmIOTalonFXSimTest {
                     .withKG(0.1)
                     .build())
             .withSlot1Gains(
-                Gains.fromDoubles().withPrefix("slot1").withKP(2.0).withKI(0.0).withKD(0.2).build())
+                Gains.builder().withPrefix("slot1").withKP(2.0).withKI(0.0).withKD(0.2).build())
             .withSlot2Gains(
-                Gains.fromDoubles().withPrefix("slot2").withKP(3.0).withKI(0.0).withKD(0.3).build())
+                Gains.builder().withPrefix("slot2").withKP(3.0).withKI(0.0).withKD(0.3).build())
             .withConstraints(
-                AngularPositionConstraints.fromMeasures()
+                AngularPositionConstraints.builder()
                     .withPrefix("constraints")
                     .withMaxVelocity(Units.RadiansPerSecond.of(2.0))
                     .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(2.0))
@@ -128,7 +129,7 @@ public class ArmIOTalonFXSimTest {
     TalonFXSimState simState = mock(TalonFXSimState.class);
     when(simState.getMotorVoltage()).thenReturn(6.0);
 
-    try (MockedConstruction<TalonFX> mockTalon =
+    try (MockedConstruction<TalonFX> _ =
             mockConstruction(
                 TalonFX.class,
                 (mock, context) -> {

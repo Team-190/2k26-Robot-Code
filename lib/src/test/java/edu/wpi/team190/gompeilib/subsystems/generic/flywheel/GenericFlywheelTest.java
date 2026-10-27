@@ -5,10 +5,6 @@ import static org.mockito.Mockito.*;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
@@ -16,11 +12,17 @@ import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
+import edu.wpi.team190.gompeilib.core.utility.sysid.CustomSysIdRoutine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.littletonrobotics.junction.Logger;
 import org.mockito.MockedStatic;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Subsystem;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.Units;
 
+@SuppressWarnings("unchecked") // Mockito mocks of generic types
 public class GenericFlywheelTest {
   private GenericFlywheelIO io;
   private Subsystem subsystem;
@@ -28,7 +30,7 @@ public class GenericFlywheelTest {
 
   @BeforeEach
   public void setUp() {
-    edu.wpi.first.hal.HAL.initialize(500, 0);
+    org.wpilib.hardware.hal.HAL.initialize();
     try {
       GompeiLib.deinit();
     } catch (Exception e) {
@@ -53,10 +55,10 @@ public class GenericFlywheelTest {
             .withMomentOfInertia(0.01)
             .withGearRatio(1.0)
             .withMotorConfig(DCMotor.getNeo550(1))
-            .withVoltageGains(Gains.fromDoubles().withPrefix("voltage").build())
-            .withTorqueGains(Gains.fromDoubles().withPrefix("torque").build())
+            .withVoltageGains(Gains.builder().withPrefix("voltage").build())
+            .withTorqueGains(Gains.builder().withPrefix("torque").build())
             .withConstraints(
-                AngularVelocityConstraints.fromMeasures()
+                AngularVelocityConstraints.builder()
                     .withPrefix("constraints")
                     .withMaxVelocity(Units.RadiansPerSecond.of(100.0))
                     .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(50.0))
@@ -68,8 +70,8 @@ public class GenericFlywheelTest {
   }
 
   @Test
-  public void testGenericFlywheel() {
-    try (MockedStatic<Logger> mockLogger = mockStatic(Logger.class)) {
+  public void testGenericFlywheel() throws Exception {
+    try (MockedStatic<Logger> _ = mockStatic(Logger.class)) {
       GenericFlywheel flywheel = new GenericFlywheel(io, subsystem, constants, "Test");
       assertNotNull(flywheel);
       assertEquals(GenericFlywheelState.IDLE, flywheel.getCurrentState());
@@ -100,7 +102,7 @@ public class GenericFlywheelTest {
       verify(io).setVoltageGoal(Units.Volts.of(6.0));
 
       // setVoltageGoal (Setpoint)
-      Setpoint<edu.wpi.first.units.VoltageUnit> voltSetpoint =
+      Setpoint<org.wpilib.units.VoltageUnit> voltSetpoint =
           new Setpoint<>(
               Units.Volts.of(4.0),
               Units.Volts.of(0.5),
@@ -117,7 +119,7 @@ public class GenericFlywheelTest {
       verify(io).setVelocityGoal(Units.RadiansPerSecond.of(20.0));
 
       // setVelocityGoal (Setpoint)
-      Setpoint<edu.wpi.first.units.AngularVelocityUnit> velocitySetpoint =
+      Setpoint<org.wpilib.units.AngularVelocityUnit> velocitySetpoint =
           new Setpoint<>(
               Units.RadiansPerSecond.of(30.0),
               Units.RadiansPerSecond.of(5.0),
@@ -181,11 +183,11 @@ public class GenericFlywheelTest {
       assertNotNull(waitCmd);
 
       // updates
-      flywheel.updateGains(Gains.fromDoubles().withPrefix("slot0").build(), GainSlot.ZERO);
+      flywheel.updateGains(Gains.builder().withPrefix("slot0").build(), GainSlot.ZERO);
       verify(io).updateGains(any(), eq(GainSlot.ZERO));
 
       flywheel.updateConstraints(
-          AngularVelocityConstraints.fromMeasures()
+          AngularVelocityConstraints.builder()
               .withPrefix("constraints")
               .withMaxVelocity(Units.RadiansPerSecond.of(1.0))
               .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(1.0))
@@ -194,8 +196,34 @@ public class GenericFlywheelTest {
       verify(io).updateConstraints(any());
 
       // sysid routines
-      assertNotNull(flywheel.sysIdRoutineVoltage());
-      assertNotNull(flywheel.sysIdRoutineTorque());
+      Command voltageSysIdCmd = flywheel.sysIdRoutineVoltage();
+      assertNotNull(voltageSysIdCmd);
+      voltageSysIdCmd.initialize();
+
+      Command torqueSysIdCmd = flywheel.sysIdRoutineTorque();
+      assertNotNull(torqueSysIdCmd);
+      torqueSysIdCmd.initialize();
+
+      java.lang.reflect.Field voltageRoutineField =
+          GenericFlywheel.class.getDeclaredField("voltageCharacterizationRoutine");
+      voltageRoutineField.setAccessible(true);
+      CustomSysIdRoutine<org.wpilib.units.VoltageUnit> voltageRoutine =
+          (CustomSysIdRoutine<org.wpilib.units.VoltageUnit>) voltageRoutineField.get(flywheel);
+      Command voltageQuasistatic =
+          voltageRoutine.quasistatic(CustomSysIdRoutine.Direction.kForward);
+      voltageQuasistatic.initialize();
+      voltageQuasistatic.execute();
+      voltageQuasistatic.end(true);
+
+      java.lang.reflect.Field torqueRoutineField =
+          GenericFlywheel.class.getDeclaredField("torqueCharacterizationRoutine");
+      torqueRoutineField.setAccessible(true);
+      CustomSysIdRoutine<org.wpilib.units.CurrentUnit> torqueRoutine =
+          (CustomSysIdRoutine<org.wpilib.units.CurrentUnit>) torqueRoutineField.get(flywheel);
+      Command torqueQuasistatic = torqueRoutine.quasistatic(CustomSysIdRoutine.Direction.kForward);
+      torqueQuasistatic.initialize();
+      torqueQuasistatic.execute();
+      torqueQuasistatic.end(true);
     }
   }
 }

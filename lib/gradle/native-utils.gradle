@@ -1,4 +1,4 @@
-// Detect OS for FRC Natives
+// Detect OS/arch for FRC Natives
 def osClassifier = {
     def osName = System.getProperty("os.name").toLowerCase()
     if (osName.contains("win")) return "windowsx86-64"
@@ -6,27 +6,47 @@ def osClassifier = {
     return "linuxx86-64"
 }()
 
+//TODO: Remove this once the phoenix6 native dependencies are available for MacOS
+
+def isMac = System.getProperty("os.name").toLowerCase().contains("mac")
+
+configurations {
+    nativeDeps
+}
+
 configurations {
     nativeDeps
 }
 
 dependencies {
+    // Uses the version provider from your libs.versions.toml [cite: 4]
     def wpilibVer = libs.versions.wpilib.jni.get()
-    nativeDeps "edu.wpi.first.ntcore:ntcore-jni:${wpilibVer}:${osClassifier}"
-    nativeDeps "edu.wpi.first.wpiutil:wpiutil-jni:${wpilibVer}:${osClassifier}"
-    nativeDeps "edu.wpi.first.hal:hal-jni:${wpilibVer}:${osClassifier}"
-    nativeDeps "edu.wpi.first.wpimath:wpimath-jni:${wpilibVer}:${osClassifier}"
+    // groupId is org.wpilib.* and the native artifact is a "-cpp" classified zip as of the
+    // 2027 season (the old edu.wpi.first.*:*-jni jar coordinates no longer exist). The old
+    // combined "-jni" jars used to bundle their native dependencies together; these granular
+    // per-module zips don't, so hal-cpp's runtime dependencies on libwpinet.so and libdatalog.so
+    // have to be pulled in explicitly too or extractNativeLibs's output is missing shared
+    // libraries HAL needs to dlopen (confirmed via ldd on the extracted .so files).
+    nativeDeps "org.wpilib.ntcore:ntcore-cpp:${wpilibVer}:${osClassifier}@zip"
+    nativeDeps "org.wpilib.wpiutil:wpiutil-cpp:${wpilibVer}:${osClassifier}@zip"
+    nativeDeps "org.wpilib.hal:hal-cpp:${wpilibVer}:${osClassifier}@zip"
+    nativeDeps "org.wpilib.wpimath:wpimath-cpp:${wpilibVer}:${osClassifier}@zip"
+    nativeDeps "org.wpilib.wpinet:wpinet-cpp:${wpilibVer}:${osClassifier}@zip"
+    nativeDeps "org.wpilib.datalog:datalog-cpp:${wpilibVer}:${osClassifier}@zip"
+    // As of 2027 alpha-7, wpimath links against the new telemetry and tunables libraries.
+    nativeDeps "org.wpilib.telemetry:telemetry-cpp:${wpilibVer}:${osClassifier}@zip"
+    nativeDeps "org.wpilib.tunables:tunables-cpp:${wpilibVer}:${osClassifier}@zip"
 
     def phoenix6Ver = libs.versions.phoenix6.get()
-    // Sim natives exist for every desktop platform, including osxuniversal
-    nativeDeps "com.ctre.phoenix6.sim:tools-sim:${phoenix6Ver}:${osClassifier}@zip"
-    nativeDeps "com.ctre.phoenix6.sim:api-cpp-sim:${phoenix6Ver}:${osClassifier}@zip"
 
-    // Non-sim desktop natives are NOT published for macOS
-    if (osClassifier != "osxuniversal") {
+    //TODO: Remove this once the phoenix6 native dependencies are available for MacOS
+
+    if (!isMac) {
         nativeDeps "com.ctre.phoenix6:tools:${phoenix6Ver}:${osClassifier}@zip"
         nativeDeps "com.ctre.phoenix6:api-cpp:${phoenix6Ver}:${osClassifier}@zip"
     }
+    nativeDeps "com.ctre.phoenix6.sim:tools-sim:${phoenix6Ver}:${osClassifier}@zip"
+    nativeDeps "com.ctre.phoenix6.sim:api-cpp-sim:${phoenix6Ver}:${osClassifier}@zip"
 }
 
 def jniDestDir = layout.buildDirectory.dir("jni")

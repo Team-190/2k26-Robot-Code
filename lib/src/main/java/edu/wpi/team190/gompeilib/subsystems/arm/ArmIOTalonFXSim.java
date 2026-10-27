@@ -1,16 +1,16 @@
 package edu.wpi.team190.gompeilib.subsystems.arm;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import org.wpilib.math.system.Models;
+import org.wpilib.simulation.SingleJointedArmSim;
+import org.wpilib.system.RobotController;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
 
 public class ArmIOTalonFXSim extends ArmIOTalonFX {
   private final SingleJointedArmSim armSim;
@@ -21,7 +21,7 @@ public class ArmIOTalonFXSim extends ArmIOTalonFX {
     super(constants);
     armSim =
         new SingleJointedArmSim(
-            LinearSystemId.createSingleJointedArmSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 constants.armParameters.motorConfig(),
                 constants.armParameters.momentOfInertia(),
                 constants.armParameters.gearRatio()),
@@ -47,10 +47,10 @@ public class ArmIOTalonFXSim extends ArmIOTalonFX {
     armSim.update(GompeiLib.getLoopPeriod());
 
     Angle rotorPosition =
-        Angle.ofBaseUnits(armSim.getAngleRads() * constants.armParameters.gearRatio(), Radians);
+        Angle.ofBaseUnits(armSim.getAngle() * constants.armParameters.gearRatio(), Radians);
     AngularVelocity rotorVelocity =
         AngularVelocity.ofBaseUnits(
-            armSim.getVelocityRadPerSec() * constants.armParameters.gearRatio(), RadiansPerSecond);
+            armSim.getVelocity() * constants.armParameters.gearRatio(), RadiansPerSecond);
     armController.setRawRotorPosition(rotorPosition);
     armController.setRotorVelocity(rotorVelocity);
 

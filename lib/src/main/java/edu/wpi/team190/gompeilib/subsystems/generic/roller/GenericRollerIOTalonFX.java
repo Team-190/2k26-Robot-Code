@@ -1,6 +1,6 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.roller;
 
-import static edu.wpi.first.units.Units.Millivolts;
+import static org.wpilib.units.Units.Millivolts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -9,11 +9,10 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import java.util.ArrayList;
+import org.wpilib.units.measure.*;
 
 public class GenericRollerIOTalonFX implements GenericRollerIO {
   protected final TalonFX talonFX;
@@ -34,6 +33,7 @@ public class GenericRollerIOTalonFX implements GenericRollerIO {
 
   protected GenericRollerConstants constants;
 
+  @SuppressWarnings("resource") // Followers are retained in followerTalonFX
   public GenericRollerIOTalonFX(GenericRollerConstants constants) {
     talonFX = new TalonFX(constants.leaderCANID, constants.canBus);
     followerTalonFX =
@@ -118,7 +118,7 @@ public class GenericRollerIOTalonFX implements GenericRollerIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(1 / GompeiLib.getLoopPeriod(), statusSignals);
 
-    PhoenixUtil.registerSignals(constants.canBus.isNetworkFD(), statusSignals);
+    PhoenixUtil.registerSignals(constants.canBus, statusSignals);
 
     talonFX.optimizeBusUtilization();
     for (TalonFX follower : followerTalonFX) {
@@ -132,7 +132,7 @@ public class GenericRollerIOTalonFX implements GenericRollerIO {
 
   @Override
   public void updateInputs(GenericRollerIOInputs inputs) {
-    inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
+    inputs.position = positionRotations.getValue();
     inputs.velocity = velocityRotationsPerSecond.getValue();
 
     inputs.appliedVolts = new double[appliedVolts.size()];

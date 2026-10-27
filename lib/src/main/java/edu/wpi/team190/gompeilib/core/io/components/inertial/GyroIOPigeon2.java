@@ -4,11 +4,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTablesJNI;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
@@ -16,6 +11,11 @@ import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveCo
 import java.util.Queue;
 import java.util.function.Consumer;
 import lombok.Getter;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.util.Units;
+import org.wpilib.networktables.NetworkTablesJNI;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
 
 /** IO implementation for Pigeon 2. */
 public class GyroIOPigeon2 implements GyroIO {
@@ -30,6 +30,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
   private final Consumer<Long> networktablesTimestampConsumer;
 
+  @SuppressWarnings("resource") // Pigeon2 lives for the lifetime of the robot program
   public GyroIOPigeon2(
       SwerveDriveConstants driveConstants, Consumer<Long> networkTablesTimestampConsumer) {
     Pigeon2 pigeon =
@@ -56,7 +57,7 @@ public class GyroIOPigeon2 implements GyroIO {
     pigeon.optimizeBusUtilization();
 
     PhoenixUtil.registerSignals(
-        driveConstants.driveConfig.canBus().isNetworkFD(),
+        driveConstants.driveConfig.canBus(),
         yaw,
         yawVelocity,
         pitch,

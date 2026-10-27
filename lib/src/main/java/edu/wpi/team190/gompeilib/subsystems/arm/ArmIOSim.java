@@ -1,20 +1,19 @@
 package edu.wpi.team190.gompeilib.subsystems.arm;
 
-import static edu.wpi.first.units.Units.*;
+import static org.wpilib.units.Units.*;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.measure.*;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import java.util.Arrays;
+import org.wpilib.math.controller.ArmFeedforward;
+import org.wpilib.math.controller.ProfiledPIDController;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.system.Models;
+import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
+import org.wpilib.simulation.SingleJointedArmSim;
+import org.wpilib.units.measure.*;
 
 public class ArmIOSim implements ArmIO {
   private final SingleJointedArmSim armSim;
@@ -31,7 +30,7 @@ public class ArmIOSim implements ArmIO {
   public ArmIOSim(ArmConstants constants) {
     armSim =
         new SingleJointedArmSim(
-            LinearSystemId.createSingleJointedArmSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 constants.armParameters.motorConfig(),
                 constants.armParameters.momentOfInertia(),
                 constants.armParameters.gearRatio()),
@@ -76,16 +75,16 @@ public class ArmIOSim implements ArmIO {
     if (isClosedLoop)
       appliedVolts =
           Volts.of(
-              feedback.calculate(armSim.getAngleRads())
+              feedback.calculate(armSim.getAngle())
                   + feedforward.calculate(
                       feedback.getSetpoint().position, feedback.getSetpoint().velocity));
 
-    appliedVolts = Volts.of(MathUtil.clamp(appliedVolts.in(Volts), -12.0, 12.0));
+    appliedVolts = Volts.of(Math.clamp(appliedVolts.in(Volts), -12.0, 12.0));
     armSim.setInputVoltage(appliedVolts.in(Volts));
     armSim.update(GompeiLib.getLoopPeriod());
 
-    inputs.position = Rotation2d.fromRadians(armSim.getAngleRads());
-    inputs.velocity = RadiansPerSecond.of(armSim.getVelocityRadPerSec());
+    inputs.position = Rotation2d.fromRadians(armSim.getAngle());
+    inputs.velocity = RadiansPerSecond.of(armSim.getVelocity());
 
     inputs.appliedVolts = new double[constants.armParameters.numMotors()];
     inputs.supplyCurrentAmps = new double[constants.armParameters.numMotors()];
@@ -93,8 +92,8 @@ public class ArmIOSim implements ArmIO {
     inputs.temperatureCelsius = new double[constants.armParameters.numMotors()];
 
     Arrays.fill(inputs.appliedVolts, appliedVolts.in(Volts));
-    Arrays.fill(inputs.supplyCurrentAmps, armSim.getCurrentDrawAmps());
-    Arrays.fill(inputs.torqueCurrentAmps, armSim.getCurrentDrawAmps());
+    Arrays.fill(inputs.supplyCurrentAmps, armSim.getCurrentDraw());
+    Arrays.fill(inputs.torqueCurrentAmps, armSim.getCurrentDraw());
 
     inputs.positionGoal = Rotation2d.fromRadians(feedback.getGoal().position);
     inputs.positionSetpoint = Rotation2d.fromRadians(feedback.getSetpoint().position);
@@ -122,8 +121,8 @@ public class ArmIOSim implements ArmIO {
 
   @Override
   public boolean atPositionGoal(Rotation2d positionReference) {
-    return Math.abs(positionReference.getRadians() - armSim.getAngleRads())
-        < constants.constraints.goalTolerance().get(Radians);
+    return Math.abs(positionReference.getRadians() - armSim.getAngle())
+        < constants.constraints.goalTolerance().get().in(Radians);
   }
 
   @Override
@@ -144,6 +143,8 @@ public class ArmIOSim implements ArmIO {
       case TWO:
         feedback.setPID(constants.slot2Gains.kP().get(), 0.0, constants.slot2Gains.kD().get());
         break;
+      default:
+        throw new IllegalStateException("Unknown gain slot: " + gainSlot);
     }
   }
 

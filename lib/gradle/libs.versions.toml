@@ -1,39 +1,50 @@
 
 [versions]
-wpilib = "2026.2.1"
-wpilib-jni = "2025.3.2"
-phoenix6 = "26.1.3"
-choreo = "2026.0.2"
-aspectj = "1.9.21"
-advantagekit = "26.0.2"
+wpilib = "2027.0.0-alpha-7"
+wpilib-jni = "2027.0.0-alpha-7"
+phoenix6 = "26.70.0-alpha-2"
+# choreo = "2027.0.0-alpha-3" # Now WPILib 2027 alpha-7 compatible; re-enable once confirmed.
+aspectj = "1.9.25.1"
+advantagekit = "27.0.0-alpha-6"
 quickbuf = "1.4"
-jackson = "2.17.2"
-pathplanner = "2026.1.2"
+jackson = "2.22.3"
+# jackson-annotations dropped its patch digit at 2.20+ (2.22, not 2.22.x) while core/databind kept theirs.
+jackson-annotations = "2.22"
+pathplanner = "2027.0.0-alpha-4.1"
+# Runtime dependency of wpilib-tunables (TunableConfig properties); matches what GradleRIO resolves.
+avaje-jsonb = "3.14"
 
 [libraries]
-# WPILib Core
-wpilib-wpilibj = { group = "edu.wpi.first.wpilibj", name = "wpilibj-java", version.ref = "wpilib" }
-wpilib-wpimath = { group = "edu.wpi.first.wpimath", name = "wpimath-java", version.ref = "wpilib" }
-wpilib-ntcore = { group = "edu.wpi.first.ntcore", name = "ntcore-java", version.ref = "wpilib" }
-wpilib-wpinet = { group = "edu.wpi.first.wpinet", name = "wpinet-java", version.ref = "wpilib" }
-wpilib-cscore = { group = "edu.wpi.first.cscore", name = "cscore-java", version.ref = "wpilib" }
-wpilib-cameraserver = { group = "edu.wpi.first.cameraserver", name = "cameraserver-java", version.ref = "wpilib" }
-wpilib-wpiutil = { group = "edu.wpi.first.wpiutil", name = "wpiutil-java", version.ref = "wpilib" }
-wpilib-wpiunits = { group = "edu.wpi.first.wpiunits", name = "wpiunits-java", version.ref = "wpilib" }
-wpilib-commands = { group = "edu.wpi.first.wpilibNewCommands", name = "wpilibNewCommands-java", version.ref = "wpilib" }
-wpilib-hal = { group = "edu.wpi.first.hal", name = "hal-java", version.ref = "wpilib" }
-wpilib-apriltag = {group = "edu.wpi.first.apriltag", name="apriltag-java", version.ref = "wpilib"}
+# WPILib Core -- groupId moved from edu.wpi.first.* to org.wpilib.* for the 2027 season.
+wpilib-wpilibj = { group = "org.wpilib.wpilibj", name = "wpilibj-java", version.ref = "wpilib" }
+wpilib-wpimath = { group = "org.wpilib.wpimath", name = "wpimath-java", version.ref = "wpilib" }
+wpilib-ntcore = { group = "org.wpilib.ntcore", name = "ntcore-java", version.ref = "wpilib" }
+wpilib-wpinet = { group = "org.wpilib.wpinet", name = "wpinet-java", version.ref = "wpilib" }
+wpilib-cscore = { group = "org.wpilib.cscore", name = "cscore-java", version.ref = "wpilib" }
+wpilib-cameraserver = { group = "org.wpilib.cameraserver", name = "cameraserver-java", version.ref = "wpilib" }
+wpilib-wpiutil = { group = "org.wpilib.wpiutil", name = "wpiutil-java", version.ref = "wpilib" }
+wpilib-wpiunits = { group = "org.wpilib.wpiunits", name = "wpiunits-java", version.ref = "wpilib" }
+# WPILibNewCommands was replaced by the standalone Commands V2 vendordep/artifact in 2027.
+wpilib-commands = { group = "org.wpilib.commandsv2", name = "commandsv2-java", version.ref = "wpilib" }
+wpilib-hal = { group = "org.wpilib.hal", name = "hal-java", version.ref = "wpilib" }
+wpilib-apriltag = {group = "org.wpilib.apriltag", name="apriltag-java", version.ref = "wpilib"}
+wpilib-fields = { group = "org.wpilib.fields", name = "fields-java", version.ref = "wpilib" }
+wpilib-telemetry = { group = "org.wpilib.telemetry", name = "telemetry-java", version.ref = "wpilib" }
+wpilib-tunables = { group = "org.wpilib.tunables", name = "tunables-java", version.ref = "wpilib" }
+# DriverStationBackend.startDataLog(DataLog) is on the classpath transitively at the bytecode
+# level even when unused, so Mockito's mockStatic() fails to load the class without this present.
+wpilib-datalog = { group = "org.wpilib.datalog", name = "datalog-java", version.ref = "wpilib" }
 
-# WPILib JNI
-wpilib-ntcore-jni = { group = "edu.wpi.first.ntcore", name = "ntcore-jni", version.ref = "wpilib-jni" }
-wpilib-wpiutil-jni = { group = "edu.wpi.first.wpiutil", name = "wpiutil-jni", version.ref = "wpilib-jni" }
-wpilib-hal-jni = { group = "edu.wpi.first.hal", name = "hal-jni", version.ref = "wpilib-jni" }
+# WPILib native libs -- the old "-jni" jar artifacts were replaced by "-cpp" classified zips.
+wpilib-ntcore-jni = { group = "org.wpilib.ntcore", name = "ntcore-cpp", version.ref = "wpilib-jni" }
+wpilib-wpiutil-jni = { group = "org.wpilib.wpiutil", name = "wpiutil-cpp", version.ref = "wpilib-jni" }
+wpilib-hal-jni = { group = "org.wpilib.hal", name = "hal-cpp", version.ref = "wpilib-jni" }
 
 # CTRE Phoenix 6/Pro
 phoenix6 = { group = "com.ctre.phoenix6", name = "wpiapi-java", version.ref = "phoenix6" }
 
-# Choreo
-choreo = { group = "choreo", name = "ChoreoLib-java", version.ref = "choreo" }
+# Choreo (no WPILib 2027 alpha compatible release yet; see [versions])
+# choreo = { group = "choreo", name = "ChoreoLib-java", version.ref = "choreo" }
 
 # PathplannerLib
 pathplanner = { group = "com.pathplanner.lib", name = "PathplannerLib-java", version.ref = "pathplanner" }
@@ -48,9 +59,10 @@ advantagekit-autolog = { group = "org.littletonrobotics.akit", name = "akit-auto
 
 # QuickBuf / Jackson (runtime dependencies needed for generated code)
 quickbuf = { group = "us.hebi.quickbuf", name = "quickbuf-runtime", version.ref = "quickbuf" }
-jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson" }
+jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jackson-annotations" }
 jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jackson" }
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+avaje-jsonb = { group = "io.avaje", name = "avaje-jsonb", version.ref = "avaje-jsonb" }
 
 [bundles]
 wpilib = [
@@ -64,7 +76,12 @@ wpilib = [
     "wpilib-wpiunits",
     "wpilib-commands",
     "wpilib-hal",
-    "wpilib-apriltag"
+    "wpilib-apriltag",
+    "wpilib-fields",
+    "wpilib-telemetry",
+    "wpilib-tunables",
+    "avaje-jsonb",
+    "wpilib-datalog"
 ]
 
 wpilib-runtime = [

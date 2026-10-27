@@ -9,7 +9,7 @@ public class VirtualSubsystemTest {
   @Test
   public void testVirtualSubsystem() {
     AtomicInteger counter = new AtomicInteger(0);
-    VirtualSubsystem sub =
+    VirtualSubsystem _ =
         new VirtualSubsystem() {
           @Override
           public void periodic() {

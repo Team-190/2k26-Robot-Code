@@ -2,9 +2,6 @@ package edu.wpi.team190.gompeilib.subsystems.generic.flywheel;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
@@ -12,6 +9,10 @@ import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Current;
+import org.wpilib.units.measure.Voltage;
 
 @Builder(setterPrefix = "with")
 public class GenericFlywheelConstants {
@@ -23,6 +24,8 @@ public class GenericFlywheelConstants {
   @NonNull public final Boolean enableFOC;
 
   @NonNull public final CurrentLimits currentLimit;
+  public final Current peakForwardTorqueCurrent;
+  public final Current peakReverseTorqueCurrent;
   @NonNull public final Double momentOfInertia;
   @NonNull public final Double gearRatio;
 

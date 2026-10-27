@@ -1,7 +1,7 @@
 package edu.wpi.team190.gompeilib.core.state.localization;
 
-import edu.wpi.first.apriltag.AprilTag;
 import java.util.Set;
+import org.wpilib.fields.FieldTag;
 
 /**
  * Defines a logical region of the field in terms of the AprilTags that are considered visible,
@@ -24,4 +24,4 @@ import java.util.Set;
  *
  * @param aprilTags the set of AprilTags associated with this field zone
  */
-public record FieldZone(Set<AprilTag> aprilTags) {}
+public record FieldZone(Set<FieldTag> aprilTags) {}

@@ -3,13 +3,13 @@ package edu.wpi.team190.gompeilib.core.utility;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.net.PortForwarder;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.net.PortForwarder;
+import org.wpilib.networktables.NetworkTableInstance;
 
 public class LimelightHelpersTest {
 
@@ -58,6 +58,7 @@ public class LimelightHelpersTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Exercises deprecated getBotpose* on purpose
   public void testGettersAndSettersNT() {
     // Flush
     LimelightHelpers.Flush();

@@ -3,14 +3,13 @@ package edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.system.Models;
+import org.wpilib.math.util.Units;
+import org.wpilib.simulation.DCMotorSim;
+import org.wpilib.system.Timer;
 
 /**
  * Physics sim implementation of module IO. Simulation is not vendor-specific, but the sim models
@@ -48,14 +47,14 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     // Create drive and turn sim models
     driveSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 driveConstants.driveConfig.driveModel(),
                 constants.DriveInertia,
                 constants.DriveMotorGearRatio),
             driveConstants.driveConfig.driveModel());
     turnSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 driveConstants.driveConfig.turnModel(),
                 constants.SteerInertia,
                 constants.SteerMotorGearRatio),
@@ -79,35 +78,34 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   public void updateInputs(ModuleIOInputs inputs) {
     // Run closed-loop control
     if (driveClosedLoop) {
-      driveAppliedVolts =
-          driveFFVolts + driveController.calculate(driveSim.getAngularVelocityRadPerSec());
+      driveAppliedVolts = driveFFVolts + driveController.calculate(driveSim.getAngularVelocity());
     } else {
       driveController.reset();
     }
     if (turnClosedLoop) {
-      turnAppliedVolts = turnController.calculate(turnSim.getAngularPositionRad());
+      turnAppliedVolts = turnController.calculate(turnSim.getAngularPosition());
     } else {
       turnController.reset();
     }
 
     // Update simulation state
-    driveSim.setInputVoltage(MathUtil.clamp(driveAppliedVolts, -12.0, 12.0));
-    turnSim.setInputVoltage(MathUtil.clamp(turnAppliedVolts, -12.0, 12.0));
+    driveSim.setInputVoltage(Math.clamp(driveAppliedVolts, -12.0, 12.0));
+    turnSim.setInputVoltage(Math.clamp(turnAppliedVolts, -12.0, 12.0));
     driveSim.update(GompeiLib.getLoopPeriod());
     turnSim.update(GompeiLib.getLoopPeriod());
 
-    inputs.drivePositionRadians = driveSim.getAngularPositionRad();
-    inputs.driveVelocityRadiansPerSecond = driveSim.getAngularVelocityRadPerSec();
+    inputs.drivePositionRadians = driveSim.getAngularPosition();
+    inputs.driveVelocityRadiansPerSecond = driveSim.getAngularVelocity();
     inputs.driveAppliedVolts = driveAppliedVolts;
-    inputs.driveSupplyCurrentAmps = Math.abs(driveSim.getCurrentDrawAmps());
+    inputs.driveSupplyCurrentAmps = Math.abs(driveSim.getCurrentDraw());
     inputs.driveVelocitySetpointRadiansPerSecond = driveController.getSetpoint();
     inputs.driveVelocityErrorRadiansPerSecond = driveController.getError();
 
-    inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
-    inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
-    inputs.turnVelocityRadiansPerSecond = turnSim.getAngularVelocityRadPerSec();
+    inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPosition());
+    inputs.turnPosition = new Rotation2d(turnSim.getAngularPosition());
+    inputs.turnVelocityRadiansPerSecond = turnSim.getAngularVelocity();
     inputs.turnAppliedVolts = turnAppliedVolts;
-    inputs.turnSupplyCurrentAmps = Math.abs(turnSim.getCurrentDrawAmps());
+    inputs.turnSupplyCurrentAmps = Math.abs(turnSim.getCurrentDraw());
     inputs.turnPositionGoal = Rotation2d.fromRadians(turnController.getSetpoint());
     inputs.turnPositionSetpoint = Rotation2d.fromRadians(turnController.getSetpoint());
     inputs.turnPositionError = Rotation2d.fromRadians(turnController.getError());

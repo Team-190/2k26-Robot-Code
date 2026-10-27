@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.FieldSource;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GompeiLibTest {
 
+  @SuppressWarnings("unused") // Read reflectively by @FieldSource
   private static final List<GompeiLibTestParameters> TEST_PARAMETERS =
       List.of(
           GompeiLibTestParameters.builder()

@@ -2,9 +2,9 @@ package edu.wpi.team190.gompeilib.core.robot;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.wpilib.command2.Command;
 
 class RobotContainerTest {
 

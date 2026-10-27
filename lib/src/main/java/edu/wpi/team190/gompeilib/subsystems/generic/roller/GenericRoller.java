@@ -1,14 +1,14 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.roller;
 
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Volts;
 
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.Subsystem;
+import org.wpilib.units.VoltageUnit;
+import org.wpilib.units.measure.Voltage;
 
 public class GenericRoller {
   private final GenericRollerIO io;
@@ -45,8 +45,8 @@ public class GenericRoller {
     io.updateInputs(inputs);
     Logger.processInputs(aKitTopic, inputs);
 
-    Logger.recordOutput(aKitTopic + "/Voltage Goal", voltageGoal.getSetpoint());
-    Logger.recordOutput(aKitTopic + "/Voltage Offset", voltageGoal.getOffset());
+    Logger.recordOutputMeasure(aKitTopic + "/Voltage Goal", voltageGoal.getSetpoint());
+    Logger.recordOutputMeasure(aKitTopic + "/Voltage Offset", voltageGoal.getOffset());
     Logger.recordOutput(aKitTopic + "/At Voltage Goal", atVoltageGoal());
 
     io.setVoltageGoal((Voltage) voltageGoal.getNewSetpoint());

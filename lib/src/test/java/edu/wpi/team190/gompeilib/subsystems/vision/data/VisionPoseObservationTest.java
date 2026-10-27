@@ -2,10 +2,10 @@ package edu.wpi.team190.gompeilib.subsystems.vision.data;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.linalg.VecBuilder;
 
 public class VisionPoseObservationTest {
 

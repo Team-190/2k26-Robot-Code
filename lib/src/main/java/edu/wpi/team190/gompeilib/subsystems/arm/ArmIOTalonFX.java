@@ -1,6 +1,6 @@
 package edu.wpi.team190.gompeilib.subsystems.arm;
 
-import static edu.wpi.first.units.Units.*;
+import static org.wpilib.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -11,18 +11,18 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import java.util.ArrayList;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Current;
+import org.wpilib.units.measure.Temperature;
+import org.wpilib.units.measure.Voltage;
 
 public class ArmIOTalonFX implements ArmIO {
   protected final TalonFX talonFX;
@@ -141,7 +141,7 @@ public class ArmIOTalonFX implements ArmIO {
 
     talonFX.optimizeBusUtilization();
 
-    PhoenixUtil.registerSignals(constants.canBus.isNetworkFD(), statusSignals);
+    PhoenixUtil.registerSignals(constants.canBus, statusSignals);
 
     talonFX.setPosition(0);
 
@@ -256,8 +256,8 @@ public class ArmIOTalonFX implements ArmIO {
     config.MotionMagic =
         new MotionMagicConfigs()
             .withMotionMagicAcceleration(
-                constraints.maxAcceleration().get(RotationsPerSecondPerSecond))
-            .withMotionMagicCruiseVelocity(constraints.maxVelocity().get(RotationsPerSecond));
+                constraints.maxAcceleration().get().in(RotationsPerSecondPerSecond))
+            .withMotionMagicCruiseVelocity(constraints.maxVelocity().get().in(RotationsPerSecond));
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(config, 0.25));
 
     for (int i = 0; i < constants.armParameters.numMotors() - 1; i++) {

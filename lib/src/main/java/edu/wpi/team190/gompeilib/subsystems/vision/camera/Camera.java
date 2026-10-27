@@ -1,6 +1,5 @@
 package edu.wpi.team190.gompeilib.subsystems.vision.camera;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
@@ -9,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.Getter;
+import org.wpilib.math.geometry.Pose3d;
 
 public abstract class Camera {
   @Getter private final String name;

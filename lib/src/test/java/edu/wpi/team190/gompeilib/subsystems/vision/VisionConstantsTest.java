@@ -2,17 +2,17 @@ package edu.wpi.team190.gompeilib.subsystems.vision;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.numbers.N5;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 import org.ejml.simple.SimpleMatrix;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.math.numbers.N5;
 
 public class VisionConstantsTest {
 
@@ -21,6 +21,8 @@ public class VisionConstantsTest {
     assertEquals(0.4, VisionConstants.AMBIGUITY_THRESHOLD);
     assertEquals(1.2, VisionConstants.XY_STDEV_DISTANCE_EXPONENT);
     assertEquals(2.0, VisionConstants.XY_STDEV_TAG_COUNT_EXPONENT);
+
+    assertNotNull(new VisionConstants());
   }
 
   @Test

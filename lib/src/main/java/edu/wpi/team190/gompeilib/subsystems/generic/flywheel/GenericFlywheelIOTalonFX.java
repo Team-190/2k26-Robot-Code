@@ -1,6 +1,6 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.flywheel;
 
-import static edu.wpi.first.units.Units.*;
+import static org.wpilib.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -10,14 +10,13 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
 import java.util.ArrayList;
+import org.wpilib.units.measure.*;
 
 public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
   protected final TalonFX talonFX;
@@ -45,6 +44,7 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
 
   protected GenericFlywheelConstants constants;
 
+  @SuppressWarnings("resource") // Followers are retained in followerTalonFX
   public GenericFlywheelIOTalonFX(GenericFlywheelConstants constants) {
     talonFX = new TalonFX(constants.leaderCANID, constants.canBus);
     followerTalonFX =
@@ -61,6 +61,14 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimit(constants.currentLimit.statorCurrentLimit())
         .withStatorCurrentLimitEnable(true);
+    if (constants.peakForwardTorqueCurrent != null) {
+      talonFXConfiguration.TorqueCurrent.PeakForwardTorqueCurrent =
+          constants.peakForwardTorqueCurrent.in(Amps);
+    }
+    if (constants.peakReverseTorqueCurrent != null) {
+      talonFXConfiguration.TorqueCurrent.PeakReverseTorqueCurrent =
+          constants.peakReverseTorqueCurrent.in(Amps);
+    }
     talonFXConfiguration.MotorOutput.withNeutralMode(NeutralModeValue.Coast);
     talonFXConfiguration
         .Slot0
@@ -142,6 +150,8 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
 
     signalsList.add(positionRotations);
     signalsList.add(velocityRotationsPerSecond);
+    signalsList.add(velocitySetpointRotationsPerSecond);
+    signalsList.add(velocityErrorRotationsPerSecond);
     signalsList.addAll(appliedVolts);
     signalsList.addAll(supplyCurrentAmps);
     signalsList.addAll(torqueCurrentAmps);
@@ -155,7 +165,7 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(1 / GompeiLib.getLoopPeriod(), statusSignals);
 
-    PhoenixUtil.registerSignals(constants.canBus.isNetworkFD(), statusSignals);
+    PhoenixUtil.registerSignals(constants.canBus, statusSignals);
 
     talonFX.optimizeBusUtilization();
     for (TalonFX follower : followerTalonFX) {
@@ -174,7 +184,7 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
 
   @Override
   public void updateInputs(GenericFlywheelIOInputs inputs) {
-    inputs.position = Rotation2d.fromRotations(positionRotations.getValueAsDouble());
+    inputs.position = positionRotations.getValue();
     inputs.velocity = velocityRotationsPerSecond.getValue();
 
     inputs.appliedVolts = new double[appliedVolts.size()];
@@ -192,7 +202,8 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
     inputs.velocityGoal = velocityGoal;
     inputs.velocitySetpoint =
         RotationsPerSecond.of(velocitySetpointRotationsPerSecond.getValueAsDouble());
-    inputs.velocityError = RotationsPerSecond.of(velocityRotationsPerSecond.getValueAsDouble());
+    inputs.velocityError =
+        RotationsPerSecond.of(velocityErrorRotationsPerSecond.getValueAsDouble());
 
     inputs.gainSlot = GainSlot.integerToGainSlot(talonFX.getClosedLoopSlot().getValue());
   }
@@ -243,7 +254,7 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
   public boolean atVelocityGoal(AngularVelocity velocityReference) {
     return velocityRotationsPerSecond.isNear(
         velocityReference,
-        RotationsPerSecond.of(constants.constraints.goalTolerance().get(RotationsPerSecond)));
+        RotationsPerSecond.of(constants.constraints.goalTolerance().get().in(RotationsPerSecond)));
   }
 
   @Override
@@ -280,8 +291,9 @@ public class GenericFlywheelIOTalonFX implements GenericFlywheelIO {
   public void updateConstraints(AngularVelocityConstraints constraints) {
     talonFXConfiguration
         .MotionMagic
-        .withMotionMagicAcceleration(constraints.maxAcceleration().get(RotationsPerSecondPerSecond))
-        .withMotionMagicCruiseVelocity(constraints.maxVelocity().get(RotationsPerSecond));
+        .withMotionMagicAcceleration(
+            constraints.maxAcceleration().get().in(RotationsPerSecondPerSecond))
+        .withMotionMagicCruiseVelocity(constraints.maxVelocity().get().in(RotationsPerSecond));
     PhoenixUtil.tryUntilOk(5, () -> talonFX.getConfigurator().apply(talonFXConfiguration));
     for (TalonFX follower : followerTalonFX) {
       PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(talonFXConfiguration));

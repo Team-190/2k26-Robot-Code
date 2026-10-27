@@ -11,9 +11,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
@@ -24,13 +21,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.*;
 
+@SuppressWarnings("unchecked") // Mockito mocks of generic types
 public class GenericFlywheelIOTalonFXTest {
   private GenericFlywheelConstants constants;
 
   @BeforeEach
   public void setUp() {
-    edu.wpi.first.hal.HAL.initialize(500, 0);
+    org.wpilib.hardware.hal.HAL.initialize();
     try {
       GompeiLib.deinit();
     } catch (Exception e) {
@@ -52,7 +53,7 @@ public class GenericFlywheelIOTalonFXTest {
             .withGearRatio(1.0)
             .withMotorConfig(DCMotor.getNeo550(1))
             .withVoltageGains(
-                Gains.fromDoubles()
+                Gains.builder()
                     .withPrefix("voltage")
                     .withKP(1.0)
                     .withKI(0.0)
@@ -63,7 +64,7 @@ public class GenericFlywheelIOTalonFXTest {
                     .withKG(0.0)
                     .build())
             .withTorqueGains(
-                Gains.fromDoubles()
+                Gains.builder()
                     .withPrefix("torque")
                     .withKP(0.5)
                     .withKI(0.0)
@@ -74,7 +75,7 @@ public class GenericFlywheelIOTalonFXTest {
                     .withKG(0.0)
                     .build())
             .withConstraints(
-                AngularVelocityConstraints.fromMeasures()
+                AngularVelocityConstraints.builder()
                     .withPrefix("constraints")
                     .withMaxVelocity(Units.RadiansPerSecond.of(100.0))
                     .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(50.0))
@@ -104,7 +105,7 @@ public class GenericFlywheelIOTalonFXTest {
     StatusSignal<Double> velocityErrorRotationsPerSecond = mock(StatusSignal.class);
     StatusSignal<Integer> closedLoopSlot = mock(StatusSignal.class);
 
-    when(positionRotations.getValueAsDouble()).thenReturn(10.0);
+    when(positionRotations.getValue()).thenReturn(Units.Rotations.of(10));
     when(velocityRotationsPerSecond.getValue()).thenReturn(Units.RotationsPerSecond.of(5.0));
     when(velocityRotationsPerSecond.getValueAsDouble()).thenReturn(5.0);
     when(velocityRotationsPerSecond.isNear(any(), any())).thenReturn(true);
@@ -124,7 +125,7 @@ public class GenericFlywheelIOTalonFXTest {
     when(velocityErrorRotationsPerSecond.getValueAsDouble()).thenReturn(0.1);
     when(closedLoopSlot.getValue()).thenReturn(0);
 
-    try (MockedConstruction<TalonFX> mockTalon =
+    try (MockedConstruction<TalonFX> _ =
             mockConstruction(
                 TalonFX.class,
                 (mock, context) -> {
@@ -159,7 +160,7 @@ public class GenericFlywheelIOTalonFXTest {
 
       // Verify the allocated inputs length matches leader + 2 followers
       assertEquals(3, inputs.appliedVolts.length);
-      assertEquals(10.0, inputs.position.getRotations(), 0.01);
+      assertEquals(10.0, inputs.position.in(Units.Rotations), 0.01);
       assertEquals(5.0, inputs.velocity.in(Units.RotationsPerSecond), 0.01);
       assertEquals(6.0, inputs.appliedVolts[0], 0.01);
       assertEquals(15.0, inputs.supplyCurrentAmps[0], 0.01);
@@ -178,11 +179,11 @@ public class GenericFlywheelIOTalonFXTest {
       assertTrue(io.atVelocityGoal(Units.RadiansPerSecond.of(10.0)));
 
       // Verify update gains / constraints loops
-      io.updateGains(Gains.fromDoubles().withPrefix("slot0").build(), GainSlot.ZERO);
-      io.updateGains(Gains.fromDoubles().withPrefix("slot1").build(), GainSlot.ONE);
+      io.updateGains(Gains.builder().withPrefix("slot0").build(), GainSlot.ZERO);
+      io.updateGains(Gains.builder().withPrefix("slot1").build(), GainSlot.ONE);
 
       io.updateConstraints(
-          AngularVelocityConstraints.fromMeasures()
+          AngularVelocityConstraints.builder()
               .withPrefix("newConstraints")
               .withMaxVelocity(Units.RadiansPerSecond.of(120.0))
               .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(60.0))

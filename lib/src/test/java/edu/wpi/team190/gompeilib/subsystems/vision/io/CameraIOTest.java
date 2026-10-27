@@ -2,9 +2,9 @@ package edu.wpi.team190.gompeilib.subsystems.vision.io;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.team190.gompeilib.core.utility.LimelightHelpers;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Pose2d;
 
 public class CameraIOTest {
 
@@ -30,7 +30,7 @@ public class CameraIOTest {
   public void testPoseEstimateRecord() {
     // Default constructor
     CameraIO.PoseEstimate defaultEst = new CameraIO.PoseEstimate();
-    assertEquals(Pose2d.kZero, defaultEst.pose());
+    assertEquals(Pose2d.ZERO, defaultEst.pose());
     assertEquals(0.0, defaultEst.timestampSeconds());
     assertEquals(0.0, defaultEst.latency());
     assertEquals(0, defaultEst.tagCount());

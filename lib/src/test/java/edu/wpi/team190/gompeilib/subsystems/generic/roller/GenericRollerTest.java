@@ -6,9 +6,6 @@ import static org.mockito.Mockito.*;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.Setpoint;
@@ -17,6 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.littletonrobotics.junction.Logger;
 import org.mockito.MockedStatic;
+import org.wpilib.command2.Subsystem;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.Units;
 
 public class GenericRollerTest {
   private GenericRollerIO io;
@@ -25,7 +25,7 @@ public class GenericRollerTest {
 
   @BeforeEach
   public void setUp() {
-    edu.wpi.first.hal.HAL.initialize(500, 0);
+    org.wpilib.hardware.hal.HAL.initialize();
     try {
       GompeiLib.deinit();
     } catch (Exception e) {
@@ -57,7 +57,7 @@ public class GenericRollerTest {
 
   @Test
   public void testRoller() {
-    try (MockedStatic<Logger> mockLogger = mockStatic(Logger.class)) {
+    try (MockedStatic<Logger> _ = mockStatic(Logger.class)) {
       GenericRoller roller = new GenericRoller(io, subsystem, constants, "Test");
       assertNotNull(roller);
 
@@ -77,7 +77,7 @@ public class GenericRollerTest {
       verify(io).setVoltageGoal(Units.Volts.of(6.0));
 
       // setVoltageGoal (Setpoint)
-      Setpoint<edu.wpi.first.units.VoltageUnit> voltSetpoint =
+      Setpoint<org.wpilib.units.VoltageUnit> voltSetpoint =
           new Setpoint<>(
               Units.Volts.of(4.0),
               Units.Volts.of(0.5),

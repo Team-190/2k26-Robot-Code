@@ -1,19 +1,7 @@
 package edu.wpi.team190.gompeilib.subsystems.vision.camera;
 
-import static edu.wpi.first.units.Units.Degrees;
+import static org.wpilib.units.Units.Degrees;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.utility.LimelightHelpers;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.MovingLimelightConfig;
@@ -31,6 +19,18 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.util.Units;
+import org.wpilib.networktables.DoubleArrayPublisher;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.system.Timer;
 
 public class CameraMovingLimelight extends Camera {
   private final LimelightIOInputsAutoLogged inputs;
@@ -41,7 +41,7 @@ public class CameraMovingLimelight extends Camera {
 
   private final Supplier<Rotation2d> headingSupplier;
   private final Supplier<Rotation2d> rotationAxisSupplier;
-  private final Supplier<ChassisSpeeds> chassisSpeedsSupplier;
+  private final Supplier<ChassisVelocities> chassisSpeedsSupplier;
   private final LongSupplier timestampSupplier;
   private final DoubleArrayPublisher headingPublisher;
 
@@ -55,7 +55,7 @@ public class CameraMovingLimelight extends Camera {
       MovingLimelightConfig config,
       Supplier<Rotation2d> headingSupplier,
       Supplier<Rotation2d> rotationAxisSupplier,
-      Supplier<ChassisSpeeds> chassisSpeedsSupplier,
+      Supplier<ChassisVelocities> chassisSpeedsSupplier,
       LongSupplier timestampSupplier,
       List<Consumer<List<VisionPoseObservation>>> poseObservers,
       List<Consumer<List<VisionSingleTxTyObservation>>> singleTxTyObservers) {
@@ -79,7 +79,7 @@ public class CameraMovingLimelight extends Camera {
 
     allTagPoses = new ArrayList<>();
 
-    currentCameraPose = Pose3d.kZero.transformBy(config.robotToRotationAxisTransform());
+    currentCameraPose = Pose3d.ZERO.transformBy(config.robotToRotationAxisTransform());
 
     LimelightHelpers.setCameraPose_RobotSpace(
         name,
@@ -97,7 +97,7 @@ public class CameraMovingLimelight extends Camera {
     LimelightHelpers.SetThrottle(name, 190);
 
     wasEnabled = false;
-    enabledTimestamp = Timer.getFPGATimestamp();
+    enabledTimestamp = Timer.getTimestamp();
   }
 
   @Override
@@ -107,30 +107,30 @@ public class CameraMovingLimelight extends Camera {
     singleTxTyObservationList.clear();
 
     currentCameraPose =
-        Pose3d.kZero
+        Pose3d.ZERO
             .transformBy(config.robotToRotationAxisTransform())
             .rotateAround(
                 currentCameraPose.getTranslation(), new Rotation3d(rotationAxisSupplier.get()))
             .transformBy(config.rotationAxisToLensTransform());
 
-    if (DriverStation.isEnabled()) {
+    if (RobotState.isEnabled()) {
       if (!wasEnabled) {
-        enabledTimestamp = Timer.getFPGATimestamp();
+        enabledTimestamp = Timer.getTimestamp();
         wasEnabled = true;
         LimelightHelpers.SetIMUMode(name, 0);
         LimelightHelpers.SetThrottle(name, 0);
       }
 
-      if (Timer.getFPGATimestamp() - enabledTimestamp >= 165 && config.enableRewind()) {
+      if (Timer.getTimestamp() - enabledTimestamp >= 165 && config.enableRewind()) {
         LimelightHelpers.triggerRewindCapture(name, 165);
-        enabledTimestamp = Timer.getFPGATimestamp();
+        enabledTimestamp = Timer.getTimestamp();
       }
     }
 
-    if (DriverStation.isDisabled()) {
+    if (RobotState.isDisabled()) {
       if (wasEnabled) {
         if (config.enableRewind()) {
-          LimelightHelpers.triggerRewindCapture(name, Timer.getFPGATimestamp() - enabledTimestamp);
+          LimelightHelpers.triggerRewindCapture(name, Timer.getTimestamp() - enabledTimestamp);
         }
         wasEnabled = false;
         LimelightHelpers.SetIMUMode(name, 1);
@@ -168,9 +168,9 @@ public class CameraMovingLimelight extends Camera {
                   inputs.mt1PoseEstimate.tagCount(), VisionConstants.XY_STDEV_TAG_COUNT_EXPONENT);
       thetaStdev =
           inputs.mt1PoseEstimate.tagCount() > 1
-                  && Math.abs(chassisSpeedsSupplier.get().vxMetersPerSecond) <= 0.15
-                  && Math.abs(chassisSpeedsSupplier.get().vyMetersPerSecond) <= 0.15
-                  && Math.abs(chassisSpeedsSupplier.get().omegaRadiansPerSecond) <= 0.05
+                  && Math.abs(chassisSpeedsSupplier.get().vx) <= 0.15
+                  && Math.abs(chassisSpeedsSupplier.get().vy) <= 0.15
+                  && Math.abs(chassisSpeedsSupplier.get().omega) <= 0.05
                   && Arrays.stream(inputs.mt1PoseEstimate.rawFiducials())
                           .mapToDouble(CameraIO.RawFiducial::ambiguity)
                           .average()

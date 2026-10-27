@@ -4,15 +4,15 @@
 
 package edu.wpi.team190.gompeilib.core.utility.sysid;
 
-import static edu.wpi.first.units.Units.*;
+import static org.wpilib.units.Units.*;
 
-import edu.wpi.first.units.*;
-import edu.wpi.first.units.measure.Per;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.function.Consumer;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Subsystem;
+import org.wpilib.sysid.SysIdRoutineLog;
+import org.wpilib.system.Timer;
+import org.wpilib.units.*;
+import org.wpilib.units.measure.Per;
 
 /**
  * A generic SysId characterization routine. Subclass this for specific units.
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 public class CustomSysIdRoutine<U extends Unit> extends SysIdRoutineLog {
   private final Config<U> config;
   private final Mechanism<U> mechanism;
-  private final MutableMeasure<U, ?, ?> outputValue;
+  private Measure<U> outputValue;
   private final Consumer<State> recordState;
 
   /**
@@ -30,15 +30,20 @@ public class CustomSysIdRoutine<U extends Unit> extends SysIdRoutineLog {
    * measures.
    *
    * @param mechanism Mechanism interface.
-   * @param initialMutable The mutable measure instance (created by the subclass).
    */
-  public CustomSysIdRoutine(
-      Config<U> config, Mechanism<U> mechanism, MutableMeasure<U, ?, ?> initialMutable) {
+  public CustomSysIdRoutine(Config<U> config, Mechanism<U> mechanism) {
     super(mechanism.name);
     this.config = config;
     this.mechanism = mechanism;
-    outputValue = initialMutable;
+    outputValue = of(config.outputUnit, 0);
     recordState = config.recordState != null ? config.recordState : this::recordState;
+  }
+
+  // Unit#of(double) only returns Measure<?> since U can't be reified here; WPILib measures are
+  // immutable now (no more MutableMeasure), so every value has to be rebuilt through this cast.
+  @SuppressWarnings("unchecked")
+  private static <U extends Unit> Measure<U> of(U unit, double magnitude) {
+    return (Measure<U>) unit.of(magnitude);
   }
 
   /**
@@ -93,7 +98,7 @@ public class CustomSysIdRoutine<U extends Unit> extends SysIdRoutineLog {
 
   public Command quasistatic(Direction direction) {
     State state =
-        (direction == Direction.kForward) ? State.kQuasistaticForward : State.kQuasistaticReverse;
+        (direction == Direction.kForward) ? State.QUASISTATIC_FORWARD : State.QUASISTATIC_REVERSE;
 
     double outputSign = (direction == Direction.kForward) ? 1.0 : -1.0;
     Timer timer = new Timer();
@@ -107,16 +112,15 @@ public class CustomSysIdRoutine<U extends Unit> extends SysIdRoutineLog {
             mechanism.subsystem.run(
                 () -> {
                   mechanism.drive.accept(
-                      outputValue.mut_replace(
-                          outputSign * timer.get() * rampRateUnitsPerSec, config.outputUnit));
+                      of(config.outputUnit, outputSign * timer.get() * rampRateUnitsPerSec));
 
                   mechanism.log.accept(this);
                   recordState.accept(state);
                 }))
         .finallyDo(
             () -> {
-              mechanism.drive.accept(outputValue.mut_replace(0, config.outputUnit));
-              recordState.accept(State.kNone);
+              mechanism.drive.accept(of(config.outputUnit, 0));
+              recordState.accept(State.NONE);
               timer.stop();
             })
         .withName("sysid-" + state + "-" + mechanism.name)
@@ -125,14 +129,14 @@ public class CustomSysIdRoutine<U extends Unit> extends SysIdRoutineLog {
 
   public Command dynamic(Direction direction) {
     double outputSign = (direction == Direction.kForward) ? 1.0 : -1.0;
-    State state = (direction == Direction.kForward) ? State.kDynamicForward : State.kDynamicReverse;
+    State state = (direction == Direction.kForward) ? State.DYNAMIC_FORWARD : State.DYNAMIC_REVERSE;
 
     // OPTIMIZED: Pre-calculate step magnitude safely
     double stepMagnitude = config.stepOutput.in(config.outputUnit);
 
     return mechanism
         .subsystem
-        .runOnce(() -> outputValue.mut_replace(stepMagnitude * outputSign, config.outputUnit))
+        .runOnce(() -> outputValue = of(config.outputUnit, stepMagnitude * outputSign))
         .andThen(
             mechanism.subsystem.run(
                 () -> {
@@ -142,8 +146,8 @@ public class CustomSysIdRoutine<U extends Unit> extends SysIdRoutineLog {
                 }))
         .finallyDo(
             () -> {
-              mechanism.drive.accept(outputValue.mut_replace(0, config.outputUnit));
-              recordState.accept(State.kNone);
+              mechanism.drive.accept(of(config.outputUnit, 0));
+              recordState.accept(State.NONE);
             })
         .withName("sysid-" + state.toString() + "-" + mechanism.name)
         .withTimeout(config.timeout.in(Seconds));

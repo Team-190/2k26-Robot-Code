@@ -1,6 +1,6 @@
 package edu.wpi.team190.gompeilib.subsystems.vision.camera;
 
-import edu.wpi.first.math.util.Units;
+import org.wpilib.math.util.Units;
 
 public enum CameraType {
   LIMELIGHT_2_PLUS(
@@ -54,18 +54,6 @@ public enum CameraType {
     this.primaryThetaStandardDeviationCoefficient = primaryThetaStandardDeviationCoefficient;
   }
 
-  private CameraType(
-      double horizontalFOV,
-      double verticalFOV,
-      double xyStandardDeviationCoefficient,
-      double thetaStandardDeviationCoefficient) {
-    this.horizontalFOV = horizontalFOV;
-    this.verticalFOV = verticalFOV;
-    this.primaryXYStandardDeviationCoefficient = xyStandardDeviationCoefficient;
-    this.secondaryXYStandardDeviationCoefficient = xyStandardDeviationCoefficient;
-    this.primaryThetaStandardDeviationCoefficient = thetaStandardDeviationCoefficient;
-  }
-
   private CameraType() {
     this.horizontalFOV = 0.0;
     this.verticalFOV = 0.0;
@@ -114,7 +102,5 @@ public enum CameraType {
     private static final double SINGLETAG_XY_STANDARD_DEVIATION_COEFFICIENT = 0.05;
     private static final double THETA_STANDARD_DEVIATION_COEFFICIENT = 0.1;
     private static final double MULTITAG_XY_STANDARD_DEVIATION_COEFFICIENT = 0.00015;
-    private static final int WIDTH = 1600;
-    private static final int HEIGHT = 1304;
   }
 }

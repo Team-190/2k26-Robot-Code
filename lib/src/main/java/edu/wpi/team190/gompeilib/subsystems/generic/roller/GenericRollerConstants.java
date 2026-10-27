@@ -3,14 +3,14 @@ package edu.wpi.team190.gompeilib.subsystems.generic.roller;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
 import java.util.Set;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Singular;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.measure.MomentOfInertia;
+import org.wpilib.units.measure.Voltage;
 
 @Builder(setterPrefix = "with")
 public class GenericRollerConstants {
