@@ -3,16 +3,27 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "com.diffplug.spotless" version "6.25.0"
+    id "com.diffplug.spotless" version "8.10.0"
     id "io.freefair.lombok" version "8.4"
-    id "io.freefair.aspectj.post-compile-weaving" version "8.6"
+    id "io.freefair.aspectj.post-compile-weaving" version "9.5.0"
     id "jacoco"
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// io.freefair.lombok 8.4's default Lombok (1.18.30) predates JDK 25 support and crashes
+// (NoSuchFieldException: com.sun.tools.javac.code.TypeTag :: UNKNOWN) on this toolchain.
+// Lombok added JDK 25 support in 1.18.42; pin to a newer release explicitly.
+lombok {
+    version = "1.18.46"
 }
 
 group = 'edu.wpi.team190'
@@ -26,13 +37,39 @@ def osClassifier = {
     return "linuxx86-64"
 }()
 
+// WPILib 2027 alpha artifacts aren't on the standard "release" artifactory repo -- until 2027
+// tooling lands in the upstream release branch, they're published to a branch-named repo instead
+// (mirrors what frc-nix's allwpilibSources.nix tracks: "release-2027" on frcmaven).
+// Also fall back to whatever local maven cache the WPILib alpha installer/VS Code extension
+// writes to disk, the same place GradleRIO's own pluginManagement block looks.
+String frcYear = "2027_alpha7"
+File frcHome
+if (OperatingSystem.current().isWindows()) {
+    String publicFolder = System.getenv("PUBLIC")
+    if (publicFolder == null) {
+        publicFolder = "C:\\Users\\Public"
+    }
+    frcHome = new File(new File(publicFolder, "wpilib"), frcYear)
+} else {
+    frcHome = new File(new File(System.getProperty("user.home"), "wpilib"), frcYear)
+}
+File frcHomeMaven = new File(frcHome, "maven")
+
 repositories {
     mavenCentral()
+    maven { url = uri(frcHomeMaven) }
+    maven { url = uri("https://frcmaven.wpi.edu/artifactory/release-2027") }
     maven { url = uri("https://frcmaven.wpi.edu/artifactory/release") }
-    maven { url = uri("https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release") }
+    maven {
+        url = uri("https://frcmaven.wpi.edu/artifactory/littletonrobotics-mvn-release")
+    }
     maven { url = uri("https://maven.ctr-electronics.com/release/") }
-    maven { url = uri("https://frcmaven.wpi.edu/artifactory/sleipnirgroup-mvn-release/") }
-    maven { url = uri("https://3015rangerrobotics.github.io/pathplannerlib/repo") }
+    maven {
+        url = uri("https://frcmaven.wpi.edu/artifactory/sleipnirgroup-mvn-release/")
+    }
+    maven {
+        url = uri("https://3015rangerrobotics.github.io/pathplannerlib/repo")
+    }
 }
 
 apply from: "gradle/native-utils.gradle"
@@ -51,8 +88,8 @@ dependencies {
     // CTRE
     compileOnly libs.phoenix6
 
-    // Choreo
-    compileOnly libs.choreo
+    // Choreo (no WPILib 2027 alpha compatible release yet; see libs.versions.toml)
+    // compileOnly libs.choreo
 
     // AdvantageKit + runtime dependencies
     compileOnly(libs.bundles.advantagekit)
@@ -60,7 +97,10 @@ dependencies {
 
     // Tests
     testImplementation platform('org.junit:junit-bom:5.11.0')
-    testImplementation "org.mockito:mockito-inline:5.2.0"
+    // mockito-inline was discontinued at 5.2.0 and its ByteBuddy predates Java 25 support
+    // (crashes mocking final/static members under this toolchain). Inline mocking has been
+    // mockito-core's default mock maker since Mockito 5, so just depend on that instead.
+    testImplementation "org.mockito:mockito-core:5.23.0"
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -69,7 +109,7 @@ dependencies {
     testImplementation libs.bundles.advantagekit
     testImplementation libs.phoenix6
     testImplementation libs.pathplanner
-    testImplementation libs.choreo
+    // testImplementation libs.choreo
     testImplementation "org.ejml:ejml-simple:0.44.0"
 
     testRuntimeOnly libs.bundles.wpilib
@@ -77,7 +117,7 @@ dependencies {
     testRuntimeOnly libs.bundles.advantagekit
     testRuntimeOnly libs.phoenix6
     testRuntimeOnly libs.pathplanner
-    testRuntimeOnly libs.choreo
+    // testRuntimeOnly libs.choreo
 }
 
 publishing {
@@ -120,7 +160,9 @@ test {
 }
 
 jacoco {
-    toolVersion = "0.8.10"
+    // 0.8.10 can't instrument Java 25 bytecode (IllegalClassFormatException). Official Java 25
+    // support landed in 0.8.14.
+    toolVersion = "0.8.15"
 }
 
 test {
@@ -144,27 +186,13 @@ jacocoTestReport {
                 '**/*AutoLogged.class',
                 '**/*AutoLogged$*.class',
                 '**/*Tracing*',
+                '**/Elevator*.class',
+                '**/PoseEstimator*.class',
                 '**/LimelightHelpers*.class',
                 '**/*TalonFX.class',
                 '**/*Pigeon2.class',
                 '**/*SysId*.class',
-                '**/Phoenix*.class',
-                '**/CameraMovingLimelight*.class',
-                '**/CameraStaticLimelight*.class',
-                '**/CameraGompeiVision*.class',
-                '**/CameraType*.class',
-                '**/SwerveDrive*.class',
-                '**/SwerveModule*.class',
-                '**/GenericFlywheel*.class',
-                '**/Elevator*.class',
-                '**/Arm*.class',
-                '**/Vision*.class',
-                '**/Gains*.class',
-                '**/LinearConstraints*.class',
-                '**/AngularPositionConstraints*.class',
-                '**/AngularVelocityConstraints*.class',
-                '**/PoseEstimator*.class',
-                '**/GeometryUtil*.class'
+                '**/Phoenix*.class'
             ])
         }))
     }
@@ -183,7 +211,8 @@ jacocoTestReport {
                 def missed = counter.attribute('missed').toInteger()
                 def covered = counter.attribute('covered').toInteger()
                 def total = missed + covered
-                def percentage = total > 0 ? (covered * 100.0 / total) : 0.0
+                def percentage = total> 0 ? (covered * 100.0 / total) : 0.0
+
                 printf("%-12s: %.2f%% (%d/%d)%n", type, percentage, covered, total)
             }
             println "==============================================\n"
@@ -210,27 +239,13 @@ jacocoTestCoverageVerification {
                 '**/*AutoLogged.class',
                 '**/*AutoLogged$*.class',
                 '**/*Tracing*',
+                '**/Elevator*.class',
+                '**/PoseEstimator*.class',
                 '**/LimelightHelpers*.class',
                 '**/*TalonFX.class',
                 '**/*Pigeon2.class',
                 '**/*SysId*.class',
-                '**/Phoenix*.class',
-                '**/CameraMovingLimelight*.class',
-                '**/CameraStaticLimelight*.class',
-                '**/CameraGompeiVision*.class',
-                '**/CameraType*.class',
-                '**/SwerveDrive*.class',
-                '**/SwerveModule*.class',
-                '**/GenericFlywheel*.class',
-                '**/Elevator*.class',
-                '**/Arm*.class',
-                '**/Vision*.class',
-                '**/Gains*.class',
-                '**/LinearConstraints*.class',
-                '**/AngularPositionConstraints*.class',
-                '**/AngularVelocityConstraints*.class',
-                '**/PoseEstimator*.class',
-                '**/GeometryUtil*.class'
+                '**/Phoenix*.class'
             ])
         }))
     }

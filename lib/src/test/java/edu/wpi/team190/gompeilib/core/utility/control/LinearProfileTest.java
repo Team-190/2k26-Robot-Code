@@ -2,8 +2,8 @@ package edu.wpi.team190.gompeilib.core.utility.control;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.math.geometry.Twist2d;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Twist2d;
 
 public class LinearProfileTest {
   @Test

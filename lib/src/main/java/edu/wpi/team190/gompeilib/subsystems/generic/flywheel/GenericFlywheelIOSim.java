@@ -1,20 +1,18 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.flywheel;
 
-import static edu.wpi.first.units.Units.*;
+import static org.wpilib.units.Units.*;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.*;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.LinearProfile;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import java.util.Arrays;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.controller.SimpleMotorFeedforward;
+import org.wpilib.math.system.Models;
+import org.wpilib.simulation.FlywheelSim;
+import org.wpilib.units.measure.*;
 
 public class GenericFlywheelIOSim implements GenericFlywheelIO {
 
@@ -35,7 +33,7 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
   public GenericFlywheelIOSim(GenericFlywheelConstants constants) {
     motorSim =
         new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(
+            Models.flywheelFromPhysicalConstants(
                 constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
             constants.motorConfig);
 
@@ -63,7 +61,7 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
   @Override
   public void updateInputs(GenericFlywheelIOInputs inputs) {
     if (isClosedLoop) {
-      double meas = motorSim.getAngularVelocityRadPerSec();
+      double meas = motorSim.getAngularVelocity();
       double nextSetpoint = profile.calculateSetpoint();
       double pidOut = feedback.calculate(meas, nextSetpoint);
       double ffOut = feedforward.calculate(nextSetpoint);
@@ -79,16 +77,17 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
       appliedVolts = Volts.of(pidOut + ffOut);
     }
 
-    appliedVolts = Volts.of(MathUtil.clamp(appliedVolts.in(Volts), -12.0, 12.0));
+    appliedVolts = Volts.of(Math.clamp(appliedVolts.in(Volts), -12.0, 12.0));
     motorSim.setInputVoltage(appliedVolts.in(Volts));
     motorSim.update(GompeiLib.getLoopPeriod());
 
     accumulatedPosition =
         accumulatedPosition.plus(
-            motorSim.getAngularVelocity().times(Seconds.of(GompeiLib.getLoopPeriod())));
+            RadiansPerSecond.of(motorSim.getAngularVelocity())
+                .times(Seconds.of(GompeiLib.getLoopPeriod())));
 
-    inputs.position = Rotation2d.fromRadians(accumulatedPosition.in(Radians));
-    inputs.velocity = motorSim.getAngularVelocity();
+    inputs.position = accumulatedPosition;
+    inputs.velocity = RadiansPerSecond.of(motorSim.getAngularVelocity());
 
     int numMotors =
         1 + constants.alignedFollowerCANIDs.size() + constants.opposedFollowerCANIDs.size();
@@ -98,8 +97,8 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
     inputs.temperatureCelsius = new double[numMotors];
 
     Arrays.fill(inputs.appliedVolts, appliedVolts.in(Volts));
-    Arrays.fill(inputs.supplyCurrentAmps, motorSim.getCurrentDrawAmps());
-    Arrays.fill(inputs.torqueCurrentAmps, motorSim.getCurrentDrawAmps());
+    Arrays.fill(inputs.supplyCurrentAmps, motorSim.getCurrentDraw());
+    Arrays.fill(inputs.torqueCurrentAmps, motorSim.getCurrentDraw());
 
     inputs.velocityGoal = RadiansPerSecond.of(profile.getGoal());
     inputs.velocitySetpoint = RadiansPerSecond.of(feedback.getSetpoint());
@@ -117,9 +116,9 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
   @Override
   public void setVelocityGoal(AngularVelocity velocityGoal) {
     isClosedLoop = true;
-    profile.setGoal(velocityGoal.in(RadiansPerSecond), motorSim.getAngularVelocityRadPerSec());
+    profile.setGoal(velocityGoal.in(RadiansPerSecond), motorSim.getAngularVelocity());
     double nextSetpoint = profile.calculateSetpoint();
-    double pidPart = feedback.calculate(motorSim.getAngularVelocityRadPerSec(), nextSetpoint);
+    double pidPart = feedback.calculate(motorSim.getAngularVelocity(), nextSetpoint);
     double ffPart = feedforward.calculate(feedback.getSetpoint());
     System.out.println(
         "DEBUG FLYWHEEL SET VELOCITY: nextSetpoint="
@@ -154,8 +153,7 @@ public class GenericFlywheelIOSim implements GenericFlywheelIO {
             + velocityReference
             + " tolerance="
             + constants.constraints.goalTolerance().get());
-    return motorSim
-        .getAngularVelocity()
+    return RadiansPerSecond.of(motorSim.getAngularVelocity())
         .isNear(velocityReference, constants.constraints.goalTolerance().get());
   }
 

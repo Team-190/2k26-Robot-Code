@@ -1,7 +1,7 @@
 package edu.wpi.team190.gompeilib.core.robot;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
 
 public interface RobotContainer {
 

@@ -1,16 +1,16 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.roller;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import org.wpilib.math.system.Models;
+import org.wpilib.simulation.DCMotorSim;
+import org.wpilib.system.RobotController;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
 
 public class GenericRollerIOTalonFXSim extends GenericRollerIOTalonFX {
   private final DCMotorSim rollerSim;
@@ -21,7 +21,7 @@ public class GenericRollerIOTalonFXSim extends GenericRollerIOTalonFX {
     super(constants);
     rollerSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 constants.rollerGearbox,
                 constants.momentOfInertia.baseUnitMagnitude(),
                 constants.rollerMotorGearRatio),
@@ -41,12 +41,10 @@ public class GenericRollerIOTalonFXSim extends GenericRollerIOTalonFX {
     rollerSim.update(GompeiLib.getLoopPeriod());
 
     Angle rotorPosition =
-        Angle.ofBaseUnits(
-            rollerSim.getAngularPositionRad() * constants.rollerMotorGearRatio, Radians);
+        Angle.ofBaseUnits(rollerSim.getAngularPosition() * constants.rollerMotorGearRatio, Radians);
     AngularVelocity rotorVelocity =
         AngularVelocity.ofBaseUnits(
-            rollerSim.getAngularVelocityRadPerSec() * constants.rollerMotorGearRatio,
-            RadiansPerSecond);
+            rollerSim.getAngularVelocity() * constants.rollerMotorGearRatio, RadiansPerSecond);
     rollerController.setRawRotorPosition(rotorPosition);
     rollerController.setRotorVelocity(rotorVelocity);
 

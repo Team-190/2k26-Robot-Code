@@ -1,10 +1,6 @@
 package edu.wpi.team190.gompeilib.subsystems.vision.camera;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.team190.gompeilib.core.geometry.GeometryUtil;
+import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants.GompeiVisionConfig;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
@@ -17,6 +13,10 @@ import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.fields.Field;
+import org.wpilib.math.geometry.*;
+import org.wpilib.math.linalg.VecBuilder;
 
 @ExtensionMethod(GeometryUtil.class)
 public class CameraGompeiVision extends Camera {
@@ -24,7 +24,7 @@ public class CameraGompeiVision extends Camera {
   private final CameraIOGompeiVision io;
 
   private final GompeiVisionConfig config;
-  private final Supplier<AprilTagFieldLayout> aprilTagFieldLayoutSupplier;
+  private final Supplier<Field> aprilTagFieldLayoutSupplier;
   private final double fieldBorderMarginMeters;
   private final Supplier<Pose2d> currentRobotPoseSupplier;
 
@@ -36,7 +36,7 @@ public class CameraGompeiVision extends Camera {
   public CameraGompeiVision(
       CameraIOGompeiVision io,
       GompeiVisionConfig config,
-      Supplier<AprilTagFieldLayout> aprilTagFieldLayoutSupplier,
+      Supplier<Field> aprilTagFieldLayoutSupplier,
       double fieldBorderMarginMeters,
       Supplier<Pose2d> currentRobotPoseSupplier,
       List<Consumer<List<VisionPoseObservation>>> poseObservers,
@@ -54,7 +54,7 @@ public class CameraGompeiVision extends Camera {
     this.name = this.config.key();
 
     allTagPoses = new ArrayList<>();
-    robotPose = Pose2d.kZero;
+    robotPose = Pose2d.ZERO;
 
     currentCameraPose = config.robotRelativePose();
   }
@@ -68,7 +68,7 @@ public class CameraGompeiVision extends Camera {
     Logger.processInputs("Vision/Cameras/" + this.name, inputs);
 
     allTagPoses.clear();
-    robotPose = Pose2d.kZero;
+    robotPose = Pose2d.ZERO;
 
     for (int i = 0; i < inputs.frames.length; i++) {
       double timestamp = inputs.timestamps[i];
@@ -95,7 +95,7 @@ public class CameraGompeiVision extends Camera {
           robotPose =
               cameraPose
                   .toPose2d()
-                  .transformBy(currentCameraPose.toPose2d().toTransform2d().inverse());
+                  .transformBy(GeometryUtil.toTransform2d(currentCameraPose.toPose2d()).inverse());
           break;
 
         case 2:
@@ -115,7 +115,8 @@ public class CameraGompeiVision extends Camera {
                   values[11],
                   values[12],
                   new Rotation3d(new Quaternion(values[13], values[14], values[15], values[16])));
-          Transform2d cameraToRobot = currentCameraPose.toPose2d().toTransform2d().inverse();
+          Transform2d cameraToRobot =
+              GeometryUtil.toTransform2d(currentCameraPose.toPose2d()).inverse();
           Pose2d robotPose0 = cameraPose0.toPose2d().transformBy(cameraToRobot);
           Pose2d robotPose1 = cameraPose1.toPose2d().transformBy(cameraToRobot);
 
@@ -136,13 +137,12 @@ public class CameraGompeiVision extends Camera {
 
           break;
         default:
-          DriverStation.reportWarning("FAILED TO CAPTURE FRAMES", false);
+          DriverStationBackend.reportWarning("FAILED TO CAPTURE FRAMES", false);
           continue;
       }
 
-      if (cameraPose == null || robotPose == null) {
-        continue;
-      }
+      // cameraPose and robotPose are always assigned together by the switch above.
+      if (cameraPose == null) continue;
 
       // Exit if robot pose is off the field
       double fieldLength = aprilTagFieldLayoutSupplier.get().getFieldLength();
@@ -151,9 +151,7 @@ public class CameraGompeiVision extends Camera {
       if (robotPose.getX() < -fieldBorderMarginMeters
           || robotPose.getX() > fieldLength + fieldBorderMarginMeters
           || robotPose.getY() < -fieldBorderMarginMeters
-          || robotPose.getY() > fieldWidth + fieldBorderMarginMeters) {
-        continue;
-      }
+          || robotPose.getY() > fieldWidth + fieldBorderMarginMeters) continue;
 
       // Get tag poses and update last detection times
       List<Pose3d> tagPoses = new ArrayList<>();
@@ -176,12 +174,9 @@ public class CameraGompeiVision extends Camera {
         averageDistance = totalDistance / tagPoses.size();
 
         // --- Parse tag angle + distance data ---
-        int tagEstimationDataEndIndex =
-            switch ((int) values[0]) {
-              case 1 -> 8;
-              case 2 -> 16;
-              default -> 0;
-            };
+        // values[0] is already constrained to 1 or 2 by the switch above (any other value
+        // continues the outer loop before reaching here).
+        int tagEstimationDataEndIndex = (int) values[0] == 1 ? 8 : 16;
 
         int indexCounter = 0;
 

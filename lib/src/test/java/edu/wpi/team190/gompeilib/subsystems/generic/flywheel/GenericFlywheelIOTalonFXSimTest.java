@@ -12,9 +12,6 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
 import edu.wpi.team190.gompeilib.core.utility.control.CurrentLimits;
@@ -24,13 +21,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.Units;
+import org.wpilib.units.measure.*;
 
+@SuppressWarnings("unchecked") // Mockito mocks of generic types
 public class GenericFlywheelIOTalonFXSimTest {
   private GenericFlywheelConstants constants;
 
   @BeforeEach
   public void setUp() {
-    edu.wpi.first.hal.HAL.initialize(500, 0);
+    org.wpilib.hardware.hal.HAL.initialize();
     try {
       GompeiLib.deinit();
     } catch (Exception e) {
@@ -52,7 +53,7 @@ public class GenericFlywheelIOTalonFXSimTest {
             .withGearRatio(1.0)
             .withMotorConfig(DCMotor.getNeo550(1))
             .withVoltageGains(
-                Gains.fromDoubles()
+                Gains.builder()
                     .withPrefix("voltage")
                     .withKP(1.0)
                     .withKI(0.0)
@@ -63,7 +64,7 @@ public class GenericFlywheelIOTalonFXSimTest {
                     .withKG(0.0)
                     .build())
             .withTorqueGains(
-                Gains.fromDoubles()
+                Gains.builder()
                     .withPrefix("torque")
                     .withKP(0.5)
                     .withKI(0.0)
@@ -74,7 +75,7 @@ public class GenericFlywheelIOTalonFXSimTest {
                     .withKG(0.0)
                     .build())
             .withConstraints(
-                AngularVelocityConstraints.fromMeasures()
+                AngularVelocityConstraints.builder()
                     .withPrefix("constraints")
                     .withMaxVelocity(Units.RadiansPerSecond.of(100.0))
                     .withMaxAcceleration(Units.RadiansPerSecondPerSecond.of(50.0))
@@ -102,7 +103,7 @@ public class GenericFlywheelIOTalonFXSimTest {
     StatusSignal<Double> velocityErrorRotationsPerSecond = mock(StatusSignal.class);
     StatusSignal<Integer> closedLoopSlot = mock(StatusSignal.class);
 
-    when(positionRotations.getValueAsDouble()).thenReturn(10.0);
+    when(positionRotations.getValue()).thenReturn(Units.Rotations.of(10));
     when(velocityRotationsPerSecond.getValue()).thenReturn(Units.RotationsPerSecond.of(5.0));
     when(velocityRotationsPerSecond.getValueAsDouble()).thenReturn(5.0);
     when(appliedVolts.getValueAsDouble()).thenReturn(6.0);
@@ -117,7 +118,7 @@ public class GenericFlywheelIOTalonFXSimTest {
     TalonFXSimState simState = mock(TalonFXSimState.class);
     when(simState.getMotorVoltage()).thenReturn(6.0);
 
-    try (MockedConstruction<TalonFX> mockTalon =
+    try (MockedConstruction<TalonFX> _ =
             mockConstruction(
                 TalonFX.class,
                 (mock, context) -> {
@@ -151,7 +152,7 @@ public class GenericFlywheelIOTalonFXSimTest {
 
       sim.updateInputs(inputs);
 
-      assertEquals(10.0, inputs.position.getRotations(), 0.01);
+      assertEquals(10.0, inputs.position.in(Units.Rotations), 0.01);
       assertEquals(5.0, inputs.velocity.in(Units.RotationsPerSecond), 0.01);
 
       verify(simState).setSupplyVoltage(anyDouble());

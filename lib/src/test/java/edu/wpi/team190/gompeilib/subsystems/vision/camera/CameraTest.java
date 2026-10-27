@@ -2,7 +2,6 @@ package edu.wpi.team190.gompeilib.subsystems.vision.camera;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionSingleTxTyObservation;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.geometry.Pose3d;
 
 public class CameraTest {
 

@@ -1,9 +1,9 @@
 package edu.wpi.team190.gompeilib.core.utility;
 
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Unit;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
 import lombok.Getter;
+import org.wpilib.units.Measure;
+import org.wpilib.units.Unit;
 
 public class Setpoint<U extends Unit> {
   @Getter private Measure<U> setpoint;

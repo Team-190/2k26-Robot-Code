@@ -1,7 +1,10 @@
 package edu.wpi.team190.gompeilib.core.utility.phoenix;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class PhoenixUtil {
@@ -13,33 +16,32 @@ public class PhoenixUtil {
     }
   }
 
-  /** Signals for synchronized refresh. */
-  private static BaseStatusSignal[] canivoreSignals = new BaseStatusSignal[0];
+  /** Signals for synchronized refresh, grouped by the CAN bus they live on. */
+  private static final Map<CANBus, BaseStatusSignal[]> signalsByBus = new LinkedHashMap<>();
 
-  private static BaseStatusSignal[] rioSignals = new BaseStatusSignal[0];
-
-  /** Registers a set of signals for synchronized refresh. */
-  public static void registerSignals(boolean canivore, BaseStatusSignal... signals) {
-    if (canivore) {
-      BaseStatusSignal[] newSignals = new BaseStatusSignal[canivoreSignals.length + signals.length];
-      System.arraycopy(canivoreSignals, 0, newSignals, 0, canivoreSignals.length);
-      System.arraycopy(signals, 0, newSignals, canivoreSignals.length, signals.length);
-      canivoreSignals = newSignals;
-    } else {
-      BaseStatusSignal[] newSignals = new BaseStatusSignal[rioSignals.length + signals.length];
-      System.arraycopy(rioSignals, 0, newSignals, 0, rioSignals.length);
-      System.arraycopy(signals, 0, newSignals, rioSignals.length, signals.length);
-      rioSignals = newSignals;
-    }
+  /**
+   * Registers a set of signals for synchronized refresh. Signals are grouped per CAN bus, since
+   * {@link BaseStatusSignal#refreshAll} requires every signal in a call to share a bus. This
+   * supports any number of SystemCore CAN ports and CANivores.
+   */
+  public static void registerSignals(CANBus canBus, BaseStatusSignal... signals) {
+    signalsByBus.merge(
+        canBus,
+        signals,
+        (existing, added) -> {
+          BaseStatusSignal[] newSignals = new BaseStatusSignal[existing.length + added.length];
+          System.arraycopy(existing, 0, newSignals, 0, existing.length);
+          System.arraycopy(added, 0, newSignals, existing.length, added.length);
+          return newSignals;
+        });
   }
 
-  /** Refresh all registered signals. */
+  /** Refresh all registered signals, one synchronized refresh per CAN bus. */
   public static void refreshAll() {
-    if (canivoreSignals.length > 0) {
-      BaseStatusSignal.refreshAll(canivoreSignals);
-    }
-    if (rioSignals.length > 0) {
-      BaseStatusSignal.refreshAll(rioSignals);
+    for (BaseStatusSignal[] signals : signalsByBus.values()) {
+      if (signals.length > 0) {
+        BaseStatusSignal.refreshAll(signals);
+      }
     }
   }
 }

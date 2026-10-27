@@ -5,11 +5,11 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import org.wpilib.math.system.Models;
+import org.wpilib.simulation.DCMotorSim;
+import org.wpilib.system.RobotController;
 
 public class SwerveModuleIOTalonFXSim extends SwerveModuleIOTalonFX {
 
@@ -29,14 +29,14 @@ public class SwerveModuleIOTalonFXSim extends SwerveModuleIOTalonFX {
     super(driveConstants, constants);
     driveMotorSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 driveConstants.driveConfig.driveModel(),
                 constants.DriveInertia,
                 constants.DriveMotorGearRatio),
             driveConstants.driveConfig.driveModel());
     steerMotorSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 driveConstants.driveConfig.turnModel(),
                 constants.SteerInertia,
                 constants.SteerMotorGearRatio),
@@ -60,9 +60,9 @@ public class SwerveModuleIOTalonFXSim extends SwerveModuleIOTalonFX {
     driveMotorSim.update(GompeiLib.getLoopPeriod());
 
     double rotorPositionRotationsDrive =
-        driveMotorSim.getAngularPositionRotations() * driveMotorSim.getGearing();
+        driveMotorSim.getAngularPosition() / (Math.PI * 2) * driveMotorSim.getGearing();
     double rotorVelocityRotationsPerSecondDrive =
-        driveMotorSim.getAngularVelocityRadPerSec() / (Math.PI * 2) * driveMotorSim.getGearing();
+        driveMotorSim.getAngularVelocity() / (Math.PI * 2) * driveMotorSim.getGearing();
     driveController.setRawRotorPosition(rotorPositionRotationsDrive);
     driveController.setRotorVelocity(rotorVelocityRotationsPerSecondDrive);
 
@@ -74,13 +74,13 @@ public class SwerveModuleIOTalonFXSim extends SwerveModuleIOTalonFX {
     steerMotorSim.update(GompeiLib.getLoopPeriod());
 
     double rotorPositionRotationsSteer =
-        steerMotorSim.getAngularPositionRotations() * steerMotorSim.getGearing();
+        steerMotorSim.getAngularPosition() / (Math.PI * 2) * steerMotorSim.getGearing();
     double rotorVelocityRotationsPerSecondSteer =
-        steerMotorSim.getAngularVelocityRadPerSec() / (Math.PI * 2) * steerMotorSim.getGearing();
+        steerMotorSim.getAngularVelocity() / (Math.PI * 2) * steerMotorSim.getGearing();
     steerController.setRawRotorPosition(rotorPositionRotationsSteer);
     steerController.setRotorVelocity(rotorVelocityRotationsPerSecondSteer);
 
-    encoderController.setRawPosition(steerMotorSim.getAngularPositionRotations() + offset);
+    encoderController.setRawPosition(steerMotorSim.getAngularPosition() / (Math.PI * 2) + offset);
 
     super.updateInputs(inputs);
   }

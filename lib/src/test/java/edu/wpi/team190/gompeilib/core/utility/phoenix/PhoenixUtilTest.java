@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
+import org.wpilib.hardware.bus.CANPort;
 
 public class PhoenixUtilTest {
   @Test
@@ -43,8 +45,9 @@ public class PhoenixUtilTest {
     // issues,
     // let's just test that the arrays are populated. We can invoke registerSignals and refreshAll.
     try {
-      PhoenixUtil.registerSignals(true, mockSignal);
-      PhoenixUtil.registerSignals(false, mockSignal);
+      PhoenixUtil.registerSignals(new CANBus("canivore1"), mockSignal);
+      PhoenixUtil.registerSignals(new CANBus("canivore2"), mockSignal);
+      PhoenixUtil.registerSignals(new CANBus(CANPort.CAN_S1), mockSignal);
       // Since refreshAll calls BaseStatusSignal.refreshAll, we might expect it to run.
       // Let's call it and make sure it does not throw unexpected JNI exceptions or we catch them if
       // it does.

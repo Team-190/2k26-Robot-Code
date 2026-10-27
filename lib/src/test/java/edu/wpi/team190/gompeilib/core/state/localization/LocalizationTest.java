@@ -2,20 +2,20 @@ package edu.wpi.team190.gompeilib.core.state.localization;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.wpilib.fields.FieldTag;
+import org.wpilib.math.geometry.*;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModulePosition;
 
 public class LocalizationTest {
   @Test
   public void testLocalization() {
-    AprilTag tag1 = new AprilTag(1, new Pose3d(1.0, 2.0, 3.0, new Rotation3d()));
+    FieldTag tag1 = new FieldTag(1, new Pose3d(1.0, 2.0, 3.0, new Rotation3d()));
     FieldZone zone = new FieldZone(Set.of(tag1));
 
     SwerveDriveKinematics kinematics =
@@ -45,7 +45,7 @@ public class LocalizationTest {
             new Pose2d(1.1, 2.1, new Rotation2d()),
             Set.of(1),
             1.1,
-            edu.wpi.first.math.VecBuilder.fill(0.1, 0.1, 0.1));
+            org.wpilib.math.linalg.VecBuilder.fill(0.1, 0.1, 0.1));
     loc.addPoseObservations(List.of(poseObs));
 
     // Test filtering out NaN poses
@@ -54,7 +54,7 @@ public class LocalizationTest {
             new Pose2d(Double.NaN, 2.1, new Rotation2d()),
             Set.of(1),
             1.1,
-            edu.wpi.first.math.VecBuilder.fill(0.1, 0.1, 0.1));
+            org.wpilib.math.linalg.VecBuilder.fill(0.1, 0.1, 0.1));
     loc.addPoseObservations(List.of(nanPoseObs));
 
     VisionMultiTxTyObservation txTyObs =

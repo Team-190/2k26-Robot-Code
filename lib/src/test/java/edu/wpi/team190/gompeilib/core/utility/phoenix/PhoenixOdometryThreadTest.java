@@ -6,13 +6,14 @@ import static org.mockito.Mockito.*;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.jupiter.api.Test;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.units.measure.Angle;
 
+@SuppressWarnings({"unchecked", "rawtypes"}) // Mockito mocks of generic Phoenix types
 public class PhoenixOdometryThreadTest {
   @Test
   public void testPhoenixOdometryThread() {

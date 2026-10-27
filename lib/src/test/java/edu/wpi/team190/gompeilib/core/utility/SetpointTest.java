@@ -1,13 +1,13 @@
 package edu.wpi.team190.gompeilib.core.utility;
 
-import static edu.wpi.first.units.Units.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.wpilib.units.Units.*;
 
-import edu.wpi.first.units.DistanceUnit;
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Voltage;
 import org.junit.jupiter.api.*;
+import org.wpilib.units.DistanceUnit;
+import org.wpilib.units.VoltageUnit;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.Voltage;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class SetpointTest {

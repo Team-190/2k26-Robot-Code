@@ -1,16 +1,16 @@
 package edu.wpi.team190.gompeilib.core.state.localization;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.team190.gompeilib.core.geometry.GeometryUtil;
+import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.wpilib.math.estimator.SwerveDrivePoseEstimator;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModulePosition;
 
 public class Localization {
   private final List<EstimationRegion> estimationRegions;
@@ -24,14 +24,14 @@ public class Localization {
     this.globalPoseEstimator =
         new SwerveDrivePoseEstimator(
             kinematics,
-            Rotation2d.kZero,
+            Rotation2d.ZERO,
             new SwerveModulePosition[] {
               new SwerveModulePosition(),
               new SwerveModulePosition(),
               new SwerveModulePosition(),
               new SwerveModulePosition()
             },
-            Pose2d.kZero);
+            Pose2d.ZERO);
 
     this.estimationRegions =
         estimationZones.stream()
@@ -72,7 +72,7 @@ public class Localization {
 
   public Pose2d getEstimatedPose(FieldZone fieldZone) {
     Set<Integer> zoneTagIDs =
-        fieldZone.aprilTags().stream().map(t -> t.ID).collect(Collectors.toSet());
+        fieldZone.aprilTags().stream().map(t -> t.getID()).collect(Collectors.toSet());
 
     return estimationRegions.stream()
         .filter(region -> zoneTagIDs.equals(region.getAprilTags().keySet()))

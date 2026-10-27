@@ -1,15 +1,13 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.roller;
 
-import static edu.wpi.first.units.Units.*;
+import static org.wpilib.units.Units.*;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import java.util.Arrays;
+import org.wpilib.math.system.Models;
+import org.wpilib.simulation.DCMotorSim;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.Voltage;
 
 public class GenericRollerIOSim implements GenericRollerIO {
   private final DCMotorSim motorSim;
@@ -23,7 +21,7 @@ public class GenericRollerIOSim implements GenericRollerIO {
     this.constants = constants;
     motorSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
+            Models.singleJointedArmFromPhysicalConstants(
                 constants.rollerGearbox,
                 constants.momentOfInertia.baseUnitMagnitude(),
                 constants.rollerMotorGearRatio),
@@ -36,17 +34,17 @@ public class GenericRollerIOSim implements GenericRollerIO {
 
   @Override
   public void updateInputs(GenericRollerIOInputs inputs) {
-    appliedVolts = Volts.of(MathUtil.clamp(appliedVolts.in(Volts), -12.0, 12.0));
+    appliedVolts = Volts.of(Math.clamp(appliedVolts.in(Volts), -12.0, 12.0));
     motorSim.setInputVoltage(appliedVolts.in(Volts));
     motorSim.update(GompeiLib.getLoopPeriod());
 
     accumulatedPosition =
         Radians.of(
             accumulatedPosition.in(Radians)
-                + (motorSim.getAngularVelocityRadPerSec() * GompeiLib.getLoopPeriod()));
+                + (motorSim.getAngularVelocity() * GompeiLib.getLoopPeriod()));
 
-    inputs.position = Rotation2d.fromRadians(accumulatedPosition.in(Radians));
-    inputs.velocity = RadiansPerSecond.of(motorSim.getAngularVelocityRadPerSec());
+    inputs.position = accumulatedPosition;
+    inputs.velocity = RadiansPerSecond.of(motorSim.getAngularVelocity());
 
     int numMotors =
         1 + constants.alignedFollowerCANIDs.size() + constants.opposedFollowerCANIDs.size();
@@ -56,8 +54,8 @@ public class GenericRollerIOSim implements GenericRollerIO {
     inputs.temperatureCelsius = new double[numMotors];
 
     Arrays.fill(inputs.appliedVolts, appliedVolts.in(Volts));
-    Arrays.fill(inputs.supplyCurrentAmps, motorSim.getCurrentDrawAmps());
-    Arrays.fill(inputs.torqueCurrentAmps, motorSim.getCurrentDrawAmps());
+    Arrays.fill(inputs.supplyCurrentAmps, motorSim.getCurrentDraw());
+    Arrays.fill(inputs.torqueCurrentAmps, motorSim.getCurrentDraw());
   }
 
   @Override

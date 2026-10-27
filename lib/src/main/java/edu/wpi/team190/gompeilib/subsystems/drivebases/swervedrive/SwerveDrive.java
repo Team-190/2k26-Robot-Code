@@ -1,28 +1,10 @@
 // Copyright 2021-2024 FRC 6328
 package edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive;
 
-import choreo.auto.AutoFactory;
-import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N2;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOInputsAutoLogged;
@@ -38,6 +20,24 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.wpilib.command2.SubsystemBase;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.filter.LinearFilter;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Twist2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModulePosition;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.linalg.Vector;
+import org.wpilib.math.numbers.N2;
+import org.wpilib.math.util.Units;
 
 public class SwerveDrive extends SubsystemBase {
   private final SwerveDriveConstants driveConstants;
@@ -54,9 +54,7 @@ public class SwerveDrive extends SubsystemBase {
   private final SwerveDriveKinematics kinematics;
   @Getter private Rotation2d rawGyroRotation;
   private final SwerveModulePosition[] lastModulePositions;
-  @Getter private ChassisSpeeds measuredChassisSpeeds;
-
-  @Getter private final AutoFactory autoFactory;
+  @Getter private ChassisVelocities measuredChassisVelocities;
 
   private final Supplier<Pose2d> robotPoseSupplier;
 
@@ -102,9 +100,6 @@ public class SwerveDrive extends SubsystemBase {
           new SwerveModulePosition()
         };
 
-    autoFactory =
-        new AutoFactory(robotPoseSupplier, resetPoseConsumer, this::choreoDrive, true, this);
-
     this.robotPoseSupplier = robotPoseSupplier;
 
     boolean isGryoHighFrequency = gyroIO instanceof GyroIOPigeon2;
@@ -144,20 +139,31 @@ public class SwerveDrive extends SubsystemBase {
     autoHeadingController.enableContinuousInput(-Math.PI, Math.PI);
     autoHeadingController.setTolerance(Units.degreesToRadians(1.0));
 
-    measuredChassisSpeeds = new ChassisSpeeds();
+    Gains driveGains = driveConstants.driveGains;
+    Gains turnGains = driveConstants.turnGains;
+    Runnable applyModuleGains =
+        () -> {
+          setPIDGains(driveGains.getKP(), driveGains.getKD(), turnGains.getKP(), turnGains.getKD());
+          setFFGains(driveGains.getKS(), driveGains.getKV());
+        };
+    driveGains.onChange(gains -> applyModuleGains.run());
+    turnGains.onChange(gains -> applyModuleGains.run());
+    driveConstants.autoTranslationGains.onChange(
+        gains -> setAutoControllers(gains, driveConstants.autoRotationGains));
+    driveConstants.autoRotationGains.onChange(
+        gains -> setAutoControllers(driveConstants.autoTranslationGains, gains));
+
+    measuredChassisVelocities = new ChassisVelocities();
 
     try {
       config = RobotConfig.fromGUISettings();
-    } catch (Exception e) {
-      System.err.println("Error occurred while loading robot config: " + e.getMessage());
-    }
-
-    try {
       AutoBuilder.configure(
           this.robotPoseSupplier,
           resetPoseConsumer, // resetPose
-          () -> getChassisSpeeds(), // get robotRelativeSpeeds
+          () -> getChassisVelocities(), // get robotRelativeSpeeds
           (speeds, feedforwards) -> {
+            // Retained from Choreo; switch to runVelocityTorque(speeds, forces) if needed.
+            @SuppressWarnings("unused")
             List<Vector<N2>> forces =
                 IntStream.range(0, 4)
                     .mapToObj(
@@ -178,11 +184,11 @@ public class SwerveDrive extends SubsystemBase {
                   driveConstants.autoRotationGains.kP().getAsDouble(),
                   driveConstants.autoRotationGains.kI().getAsDouble(),
                   driveConstants.autoRotationGains.kD().getAsDouble())),
-          com.pathplanner.lib.config.RobotConfig.fromGUISettings(),
+          config,
           () -> {
-            var alliance = DriverStation.getAlliance();
+            var alliance = DriverStationBackend.getAlliance();
             if (alliance.isPresent()) {
-              return alliance.get() == DriverStation.Alliance.Red;
+              return alliance.get() == Alliance.RED;
             }
             return false;
           },
@@ -217,17 +223,17 @@ public class SwerveDrive extends SubsystemBase {
     }
 
     // Stop moving when disabled
-    if (DriverStation.isDisabled()) {
+    if (RobotState.isDisabled()) {
       for (var module : modules) {
         module.stop();
       }
 
-      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
-      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
+      Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleVelocity[] {});
+      Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleVelocity[] {});
     }
 
     Logger.recordOutput("SwerveStates/Measured", getModuleStates());
-    Logger.recordOutput("SwerveChassisSpeeds/Measured", measuredChassisSpeeds);
+    Logger.recordOutput("SwerveChassisVelocities/Measured", measuredChassisVelocities);
 
     // Update odometry
     double[] sampleTimestamps =
@@ -241,8 +247,7 @@ public class SwerveDrive extends SubsystemBase {
         modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
         moduleDeltas[moduleIndex] =
             new SwerveModulePosition(
-                modulePositions[moduleIndex].distanceMeters
-                    - lastModulePositions[moduleIndex].distanceMeters,
+                modulePositions[moduleIndex].distance - lastModulePositions[moduleIndex].distance,
                 modulePositions[moduleIndex].angle);
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
@@ -257,11 +262,10 @@ public class SwerveDrive extends SubsystemBase {
         rawGyroRotation = rawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
 
-      ChassisSpeeds chassisSpeeds = kinematics.toChassisSpeeds(getModuleStates());
-      measuredChassisSpeeds = chassisSpeeds;
+      ChassisVelocities chassisSpeeds = kinematics.toChassisVelocities(getModuleStates());
+      measuredChassisVelocities = chassisSpeeds;
       Translation2d rawFieldRelativeVelocity =
-          new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)
-              .rotateBy(getRawGyroRotation());
+          new Translation2d(chassisSpeeds.vx, chassisSpeeds.vy).rotateBy(getRawGyroRotation());
 
       filteredX = xFilter.calculate(rawFieldRelativeVelocity.getX());
       filteredY = yFilter.calculate(rawFieldRelativeVelocity.getY());
@@ -274,23 +278,23 @@ public class SwerveDrive extends SubsystemBase {
    * @param speeds Speeds in meters/sec
    */
   @Trace
-  public void runVelocity(ChassisSpeeds speeds) {
+  public void runVelocity(ChassisVelocities speeds) {
     // Calculate module setpoints
-    ChassisSpeeds optimizedSpeeds = ChassisSpeeds.discretize(speeds, GompeiLib.getLoopPeriod());
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(optimizedSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+    ChassisVelocities optimizedSpeeds = speeds.discretize(GompeiLib.getLoopPeriod());
+    SwerveModuleVelocity[] setpointStates = kinematics.toSwerveModuleVelocities(optimizedSpeeds);
+    SwerveDriveKinematics.desaturateWheelVelocities(
         setpointStates, driveConstants.driveConfig.maxLinearVelocityMetersPerSecond());
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", speeds);
+    Logger.recordOutput("SwerveChassisVelocities/Setpoints", speeds);
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
-      modules[i].runSetpoint(setpointStates[i], new SwerveModuleState());
+      setpointStates[i] = modules[i].runSetpoint(setpointStates[i], new SwerveModuleVelocity());
     }
 
-    // Log optimized setpoints (runSetpoint mutates each state)
+    // Log optimized setpoints
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
   }
 
@@ -300,15 +304,15 @@ public class SwerveDrive extends SubsystemBase {
    * @param speeds Speeds in meters/sec
    */
   @Trace
-  public void runVelocityTorque(ChassisSpeeds speeds, List<Vector<N2>> forces) {
+  public void runVelocityTorque(ChassisVelocities speeds, List<Vector<N2>> forces) {
     if (forces.size() != 4) {
       throw new IllegalArgumentException("Forces array must have 4 elements");
     }
     // Calculate module setpoints
-    ChassisSpeeds optimizedSpeeds = ChassisSpeeds.discretize(speeds, GompeiLib.getLoopPeriod());
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(optimizedSpeeds);
-    SwerveModuleState[] setpointTorques = new SwerveModuleState[4];
-    SwerveDriveKinematics.desaturateWheelSpeeds(
+    ChassisVelocities optimizedSpeeds = speeds.discretize(GompeiLib.getLoopPeriod());
+    SwerveModuleVelocity[] setpointStates = kinematics.toSwerveModuleVelocities(optimizedSpeeds);
+    SwerveModuleVelocity[] setpointTorques = new SwerveModuleVelocity[4];
+    SwerveDriveKinematics.desaturateWheelVelocities(
         setpointStates, driveConstants.driveConfig.maxLinearVelocityMetersPerSecond());
 
     // Send setpoints to modules
@@ -316,18 +320,18 @@ public class SwerveDrive extends SubsystemBase {
       Vector<N2> wheelDirection =
           VecBuilder.fill(setpointStates[i].angle.getCos(), setpointStates[i].angle.getSin());
       setpointTorques[i] =
-          new SwerveModuleState(
+          new SwerveModuleVelocity(
               forces.get(i).dot(wheelDirection)
                   * driveConstants.driveConfig.frontLeft().DriveMotorGearRatio,
               setpointStates[i].angle);
 
-      setpointStates[i].optimize(modules[i].getAngle());
-      setpointTorques[i].optimize(modules[i].getAngle());
+      setpointStates[i] = setpointStates[i].optimize(modules[i].getAngle());
+      setpointTorques[i] = setpointTorques[i].optimize(modules[i].getAngle());
 
-      modules[i].runSetpoint(setpointStates[i], setpointTorques[i]);
+      setpointStates[i] = modules[i].runSetpoint(setpointStates[i], setpointTorques[i]);
     }
 
-    // Log optimized setpoints (runSetpoint mutates each state)
+    // Log optimized setpoints
     Logger.recordOutput("SwerveStates/SetpointsOptimized", setpointStates);
     Logger.recordOutput("SwerveStates/TorquesOptimized", setpointTorques);
   }
@@ -343,7 +347,7 @@ public class SwerveDrive extends SubsystemBase {
   /** Stops the drive. */
   @Trace
   public void stop() {
-    runVelocity(new ChassisSpeeds());
+    runVelocity(new ChassisVelocities());
   }
 
   /**
@@ -354,7 +358,8 @@ public class SwerveDrive extends SubsystemBase {
   public void stopWithX() {
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
-      headings[i] = driveConstants.driveConfig.getModuleTranslations()[i].getAngle();
+      headings[i] =
+          driveConstants.driveConfig.getModuleTranslations()[i].getAngle().orElse(Rotation2d.ZERO);
     }
     kinematics.resetHeadings(headings);
     stop();
@@ -362,8 +367,8 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Returns the module states (turn angles and drive velocities) for all of the modules. */
   @Trace
-  private SwerveModuleState[] getModuleStates() {
-    SwerveModuleState[] states = new SwerveModuleState[4];
+  private SwerveModuleVelocity[] getModuleStates() {
+    SwerveModuleVelocity[] states = new SwerveModuleVelocity[4];
     for (int i = 0; i < 4; i++) {
       states[i] = modules[i].getState();
     }
@@ -382,8 +387,8 @@ public class SwerveDrive extends SubsystemBase {
 
   /** Returns the measured chassis speeds of the robot. */
   @Trace
-  private ChassisSpeeds getChassisSpeeds() {
-    return kinematics.toChassisSpeeds(getModuleStates());
+  private ChassisVelocities getChassisVelocities() {
+    return kinematics.toChassisVelocities(getModuleStates());
   }
 
   /** Returns the position of each module in radians. */
@@ -446,29 +451,8 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
-  /** Runs a choreo path from swerve samples */
-  @Trace
-  public void choreoDrive(SwerveSample sample) {
-    Pose2d pose = robotPoseSupplier.get();
-    double xFF = sample.vx;
-    double yFF = sample.vy;
-    double rotationFF = sample.omega;
-
-    double xFeedback = autoXController.calculate(pose.getX(), sample.x);
-    double yFeedback = autoYController.calculate(pose.getY(), sample.y);
-    double rotationFeedback =
-        autoHeadingController.calculate(pose.getRotation().getRadians(), sample.heading);
-
-    ChassisSpeeds velocity =
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            xFF + xFeedback,
-            yFF + yFeedback,
-            rotationFF + rotationFeedback,
-            Rotation2d.fromRadians(sample.heading));
-
-    runVelocity(velocity);
-    Logger.recordOutput("Auto/Setpoint", sample.getPose());
-  }
+  // TODO: restore choreoDrive(SwerveSample) once ChoreoLib ships a WPILib 2027 alpha build;
+  // it has no compatible release yet, so the choreo dependency and this method are removed.
 
   public void setAutoControllers(Gains translationGains, Gains rotationGains) {
     autoXController.setPID(translationGains.kP().get(), 0.0, translationGains.kD().get());

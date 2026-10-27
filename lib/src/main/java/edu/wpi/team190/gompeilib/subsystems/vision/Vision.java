@@ -1,13 +1,13 @@
 package edu.wpi.team190.gompeilib.subsystems.vision;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.subsystems.vision.camera.Camera;
 import java.util.function.Supplier;
 import lombok.Getter;
+import org.wpilib.fields.Field;
+import org.wpilib.fields.FieldTag;
+import org.wpilib.networktables.NetworkTable;
+import org.wpilib.networktables.NetworkTableInstance;
 
 /**
  * A class to contain all the {@link Camera Camera}s for a robot and methods to interact with them.
@@ -16,27 +16,27 @@ import lombok.Getter;
  */
 public class Vision extends VirtualSubsystem {
   @Getter private final Camera[] cameras;
-  @Getter private final Supplier<AprilTagFieldLayout> fieldLayoutSupplier;
+  @Getter private final Supplier<Field> fieldLayoutSupplier;
 
-  public Vision(Supplier<AprilTagFieldLayout> fieldLayoutSupplier, Camera... cameras) {
+  public Vision(Supplier<Field> fieldLayoutSupplier, Camera... cameras) {
     this.cameras = cameras;
     this.fieldLayoutSupplier = fieldLayoutSupplier;
 
     NetworkTable fieldTable = NetworkTableInstance.getDefault().getTable("field");
 
-    for (AprilTag tag : fieldLayoutSupplier.get().getTags()) {
+    for (FieldTag tag : fieldLayoutSupplier.get().getTags()) {
       fieldTable
-          .getDoubleArrayTopic("tag_" + tag.ID)
+          .getDoubleArrayTopic("tag_" + tag.getID())
           .publish()
           .set(
               new double[] {
-                tag.pose.getX(),
-                tag.pose.getY(),
-                tag.pose.getZ(),
-                tag.pose.getRotation().getQuaternion().getW(),
-                tag.pose.getRotation().getQuaternion().getX(),
-                tag.pose.getRotation().getQuaternion().getY(),
-                tag.pose.getRotation().getQuaternion().getZ()
+                tag.getPose().getX(),
+                tag.getPose().getY(),
+                tag.getPose().getZ(),
+                tag.getPose().getRotation().getQuaternion().getW(),
+                tag.getPose().getRotation().getQuaternion().getX(),
+                tag.getPose().getRotation().getQuaternion().getY(),
+                tag.getPose().getRotation().getQuaternion().getZ()
               });
     }
   }

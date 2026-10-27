@@ -1,19 +1,19 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.flywheel;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.*;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularVelocityConstraints;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.GainSlot;
 import org.littletonrobotics.junction.AutoLog;
+import org.wpilib.units.measure.*;
 
 public interface GenericFlywheelIO {
 
   @AutoLog
   public static class GenericFlywheelIOInputs {
-    public Rotation2d position = new Rotation2d();
+    public Angle position = Radians.of(0.0);
     public AngularVelocity velocity = RadiansPerSecond.of(0.0);
 
     public double[] appliedVolts = new double[] {};

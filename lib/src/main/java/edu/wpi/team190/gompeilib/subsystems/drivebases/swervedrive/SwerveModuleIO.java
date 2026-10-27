@@ -1,7 +1,7 @@
 package edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
+import org.wpilib.math.geometry.Rotation2d;
 
 public interface SwerveModuleIO {
   @AutoLog

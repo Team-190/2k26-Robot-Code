@@ -1,10 +1,9 @@
 package edu.wpi.team190.gompeilib.subsystems.vision.io;
 
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.*;
 import edu.wpi.team190.gompeilib.subsystems.vision.VisionConstants;
-import java.util.*;
 import lombok.Getter;
+import org.wpilib.math.util.Units;
+import org.wpilib.networktables.*;
 
 public class CameraIOGompeiVision implements CameraIO {
   @Getter private final String name;
@@ -49,8 +48,8 @@ public class CameraIOGompeiVision implements CameraIO {
             .getDoubleArrayTopic("observations")
             .subscribe(
                 new double[] {},
-                PubSubOption.keepDuplicates(true),
-                PubSubOption.sendAll(true),
+                PubSubOption.KEEP_DUPLICATES,
+                PubSubOption.SEND_ALL,
                 PubSubOption.pollStorage(5),
                 PubSubOption.periodic(0.01));
     this.captureFPSAprilTagSubscriber = outputTable.getIntegerTopic("capture_fps").subscribe(0);

@@ -7,10 +7,9 @@
 
 package edu.wpi.team190.gompeilib.core.utility.control;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Twist2d;
 import lombok.Getter;
 import lombok.Setter;
+import org.wpilib.math.geometry.Twist2d;
 
 /** Ramps up and down to setpoint for velocity closed loop control */
 public class LinearProfile {
@@ -78,7 +77,7 @@ public class LinearProfile {
         currentSetpoint = goal;
       }
     }
-    return MathUtil.clamp(currentSetpoint, -maxVelocity, maxVelocity);
+    return Math.clamp(currentSetpoint, -maxVelocity, maxVelocity);
   }
 
   public class EqualsUtil {

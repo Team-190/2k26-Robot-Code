@@ -1,16 +1,16 @@
 package edu.wpi.team190.gompeilib.subsystems.generic.flywheel;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RadiansPerSecondPerSecond;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import org.wpilib.math.system.Models;
+import org.wpilib.simulation.FlywheelSim;
+import org.wpilib.system.RobotController;
+import org.wpilib.units.measure.AngularAcceleration;
+import org.wpilib.units.measure.AngularVelocity;
 
 public class GenericFlywheelIOTalonFXSim extends GenericFlywheelIOTalonFX {
   private final FlywheelSim flywheelSim;
@@ -21,7 +21,7 @@ public class GenericFlywheelIOTalonFXSim extends GenericFlywheelIOTalonFX {
     super(constants);
     flywheelSim =
         new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(
+            Models.flywheelFromPhysicalConstants(
                 constants.motorConfig, constants.momentOfInertia, constants.gearRatio),
             constants.motorConfig);
 
@@ -40,11 +40,10 @@ public class GenericFlywheelIOTalonFXSim extends GenericFlywheelIOTalonFX {
 
     AngularVelocity rotorVelocity =
         AngularVelocity.ofBaseUnits(
-            flywheelSim.getAngularVelocityRadPerSec() * constants.gearRatio, RadiansPerSecond);
+            flywheelSim.getAngularVelocity() * constants.gearRatio, RadiansPerSecond);
     AngularAcceleration rotorAcceleration =
         AngularAcceleration.ofBaseUnits(
-            flywheelSim.getAngularAccelerationRadPerSecSq() * constants.gearRatio,
-            RadiansPerSecondPerSecond);
+            flywheelSim.getAngularAcceleration() * constants.gearRatio, RadiansPerSecondPerSecond);
     flywheelController.setRotorVelocity(rotorVelocity);
     flywheelController.setRotorAcceleration(rotorAcceleration);
 

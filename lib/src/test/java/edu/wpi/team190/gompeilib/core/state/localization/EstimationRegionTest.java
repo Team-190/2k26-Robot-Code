@@ -3,21 +3,21 @@ package edu.wpi.team190.gompeilib.core.state.localization;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionMultiTxTyObservation;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.wpilib.fields.FieldTag;
+import org.wpilib.math.geometry.*;
+import org.wpilib.math.kinematics.SwerveDriveKinematics;
+import org.wpilib.math.kinematics.SwerveModulePosition;
 
 public class EstimationRegionTest {
   @Test
   public void testEstimationRegion() {
-    AprilTag tag1 = new AprilTag(1, new Pose3d(1.0, 2.0, 3.0, new Rotation3d()));
-    AprilTag tag2 = new AprilTag(2, new Pose3d(4.0, 5.0, 6.0, new Rotation3d()));
+    FieldTag tag1 = new FieldTag(1, new Pose3d(1.0, 2.0, 3.0, new Rotation3d()));
+    FieldTag tag2 = new FieldTag(2, new Pose3d(4.0, 5.0, 6.0, new Rotation3d()));
 
     SwerveDriveKinematics kinematics =
         new SwerveDriveKinematics(
@@ -49,7 +49,7 @@ public class EstimationRegionTest {
             new Pose2d(1.1, 2.1, new Rotation2d()),
             Set.of(1),
             1.1,
-            edu.wpi.first.math.VecBuilder.fill(0.1, 0.1, 0.1));
+            org.wpilib.math.linalg.VecBuilder.fill(0.1, 0.1, 0.1));
     region.addPoseObservation(poseObs);
 
     // Test addTxTyObservation
@@ -88,8 +88,8 @@ public class EstimationRegionTest {
     // Test addTxTyObservation with empty sample using Mockito/reflection to force isEmpty() return
     // path
     try {
-      edu.wpi.first.math.estimator.SwerveDrivePoseEstimator mockEstimator =
-          mock(edu.wpi.first.math.estimator.SwerveDrivePoseEstimator.class);
+      org.wpilib.math.estimator.SwerveDrivePoseEstimator mockEstimator =
+          mock(org.wpilib.math.estimator.SwerveDrivePoseEstimator.class);
       when(mockEstimator.sampleAt(anyDouble())).thenReturn(Optional.empty());
 
       java.lang.reflect.Field field = EstimationRegion.class.getDeclaredField("poseEstimator");
