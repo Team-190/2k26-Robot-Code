@@ -1,0 +1,22 @@
+package first.robot.v1_DoomSpiral.subsystems.swank;
+
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
+import org.wpilib.math.system.DCMotor;
+
+public class V1_DoomSpiralSwankConstants {
+
+  public static final double MOMENT_OF_INERTIA = 0.004;
+  public static final double GEAR_RATIO = 52.0 / 12.0 * 24.0 / 18.0 * 15.0 / 14.0;
+  public static final int MOTOR_CAN_ID = 9;
+  public static final double SUPPLY_CURRENT_LIMIT = 40;
+  public static final double STATOR_CURRENT_LIMIT = 40;
+
+  public static final CANBus CAN_LOOP = new CANBus();
+
+  public static final InvertedValue INVERSION = InvertedValue.CounterClockwise_Positive;
+
+  public static final DCMotor MOTOR_CONFIG = DCMotor.getKrakenX44Foc(1);
+
+  public static final double SWANK_VOLTAGE = 12.0;
+}

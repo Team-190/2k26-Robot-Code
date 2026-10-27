@@ -1,7 +1,7 @@
 package first.robot;
 
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
+import org.wpilib.framework.RobotBase;
 
 public final class Constants {
   public static final boolean TUNING_MODE = false;

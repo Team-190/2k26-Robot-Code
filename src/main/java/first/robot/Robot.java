@@ -1,27 +1,21 @@
 package first.robot;
 
+import static org.wpilib.units.Units.Volts;
+
 import choreo.Choreo;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.pathfinding.Pathfinding;
-import edu.wpi.first.math.MathShared;
-import edu.wpi.first.math.MathSharedStore;
-import edu.wpi.first.math.MathUsageId;
-import edu.wpi.first.net.WebServer;
-import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.robot.RobotContainer;
+import edu.wpi.team190.gompeilib.core.utility.PathPlannerFiles;
 import edu.wpi.team190.gompeilib.core.utility.VirtualSubsystem;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixUtil;
-import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
-import frc.robot.subsystems.v0_Funky.V0_FunkyRobotContainer;
-import frc.robot.subsystems.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
-import frc.robot.subsystems.v2_Turnover.V2_TurnoverRobotContainer;
-import frc.robot.util.*;
-import frc.robot.util.Alert;
-import frc.robot.util.Alert.AlertType;
+import first.robot.shared.util.Elastic;
+import first.robot.shared.util.HubActivePeriod;
+import first.robot.shared.util.LocalADStarAK;
+import first.robot.v0_Funky.V0_FunkyRobotContainer;
+import first.robot.v1_DoomSpiral.V1_DoomSpiralRobotContainer;
+import first.robot.v2_Turnover.V2_TurnoverRobotContainer;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +28,20 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.driverstation.DriverStationErrors;
+import org.wpilib.driverstation.RobotState;
+import org.wpilib.framework.IterativeRobotBase;
+import org.wpilib.math.util.MathShared;
+import org.wpilib.math.util.MathSharedStore;
+import org.wpilib.net.WebServer;
+import org.wpilib.system.Filesystem;
+import org.wpilib.system.RobotController;
+import org.wpilib.system.Timer;
+import org.wpilib.system.Watchdog;
+import org.wpilib.util.Alert;
+import org.wpilib.util.Alert.Level;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -49,7 +57,7 @@ public class Robot extends LoggedRobot {
   private static double startupTimestamp = Double.NEGATIVE_INFINITY;
   private final Timer disabledTimer = new Timer();
   private final Alert logReceiverQueueAlert =
-      new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.WARNING);
+      new Alert("123", "Logging queue exceeded capacity, data will NOT be logged.", Level.HIGH);
   private final Elastic.Notification lowBatteryAlert =
       new Elastic.Notification(
           Elastic.NotificationLevel.WARNING,
@@ -60,22 +68,25 @@ public class Robot extends LoggedRobot {
 
   public Robot() {
     super(Constants.LOOP_PERIOD_SECONDS);
-    GompeiLib.init(Constants.getMode(), Constants.TUNING_MODE, Constants.LOOP_PERIOD_SECONDS);
-  }
 
-  public static boolean isJitting() {
-    return Timer.getFPGATimestamp() - startupTimestamp <= 45.0;
-  }
+    // Each robot keeps its own Choreo and PathPlanner files under deploy/<robot>. This must run
+    // before anything loads paths, including the pathfinder below.
+    String DEPLOY_DIR =
+        Filesystem.getDeployDirectory().getPath()
+            + "/"
+            + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
+    try {
+      var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
+      m.setAccessible(true);
+      m.invoke(null, new File(DEPLOY_DIR + "/choreo"));
+    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+    // PathPlanner's GUI opens a non-Gradle folder's deploy/pathplanner, hence the nested deploy
+    PathPlannerFiles.setDirectory(new File(DEPLOY_DIR + "/deploy/pathplanner"));
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
     Pathfinding.setPathfinder(new LocalADStarAK());
     SignalLogger.enableAutoLogging(false);
-    LiveWindow.disableAllTelemetry();
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -122,9 +133,11 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     Logger.start();
 
+    // Initialize GompeiLib
+    GompeiLib.init(Constants.getMode(), Constants.TUNING_MODE, Constants.LOOP_PERIOD_SECONDS);
+
     // Start timers
     disabledTimer.restart();
-    DriverStation.silenceJoystickConnectionWarning(true);
 
     try {
       Field watchdogField = IterativeRobotBase.class.getDeclaredField("m_watchdog");
@@ -132,7 +145,7 @@ public class Robot extends LoggedRobot {
       Watchdog watchdog = (Watchdog) watchdogField.get(this);
       watchdog.setTimeout(LOOP_OVERRUN_WARNING_TIMEOUT);
     } catch (Exception e) {
-      DriverStation.reportWarning("Failed to disable loop overrun warnings.", false);
+      DriverStationErrors.reportWarning("Failed to disable loop overrun warnings.", false);
     }
     CommandScheduler.getInstance().setPeriod(LOOP_OVERRUN_WARNING_TIMEOUT);
 
@@ -149,27 +162,11 @@ public class Robot extends LoggedRobot {
           }
 
           @Override
-          public void reportUsage(MathUsageId id, int count) {
-            mathShared.reportUsage(id, count);
-          }
-
-          @Override
           public double getTimestamp() {
             return mathShared.getTimestamp();
           }
         });
 
-    String DEPLOY_DIR =
-        Filesystem.getDeployDirectory().getPath()
-            + "/"
-            + RobotConfig.ROBOT.name().toLowerCase().replaceFirst("_sim", "");
-    try {
-      var m = Choreo.class.getDeclaredMethod("setChoreoDir", File.class);
-      m.setAccessible(true);
-      m.invoke(null, new File(DEPLOY_DIR + "/choreo"));
-    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
     // Log active commands
     Map<String, Integer> commandCounts = new HashMap<>();
     BiConsumer<Command, Boolean> logCommandFunction =
@@ -190,7 +187,7 @@ public class Robot extends LoggedRobot {
 
     WebServer.start(5800, DEPLOY_DIR);
 
-    RobotController.setBrownoutVoltage(6);
+    RobotController.setBrownoutVoltages(Volts.of(6), Volts.of(7));
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer =
@@ -203,7 +200,11 @@ public class Robot extends LoggedRobot {
 
     Elastic.selectTab("Autonomous");
 
-    startupTimestamp = Timer.getFPGATimestamp();
+    startupTimestamp = Timer.getTimestamp();
+  }
+
+  public static boolean isJitting() {
+    return Timer.getTimestamp() - startupTimestamp <= 45.0;
   }
 
   /** This function is called periodically during all modes. */
@@ -215,7 +216,6 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
 
-    TunableUpdaterRegistry.periodic();
     PhoenixUtil.refreshAll();
     VirtualSubsystem.periodicAll();
     robotContainer.robotPeriodic();
@@ -276,17 +276,6 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {}
-
-  /** This function is called once when test mode is enabled. */
-  @Override
-  public void testInit() {
-    // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
-  }
-
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
 
   /** This function is called once when the robot is first started up. */
   @Override

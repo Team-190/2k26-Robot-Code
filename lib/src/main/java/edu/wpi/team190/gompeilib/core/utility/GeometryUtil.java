@@ -198,32 +198,16 @@ public class GeometryUtil {
    * @return The poses from the rectangle2d
    */
   public static Pose2d[] rectanglePose2ds(Rectangle2d rectangle2d) {
+    // getXWidth()/getYWidth() are full side lengths, so corners sit half of each from the center
+    double halfX = rectangle2d.getXWidth() / 2.0;
+    double halfY = rectangle2d.getYWidth() / 2.0;
+    Pose2d center = rectangle2d.getCenter();
     Pose2d[] poses = new Pose2d[5];
-    poses[0] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    rectangle2d.getXWidth(), rectangle2d.getYWidth(), new Rotation2d()));
-    poses[1] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    -rectangle2d.getXWidth(), rectangle2d.getYWidth(), new Rotation2d()));
-    poses[2] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    -rectangle2d.getXWidth(), -rectangle2d.getYWidth(), new Rotation2d()));
-    poses[3] =
-        rectangle2d
-            .getCenter()
-            .transformBy(
-                new Transform2d(
-                    rectangle2d.getXWidth(), -rectangle2d.getYWidth(), new Rotation2d()));
-    poses[4] = rectangle2d.getCenter();
+    poses[0] = center.transformBy(new Transform2d(halfX, halfY, Rotation2d.ZERO));
+    poses[1] = center.transformBy(new Transform2d(-halfX, halfY, Rotation2d.ZERO));
+    poses[2] = center.transformBy(new Transform2d(-halfX, -halfY, Rotation2d.ZERO));
+    poses[3] = center.transformBy(new Transform2d(halfX, -halfY, Rotation2d.ZERO));
+    poses[4] = center;
     return poses;
   }
 }

@@ -10,6 +10,7 @@ import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOInputsAutoLogged;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.PathPlannerFiles;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.phoenix.PhoenixOdometryThread;
 import java.util.List;
@@ -156,7 +157,7 @@ public class SwerveDrive extends SubsystemBase {
     measuredChassisVelocities = new ChassisVelocities();
 
     try {
-      config = RobotConfig.fromGUISettings();
+      config = PathPlannerFiles.loadRobotConfig();
       AutoBuilder.configure(
           this.robotPoseSupplier,
           resetPoseConsumer, // resetPose

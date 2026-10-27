@@ -17,6 +17,7 @@ import edu.wpi.team190.gompeilib.core.GompeiLib;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIO;
 import edu.wpi.team190.gompeilib.core.io.components.inertial.GyroIOPigeon2;
 import edu.wpi.team190.gompeilib.core.robot.RobotMode;
+import edu.wpi.team190.gompeilib.core.utility.PathPlannerFiles;
 import edu.wpi.team190.gompeilib.core.utility.control.Gains;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.AngularPositionConstraints;
 import edu.wpi.team190.gompeilib.core.utility.control.constraints.LinearConstraints;
@@ -230,12 +231,14 @@ public class SwerveDriveTest {
   @Test
   public void testSwerveDriveLowFrequencyGyro() {
     try (MockedStatic<AutoBuilder> mockAutoBuilder = mockStatic(AutoBuilder.class);
-        MockedStatic<RobotConfig> mockRobotConfig = mockStatic(RobotConfig.class);
+        MockedStatic<PathPlannerFiles> mockPathPlannerFiles = mockStatic(PathPlannerFiles.class);
         MockedStatic<Logger> _ = mockStatic(Logger.class);
         MockedStatic<RobotState> mockRobotState = mockStatic(RobotState.class);
         MockedStatic<DriverStationBackend> mockDSBackend = mockStatic(DriverStationBackend.class)) {
 
-      mockRobotConfig.when(RobotConfig::fromGUISettings).thenReturn(mock(RobotConfig.class));
+      mockPathPlannerFiles
+          .when(PathPlannerFiles::loadRobotConfig)
+          .thenReturn(mock(RobotConfig.class));
       mockRobotState.when(RobotState::isDisabled).thenReturn(false);
       mockDSBackend.when(DriverStationBackend::getAlliance).thenReturn(Optional.of(Alliance.RED));
 
@@ -361,13 +364,15 @@ public class SwerveDriveTest {
   @Test
   public void testSwerveDriveHighFrequencyGyro() {
     try (MockedStatic<AutoBuilder> _ = mockStatic(AutoBuilder.class);
-        MockedStatic<RobotConfig> mockRobotConfig = mockStatic(RobotConfig.class);
+        MockedStatic<PathPlannerFiles> mockPathPlannerFiles = mockStatic(PathPlannerFiles.class);
         MockedStatic<Logger> _ = mockStatic(Logger.class);
         MockedStatic<RobotState> mockRobotState = mockStatic(RobotState.class);
         MockedStatic<PhoenixOdometryThread> mockOdomThread =
             mockStatic(PhoenixOdometryThread.class)) {
 
-      mockRobotConfig.when(RobotConfig::fromGUISettings).thenReturn(mock(RobotConfig.class));
+      mockPathPlannerFiles
+          .when(PathPlannerFiles::loadRobotConfig)
+          .thenReturn(mock(RobotConfig.class));
       mockRobotState.when(RobotState::isDisabled).thenReturn(true); // Test isDisabled branch
 
       PhoenixOdometryThread mockThread = mock(PhoenixOdometryThread.class);
@@ -405,12 +410,14 @@ public class SwerveDriveTest {
   @Test
   public void testSwerveDriveDisconnectedGyroFallback() {
     try (MockedStatic<AutoBuilder> mockAutoBuilder = mockStatic(AutoBuilder.class);
-        MockedStatic<RobotConfig> mockRobotConfig = mockStatic(RobotConfig.class);
+        MockedStatic<PathPlannerFiles> mockPathPlannerFiles = mockStatic(PathPlannerFiles.class);
         MockedStatic<Logger> _ = mockStatic(Logger.class);
         MockedStatic<RobotState> _ = mockStatic(RobotState.class);
         MockedStatic<DriverStationBackend> mockDSBackend = mockStatic(DriverStationBackend.class)) {
 
-      mockRobotConfig.when(RobotConfig::fromGUISettings).thenReturn(mock(RobotConfig.class));
+      mockPathPlannerFiles
+          .when(PathPlannerFiles::loadRobotConfig)
+          .thenReturn(mock(RobotConfig.class));
       mockDSBackend.when(DriverStationBackend::getAlliance).thenReturn(Optional.empty());
 
       // Capture the shouldFlipPath callback to exercise the no-alliance-reported branch.
@@ -467,13 +474,15 @@ public class SwerveDriveTest {
   @Disabled("PathPlanner AutoBuilder setup is commented out in SwerveDrive; re-enable with it")
   public void testSwerveDriveRobotConfigLoadFailure() {
     try (MockedStatic<AutoBuilder> _ = mockStatic(AutoBuilder.class);
-        MockedStatic<RobotConfig> mockRobotConfig = mockStatic(RobotConfig.class);
+        MockedStatic<PathPlannerFiles> mockPathPlannerFiles = mockStatic(PathPlannerFiles.class);
         MockedStatic<Logger> _ = mockStatic(Logger.class);
         MockedStatic<RobotState> mockRobotState = mockStatic(RobotState.class)) {
 
-      // Every call to RobotConfig.fromGUISettings() fails, exercising both the constructor's
+      // Every call to PathPlannerFiles.loadRobotConfig() fails, exercising both the constructor's
       // initial config-load catch block and the catch wrapping AutoBuilder.configure.
-      mockRobotConfig.when(RobotConfig::fromGUISettings).thenThrow(new RuntimeException("boom"));
+      mockPathPlannerFiles
+          .when(PathPlannerFiles::loadRobotConfig)
+          .thenThrow(new RuntimeException("boom"));
       mockRobotState.when(RobotState::isDisabled).thenReturn(false);
 
       assertThrows(

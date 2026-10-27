@@ -216,10 +216,10 @@ public class GeometryUtilTest {
     Rectangle2d rectangle = new Rectangle2d(new Pose2d(0, 0, Rotation2d.ZERO), 1, 1);
     Pose2d[] poses = GeometryUtil.rectanglePose2ds(rectangle);
     Pose2d[] correctPoses = {
-      new Pose2d(1.0, 1.0, Rotation2d.ZERO),
-      new Pose2d(-1.0, 1.0, Rotation2d.ZERO),
-      new Pose2d(-1.0, -1.0, Rotation2d.ZERO),
-      new Pose2d(1.0, -1.0, Rotation2d.ZERO),
+      new Pose2d(0.5, 0.5, Rotation2d.ZERO),
+      new Pose2d(-0.5, 0.5, Rotation2d.ZERO),
+      new Pose2d(-0.5, -0.5, Rotation2d.ZERO),
+      new Pose2d(0.5, -0.5, Rotation2d.ZERO),
       new Pose2d(0, 0, Rotation2d.ZERO),
     };
     for (int i = 0; i < 5; i++) {

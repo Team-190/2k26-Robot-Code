@@ -7,17 +7,18 @@
 
 package first.robot;
 
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rectangle2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
-import frc.robot.util.AllianceFlipUtil;
 import java.util.List;
+import org.wpilib.fields.Field;
+import org.wpilib.fields.FieldTag;
+import org.wpilib.fields.Fields;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.math.shape.Rectangle2d;
+import org.wpilib.math.util.Units;
+
+import first.robot.shared.util.AllianceFlipUtil;
 
 /**
  * Contains information for location of field element and other useful reference points.
@@ -370,43 +371,43 @@ public class FieldConstants {
   }
 
   public enum AprilTagLayoutType {
-    ANDYMARK(AprilTagFields.k2026RebuiltAndymark),
-    WELDED(AprilTagFields.k2026RebuiltWelded);
+    ANDYMARK(Fields.FRC_2026_REBUILT_ANDY_MARK),
+    WELDED(Fields.FRC_2026_REBUILT_WELDED);
 
-    private final AprilTagFields name;
-    private volatile AprilTagFieldLayout layout;
+    private final Fields name;
+    private volatile Field layout;
 
-    AprilTagLayoutType(AprilTagFields name) {
+    AprilTagLayoutType(Fields name) {
       this.name = name;
     }
 
-    public AprilTagFieldLayout getLayout() {
+    public Field getLayout() {
       if (layout != null) {
         return layout;
       }
-      layout = AprilTagFieldLayout.loadField(name);
+      layout = Field.loadField(name);
       return layout;
     }
   }
 
   public static class AprilTags {
-    public static final List<AprilTag> globalTags =
+    public static final List<FieldTag> globalTags =
         FieldConstants.tagLayoutType.getLayout().getTags();
-    public static final List<AprilTag> blueHubTags =
+    public static final List<FieldTag> blueHubTags =
         FieldConstants.tagLayoutType.getLayout().getTags().stream()
-            .filter((AprilTag tag) -> List.of(18, 19, 20, 21, 24, 25, 26, 27).contains(tag.ID))
+            .filter((FieldTag tag) -> List.of(18, 19, 20, 21, 24, 25, 26, 27).contains(tag.getID()))
             .toList();
-    public static final List<AprilTag> redHubTags =
+    public static final List<FieldTag> redHubTags =
         FieldConstants.tagLayoutType.getLayout().getTags().stream()
-            .filter((AprilTag tag) -> List.of(2, 3, 4, 5, 8, 9, 10, 11).contains(tag.ID))
+            .filter((FieldTag tag) -> List.of(2, 3, 4, 5, 8, 9, 10, 11).contains(tag.getID()))
             .toList();
-    public static final List<AprilTag> blueTowerTags =
+    public static final List<FieldTag> blueTowerTags =
         FieldConstants.tagLayoutType.getLayout().getTags().stream()
-            .filter((AprilTag tag) -> List.of(31, 32).contains(tag.ID))
+            .filter((FieldTag tag) -> List.of(31, 32).contains(tag.getID()))
             .toList();
-    public static final List<AprilTag> redTowerTags =
+    public static final List<FieldTag> redTowerTags =
         FieldConstants.tagLayoutType.getLayout().getTags().stream()
-            .filter((AprilTag tag) -> List.of(15, 16).contains(tag.ID))
+            .filter((FieldTag tag) -> List.of(15, 16).contains(tag.getID()))
             .toList();
   }
 

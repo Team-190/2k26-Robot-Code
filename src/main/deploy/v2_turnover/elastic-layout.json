@@ -142,7 +142,7 @@
             "height": 384.0,
             "type": "Field",
             "properties": {
-              "topic": "/SmartDashboard/Field",
+              "topic": "/AdvantageKit/RealOutputs/Field",
               "period": 0.06,
               "field_game": "Rebuilt",
               "robot_width": 0.9525,
@@ -300,7 +300,7 @@
             "height": 512.0,
             "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/SmartDashboard/Autonomous Modes",
+              "topic": "/Autonomous Modes",
               "period": 0.06,
               "sort_options": false
             }
@@ -359,7 +359,7 @@
             "height": 512.0,
             "type": "Field",
             "properties": {
-              "topic": "/SmartDashboard/Field",
+              "topic": "/AdvantageKit/RealOutputs/Field",
               "period": 0.06,
               "field_game": "Rebuilt",
               "robot_width": 0.9525,
