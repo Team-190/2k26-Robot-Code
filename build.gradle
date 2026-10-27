@@ -1,59 +1,45 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "application"
+    id "org.wpilib.GradleRIO" version "2027.0.0-alpha-7"
     id "com.peterabeles.gversion" version "1.10"
     id "io.freefair.lombok" version "8.4"
-    id "com.diffplug.spotless" version "6.25.0"
-    id "io.freefair.aspectj.post-compile-weaving" version "8.6"
+    id "com.diffplug.spotless" version "8.10.0"
+    id "io.freefair.aspectj.post-compile-weaving" version "9.5.0"
     id "jacoco"
 }
 
+// spotless's greclipse() formatter resolves the whole Eclipse/Equo p2 platform to get the
+// Groovy-Eclipse compiler bundle. On the first run of a fresh Gradle daemon it logs
+// "missing bundle/capability" noise for platform pieces (macOS launchers, SWT SVG support)
+// that aren't needed for headless formatting; this is harmless and doesn't fail the build.
+// Note: this line does NOT suppress that noise — those lines come from the resolver's own
+// SLF4J warn/info logger calls (routed straight to the console by Gradle's logging), not raw
+// stdout writes, so captureStandardOutput can't intercept them. It only affects println/printf
+// output from this build script's own task actions (e.g. the JaCoCo summary below).
+logging.captureStandardOutput(LogLevel.INFO)
+
 ext {
     deploySrcDir = "src/main/deploy"
-    deployRobotDir = "/home/lvuser/deploy"
+    deployRobotDir = "/home/systemcore/deploy"
     useLocalGompeiLib = project.hasProperty("useLocalGompeiLib")
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
-def ROBOT_MAIN_CLASS = "frc.robot.Main"
+// io.freefair.lombok 8.4's default Lombok (1.18.30) predates JDK 25 support and crashes
+// (NoSuchFieldException: com.sun.tools.javac.code.TypeTag :: UNKNOWN) on this toolchain.
+// Lombok added JDK 25 support in 1.18.42; pin to a newer release explicitly.
+lombok {
+    version = "1.18.46"
+}
 
+def ROBOT_MAIN_CLASS = "first.robot.Main"
 
 def buildDir = new File("${project.buildDir}/classes/java/main")
-
-
-// if (!buildDir.exists()) {
-//     logger.warn("⚠️ WARNING: compiled classes not found. Make sure compileJava runs first")
-//     project.ext.deploySrcDir = "src/main/deploy"
-// } else {
-//     try {
-//         def loader = new URLClassLoader([buildDir.toURI().toURL()] as URL[], this.class.classLoader)
-//         def constantsClass = loader.loadClass("frc.robot.RobotConfig")
-//         def robotField = constantsClass.getDeclaredField("ROBOT")
-//         robotField.setAccessible(true)
-//         def robotEnumValue = robotField.get(null)  // static field
-
-//         logger.info("Detected RobotType: ${robotEnumValue}")
-
-//         def baseName = robotEnumValue.toString().toLowerCase().replaceAll(/_sim$/, "")
-//         def candidateDir = "src/main/deploy/${baseName}"
-
-//         if (file(candidateDir).exists()) {
-//             project.ext.deploySrcDir = candidateDir
-//             project.ext.deployRobotDir = "/home/lvuser/deploy/${baseName}"
-//         } else {
-//             logger.warn("WARNING: Folder '${candidateDir}' does not exist. Using default deploy folder.")
-//         }
-
-//         logger.info("deploySrcDir set to: ${project.ext.deploySrcDir}")
-//     } catch (Throwable e) {
-//         logger.warn("WARNING: Could not read RobotType: ${e.message}")
-//
-//     }
-// }
 
 // Exclude aspectjtools from the aspect configuration to prevent it from being included in the deploy artifact and to
 // avoid conflicts with the aspectj runtime. The aspectjtools library is only needed at compile time for weaving.
@@ -61,51 +47,36 @@ configurations.aspect {
     exclude group: 'org.aspectj', module: 'aspectjtools'
 }
 
-// Define my targets (RoboRIO) and artifacts (deployable files)
+// Define my targets (SystemCore) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
 deploy {
     targets {
-        roborio(getTargetTypeClass('RoboRIO')) {
+        systemcore(getTargetTypeClass('SystemCore')) {
             // Team number is loaded either from the .wpilib/wpilib_preferences.json
             // or from command line. If not found an exception will be thrown.
             // You can use getTeamOrDefault(team) instead of getTeamNumber if you
             // want to store a team number in this file.
-            team = project.frc.getTeamNumber()
-            debug = project.frc.getDebugOrDefault(false)
+            team = project.wpilib.getTeamNumber()
+            // Use the default systemcore host name. This must be called after setting team
+            // as happens on the line above
+            useDefaultSystemcoreHostName()
+            debug = project.wpilib.getDebugOrDefault(false)
 
             artifacts {
                 // First part is artifact name, 2nd is artifact type
                 // getTargetTypeClass is a shortcut to get the class type using a string
 
-                frcJava(getArtifactTypeClass('FRCJavaArtifact')) {
-                    jvmArgs.add("-XX:+UnlockExperimentalVMOptions")
-                    jvmArgs.add("-XX:GCTimeRatio=5")
-                    jvmArgs.add("-XX:+UseSerialGC")
-                    jvmArgs.add("-XX:MaxGCPauseMillis=50")
-
-                    // The options below may improve performance, but should only be enabled on the RIO 2
-
-                    final MAX_JAVA_HEAP_SIZE_MB = 100
-                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    jvmArgs.add("-XX:+AlwaysPreTouch")
-
-                    // Enable VisualVM connection
-                    // jvmArgs.add("-Dcom.sun.management.jmxremote=true")
-                    // jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
-                    // jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
-                    // jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
-                    // jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
-                    // jvmArgs.add("-Djava.rmi.server.hostname=10.1.90.2") // Replace TE.AM with team number
+                wpilibJava(getArtifactTypeClass('WPILibJavaArtifact')) {
+                    // Set to true to use debug including JNI, which will drastically impact performance.
+                    debugJni = false
                 }
 
                 // Static files artifact
-                frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
-                    files = project.fileTree(project.ext.deploySrcDir)
-                    directory = deployRobotDir
-                    // Change to true to delete files on roboRIO that no
-                    // longer exist in deploy directory on roboRIO
-                    deleteOldFiles = true
+                wpilibStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
+                    files = project.fileTree('src/main/deploy')
+                    directory = '/home/systemcore/deploy'
+                    deleteOldFiles = true // Change to true to delete files on systemcore that no
+                    // longer exist in deploy directory of this project
                 }
             }
         }
@@ -116,146 +87,10 @@ repositories {
     mavenCentral()
 }
 
-// Grab the roboRIO comment via SSH
-import com.jcraft.jsch.JSch
-import edu.wpi.first.gradlerio.GradleRIOPlugin
-import groovy.json.JsonSlurper
+def deployArtifact = deploy.targets.systemcore.artifacts.wpilibJava
 
-ext {
-    // RoboRIO SSH details
-    roboRIOHost = 'roboRIO-190-FRC.local' // Replace with your team number
-    roboRIOUser = 'admin'                 // Default user
-    roboRIOPassword = ''                  // Default password
-    machineInfoFile = '/etc/machine-info' // Path to the file to read
-}
-
-task checkRoboRIOtoRobotType {
-    dependsOn compileJava
-    doLast {
-        def ROBORIO_COMMENT = fetchNameUsingJSch(
-                roboRIOHost, roboRIOUser, roboRIOPassword, machineInfoFile
-                )
-        println "RoboRIO Name: ${ROBORIO_COMMENT}"
-
-        // Ensure the build output directory is in the classpath
-        def buildOutputDir = file('build/classes/java/main')
-        URLClassLoader loader = new URLClassLoader([
-            buildOutputDir.toURI().toURL()
-        ] as URL[], this.class.classLoader)
-
-        // Set file path names and constants
-        def robotTypeClassName = 'frc.robot.RobotConfig$RobotType'
-        def constantsClassName = 'frc.robot.RobotConfig'
-        def robotType = null
-        def constantsClass = null
-        def robotFieldName = 'ROBOT'
-
-        try {
-            // Load the class from the extended classloader
-            robotType = loader.loadClass(robotTypeClassName)
-            println "Loaded class: ${robotType.name}"
-
-            def constants = robotType.enumConstants
-            println "Enum constants: ${constants.collect { it.name() }}"
-        } catch (ClassNotFoundException e) {
-            println "Error: Class ${robotTypeClassName} not found. ${e.message}"
-        }
-
-        // Check for valid name of roboRIO comment
-        boolean foundMatch = false
-        for (enumConstant in robotType.enumConstants) {
-            if (enumConstant.toString().equalsIgnoreCase(ROBORIO_COMMENT)) {
-                foundMatch = true
-                break // Exit the loop once a match is found
-            }
-        }
-
-        if (foundMatch) {
-            println "Match found for possible RobotType"
-        } else {
-            throw new GradleException("Error: '${ROBORIO_COMMENT}' is not a valid RobotType\nTo Fix: Enter valid RoboRIO comment of valid RobotType in file '${machineInfoFile}' or via Webserver!")
-        }
-
-        try {
-            // Load the class from the extended classloader
-            constantsClass = loader.loadClass(constantsClassName)
-            println "Loaded class: ${constantsClass.name}"
-        } catch (ClassNotFoundException e) {
-            println "Error: Class ${constantsClassName} not found. ${e.message}"
-        }
-
-        // Get the ROBOT field
-        def robotField = constantsClass.getDeclaredField(robotFieldName)
-        robotField.setAccessible(true)
-
-        // Get the value of the ROBOT field
-        def robotEnumValue = robotField.get(null) // For static fields, pass `null`
-        println "Declared ROBOT in Constants.java: ${robotEnumValue}"
-
-        // Compare roboRIO name with ROBOT value
-        if (ROBORIO_COMMENT.equalsIgnoreCase(robotEnumValue.name())) {
-            println "The roboRIO name matches the ROBOT value in Constants.java!"
-        } else {
-            throw new GradleException("Mismatch! The RoboRIO comment '${ROBORIO_COMMENT}' does not match the ROBOT value '${robotEnumValue.name()}'\nTo Fix: Match RoboRIO comment to ROBOT in file '${constantsClassName}'")
-        }
-    }
-}
-
-// Function to fetch the file content using JSch
-def fetchNameUsingJSch(host, user, password, remoteFile) {
-    def session = null
-    def channel = null
-    try {
-        JSch jsch = new JSch()
-        session = jsch.getSession(user, host, 22)
-        session.setPassword(password)
-
-        // Skip strict host key checking for simplicity
-        session.setConfig("StrictHostKeyChecking", "no")
-
-        // Connect to the session
-        session.connect()
-
-        // Open an exec channel to run the command
-        channel = session.openChannel("exec")
-        def command = "cat ${remoteFile}"
-        channel.setCommand(command)
-
-        // Capture the output
-        def inputStream = channel.inputStream
-        channel.connect()
-
-        def output = inputStream.text.trim()
-        if (output.isEmpty()) {
-            throw new GradleException("Failed to fetch data from ${remoteFile}")
-        }
-
-        // Extract the name within quotes if the output contains PRETTY_HOSTNAME
-        def matcher = output =~ /PRETTY_HOSTNAME="(.+?)"/
-        if (matcher.find()) {
-            return matcher.group(1) // The name within quotes
-        } else {
-            throw new GradleException("RoboRIO Comment is Empty in file '${remoteFile}'\nTo Fix: Add RoboRIO Comment in file '${remoteFile}' or via Webserver!")
-        }
-    } catch (Exception e) {
-        throw new GradleException("Error during SSH connection: ${e.message}", e)
-    } finally {
-        if (channel != null) {
-            channel.disconnect()
-        }
-        if (session != null) {
-            session.disconnect()
-        }
-    }
-}
-
-deployroborio.dependsOn(checkRoboRIOtoRobotType)
-
-
-def deployArtifact = deploy.targets.roborio.artifacts.frcJava
-
-// Set to true to use debug for JNI.
-wpi.java.debugJni = false
+// Set to true to use debug for simulation including JNI
+wpi.java.runSimWithDebugJni = false
 
 // Set this to true to enable desktop support.
 def includeDesktopSupport = true
@@ -266,24 +101,33 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+import groovy.json.JsonSlurper
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-// Also defines JUnit 4.
+// Also defines JUnit 5.
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
-    implementation 'org.jgrapht:jgrapht-core:1.5.1'
-    implementation 'org.jgrapht:jgrapht-io:1.5.1'
 
-    // This is required for the @Tracer annotations to work at runtime
-    implementation 'org.aspectj:aspectjrt:1.9.21'
-    implementation 'org.aspectj:aspectjtools:1.9.21'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+
+
+    // This is required for the @Tracer annotations to work at runtime.
+    // 1.9.21 can't target Java 25 bytecode ("target level should be in ... 21"); 1.9.25 is the
+    // first release whose weaver/compiler supports a Java 25 target.
+    implementation 'org.aspectj:aspectjrt:1.9.25.1'
+    implementation 'org.aspectj:aspectjtools:1.9.25.1'
 
     implementation project(':gompeilib')
     aspect project(':gompeilib')
 
-    roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)
-    roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)
+    systemcoreDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.systemcore)
+    systemcoreDebug wpi.java.vendor.jniDebug(wpi.platforms.systemcore)
+
+    systemcoreRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.systemcore)
+    systemcoreRelease wpi.java.vendor.jniRelease(wpi.platforms.systemcore)
 
     nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)
     nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
@@ -301,7 +145,9 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.8.10"
+    // 0.8.10 can't instrument Java 25 bytecode (IllegalClassFormatException). Official Java 25
+    // support landed in 0.8.14.
+    toolVersion = "0.8.15"
 }
 
 test {
@@ -330,7 +176,7 @@ jacocoTestReport {
                 def missed = counter.attribute('missed').toInteger()
                 def covered = counter.attribute('covered').toInteger()
                 def total = missed + covered
-                def percentage = total > 0 ? (covered * 100.0 / total) : 0.0
+                def percentage = total> 0 ? (covered * 100.0 / total) : 0.0
                 printf("%-12s: %.2f%% (%d/%d)%n", type, percentage, covered, total)
             }
             println "================================================\n"
@@ -339,43 +185,34 @@ jacocoTestReport {
 }
 
 // Simulation configuration (e.g. environment variables).
-//
-// The sim GUI is *disabled* by default to support running
-// AdvantageKit log replay from the command line. Set the
-// value to "true" to enable the sim GUI by default (this
-// is the standard WPILib behavior).
-wpi.sim.addGui().defaultEnabled = false
+wpi.sim.addGui().defaultEnabled = true
 wpi.sim.addDriverstation()
 
-// Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
-// in order to make them all available at runtime. Also adding the manifest so WPILib
-// knows where to look for our Robot Class.
-jar {
-    from {
-        configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    from sourceSets.main.allSource
-    manifest GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
+application.mainClass = ROBOT_MAIN_CLASS
 
-// Configure jar and deploy tasks
-deployArtifact.jarTask = jar
-wpi.java.configureExecutableTasks(jar)
+// Configure deploy, simulation, and test tasks
+deployArtifact.configureApplication(application)
+wpi.java.configureApplication(application)
 wpi.java.configureTestTasks(test)
 
+// Include a backup of the source in the robot jar
+jar {
+    from('src') { into 'backup/src' }
+    from('vendordeps') { into 'backup/vendordeps' }
+    from('build.gradle') { into 'backup' }
+}
+
 // Configure string concat to always inline compile
-tasks.withType(JavaCompile).configureEach {
+tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+    options.encoding = 'UTF-8'
 }
 
 // Create version file
 project.compileJava.dependsOn(createVersionFile)
 gversion {
     srcDir = "src/main/java/"
-    classPackage = "frc.robot"
+    classPackage = "first.robot"
     className = "BuildConstants"
     dateFormat = "yyyy-MM-dd HH:mm:ss z"
     timeZone = "America/New_York"
@@ -385,7 +222,10 @@ gversion {
 // Create commit with working changes on event branches
 tasks.register('eventDeploy') {
     doLast {
-        if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
+        def isDeployRun = project.gradle.startParameter.taskNames.any {
+            it.toLowerCase().contains("deploy")
+        }
+        if (isDeployRun) {
             def branchPrefix = "event"
             def branch = 'git branch --show-current'.execute().text.trim()
             def commitMessage = "Update at '${new Date().toString()}'"
@@ -435,7 +275,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         greclipse()
-        indentWithSpaces(4)
+        leadingTabsToSpaces(4)
         trimTrailingWhitespace()
         endWithNewline()
     }
@@ -452,7 +292,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         trimTrailingWhitespace()
-        indentWithSpaces(2)
+        leadingTabsToSpaces(2)
         endWithNewline()
     }
 }
