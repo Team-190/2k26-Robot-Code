@@ -7,6 +7,7 @@
 
 package first.robot;
 
+import first.robot.shared.util.AllianceFlipUtil;
 import java.util.List;
 import org.wpilib.fields.Field;
 import org.wpilib.fields.FieldTag;
@@ -17,8 +18,6 @@ import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
 import org.wpilib.math.shape.Rectangle2d;
 import org.wpilib.math.util.Units;
-
-import first.robot.shared.util.AllianceFlipUtil;
 
 /**
  * Contains information for location of field element and other useful reference points.

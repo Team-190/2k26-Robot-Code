@@ -4,7 +4,6 @@ import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
 import first.robot.shared.util.NTPrefixes;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;

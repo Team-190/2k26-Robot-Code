@@ -6,7 +6,6 @@ import first.robot.shared.subsystems.climber.Climber;
 import first.robot.shared.subsystems.climber.ClimberConstants.ClimberGoal;
 import first.robot.shared.subsystems.intake.Intake;
 import first.robot.shared.util.AllianceFlipUtil;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.wpilib.command2.Command;

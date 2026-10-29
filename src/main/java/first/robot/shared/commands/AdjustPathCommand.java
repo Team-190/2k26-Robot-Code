@@ -6,7 +6,6 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.team190.gompeilib.core.utility.GeometryUtil;
 import first.robot.FieldConstants;
 import first.robot.shared.util.AllianceFlipUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
