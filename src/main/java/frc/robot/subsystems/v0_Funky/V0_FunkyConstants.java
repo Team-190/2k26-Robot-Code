@@ -1,5 +1,6 @@
 package frc.robot.subsystems.v0_Funky;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -8,6 +9,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 
+import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -25,7 +27,7 @@ import edu.wpi.team190.gompeilib.subsystems.vision.camera.CameraType;
 public class V0_FunkyConstants {
   public static final DriveConfig DRIVE_CONFIG =
       DriveConfig.builder()
-          .withCanBus(V0_FunkyTunerConstants.kCANBus)
+          .withCanBus(CANBus.roboRIO())
           .withPigeon2Id(V0_FunkyTunerConstants.DrivetrainConstants.Pigeon2Id)
           .withMaxLinearVelocityMetersPerSecond(
               V0_FunkyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond))
@@ -129,20 +131,20 @@ public class V0_FunkyConstants {
 
   public static final Gains AUTO_ALIGN_THETA_GAINS =
       Gains.builder()
-          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 0.0))
-          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.0))
+          .withKP(new LoggedTunableNumber("Drive/Auto Align/Theta/Kp", 6.5))
+          .withKD(new LoggedTunableNumber("Drive/Auto Align/Theta/Kd", 0.2))
           .build();
 
   public static final AngularPositionConstraints AUTO_ALIGN_THETA_CONSTRAINTS =
       AngularPositionConstraints.builder()
           .withMaxVelocity(
               new LoggedTunableMeasure<>(
-                  "Drive/Auto Align/Theta/Max Velocity", RadiansPerSecond.of(0.0)))
+                  "Drive/Auto Align/Theta/Max Velocity", RadiansPerSecond.of(Math.PI)))
           .withMaxAcceleration(
               new LoggedTunableMeasure<>(
                   "Drive/Auto Align/Theta/Max Acceleration", RadiansPerSecondPerSecond.of(0.0)))
           .withGoalTolerance(
-              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Goal Tolerance", Radians.zero()))
+              new LoggedTunableMeasure<>("Drive/Auto Align/Theta/Goal Tolerance", Degrees.of(0.5)))
           .build();
 
   public static final SwerveDriveConstants.AutoAlignConstants AUTO_ALIGN_CONSTANTS =
@@ -161,7 +163,7 @@ public class V0_FunkyConstants {
                   "Drive/Auto Align/Angular Threshold Meters", Radians.of(0.25)))
           .build();
 
-  public static final double ODOMETRY_FREQUENCY = 250.0;
+  public static final double ODOMETRY_FREQUENCY = CANBus.roboRIO().isNetworkFD() ? 250.0 : 100.0;
   public static final double DRIVER_DEADBAND = 0.1;
   public static final double OPERATOR_DEADBAND = 0.1;
   public static final double TRIGGER_DEADBAND = 0.05;
