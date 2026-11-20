@@ -161,13 +161,14 @@ public class V0_FunkyRobotContainer implements RobotContainer {
 
   private void configureButtonBindings() {
     drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            V0_FunkyConstants.DRIVE_CONSTANTS,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
-            () -> -driver.getRightX(),
-            V0_FunkyRobotState::getHeading));
+        DriveCommands.schoolBusDrive(
+                drive,
+                V0_FunkyConstants.DRIVE_CONSTANTS,
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> -driver.getRightX(),
+                V0_FunkyRobotState::getHeading)
+            .withName("schoolBusDrive"));
 
     driver
         .povDown()
@@ -198,6 +199,8 @@ public class V0_FunkyRobotContainer implements RobotContainer {
                 drive,
                 V0_FunkyRobotState::resetPose,
                 () -> V0_FunkyRobotState.getGlobalPose().getTranslation()));
+
+    driver.rightStick().onTrue(DriveCommands.toggleSchoolBus().withName("driver-rightStick-true"));
 
     // xkeys
     //     .a5()

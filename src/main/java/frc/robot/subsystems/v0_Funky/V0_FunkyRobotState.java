@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.team190.gompeilib.core.state.localization.FieldZone;
 import edu.wpi.team190.gompeilib.core.state.localization.Localization;
 import edu.wpi.team190.gompeilib.subsystems.vision.data.VisionPoseObservation;
+import frc.robot.commands.shared.DriveCommands;
 import frc.robot.util.NTPrefixes;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,6 +61,9 @@ public class V0_FunkyRobotState {
     localization.addOdometryObservation(Timer.getTimestamp(), heading, modulePositions);
     Logger.recordOutput(NTPrefixes.ROBOT_STATE + "Global Pose", getGlobalPose());
     V0_FunkyRobotState.chassisSpeeds = chassisSpeeds;
+
+    Logger.recordOutput("Drive/School Bus/Enabled", DriveCommands.isSchoolBusEnabled());
+    Logger.recordOutput("Drive/School Bus/Deadband", DriveCommands.getSchoolBusDeadband());
   }
 
   public static void addFieldLocalizerVisionMeasurement(List<VisionPoseObservation> observations) {

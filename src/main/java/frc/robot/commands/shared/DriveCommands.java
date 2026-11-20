@@ -12,9 +12,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.team190.gompeilib.core.logging.Trace;
+import edu.wpi.team190.gompeilib.core.utility.tunable.LoggedTunableNumber;
 import edu.wpi.team190.gompeilib.core.utility.tunable.TunableUpdaterRegistry;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDrive;
 import edu.wpi.team190.gompeilib.subsystems.drivebases.swervedrive.SwerveDriveConstants;
@@ -25,6 +27,7 @@ import frc.robot.subsystems.v1_DoomSpiral.shooter.ShotCalculator;
 import frc.robot.util.AllianceFlipUtil;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -37,6 +40,9 @@ public final class DriveCommands {
 
   @Setter private static double lastCardinalDirection = 0.0;
   @Getter private static double slowFactor = 0.5;
+  @Getter private static boolean schoolBusEnabled = false;
+  private static final LoggedTunableNumber schoolBusDeadband =
+      new LoggedTunableNumber("Drive/School Bus/Deadband", 0.2);
 
   /**
    * A command that drives a SwerveDrive using joystick input.
@@ -514,5 +520,164 @@ public final class DriveCommands {
     double[] positions = new double[4];
     Rotation2d lastAngle = new Rotation2d();
     double gyroDelta = 0.0;
+  }
+
+  // School bus shenanigans
+  public static Command toggleSchoolBus() {
+    return Commands.runOnce(() -> schoolBusEnabled = !schoolBusEnabled).ignoringDisable(true);
+  }
+
+  public static double getSchoolBusDeadband() {
+    return schoolBusDeadband.get();
+  }
+
+  // School bus drive for robots without other rotation overrides
+  public static Command schoolBusDrive(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier) {
+    return schoolBusDrive(
+        drive,
+        driveConstants,
+        xSupplier,
+        ySupplier,
+        omegaSupplier,
+        rotationSupplier,
+        createOmegaController(driveConstants),
+        List.of(),
+        () -> false,
+        () -> 1.0);
+  }
+
+  // School bus drive with hub aim and cardinal align, which take priority over school bus
+  public static Command schoolBusDrive(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier,
+      BooleanSupplier pointAtHub,
+      DoubleSupplier hubSetpoint,
+      DoubleSupplier hubFeedforward,
+      BooleanSupplier cardinalDirectionAlign,
+      BooleanSupplier slowMode,
+      DoubleSupplier slowFactor) {
+    ProfiledPIDController omegaController = createOmegaController(driveConstants);
+
+    DoubleSupplier hubOmega = omegaHijack(drive, omegaController, rotationSupplier, hubSetpoint);
+    DoubleSupplier cardinalOmega =
+        omegaHijack(drive, omegaController, rotationSupplier, () -> lastCardinalDirection);
+
+    return Commands.sequence(
+        Commands.runOnce(ShotCalculator::clear),
+        schoolBusDrive(
+            drive,
+            driveConstants,
+            xSupplier,
+            ySupplier,
+            omegaSupplier,
+            rotationSupplier,
+            omegaController,
+            List.of(
+                Pair.of(pointAtHub, () -> hubOmega.getAsDouble() + hubFeedforward.getAsDouble()),
+                Pair.of(cardinalDirectionAlign, cardinalOmega)),
+            slowMode,
+            slowFactor));
+  }
+
+  // Shared version: the given overrides are checked first, then school bus, then the right stick
+  private static Command schoolBusDrive(
+      SwerveDrive drive,
+      SwerveDriveConstants driveConstants,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<Rotation2d> rotationSupplier,
+      ProfiledPIDController omegaController,
+      List<Pair<BooleanSupplier, DoubleSupplier>> higherPriorityOverrides,
+      BooleanSupplier slowMode,
+      DoubleSupplier slowFactor) {
+
+    BooleanSupplier schoolBusActive =
+        () ->
+            schoolBusEnabled
+                && Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble())
+                    > schoolBusDeadband.get();
+
+    DoubleSupplier travelHeading =
+        () ->
+            AllianceFlipUtil.apply(new Rotation2d(xSupplier.getAsDouble(), ySupplier.getAsDouble()))
+                .getRadians();
+    DoubleSupplier schoolBusOmega =
+        omegaHijack(drive, omegaController, rotationSupplier, travelHeading);
+
+    List<Pair<BooleanSupplier, DoubleSupplier>> omegaOverrides =
+        new ArrayList<>(higherPriorityOverrides);
+    omegaOverrides.add(Pair.of(schoolBusActive, schoolBusOmega));
+
+    return joystickDrive(
+        drive,
+        driveConstants,
+        xSupplier,
+        ySupplier,
+        omegaSupplier,
+        rotationSupplier,
+        List.of(),
+        List.of(),
+        omegaOverrides,
+        slowMode,
+        slowFactor);
+  }
+
+  private static ProfiledPIDController createOmegaController(SwerveDriveConstants driveConstants) {
+    ProfiledPIDController omegaController =
+        new ProfiledPIDController(
+            driveConstants.autoAlignConstants.rotationGains().kP().get(),
+            0.0,
+            driveConstants.autoAlignConstants.rotationGains().kD().get(),
+            new TrapezoidProfile.Constraints(
+                driveConstants
+                    .autoAlignConstants
+                    .rotationConstraints()
+                    .maxVelocity()
+                    .get()
+                    .in(RadiansPerSecond),
+                Double.POSITIVE_INFINITY));
+    omegaController.enableContinuousInput(-Math.PI, Math.PI);
+    omegaController.setTolerance(
+        driveConstants.autoAlignConstants.rotationConstraints().goalTolerance().get().in(Radians),
+        0);
+
+    TunableUpdaterRegistry.registerGains(
+        driveConstants.autoAlignConstants.rotationGains(),
+        g ->
+            omegaController.setPID(
+                driveConstants.autoAlignConstants.rotationGains().kP().get(),
+                0,
+                driveConstants.autoAlignConstants.rotationGains().kD().get()));
+    return omegaController;
+  }
+
+  private static DoubleSupplier omegaHijack(
+      SwerveDrive drive,
+      ProfiledPIDController omegaController,
+      Supplier<Rotation2d> rotationSupplier,
+      DoubleSupplier goalRadians) {
+    double[] lastRunTimestamp = {Double.NEGATIVE_INFINITY};
+    return () -> {
+      double timestamp = Timer.getFPGATimestamp();
+      double measurement = rotationSupplier.get().getRadians();
+      double omega = drive.getMeasuredChassisSpeeds().omegaRadiansPerSecond;
+      if (timestamp - lastRunTimestamp[0] > 0.1) {
+        omegaController.reset(measurement, omega);
+      }
+      lastRunTimestamp[0] = timestamp;
+      return AutoAlignCommand.calculate(
+          omegaController, goalRadians.getAsDouble(), measurement, omega);
+    };
   }
 }
